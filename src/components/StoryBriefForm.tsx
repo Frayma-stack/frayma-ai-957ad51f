@@ -48,6 +48,8 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
     }
   );
   const [activeTab, setActiveTab] = useState("strategic");
+  const [isOutlineGenerated, setIsOutlineGenerated] = useState(false);
+  const [isDraftApproved, setIsDraftApproved] = useState(false);
 
   // For simplicity, we'll use a temporary state for anchoring element type and detail
   const [anchoringType, setAnchoringType] = useState<'belief' | 'pain' | 'struggle' | 'transformation'>('belief');
@@ -63,10 +65,11 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
       const hasDiscoveryData = brief.problemStatements.some(ps => ps.trim() !== '');
       
       // Check if outline is empty
-      const outlineIsEmpty = brief.outlineSteps.every(step => step.trim() === '');
+      const outlineIsEmpty = brief.outlineSteps.every(step => step.trim() === '') || !isOutlineGenerated;
       
       if (outlineIsEmpty && hasStrategicData && hasReaderData && hasDiscoveryData) {
         generateProductLedOutline();
+        setIsOutlineGenerated(true);
       }
     }
   }, [activeTab]);
@@ -130,7 +133,7 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
     }));
   };
   
-  // Generate a 9-step Product-Led Storytelling outline
+  // Generate a 9-step Product-Led Storytelling outline following the 3Rs Formula
   const generateProductLedOutline = () => {
     // Get the selected ICP script
     const selectedScript = availableScripts.find(script => script.id === brief.targetAudience);
@@ -162,35 +165,43 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
     
     // Get problem statement for reference
     const problemStatement = brief.problemStatements.find(ps => ps.trim() !== '') || "";
+    const targetKeyword = brief.targetKeyword || "your target topic";
+    const mainGoal = brief.goal || "solving this problem";
+    const anchoringContent = getAnchoringContent() || problemStatement;
+    const audienceName = selectedScript.name;
+    const callToAction = brief.callToAction || "Take the next step today";
     
-    // Create the 9-step outline
+    // Create the 9-step outline following the 3Rs Formula structure
     const newOutline = [
-      // Step 1: Hook with a relatable problem
-      `Hook the reader by highlighting the ${selectedScript.name}'s challenge: "${problemStatement || getAnchoringContent()}"`,
+      // 3Rs: RESONANCE - Attract & Filter the right reader
+      // Step 1: Attract - Headline/Hook based on the problem statement (H1)
+      `[H1] ATTRACT & FILTER (Resonance): "${targetKeyword} for ${audienceName}": How to overcome ${anchoringContent} and achieve ${mainGoal}`,
       
-      // Step 2: Establish the broader context
-      `Establish the broader industry context: Why this challenge matters to ${selectedScript.name} and ${brief.broaderAudience || "similar professionals"} now.`,
+      // Step 2: Filter - Introduction that resonates with the specific audience
+      `[Intro] FILTER (Resonance): Establish relevance for ${audienceName} - highlight why ${anchoringContent} is a significant challenge that deserves attention right now`,
       
-      // Step 3: Show the cost of inaction
-      `Illustrate the cost of inaction: What happens when ${selectedScript.name} doesn't address ${brief.goal || "this challenge"}?`,
+      // Step 3: Filter - Set up the problem and transition to the first main point
+      `[H2] FILTER (Resonance): Why ${audienceName} struggles with ${targetKeyword} - The hidden costs and consequences of ${anchoringContent}`,
       
-      // Step 4: Create the "aha" moment
-      `Create an "aha" moment by reframing the problem: The real issue isn't just ${getAnchoringContent() || problemStatement} but the underlying business impact.`,
+      // 3Rs: RELEVANCE - Engage & Show how to solve the problem
+      // Step 4: Engage - Main query/problem addressed with evidence
+      `[H2] ENGAGE (Relevance): The ${targetKeyword} Framework: A systematic approach to solving ${anchoringContent} for ${audienceName}`,
       
-      // Step 5: Introduce solution criteria
-      `Introduce solution criteria: What would an ideal solution to ${brief.goal || "this challenge"} look like for ${selectedScript.name}?`,
+      // Step 5: Show - Supporting details with visual evidence (H3s)
+      `[H3] SHOW (Relevance): Key components of the framework with [PLACEHOLDER FOR SCREENSHOT/DIAGRAM] showing how this directly addresses ${problemStatement}`,
       
-      // Step 6: Present your value proposition
-      `Present your unique approach: How your solution specifically addresses ${selectedScript.name}'s needs in ways others don't.`,
+      // Step 6: First subtle CTA within the content
+      `[Soft CTA] SHOW (Relevance): Consider how these solutions apply to your specific situation. [OPTIONAL LINK: Learn more about our approach to ${targetKeyword}]`,
       
-      // Step 7: Provide evidence
-      `Provide evidence: Share a brief success story demonstrating your solution in action. ${brief.successStory ? "Use the provided success story." : ""}`,
+      // 3Rs: RESULTS - Persuade & Convert to action
+      // Step 7: Persuade - Address objections with success story
+      `[H2] PERSUADE (Results): Case Study: How ${audienceName} overcame ${anchoringContent} using this approach - ${brief.successStory || "[Success story placeholder]"}`,
       
-      // Step 8: Address objections
-      `Address common objections that ${selectedScript.name} might have about implementing your solution.`,
+      // Step 8: Convert - Additional supporting evidence and objection handling
+      `[H3] CONVERT (Results): Addressing common concerns about implementing ${mainGoal} - How to overcome [specific objection] with minimal disruption`,
       
-      // Step 9: Call to action
-      `Call to action: ${brief.callToAction || "Invite the reader to take the next step in their journey."}`
+      // Step 9: Final CTA
+      `[H2] CONVERT (Results): Next Steps: How to implement ${mainGoal} in your organization - ${callToAction}`
     ];
     
     // Update the brief with the new outline
@@ -200,8 +211,21 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
     }));
     
     toast({
-      title: "Outline Generated",
-      description: "A Product-Led Storytelling outline has been created based on your inputs."
+      title: "3Rs Outline Generated",
+      description: "A Product-Led Storytelling outline following the 3Rs Formula has been created based on your inputs."
+    });
+  };
+
+  // Generate first draft based on approved outline
+  const generateFirstDraft = () => {
+    // This would be a much more complex function in a real implementation
+    // For now, we'll just show a toast message
+    setIsDraftApproved(true);
+    
+    toast({
+      title: "First Draft Generated",
+      description: "Your first draft based on the approved outline is now available in the Story Preview.",
+      duration: 5000
     });
   };
 
@@ -572,30 +596,84 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
           {/* Content Outline Tab */}
           <TabsContent value="outline" className="space-y-4">
             <div className="flex justify-between items-center mb-4">
-              <p className="text-sm text-gray-600">
-                Create a 9-step outline to guide the narrative flow of your article, incorporating elements from the previous sections.
-              </p>
-              <Button 
-                onClick={generateProductLedOutline}
-                variant="outline"
-                size="sm"
-                className="text-story-blue border-story-blue hover:bg-story-blue/10"
-              >
-                Regenerate Outline
-              </Button>
+              <div className="space-y-2">
+                <h3 className="font-medium text-story-blue">3Rs Formula Content Outline</h3>
+                <p className="text-sm text-gray-600">
+                  9-step outline structured around the 3Rs: Resonance (steps 1-3), Relevance (steps 4-6), and Results (steps 7-9).
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Button 
+                  onClick={generateProductLedOutline}
+                  variant="outline"
+                  size="sm"
+                  className="text-story-blue border-story-blue hover:bg-story-blue/10"
+                >
+                  Regenerate Outline
+                </Button>
+                {isOutlineGenerated && !isDraftApproved && (
+                  <Button 
+                    onClick={generateFirstDraft}
+                    variant="default"
+                    size="sm"
+                    className="bg-story-blue hover:bg-story-light-blue"
+                  >
+                    Generate First Draft
+                  </Button>
+                )}
+              </div>
             </div>
             
-            {brief.outlineSteps.map((step, index) => (
-              <div key={`outline-${index}`} className="space-y-1">
-                <label className="text-sm font-medium">Step {index + 1}</label>
-                <Textarea 
-                  placeholder={`Outline step ${index + 1}`}
-                  value={step}
-                  onChange={(e) => handleArrayItemChange('outlineSteps', index, e.target.value)}
-                  rows={2}
-                />
+            <div className="space-y-4 border p-3 rounded-md bg-gray-50 mb-4">
+              <h4 className="text-sm font-medium">3Rs: RESONANCE - Attract & Filter the right reader</h4>
+              <div className="space-y-3 pl-2">
+                {brief.outlineSteps.slice(0, 3).map((step, index) => (
+                  <div key={`outline-${index}`} className="space-y-1">
+                    <label className="text-sm font-medium">Step {index + 1}</label>
+                    <Textarea 
+                      placeholder={`Outline step ${index + 1}`}
+                      value={step}
+                      onChange={(e) => handleArrayItemChange('outlineSteps', index, e.target.value)}
+                      rows={2}
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+            
+            <div className="space-y-4 border p-3 rounded-md bg-gray-50 mb-4">
+              <h4 className="text-sm font-medium">3Rs: RELEVANCE - Engage & Show how to solve the problem</h4>
+              <div className="space-y-3 pl-2">
+                {brief.outlineSteps.slice(3, 6).map((step, index) => (
+                  <div key={`outline-${index + 3}`} className="space-y-1">
+                    <label className="text-sm font-medium">Step {index + 4}</label>
+                    <Textarea 
+                      placeholder={`Outline step ${index + 4}`}
+                      value={step}
+                      onChange={(e) => handleArrayItemChange('outlineSteps', index + 3, e.target.value)}
+                      rows={2}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="space-y-4 border p-3 rounded-md bg-gray-50">
+              <h4 className="text-sm font-medium">3Rs: RESULTS - Persuade & Convert to action</h4>
+              <div className="space-y-3 pl-2">
+                {brief.outlineSteps.slice(6, 9).map((step, index) => (
+                  <div key={`outline-${index + 6}`} className="space-y-1">
+                    <label className="text-sm font-medium">Step {index + 7}</label>
+                    <Textarea 
+                      placeholder={`Outline step ${index + 7}`}
+                      value={step}
+                      onChange={(e) => handleArrayItemChange('outlineSteps', index + 6, e.target.value)}
+                      rows={2}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
         
