@@ -1,12 +1,17 @@
 
+export interface ICPStoryScriptItem {
+  id: string;
+  content: string;
+}
+
 export interface ICPStoryScript {
   id: string;
   name: string;
   demographics: string;
-  coreBeliefs: string;
-  internalPains: string;
-  externalStruggles: string;
-  desiredTransformations: string;
+  coreBeliefs: ICPStoryScriptItem[];
+  internalPains: ICPStoryScriptItem[];
+  externalStruggles: ICPStoryScriptItem[];
+  desiredTransformations: ICPStoryScriptItem[];
 }
 
 export interface StoryBrief {
@@ -25,8 +30,10 @@ export interface StoryBrief {
   journeyStage: string;
   broaderAudience: string;
   readingMotivation: string;
-  anchoringElement: 'belief' | 'pain' | 'struggle' | 'transformation';
-  anchoringElementDetail: string;
+  anchoringElements: {
+    type: 'belief' | 'pain' | 'struggle' | 'transformation';
+    itemId: string;
+  }[];
   successStory: string;
   
   // Content Discovery Triggers
