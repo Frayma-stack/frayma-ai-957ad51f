@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ICPStoryScript, StoryBrief } from '@/types/storytelling';
+import { Plus, Trash } from 'lucide-react';
 
 interface StoryBriefFormProps {
   onSave: (brief: StoryBrief) => void;
