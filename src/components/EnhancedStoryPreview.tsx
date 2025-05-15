@@ -73,7 +73,7 @@ const EnhancedStoryPreview: FC<EnhancedStoryPreviewProps> = ({ selectedBrief, sc
       const nonEmptySteps = selectedBrief.outlineSteps.filter(step => step.trim() !== '');
       if (nonEmptySteps.length === 0) return "";
       
-      return nonEmptySteps.join('\n\n');
+      return nonEmptySteps.map((step, index) => `${index + 1}. ${step}`).join('\n\n');
     };
 
     // Create a cohesive narrative based on the brief and ICP script
@@ -83,9 +83,10 @@ As ${targetScript.name}, ${getAnchoringDetails()}.
 
 ${selectedBrief.successStory || 'Here I would share a specific story about how this challenge affected me or my organization.'}
 
+PRODUCT-LED STORYTELLING OUTLINE:
 ${formatOutline()}
 
-${selectedBrief.callToAction ? `${selectedBrief.callToAction}` : 'I recommend taking action now to address these challenges.'}`;
+${selectedBrief.callToAction ? `Call to Action: ${selectedBrief.callToAction}` : 'I recommend taking action now to address these challenges.'}`;
   };
 
   const handleEditToggle = () => {

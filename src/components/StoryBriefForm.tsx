@@ -1,4 +1,5 @@
-import { FC, useState } from 'react';
+
+import { FC, useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -46,10 +47,33 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
       outlineSteps: ['', '', '', '', '', '', '', '', ''] // 9-step outline
     }
   );
+  const [activeTab, setActiveTab] = useState("strategic");
 
   // For simplicity, we'll use a temporary state for anchoring element type and detail
   const [anchoringType, setAnchoringType] = useState<'belief' | 'pain' | 'struggle' | 'transformation'>('belief');
   const [anchoringItemId, setAnchoringItemId] = useState('');
+
+  // Monitor tab changes to potentially generate outline
+  useEffect(() => {
+    // Check if we're moving to the outline tab for the first time
+    if (activeTab === 'outline') {
+      // Check if outline steps are empty and other sections have data
+      const hasStrategicData = brief.goal && brief.targetKeyword;
+      const hasReaderData = brief.targetAudience && brief.anchoringElements.length > 0;
+      const hasDiscoveryData = brief.problemStatements.some(ps => ps.trim() !== '');
+      
+      // Check if outline is empty
+      const outlineIsEmpty = brief.outlineSteps.every(step => step.trim() === '');
+      
+      if (outlineIsEmpty && hasStrategicData && hasReaderData && hasDiscoveryData) {
+        generateProductLedOutline();
+      }
+    }
+  }, [activeTab]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
 
   const handleInputChange = (field: keyof StoryBrief, value: string | string[]) => {
     setBrief(prev => ({
@@ -105,6 +129,81 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
       anchoringElements: prev.anchoringElements.filter((_, i) => i !== index)
     }));
   };
+  
+  // Generate a 9-step Product-Led Storytelling outline
+  const generateProductLedOutline = () => {
+    // Get the selected ICP script
+    const selectedScript = availableScripts.find(script => script.id === brief.targetAudience);
+    if (!selectedScript) return;
+    
+    // Get anchoring content for reference
+    const getAnchoringContent = () => {
+      if (brief.anchoringElements.length === 0) return "";
+      
+      const element = brief.anchoringElements[0];
+      let content = "";
+      
+      if (element.type === 'belief') {
+        const item = selectedScript.coreBeliefs.find(i => i.id === element.itemId);
+        content = item?.content || '';
+      } else if (element.type === 'pain') {
+        const item = selectedScript.internalPains.find(i => i.id === element.itemId);
+        content = item?.content || '';
+      } else if (element.type === 'struggle') {
+        const item = selectedScript.externalStruggles.find(i => i.id === element.itemId);
+        content = item?.content || '';
+      } else if (element.type === 'transformation') {
+        const item = selectedScript.desiredTransformations.find(i => i.id === element.itemId);
+        content = item?.content || '';
+      }
+      
+      return content;
+    };
+    
+    // Get problem statement for reference
+    const problemStatement = brief.problemStatements.find(ps => ps.trim() !== '') || "";
+    
+    // Create the 9-step outline
+    const newOutline = [
+      // Step 1: Hook with a relatable problem
+      `Hook the reader by highlighting the ${selectedScript.name}'s challenge: "${problemStatement || getAnchoringContent()}"`,
+      
+      // Step 2: Establish the broader context
+      `Establish the broader industry context: Why this challenge matters to ${selectedScript.name} and ${brief.broaderAudience || "similar professionals"} now.`,
+      
+      // Step 3: Show the cost of inaction
+      `Illustrate the cost of inaction: What happens when ${selectedScript.name} doesn't address ${brief.goal || "this challenge"}?`,
+      
+      // Step 4: Create the "aha" moment
+      `Create an "aha" moment by reframing the problem: The real issue isn't just ${getAnchoringContent() || problemStatement} but the underlying business impact.`,
+      
+      // Step 5: Introduce solution criteria
+      `Introduce solution criteria: What would an ideal solution to ${brief.goal || "this challenge"} look like for ${selectedScript.name}?`,
+      
+      // Step 6: Present your value proposition
+      `Present your unique approach: How your solution specifically addresses ${selectedScript.name}'s needs in ways others don't.`,
+      
+      // Step 7: Provide evidence
+      `Provide evidence: Share a brief success story demonstrating your solution in action. ${brief.successStory ? "Use the provided success story." : ""}`,
+      
+      // Step 8: Address objections
+      `Address common objections that ${selectedScript.name} might have about implementing your solution.`,
+      
+      // Step 9: Call to action
+      `Call to action: ${brief.callToAction || "Invite the reader to take the next step in their journey."}`
+    ];
+    
+    // Update the brief with the new outline
+    setBrief(prev => ({
+      ...prev,
+      outlineSteps: newOutline
+    }));
+    
+    toast({
+      title: "Outline Generated",
+      description: "A Product-Led Storytelling outline has been created based on your inputs."
+    });
+  };
 
   const handleSubmit = () => {
     // Basic validation
@@ -151,7 +250,7 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
           />
         </div>
 
-        <Tabs defaultValue="strategic" className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid grid-cols-4">
             <TabsTrigger value="strategic">Strategic Alignment</TabsTrigger>
             <TabsTrigger value="reader">Reader Resonance</TabsTrigger>
@@ -472,9 +571,19 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
           
           {/* Content Outline Tab */}
           <TabsContent value="outline" className="space-y-4">
-            <p className="text-sm text-gray-600 mb-4">
-              Create a 9-step outline to guide the narrative flow of your article, incorporating elements from the previous sections.
-            </p>
+            <div className="flex justify-between items-center mb-4">
+              <p className="text-sm text-gray-600">
+                Create a 9-step outline to guide the narrative flow of your article, incorporating elements from the previous sections.
+              </p>
+              <Button 
+                onClick={generateProductLedOutline}
+                variant="outline"
+                size="sm"
+                className="text-story-blue border-story-blue hover:bg-story-blue/10"
+              >
+                Regenerate Outline
+              </Button>
+            </div>
             
             {brief.outlineSteps.map((step, index) => (
               <div key={`outline-${index}`} className="space-y-1">
