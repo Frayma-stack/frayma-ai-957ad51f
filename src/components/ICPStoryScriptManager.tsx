@@ -52,6 +52,14 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
     setIsEditDialogOpen(true);
   };
 
+  // Helper function to join array of items into a string
+  const formatItemsList = (items: { id: string; content: string }[]): string => {
+    return items
+      .filter(item => item.content.trim() !== '')
+      .map(item => item.content)
+      .join(', ');
+  };
+
   return (
     <Card className="w-full bg-white shadow-md">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -110,22 +118,22 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
                 </CardHeader>
                 <CardContent className="p-4">
                   <div className="space-y-2 text-sm">
-                    {script.internalPains && (
+                    {script.internalPains && script.internalPains.length > 0 && (
                       <div>
                         <span className="font-semibold">Internal Pains:</span>
-                        <p className="text-gray-700 line-clamp-2">{script.internalPains}</p>
+                        <p className="text-gray-700 line-clamp-2">{formatItemsList(script.internalPains)}</p>
                       </div>
                     )}
-                    {script.externalStruggles && (
+                    {script.externalStruggles && script.externalStruggles.length > 0 && (
                       <div>
                         <span className="font-semibold">External Struggles:</span>
-                        <p className="text-gray-700 line-clamp-2">{script.externalStruggles}</p>
+                        <p className="text-gray-700 line-clamp-2">{formatItemsList(script.externalStruggles)}</p>
                       </div>
                     )}
-                    {script.desiredTransformations && (
+                    {script.desiredTransformations && script.desiredTransformations.length > 0 && (
                       <div>
                         <span className="font-semibold">Desired Transformations:</span>
-                        <p className="text-gray-700 line-clamp-2">{script.desiredTransformations}</p>
+                        <p className="text-gray-700 line-clamp-2">{formatItemsList(script.desiredTransformations)}</p>
                       </div>
                     )}
                   </div>

@@ -34,8 +34,7 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
       journeyStage: '',
       broaderAudience: '',
       readingMotivation: '',
-      anchoringElement: 'belief',
-      anchoringElementDetail: '',
+      anchoringElements: [],
       successStory: '',
       
       // Content Discovery Triggers
@@ -47,6 +46,10 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
       outlineSteps: ['', '', '', '', '', '', '', '', ''] // 9-step outline
     }
   );
+
+  // For simplicity, we'll use a temporary state for anchoring element type and detail
+  const [anchoringType, setAnchoringType] = useState<'belief' | 'pain' | 'struggle' | 'transformation'>('belief');
+  const [anchoringItemId, setAnchoringItemId] = useState('');
 
   const handleInputChange = (field: keyof StoryBrief, value: string | string[]) => {
     setBrief(prev => ({
@@ -82,6 +85,27 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
     }));
   };
 
+  const updateAnchoringElements = () => {
+    if (anchoringType && anchoringItemId) {
+      setBrief(prev => ({
+        ...prev,
+        anchoringElements: [
+          ...prev.anchoringElements,
+          { type: anchoringType, itemId: anchoringItemId }
+        ]
+      }));
+      // Reset after adding
+      setAnchoringItemId('');
+    }
+  };
+
+  const removeAnchoringElement = (index: number) => {
+    setBrief(prev => ({
+      ...prev,
+      anchoringElements: prev.anchoringElements.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleSubmit = () => {
     // Basic validation
     if (!brief.title || !brief.targetAudience) {
@@ -107,6 +131,9 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
       description: `"${brief.title}" has been saved successfully.`
     });
   };
+
+  // Get the selected ICP script
+  const selectedScript = availableScripts.find(script => script.id === brief.targetAudience);
 
   return (
     <Card className="w-full bg-white shadow-md">
@@ -233,31 +260,110 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Anchoring Element</label>
-              <Select 
-                value={brief.anchoringElement} 
-                onValueChange={(value: 'belief' | 'pain' | 'struggle' | 'transformation') => handleInputChange('anchoringElement', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="belief">Core Belief</SelectItem>
-                  <SelectItem value="pain">Internal Pain</SelectItem>
-                  <SelectItem value="struggle">External Struggle</SelectItem>
-                  <SelectItem value="transformation">Desired Transformation</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Anchoring Element Detail</label>
-              <Textarea 
-                placeholder="Describe the specific belief, pain, struggle or transformation"
-                value={brief.anchoringElementDetail}
-                onChange={(e) => handleInputChange('anchoringElementDetail', e.target.value)}
-                rows={2}
-              />
+              <label className="text-sm font-medium">Anchoring Elements</label>
+              {selectedScript && (
+                <div className="space-y-4 border p-4 rounded-md bg-gray-50">
+                  <div className="flex gap-2">
+                    <Select
+                      value={anchoringType}
+                      onValueChange={(value: 'belief' | 'pain' | 'struggle' | 'transformation') => setAnchoringType(value)}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Select element type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="belief">Core Belief</SelectItem>
+                        <SelectItem value="pain">Internal Pain</SelectItem>
+                        <SelectItem value="struggle">External Struggle</SelectItem>
+                        <SelectItem value="transformation">Desired Transformation</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <Button 
+                      onClick={updateAnchoringElements} 
+                      disabled={!anchoringItemId}
+                      className="bg-story-blue hover:bg-story-light-blue"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  <Select
+                    value={anchoringItemId}
+                    onValueChange={setAnchoringItemId}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={`Select a ${anchoringType}`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {anchoringType === 'belief' && selectedScript.coreBeliefs.map(item => (
+                        <SelectItem key={item.id} value={item.id}>
+                          {item.content}
+                        </SelectItem>
+                      ))}
+                      {anchoringType === 'pain' && selectedScript.internalPains.map(item => (
+                        <SelectItem key={item.id} value={item.id}>
+                          {item.content}
+                        </SelectItem>
+                      ))}
+                      {anchoringType === 'struggle' && selectedScript.externalStruggles.map(item => (
+                        <SelectItem key={item.id} value={item.id}>
+                          {item.content}
+                        </SelectItem>
+                      ))}
+                      {anchoringType === 'transformation' && selectedScript.desiredTransformations.map(item => (
+                        <SelectItem key={item.id} value={item.id}>
+                          {item.content}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              
+              {/* List of selected anchoring elements */}
+              {brief.anchoringElements.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <h4 className="text-sm font-medium">Selected Elements:</h4>
+                  <div className="space-y-2">
+                    {brief.anchoringElements.map((element, index) => {
+                      // Find the corresponding item from the selected script
+                      let content = '';
+                      if (selectedScript) {
+                        if (element.type === 'belief') {
+                          const item = selectedScript.coreBeliefs.find(i => i.id === element.itemId);
+                          content = item?.content || '';
+                        } else if (element.type === 'pain') {
+                          const item = selectedScript.internalPains.find(i => i.id === element.itemId);
+                          content = item?.content || '';
+                        } else if (element.type === 'struggle') {
+                          const item = selectedScript.externalStruggles.find(i => i.id === element.itemId);
+                          content = item?.content || '';
+                        } else if (element.type === 'transformation') {
+                          const item = selectedScript.desiredTransformations.find(i => i.id === element.itemId);
+                          content = item?.content || '';
+                        }
+                      }
+                      
+                      return (
+                        <div key={index} className="flex items-center justify-between p-2 bg-gray-100 rounded">
+                          <div>
+                            <span className="text-xs font-semibold capitalize">{element.type}: </span>
+                            <span className="text-sm">{content}</span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeAnchoringElement(index)}
+                          >
+                            <Trash className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="space-y-2">
