@@ -39,15 +39,33 @@ const EnhancedStoryPreview: FC<EnhancedStoryPreviewProps> = ({ selectedBrief, sc
       return "Select a Story Brief to preview your narrative framework...";
     }
 
-    // Get the anchoring element detail based on the selection
-    const getAnchoringDetail = () => {
-      switch(selectedBrief.anchoringElement) {
-        case 'belief': return targetScript.coreBeliefs || selectedBrief.anchoringElementDetail;
-        case 'pain': return targetScript.internalPains || selectedBrief.anchoringElementDetail;
-        case 'struggle': return targetScript.externalStruggles || selectedBrief.anchoringElementDetail;
-        case 'transformation': return targetScript.desiredTransformations || selectedBrief.anchoringElementDetail;
-        default: return selectedBrief.anchoringElementDetail;
+    // Get the anchoring element details from the selected elements
+    const getAnchoringDetails = () => {
+      if (!selectedBrief.anchoringElements || selectedBrief.anchoringElements.length === 0) {
+        return "the unique challenges in my role";
       }
+
+      // Get details from the first anchoring element for simplicity
+      // In a more advanced implementation, you could combine multiple elements
+      const element = selectedBrief.anchoringElements[0];
+      
+      let anchoringItem = null;
+      switch(element.type) {
+        case 'belief': 
+          anchoringItem = targetScript.coreBeliefs.find(item => item.id === element.itemId);
+          break;
+        case 'pain': 
+          anchoringItem = targetScript.internalPains.find(item => item.id === element.itemId);
+          break;
+        case 'struggle': 
+          anchoringItem = targetScript.externalStruggles.find(item => item.id === element.itemId);
+          break;
+        case 'transformation': 
+          anchoringItem = targetScript.desiredTransformations.find(item => item.id === element.itemId);
+          break;
+      }
+      
+      return anchoringItem ? anchoringItem.content : "the unique challenges in my role";
     };
 
     // Format the outline steps as a narrative
@@ -61,7 +79,7 @@ const EnhancedStoryPreview: FC<EnhancedStoryPreviewProps> = ({ selectedBrief, sc
     // Create a cohesive narrative based on the brief and ICP script
     return `[Title suggestion: Address ${selectedBrief.targetKeyword || 'Your Main Topic'} for ${targetScript.name}]
 
-As ${targetScript.name}, ${getAnchoringDetail() || 'I face unique challenges in my role'}.
+As ${targetScript.name}, ${getAnchoringDetails()}.
 
 ${selectedBrief.successStory || 'Here I would share a specific story about how this challenge affected me or my organization.'}
 
