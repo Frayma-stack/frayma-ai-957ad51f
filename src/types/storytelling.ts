@@ -44,3 +44,62 @@ export interface StoryBrief {
   // Content Outline
   outlineSteps: string[];
 }
+
+export interface AuthorExperience {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface AuthorToneItem {
+  id: string;
+  tone: string;
+  description: string;
+}
+
+export interface AuthorBelief {
+  id: string;
+  belief: string;
+  description: string;
+}
+
+export interface Author {
+  id: string;
+  name: string;
+  role: string;
+  organization: string;
+  backstory: string;
+  experiences: AuthorExperience[];
+  tones: AuthorToneItem[];
+  beliefs: AuthorBelief[];
+}
+
+export interface ProductFeature {
+  id: string;
+  name: string;
+  benefits: string[];
+}
+
+export interface ProductUseCase {
+  id: string;
+  useCase: string;
+  userRole: string;
+  description: string;
+}
+
+export interface ProductDifferentiator {
+  id: string;
+  name: string;
+  description: string;
+  competitorComparison: string;
+}
+
+export interface ProductContext {
+  id: string;
+  features: ProductFeature[];
+  useCases: ProductUseCase[];
+  differentiators: ProductDifferentiator[];
+  categoryPOV: string;
+  companyMission: string;
+  uniqueInsight: string;
+}

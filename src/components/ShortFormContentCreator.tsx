@@ -18,26 +18,23 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { ICPStoryScript } from '@/types/storytelling';
+import { ICPStoryScript, Author } from '@/types/storytelling';
 import { Loader } from "lucide-react";
 
 type NarrativeAnchor = 'belief' | 'pain' | 'struggle' | 'transformation';
 type ContentGoal = 'book_call' | 'learn_more' | 'try_product' | 'reply' | 'visit_article';
 
-interface Author {
-  id: string;
-  name: string;
-}
-
 interface ShortFormContentCreatorProps {
   contentType: 'email' | 'linkedin' | 'newsletter';
   scripts: ICPStoryScript[];
+  authors: Author[];
   onBack: () => void;
 }
 
 const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({ 
   contentType, 
   scripts,
+  authors,
   onBack
 }) => {
   const [selectedICP, setSelectedICP] = useState<string>("");
@@ -48,13 +45,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   
   const { toast } = useToast();
-
-  // Mock authors for demo purposes
-  const authors: Author[] = [
-    { id: "1", name: "Jordan Smith" },
-    { id: "2", name: "Alex Johnson" },
-    { id: "3", name: "Taylor Wilson" }
-  ];
 
   const getContentTypeLabel = () => {
     switch (contentType) {
@@ -67,6 +57,10 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
 
   const getSelectedICPScript = () => {
     return scripts.find(script => script.id === selectedICP);
+  };
+
+  const getSelectedAuthor = () => {
+    return authors.find(author => author.id === selectedAuthor);
   };
 
   const getAnchorOptions = () => {
@@ -120,7 +114,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     // Simulate content generation
     setTimeout(() => {
       const script = getSelectedICPScript();
-      const author = authors.find(a => a.id === selectedAuthor);
+      const author = getSelectedAuthor();
       
       if (!script || !author) {
         setIsGenerating(false);
@@ -180,6 +174,7 @@ Would you be open to a quick 15-minute call to explore how we might be able to h
 
 Best regards,
 ${author.name}
+${author.role ? `${author.role}${author.organization ? `, ${author.organization}` : ''}` : ''}
 
 P.S. If you'd prefer to learn more before chatting, here's a case study that might be helpful: [LINK]`;
   };
@@ -281,7 +276,8 @@ contentGoal === 'try_product' ? "We've just released a new tool that addresses t
 "Reply to this email with your biggest question, and I'll address it in next week's newsletter."}
 
 Until next time,
-${author.name}`;
+${author.name}
+${author.role ? `${author.role}${author.organization ? `, ${author.organization}` : ''}` : ''}`;
   };
 
   return (
@@ -319,8 +315,16 @@ ${author.name}`;
               </SelectTrigger>
               <SelectContent>
                 {authors.map(author => (
-                  <SelectItem key={author.id} value={author.id}>{author.name}</SelectItem>
+                  <SelectItem key={author.id} value={author.id}>
+                    {author.name}
+                    {author.role ? ` (${author.role})` : ''}
+                  </SelectItem>
                 ))}
+                {authors.length === 0 && (
+                  <SelectItem value="no-authors" disabled>
+                    No authors available. Add authors in Assets tab.
+                  </SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>

@@ -7,30 +7,34 @@ import StoryBriefManager from '@/components/StoryBriefManager';
 import EnhancedStoryPreview from '@/components/EnhancedStoryPreview';
 import ContentTypeSelector from '@/components/ContentTypeSelector';
 import ShortFormContentCreator from '@/components/ShortFormContentCreator';
+import AuthorManager from '@/components/AuthorManager';
+import ProductContextManager from '@/components/ProductContextManager';
 import { Button } from '@/components/ui/button';
-import { Info, Bookmark, Target, Package } from 'lucide-react';
-import { ICPStoryScript, StoryBrief } from '@/types/storytelling';
+import { Book, Bookmark, FileText, Package, Target, User } from 'lucide-react';
+import { ICPStoryScript, StoryBrief, Author, ProductContext } from '@/types/storytelling';
 import { ContentType } from '@/components/ContentTypeSelector';
 
 const Index = () => {
   const [scripts, setScripts] = useState<ICPStoryScript[]>([]);
   const [briefs, setBriefs] = useState<StoryBrief[]>([]);
+  const [authors, setAuthors] = useState<Author[]>([]);
+  const [productContext, setProductContext] = useState<ProductContext | null>(null);
   const [selectedBrief, setSelectedBrief] = useState<StoryBrief | null>(null);
   const [activeTab, setActiveTab] = useState<string>('create');
   const [contentType, setContentType] = useState<ContentType | null>(null);
+  const [assetType, setAssetType] = useState<string>('authors');
   
   // Load data from localStorage on component mount
   useEffect(() => {
     const savedScripts = localStorage.getItem('icpScripts');
     const savedBriefs = localStorage.getItem('storyBriefs');
+    const savedAuthors = localStorage.getItem('authors');
+    const savedProductContext = localStorage.getItem('productContext');
     
-    if (savedScripts) {
-      setScripts(JSON.parse(savedScripts));
-    }
-    
-    if (savedBriefs) {
-      setBriefs(JSON.parse(savedBriefs));
-    }
+    if (savedScripts) setScripts(JSON.parse(savedScripts));
+    if (savedBriefs) setBriefs(JSON.parse(savedBriefs));
+    if (savedAuthors) setAuthors(JSON.parse(savedAuthors));
+    if (savedProductContext) setProductContext(JSON.parse(savedProductContext));
   }, []);
   
   // Save data to localStorage whenever it changes
@@ -41,6 +45,16 @@ const Index = () => {
   useEffect(() => {
     localStorage.setItem('storyBriefs', JSON.stringify(briefs));
   }, [briefs]);
+  
+  useEffect(() => {
+    localStorage.setItem('authors', JSON.stringify(authors));
+  }, [authors]);
+  
+  useEffect(() => {
+    if (productContext) {
+      localStorage.setItem('productContext', JSON.stringify(productContext));
+    }
+  }, [productContext]);
 
   // Handle ICP StoryScript operations
   const handleScriptAdded = (script: ICPStoryScript) => {
@@ -78,6 +92,26 @@ const Index = () => {
     if (selectedBrief && selectedBrief.targetAudience === scriptId) {
       setSelectedBrief(null);
     }
+  };
+  
+  // Handle Author operations
+  const handleAuthorAdded = (author: Author) => {
+    setAuthors([...authors, author]);
+  };
+  
+  const handleAuthorUpdated = (updatedAuthor: Author) => {
+    setAuthors(authors.map(author => 
+      author.id === updatedAuthor.id ? updatedAuthor : author
+    ));
+  };
+  
+  const handleAuthorDeleted = (authorId: string) => {
+    setAuthors(authors.filter(author => author.id !== authorId));
+  };
+  
+  // Handle Product Context operations
+  const handleProductContextUpdated = (updatedContext: ProductContext) => {
+    setProductContext(updatedContext);
   };
   
   // Handle StoryBrief operations
@@ -132,8 +166,8 @@ const Index = () => {
           <h1 className="text-4xl font-bold text-story-blue mb-2">Frayma</h1>
           <p className="text-xl text-gray-700 mb-4">Product-Led Storytelling Framework</p>
           <div className="inline-flex items-center bg-story-sand/50 p-3 rounded-md text-gray-700">
-            <Info className="h-5 w-5 mr-2 text-story-blue" />
-            <p>First define your ICPs, then create content that resonates with your target audience</p>
+            <Book className="h-5 w-5 mr-2 text-story-blue" />
+            <p>First define your ICPs and Authors, then create content that resonates with your target audience</p>
           </div>
         </header>
         
@@ -141,9 +175,6 @@ const Index = () => {
           <div className="flex justify-center mb-6">
             <TabsList>
               <TabsTrigger value="create">Create Content</TabsTrigger>
-              <TabsTrigger value="icps">ICP StoryScripts</TabsTrigger>
-              <TabsTrigger value="briefs">Story Briefs & Outlines</TabsTrigger>
-              <TabsTrigger value="preview">Story Preview</TabsTrigger>
               <TabsTrigger value="assets">Assets</TabsTrigger>
             </TabsList>
           </div>
@@ -151,54 +182,37 @@ const Index = () => {
           <TabsContent value="create" className="space-y-6">
             {!contentType ? (
               <ContentTypeSelector onSelect={handleContentTypeSelect} />
-            ) : contentType !== 'article' ? (
+            ) : contentType === 'article' ? (
+              <div>
+                <StoryBriefManager 
+                  briefs={briefs}
+                  scripts={scripts}
+                  onBriefAdded={handleBriefAdded}
+                  onBriefUpdated={handleBriefUpdated}
+                  onBriefDeleted={handleBriefDeleted}
+                  onBriefSelected={handleBriefSelected}
+                />
+                {briefs.length > 0 && (
+                  <div className="flex justify-center mt-6">
+                    <Button onClick={() => setActiveTab('preview')} className="bg-story-blue hover:bg-story-light-blue">
+                      Preview Selected Story
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
               <ShortFormContentCreator 
                 contentType={contentType as 'email' | 'linkedin' | 'newsletter'}
                 scripts={scripts}
+                authors={authors}
                 onBack={resetContentTypeSelection}
               />
-            ) : null}
+            )}
             
             {contentType === 'article' && (
-              <div className="flex justify-center">
+              <div className="flex justify-center mt-4">
                 <Button onClick={resetContentTypeSelection} className="bg-story-blue hover:bg-story-light-blue">
                   Back to Content Types
-                </Button>
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="icps" className="space-y-6">
-            <ICPStoryScriptManager 
-              scripts={scripts}
-              onScriptAdded={handleScriptAdded}
-              onScriptUpdated={handleScriptUpdated}
-              onScriptDeleted={handleScriptDeleted}
-            />
-            
-            {scripts.length > 0 && (
-              <div className="flex justify-center">
-                <Button onClick={() => setActiveTab('briefs')} className="bg-story-blue hover:bg-story-light-blue">
-                  Next: Create Story Briefs
-                </Button>
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="briefs" className="space-y-6">
-            <StoryBriefManager 
-              briefs={briefs}
-              scripts={scripts}
-              onBriefAdded={handleBriefAdded}
-              onBriefUpdated={handleBriefUpdated}
-              onBriefDeleted={handleBriefDeleted}
-              onBriefSelected={handleBriefSelected}
-            />
-            
-            {briefs.length > 0 && (
-              <div className="flex justify-center">
-                <Button onClick={() => setActiveTab('preview')} className="bg-story-blue hover:bg-story-light-blue">
-                  Next: Preview Your Story
                 </Button>
               </div>
             )}
@@ -208,6 +222,8 @@ const Index = () => {
             <EnhancedStoryPreview 
               selectedBrief={selectedBrief} 
               scripts={scripts}
+              authors={authors}
+              productContext={productContext}
             />
             
             {!selectedBrief && briefs.length > 0 && (
@@ -215,28 +231,66 @@ const Index = () => {
                 <p>Select a Story Brief from the Story Briefs tab to preview and edit your narrative</p>
               </div>
             )}
+            
+            <div className="flex justify-center mt-6">
+              <Button onClick={() => setActiveTab('create')} className="bg-story-blue hover:bg-story-light-blue">
+                Back to Content
+              </Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="assets" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Button variant="outline" className="h-auto py-8 flex flex-col items-center gap-3">
-                <Bookmark className="h-10 w-10 text-story-blue" />
-                <span className="text-lg font-medium">Authors</span>
-                <span className="text-sm text-gray-500">Manage author profiles</span>
+            <div className="flex flex-wrap justify-center gap-4 mb-6">
+              <Button 
+                variant={assetType === 'authors' ? 'default' : 'outline'} 
+                onClick={() => setAssetType('authors')}
+                className={assetType === 'authors' ? 'bg-story-blue hover:bg-story-light-blue' : ''}
+              >
+                <User className="h-4 w-4 mr-2" />
+                Authors
               </Button>
-              
-              <Button variant="outline" className="h-auto py-8 flex flex-col items-center gap-3">
-                <Target className="h-10 w-10 text-story-blue" />
-                <span className="text-lg font-medium">ICPs</span>
-                <span className="text-sm text-gray-500">Manage target audiences</span>
+              <Button 
+                variant={assetType === 'icps' ? 'default' : 'outline'} 
+                onClick={() => setAssetType('icps')}
+                className={assetType === 'icps' ? 'bg-story-blue hover:bg-story-light-blue' : ''}
+              >
+                <Target className="h-4 w-4 mr-2" />
+                ICPs
               </Button>
-              
-              <Button variant="outline" className="h-auto py-8 flex flex-col items-center gap-3">
-                <Package className="h-10 w-10 text-story-blue" />
-                <span className="text-lg font-medium">Product Context</span>
-                <span className="text-sm text-gray-500">Manage product details</span>
+              <Button 
+                variant={assetType === 'productContext' ? 'default' : 'outline'} 
+                onClick={() => setAssetType('productContext')}
+                className={assetType === 'productContext' ? 'bg-story-blue hover:bg-story-light-blue' : ''}
+              >
+                <Package className="h-4 w-4 mr-2" />
+                Product Context
               </Button>
             </div>
+            
+            {assetType === 'authors' && (
+              <AuthorManager 
+                authors={authors}
+                onAuthorAdded={handleAuthorAdded}
+                onAuthorUpdated={handleAuthorUpdated}
+                onAuthorDeleted={handleAuthorDeleted}
+              />
+            )}
+            
+            {assetType === 'icps' && (
+              <ICPStoryScriptManager 
+                scripts={scripts}
+                onScriptAdded={handleScriptAdded}
+                onScriptUpdated={handleScriptUpdated}
+                onScriptDeleted={handleScriptDeleted}
+              />
+            )}
+            
+            {assetType === 'productContext' && (
+              <ProductContextManager 
+                productContext={productContext}
+                onProductContextUpdated={handleProductContextUpdated}
+              />
+            )}
           </TabsContent>
         </Tabs>
         
