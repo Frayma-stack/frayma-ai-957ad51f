@@ -276,9 +276,9 @@ In my recent conversations with successful ${script.name}s, three strategies kee
 If you're facing this challenge in your organization, I'd love to help.
 
 ${contentGoal === 'book_call' ? 'Click here to schedule a free strategy call with me this week.' : 
-contentGoal === 'learn_more' ? 'I've put together a detailed guide on this topic - click here to download it.' : 
-contentGoal === 'try_product' ? 'We've just released a new tool that addresses this directly - click here to try it free for 14 days.' : 
-'Reply to this email with your biggest question, and I'll address it in next week\'s newsletter.'}
+contentGoal === 'learn_more' ? "I've put together a detailed guide on this topic - click here to download it." : 
+contentGoal === 'try_product' ? "We've just released a new tool that addresses this directly - click here to try it free for 14 days." : 
+"Reply to this email with your biggest question, and I'll address it in next week's newsletter."}
 
 Until next time,
 ${author.name}`;
