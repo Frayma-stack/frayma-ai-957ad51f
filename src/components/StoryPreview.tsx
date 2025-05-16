@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { StoryDetails } from './StoryForm';
 import { useToast } from "@/components/ui/use-toast";
 import ExportOptions from './ExportOptions';
-import { Eye, EyeOff, Pencil, Save } from 'lucide-react';
+import { Eye, EyeOff, Pencil, Save, Loader } from 'lucide-react';
 import { 
   Select, 
   SelectContent, 
@@ -32,6 +32,7 @@ const StoryPreview: FC<StoryPreviewProps> = ({ storyDetails, authors = [] }) => 
   const [selectedExperience, setSelectedExperience] = useState<string>('');
   const [selectedBelief, setSelectedBelief] = useState<string>('');
   const [showAuthorSelection, setShowAuthorSelection] = useState<boolean>(false);
+  const [contentOutlineGenerated, setContentOutlineGenerated] = useState<boolean>(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -39,6 +40,7 @@ const StoryPreview: FC<StoryPreviewProps> = ({ storyDetails, authors = [] }) => 
     if (storyDetails) {
       setIsDraftGenerated(false);
       setShowAuthorSelection(false);
+      setContentOutlineGenerated(false);
     }
   }, [storyDetails]);
 
@@ -65,10 +67,83 @@ ${storyDetails.uniqueValue
 
 If you've been facing similar challenges, I'd highly recommend giving ${storyDetails.product} a try. It made all the difference for me, and I'm confident it will for you too.
 
-[Click "Generate Full Draft" to expand this framework into a complete article]`;
+[Click "Generate Content Outline" to create the 9-step Product-Led Storytelling outline]`;
   };
 
   const selectedAuthorData = authors.find(author => author.id === selectedAuthor);
+
+  const generateContentOutline = () => {
+    if (!storyDetails) return;
+    
+    setIsGenerating(true);
+    
+    // Simulate generation process with a short delay
+    setTimeout(() => {
+      setIsGenerating(false);
+      setContentOutlineGenerated(true);
+      
+      // Generate a content outline based on the 9-step Product-Led Storytelling approach
+      let outlineContent = `# Content Outline for ${storyDetails.product} Story
+
+## 1. Frame the Challenge
+[H1] The Critical Challenge: ${storyDetails.problem || 'Industry pain point'}
+- Describe how ${storyDetails.targetAudience || 'professionals'} struggle with this problem
+- Share industry statistics or trends that highlight the urgency
+
+## 2. Establish Context
+[H2] The Current Landscape
+- Current approaches and their limitations
+- Why existing solutions fall short
+
+## 3. Transition to the Solution
+[H3] Introducing ${storyDetails.product}
+- Brief overview of what ${storyDetails.product} is
+- Initial promise of transformation
+
+## 4. Solution Framework
+[H2] The ${storyDetails.product} Approach
+${storyDetails.keyFeatures.length > 0 
+  ? `- Key Feature: ${storyDetails.keyFeatures[0] || 'Main feature'}\n` +
+    `${storyDetails.keyFeatures[1] ? `- Key Feature: ${storyDetails.keyFeatures[1]}\n` : ''}` +
+    `${storyDetails.keyFeatures[2] ? `- Key Feature: ${storyDetails.keyFeatures[2]}\n` : ''}`
+  : '- Key features and capabilities'}
+
+## 5. Demonstration of Value
+[H3] See ${storyDetails.product} in Action
+- Case study or example implementation
+- Demonstration of key workflows
+
+## 6. Differentiation Section
+${storyDetails.uniqueValue 
+  ? `[H2] What Makes ${storyDetails.product} Different\n- ${storyDetails.uniqueValue}` 
+  : `[H2] What Makes ${storyDetails.product} Different\n- Unique value proposition`}
+- Comparison to alternatives
+
+## 7. Results & Benefits
+[H3] Results You Can Expect
+- Tangible outcomes
+- Business impact
+
+## 8. Future State
+[H2] The Path Forward
+- Vision for transformed operations
+- Long-term benefits
+
+## 9. Call to Action
+[H3] Take the Next Step
+- Specific action for the reader
+- Low-friction starting point
+
+[Click "Generate Full Draft" to convert this outline into a complete article draft]`;
+
+      setContent(outlineContent);
+      
+      toast({
+        title: "Content Outline Generated",
+        description: "Review and edit the outline, then generate the full draft.",
+      });
+    }, 1500);
+  };
 
   const generateFullDraft = () => {
     if (!storyDetails) return;
@@ -96,7 +171,7 @@ If you've been facing similar challenges, I'd highly recommend giving ${storyDet
       setShowAuthorSelection(false);
       
       // Generate a more detailed draft based on the story details and author info
-      let fullDraft = `# How ${storyDetails.product} Transformed My Work as ${storyDetails.targetAudience || 'a Professional'}`;
+      let fullDraft = `# How ${storyDetails.product} Transforms Work for ${storyDetails.targetAudience || 'Professionals'}`;
 
       // Add author byline if author is selected
       if (selectedAuthorData) {
@@ -112,11 +187,11 @@ If you've been facing similar challenges, I'd highly recommend giving ${storyDet
         }
       }
 
-      fullDraft += `\n\n## The Challenge
+      fullDraft += `\n\n## The Critical Challenge: ${storyDetails.problem || 'Industry pain point'}
 
 As someone who ${storyDetails.targetAudience ? `works with ${storyDetails.targetAudience}` : 'has been in this field'} for years, I've consistently faced one major challenge: ${storyDetails.problem || 'common industry challenges'}. 
 
-This problem wasn't just an annoyance – it had real consequences:
+This problem isn't just an annoyance – it has real consequences:
 * Wasted time and resources
 * Decreased productivity
 * Frustration and burnout`;
@@ -125,19 +200,29 @@ This problem wasn't just an annoyance – it had real consequences:
       if (selectedAuthorData && selectedExperience) {
         const experience = selectedAuthorData.experiences.find(e => e.id === selectedExperience);
         if (experience) {
-          fullDraft += `\n\nI remember specifically when I was working as a ${experience.title}. ${experience.description} It was at that moment I realized I needed a better solution.`;
+          fullDraft += `\n\nI remember specifically when I was working as a ${experience.title}. ${experience.description} It was at that moment I realized we needed a better solution.`;
         } else {
-          fullDraft += `\n\nI remember specifically when [insert specific challenging situation]. It was at that moment I realized I needed a better solution.`;
+          fullDraft += `\n\nI remember specifically when [insert specific challenging situation]. It was at that moment I realized we needed a better solution.`;
         }
       } else {
-        fullDraft += `\n\nI remember specifically when [insert specific challenging situation]. It was at that moment I realized I needed a better solution.`;
+        fullDraft += `\n\nI remember specifically when [insert specific challenging situation]. It was at that moment I realized we needed a better solution.`;
       }
 
-      fullDraft += `\n\n## The Discovery
+      fullDraft += `\n\n## The Current Landscape
+
+Before discovering ${storyDetails.product}, like many others, I tried various approaches:
+
+* Traditional solutions that were too complex
+* Quick fixes that didn't address the root problem
+* Workarounds that created more issues than they solved
+
+None of these approaches delivered the results we needed, and the frustration continued to mount.
+
+## Introducing ${storyDetails.product}
 
 After trying numerous approaches that fell short, I discovered ${storyDetails.product}. Initially skeptical, I decided to give it a try based on a colleague's recommendation.
 
-## What Made the Difference
+## The ${storyDetails.product} Approach
 
 ${storyDetails.keyFeatures.length > 0 
   ? `What truly impressed me about ${storyDetails.product} was:
@@ -147,23 +232,23 @@ ${storyDetails.keyFeatures[1] ? `2. **${storyDetails.keyFeatures[1]}**: This add
 ${storyDetails.keyFeatures[2] ? `3. **${storyDetails.keyFeatures[2]}**: This was the unexpected bonus that sealed the deal.\n` : ''}` 
   : ''}
 
-${storyDetails.solution 
-  ? `## The Solution in Action
+## See ${storyDetails.product} in Action
 
-The way ${storyDetails.product} ${storyDetails.solution} revolutionized my workflow. Let me explain how it works:
+${storyDetails.solution 
+  ? `The way ${storyDetails.product} ${storyDetails.solution} revolutionized my workflow. Let me explain how it works:
 
 1. First, it [explain first step]
 2. Then, it [explain second step]
 3. Finally, it [explain third step]
 
 This approach eliminated the problems I'd been struggling with for so long.` 
-  : ''}
+  : 'Let me walk you through how it works in a real scenario:\n\n[Case study details]'}
+
+## What Makes ${storyDetails.product} Different
 
 ${storyDetails.uniqueValue 
-  ? `## What Makes ${storyDetails.product} Different
-
-In a market full of similar solutions, ${storyDetails.product} stands out because ${storyDetails.uniqueValue}. This unique advantage has made all the difference in my experience.` 
-  : ''}`;
+  ? `In a market full of similar solutions, ${storyDetails.product} stands out because ${storyDetails.uniqueValue}. This unique advantage has made all the difference in my experience.` 
+  : `What separates ${storyDetails.product} from alternatives is its unique approach to solving the core problem.`}`;
 
       // Add product belief if selected
       if (selectedAuthorData && selectedBelief) {
@@ -173,7 +258,7 @@ In a market full of similar solutions, ${storyDetails.product} stands out becaus
         }
       }
 
-      fullDraft += `\n\n## The Results
+      fullDraft += `\n\n## Results You Can Expect
 
 Since implementing ${storyDetails.product}, I've experienced:
 
@@ -181,11 +266,25 @@ Since implementing ${storyDetails.product}, I've experienced:
 * [Specific positive outcome]
 * [Specific positive outcome]
 
-## Recommendation
+## The Path Forward
+
+Looking ahead, ${storyDetails.product} continues to evolve and improve, offering:
+
+* Constant updates based on user feedback
+* New features that address emerging challenges
+* A robust community of users sharing best practices
+
+## Take the Next Step
 
 If you've been facing ${storyDetails.problem || 'similar challenges'}, I can't recommend ${storyDetails.product} enough. It's not just another tool – it's a complete solution that addresses the unique needs of ${storyDetails.targetAudience || 'professionals like us'}.
 
-Take the first step toward transforming your workflow today. Your future self will thank you.`;
+Take the first step toward transforming your workflow today:
+
+1. [Specific first action]
+2. [Follow-up action]
+3. [Final engagement step]
+
+Your future self will thank you.`;
 
       setContent(fullDraft);
       
@@ -234,7 +333,23 @@ Take the first step toward transforming your workflow today. Your future self wi
             <CardDescription>Edit or export your narrative</CardDescription>
           </div>
           <div className="flex gap-2">
-            {!isDraftGenerated && storyDetails && (
+            {!contentOutlineGenerated && storyDetails && (
+              <Button
+                variant="default"
+                className="bg-story-blue hover:bg-story-light-blue text-white"
+                onClick={generateContentOutline}
+                size="sm"
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : "Generate Content Outline"}
+              </Button>
+            )}
+            {contentOutlineGenerated && !isDraftGenerated && storyDetails && (
               <Button
                 variant="default"
                 className="bg-story-blue hover:bg-story-light-blue text-white"
@@ -242,7 +357,12 @@ Take the first step toward transforming your workflow today. Your future self wi
                 size="sm"
                 disabled={isGenerating}
               >
-                {isGenerating ? "Generating..." : showAuthorSelection ? "Generate with Author" : "Generate Full Draft"}
+                {isGenerating ? (
+                  <>
+                    <Loader className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : showAuthorSelection ? "Generate with Author" : "Generate Full Draft"}
               </Button>
             )}
             <Button 

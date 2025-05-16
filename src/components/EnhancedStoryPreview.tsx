@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import ExportOptions from './ExportOptions';
-import { Eye, EyeOff, Pencil, Save } from 'lucide-react';
+import { Eye, EyeOff, Pencil, Save, Loader } from 'lucide-react';
 import { ICPStoryScript, StoryBrief, Author, ProductContext } from '@/types/storytelling';
 import { 
   Select, 
@@ -39,6 +39,7 @@ const EnhancedStoryPreview: FC<EnhancedStoryPreviewProps> = ({
   const [selectedBelief, setSelectedBelief] = useState<string>('');
   const [showAuthorSelection, setShowAuthorSelection] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [contentOutlineGenerated, setContentOutlineGenerated] = useState<boolean>(false);
 
   // Get the full ICP script object based on the brief's targetAudience ID
   const getTargetScript = () => {
@@ -57,6 +58,7 @@ const EnhancedStoryPreview: FC<EnhancedStoryPreviewProps> = ({
       setSelectedWritingTone('');
       setSelectedExperience('');
       setSelectedBelief('');
+      setContentOutlineGenerated(false);
       
       // Generate outline content if outline is complete
       if (selectedBrief.outlineSteps && selectedBrief.outlineSteps.some(step => step.trim() !== '')) {
@@ -96,6 +98,81 @@ const EnhancedStoryPreview: FC<EnhancedStoryPreviewProps> = ({
   };
 
   const selectedAuthorData = authors.find(author => author.id === selectedAuthor);
+
+  // Generate content outline based on the 9-step Product-Led Storytelling approach
+  const generateContentOutline = () => {
+    if (!selectedBrief || !targetScript) return;
+    
+    setIsGenerating(true);
+    
+    // Simulate generation process with a delay
+    setTimeout(() => {
+      setIsGenerating(false);
+      setContentOutlineGenerated(true);
+      
+      const audienceName = targetScript.name;
+      const anchoringDetail = getAnchoringDetails();
+      const targetKeyword = selectedBrief.targetKeyword || 'your main topic';
+      const problemStatement = selectedBrief.problemStatements && selectedBrief.problemStatements.length > 0 
+        ? selectedBrief.problemStatements[0] 
+        : 'common challenges in the industry';
+      
+      // Create a structured content outline
+      let outlineContent = `# 9-Step Product-Led Storytelling Outline
+
+## 1. Frame the Challenge
+[H1] ${targetKeyword} for ${audienceName}: How to overcome ${anchoringDetail}
+- Describe the core challenge that ${audienceName} faces
+- Highlight why this issue matters and its broader impact
+
+## 2. Establish Context
+[H2] Why ${audienceName} struggles with ${targetKeyword}
+- Current industry approaches and limitations
+- Why existing solutions fall short
+
+## 3. Transition to the Solution
+[H3] A new approach to ${targetKeyword} for ${audienceName}
+- Brief overview of the framework
+- Initial promise of transformation
+
+## 4. Solution Framework
+[H2] The ${targetKeyword} Framework: A systematic approach
+- Key components of the solution
+- How each component addresses specific challenges
+
+## 5. Demonstration of Value
+[H3] Implementing the framework for ${audienceName}
+- Step-by-step implementation guide
+- Concrete examples and use cases
+
+## 6. Differentiation Section
+[H2] Why this approach works when others fail
+- Unique advantages of this methodology
+- Comparison to conventional approaches
+
+## 7. Results & Benefits
+[H3] The impact on ${audienceName} organizations
+- Tangible outcomes
+- Specific metrics and improvements
+
+## 8. Future State
+[H2] The future of ${targetKeyword} for ${audienceName}
+- Vision for transformed operations
+- Long-term strategic benefits
+
+## 9. Call to Action
+[H3] Next Steps: Implementing ${targetKeyword} in your organization
+- Specific action steps for the reader
+- Resources and support available`;
+
+      setContent(outlineContent);
+      
+      toast({
+        title: "Content Outline Generated",
+        description: "Review and edit the outline, then generate the full draft with author voice.",
+      });
+    }, 1800);
+  };
 
   // Generate a full draft based on the outline
   const generateFullDraft = () => {
@@ -181,7 +258,7 @@ The reality is that ${problemStatement}. This creates significant challenges for
 * Missed opportunities for growth and optimization
 * Increasing pressure from stakeholders and competitors
 
-${getStepTitle(selectedBrief.outlineSteps[2] || '')}`;
+${getStepTitle(selectedBrief.outlineSteps?.[2] || '')}`;
 
       // Framework section
       fullDraft += `\n\n## The ${targetKeyword} Framework: A systematic approach
@@ -196,7 +273,7 @@ To address these challenges effectively, I've developed a framework specifically
 
 [THIS IS WHERE A DIAGRAM/SCREENSHOT WOULD BE ADDED to visually demonstrate the framework]
 
-${getStepTitle(selectedBrief.outlineSteps[4] || '')}`;
+${getStepTitle(selectedBrief.outlineSteps?.[4] || '')}`;
 
       // Product context section if available
       if (productContext) {
@@ -321,7 +398,7 @@ ${selectedBrief.outlineSteps ? selectedBrief.outlineSteps.map((step, index) => s
 
 ${selectedBrief.callToAction ? `Call to Action: ${selectedBrief.callToAction}` : 'I recommend taking action now to address these challenges.'}
 
-[Click "Generate Full Draft" to expand this outline into a complete article]`;
+[Click "Generate Content Outline" to create a structured outline following the 9-step Product-Led Storytelling approach]`;
   };
 
   return (
@@ -337,7 +414,23 @@ ${selectedBrief.callToAction ? `Call to Action: ${selectedBrief.callToAction}` :
             </CardDescription>
           </div>
           <div className="flex gap-2">
-            {!isDraftGenerated && selectedBrief && (
+            {!contentOutlineGenerated && selectedBrief && (
+              <Button
+                variant="default"
+                className="bg-story-blue hover:bg-story-light-blue text-white"
+                onClick={generateContentOutline}
+                size="sm"
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : "Generate Content Outline"}
+              </Button>
+            )}
+            {contentOutlineGenerated && !isDraftGenerated && selectedBrief && (
               <Button
                 variant="default"
                 className="bg-story-blue hover:bg-story-light-blue text-white"
@@ -345,7 +438,12 @@ ${selectedBrief.callToAction ? `Call to Action: ${selectedBrief.callToAction}` :
                 size="sm"
                 disabled={isGenerating}
               >
-                {isGenerating ? "Generating..." : showAuthorSelection ? "Generate with Author" : "Generate Full Draft"}
+                {isGenerating ? (
+                  <>
+                    <Loader className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : showAuthorSelection ? "Generate with Author" : "Generate Full Draft"}
               </Button>
             )}
             <Button 
