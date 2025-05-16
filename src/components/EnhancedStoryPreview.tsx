@@ -1,3 +1,4 @@
+
 import { FC, useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,6 +7,13 @@ import { useToast } from "@/components/ui/use-toast";
 import ExportOptions from './ExportOptions';
 import { Eye, EyeOff, Pencil, Save } from 'lucide-react';
 import { ICPStoryScript, StoryBrief, Author, ProductContext } from '@/types/storytelling';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 
 interface EnhancedStoryPreviewProps {
   selectedBrief: StoryBrief | null;
@@ -25,6 +33,12 @@ const EnhancedStoryPreview: FC<EnhancedStoryPreviewProps> = ({
   const [showExportOptions, setShowExportOptions] = useState<boolean>(false);
   const [isDraftGenerated, setIsDraftGenerated] = useState<boolean>(false);
   const { toast } = useToast();
+  const [selectedAuthor, setSelectedAuthor] = useState<string>('');
+  const [selectedWritingTone, setSelectedWritingTone] = useState<string>('');
+  const [selectedExperience, setSelectedExperience] = useState<string>('');
+  const [selectedBelief, setSelectedBelief] = useState<string>('');
+  const [showAuthorSelection, setShowAuthorSelection] = useState<boolean>(false);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
   // Get the full ICP script object based on the brief's targetAudience ID
   const getTargetScript = () => {
@@ -35,10 +49,18 @@ const EnhancedStoryPreview: FC<EnhancedStoryPreviewProps> = ({
   const targetScript = getTargetScript();
 
   useEffect(() => {
-    // When a new brief is selected, generate full content if outline is complete
-    if (selectedBrief && targetScript) {
+    // When a new brief is selected, reset states
+    if (selectedBrief) {
+      setIsDraftGenerated(false);
+      setShowAuthorSelection(false);
+      setSelectedAuthor('');
+      setSelectedWritingTone('');
+      setSelectedExperience('');
+      setSelectedBelief('');
+      
+      // Generate outline content if outline is complete
       if (selectedBrief.outlineSteps && selectedBrief.outlineSteps.some(step => step.trim() !== '')) {
-        generateFullDraft();
+        setContent(''); // Reset current content
       } else {
         setContent(''); // Reset current content if no outline
       }
@@ -73,40 +95,85 @@ const EnhancedStoryPreview: FC<EnhancedStoryPreviewProps> = ({
     return anchoringItem ? anchoringItem.content : "the unique challenges in my role";
   };
 
+  const selectedAuthorData = authors.find(author => author.id === selectedAuthor);
+
   // Generate a full draft based on the outline
   const generateFullDraft = () => {
     if (!selectedBrief || !targetScript) return;
     
-    setIsDraftGenerated(true);
-    
-    const audienceName = targetScript.name;
-    const anchoringDetail = getAnchoringDetails();
-    const targetKeyword = selectedBrief.targetKeyword || 'your main topic';
-    const problemStatement = selectedBrief.problemStatements && selectedBrief.problemStatements.length > 0 
-      ? selectedBrief.problemStatements[0] 
-      : 'common challenges in the industry';
-    const successStory = selectedBrief.successStory || 'a compelling case study';
-    const callToAction = selectedBrief.callToAction || 'Take the next step today';
-    
-    // Extract step titles for main points
-    const getStepTitle = (step: string) => {
-      if (!step) return '';
-      // Extract text between [H1], [H2], [H3], etc. and the end of that part
-      const match = step.match(/\[(H\d)\](.*?)(?=\[|$)/i);
-      return match ? match[2].trim() : step;
-    };
-    
-    // Generate a full article based on the outline steps
-    const fullDraft = `# ${targetKeyword} for ${audienceName}: How to overcome ${anchoringDetail}
+    if (authors.length > 0 && !showAuthorSelection) {
+      setShowAuthorSelection(true);
+      return;
+    }
 
-## Introduction: Why This Matters
+    if (authors.length > 0 && !selectedAuthor) {
+      toast({
+        title: "Author selection required",
+        description: "Please select an author to generate the full draft.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsGenerating(true);
+    
+    // Simulate generation process with a delay
+    setTimeout(() => {
+      setIsDraftGenerated(true);
+      setIsGenerating(false);
+      setShowAuthorSelection(false);
+      
+      const audienceName = targetScript.name;
+      const anchoringDetail = getAnchoringDetails();
+      const targetKeyword = selectedBrief.targetKeyword || 'your main topic';
+      const problemStatement = selectedBrief.problemStatements && selectedBrief.problemStatements.length > 0 
+        ? selectedBrief.problemStatements[0] 
+        : 'common challenges in the industry';
+      const successStory = selectedBrief.successStory || 'a compelling case study';
+      const callToAction = selectedBrief.callToAction || 'Take the next step today';
+      
+      // Extract step titles for main points
+      const getStepTitle = (step: string) => {
+        if (!step) return '';
+        // Extract text between [H1], [H2], [H3], etc. and the end of that part
+        const match = step.match(/\[(H\d)\](.*?)(?=\[|$)/i);
+        return match ? match[2].trim() : step;
+      };
+      
+      // Start with the title and author byline
+      let fullDraft = `# ${targetKeyword} for ${audienceName}: How to overcome ${anchoringDetail}`;
+      
+      // Add author byline if author is selected
+      if (selectedAuthorData) {
+        fullDraft += `\n\nBy ${selectedAuthorData.name}, ${selectedAuthorData.role} at ${selectedAuthorData.organization}`;
+        
+        // Add selected writing tone if available
+        if (selectedWritingTone) {
+          const tone = selectedAuthorData.tones.find(t => t.id === selectedWritingTone);
+          if (tone) {
+            fullDraft += `\n\n_Written in ${tone.tone} style with ${tone.description}_`;
+          }
+        }
+      }
+      
+      // Introduction section
+      fullDraft += `\n\n## Introduction: Why This Matters
 
 As someone who works directly with ${audienceName}, I understand the challenges you face with ${anchoringDetail}. 
 ${selectedBrief.purposeStatement || ''}
 
-${selectedBrief.successStory ? `${selectedBrief.successStory}\n\n` : ''}
+${selectedBrief.successStory ? `${selectedBrief.successStory}\n\n` : ''}`;
 
-## Why ${audienceName} struggles with ${targetKeyword}
+      // Add selected experience if available
+      if (selectedAuthorData && selectedExperience) {
+        const experience = selectedAuthorData.experiences.find(e => e.id === selectedExperience);
+        if (experience) {
+          fullDraft += `\nDuring my time as a ${experience.title}, ${experience.description} This perspective has shaped how I approach these challenges.\n\n`;
+        }
+      }
+
+      // Problem statement section
+      fullDraft += `## Why ${audienceName} struggles with ${targetKeyword}
 
 The reality is that ${problemStatement}. This creates significant challenges for professionals like you, including:
 
@@ -114,9 +181,10 @@ The reality is that ${problemStatement}. This creates significant challenges for
 * Missed opportunities for growth and optimization
 * Increasing pressure from stakeholders and competitors
 
-${getStepTitle(selectedBrief.outlineSteps[2] || '')}
+${getStepTitle(selectedBrief.outlineSteps[2] || '')}`;
 
-## The ${targetKeyword} Framework: A systematic approach
+      // Framework section
+      fullDraft += `\n\n## The ${targetKeyword} Framework: A systematic approach
 
 To address these challenges effectively, I've developed a framework specifically for ${audienceName} that directly tackles ${anchoringDetail}:
 
@@ -128,9 +196,38 @@ To address these challenges effectively, I've developed a framework specifically
 
 [THIS IS WHERE A DIAGRAM/SCREENSHOT WOULD BE ADDED to visually demonstrate the framework]
 
-${getStepTitle(selectedBrief.outlineSteps[4] || '')}
+${getStepTitle(selectedBrief.outlineSteps[4] || '')}`;
 
-As you review this framework, consider how these solutions might apply to your specific circumstances. We've helped numerous ${audienceName} implement these strategies with remarkable success. [Want to see how this approach might work for your specific situation? Schedule a consultation.]
+      // Product context section if available
+      if (productContext) {
+        if (productContext.features.length > 0) {
+          fullDraft += `\n\n### Key Features That Make The Difference:`;
+          productContext.features.slice(0, 3).forEach((feature, index) => {
+            fullDraft += `\n\n${index + 1}. **${feature.name}**: ${feature.benefits.join('; ')}`;
+          });
+        }
+        
+        // Add a differentiator if available
+        if (productContext.differentiators.length > 0) {
+          const differentiator = productContext.differentiators[0];
+          fullDraft += `\n\n### What Makes Us Different\n\n${differentiator.name}: ${differentiator.description}`;
+          
+          if (differentiator.competitorComparison) {
+            fullDraft += `\n\nUnlike competitors, ${differentiator.competitorComparison}`;
+          }
+        }
+      }
+      
+      // Add product belief if selected
+      if (selectedAuthorData && selectedBelief) {
+        const belief = selectedAuthorData.beliefs.find(b => b.id === selectedBelief);
+        if (belief) {
+          fullDraft += `\n\n## My Professional Perspective\n\n${belief.belief}. ${belief.description}`;
+        }
+      }
+
+      // Case study section
+      fullDraft += `\n\nAs you review this framework, consider how these solutions might apply to your specific circumstances. We've helped numerous ${audienceName} implement these strategies with remarkable success.
 
 ## Case Study: Real Results for ${audienceName}
 
@@ -152,9 +249,10 @@ Not at all. The framework is designed to be adaptable to organizations of all si
 While every situation is different, most of our clients begin seeing measurable improvements within [timeframe].
 
 **"What if we've tried similar approaches before?"**
-Our framework differs by [specific differentiator]. Unlike other solutions, we focus on [unique approach].
+Our framework differs by [specific differentiator]. Unlike other solutions, we focus on [unique approach].`;
 
-## Next Steps: Implementing ${targetKeyword} in Your Organization
+      // Closing section with call to action
+      fullDraft += `\n\n## Next Steps: Implementing ${targetKeyword} in Your Organization
 
 Now that you understand the power of this approach, here's how you can get started:
 
@@ -168,12 +266,13 @@ ${callToAction}
 
 *This article was crafted specifically for ${audienceName} looking to overcome challenges related to ${anchoringDetail}. If you found this valuable, consider sharing it with colleagues who might benefit.*`;
 
-    setContent(fullDraft);
-    
-    toast({
-      title: "Full Draft Generated",
-      description: "Complete article draft has been created based on your story brief and outline.",
-    });
+      setContent(fullDraft);
+      
+      toast({
+        title: "Full Draft Generated",
+        description: "Complete article draft has been created based on your story brief, outline, and author perspective.",
+      });
+    }, 1800);
   };
 
   const handleEditToggle = () => {
@@ -188,6 +287,21 @@ ${callToAction}
 
   const handleExportToggle = () => {
     setShowExportOptions(!showExportOptions);
+  };
+  
+  const getAvailableTones = () => {
+    const author = authors.find(a => a.id === selectedAuthor);
+    return author?.tones || [];
+  };
+
+  const getAvailableExperiences = () => {
+    const author = authors.find(a => a.id === selectedAuthor);
+    return author?.experiences || [];
+  };
+
+  const getAvailableBeliefs = () => {
+    const author = authors.find(a => a.id === selectedAuthor);
+    return author?.beliefs || [];
   };
 
   const getPlaceholderText = () => {
@@ -229,8 +343,9 @@ ${selectedBrief.callToAction ? `Call to Action: ${selectedBrief.callToAction}` :
                 className="bg-story-blue hover:bg-story-light-blue text-white"
                 onClick={generateFullDraft}
                 size="sm"
+                disabled={isGenerating}
               >
-                Generate Full Draft
+                {isGenerating ? "Generating..." : showAuthorSelection ? "Generate with Author" : "Generate Full Draft"}
               </Button>
             )}
             <Button 
@@ -253,7 +368,72 @@ ${selectedBrief.callToAction ? `Call to Action: ${selectedBrief.callToAction}` :
         </div>
       </CardHeader>
       <CardContent>
-        {isEditing ? (
+        {showAuthorSelection && authors.length > 0 ? (
+          <div className="space-y-4 mb-4 p-4 border rounded-md bg-gray-50">
+            <h3 className="font-medium text-story-blue">Personalize Your Content</h3>
+            <p className="text-sm text-gray-600 mb-4">Select an author and tone to personalize your content</p>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Author</label>
+              <Select value={selectedAuthor} onValueChange={setSelectedAuthor}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an author" />
+                </SelectTrigger>
+                <SelectContent>
+                  {authors.map(author => (
+                    <SelectItem key={author.id} value={author.id}>{author.name} - {author.role}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {selectedAuthor && (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Writing Tone</label>
+                  <Select value={selectedWritingTone} onValueChange={setSelectedWritingTone}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a writing tone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableTones().map(tone => (
+                        <SelectItem key={tone.id} value={tone.id}>{tone.tone}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Relevant Experience</label>
+                  <Select value={selectedExperience} onValueChange={setSelectedExperience}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a relevant experience" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableExperiences().map(exp => (
+                        <SelectItem key={exp.id} value={exp.id}>{exp.title}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Product Belief</label>
+                  <Select value={selectedBelief} onValueChange={setSelectedBelief}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a product belief" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableBeliefs().map(belief => (
+                        <SelectItem key={belief.id} value={belief.id}>{belief.belief}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+          </div>
+        ) : isEditing ? (
           <Textarea 
             value={content || getPlaceholderText()}
             onChange={(e) => setContent(e.target.value)}

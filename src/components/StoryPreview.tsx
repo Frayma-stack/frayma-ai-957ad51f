@@ -7,23 +7,38 @@ import { StoryDetails } from './StoryForm';
 import { useToast } from "@/components/ui/use-toast";
 import ExportOptions from './ExportOptions';
 import { Eye, EyeOff, Pencil, Save } from 'lucide-react';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Author } from '@/types/storytelling';
 
 interface StoryPreviewProps {
   storyDetails: StoryDetails | null;
+  authors?: Author[];
 }
 
-const StoryPreview: FC<StoryPreviewProps> = ({ storyDetails }) => {
+const StoryPreview: FC<StoryPreviewProps> = ({ storyDetails, authors = [] }) => {
   const [content, setContent] = useState<string>('');
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [showExportOptions, setShowExportOptions] = useState<boolean>(false);
   const [isDraftGenerated, setIsDraftGenerated] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [selectedAuthor, setSelectedAuthor] = useState<string>('');
+  const [selectedWritingTone, setSelectedWritingTone] = useState<string>('');
+  const [selectedExperience, setSelectedExperience] = useState<string>('');
+  const [selectedBelief, setSelectedBelief] = useState<string>('');
+  const [showAuthorSelection, setShowAuthorSelection] = useState<boolean>(false);
   const { toast } = useToast();
 
   useEffect(() => {
     // When storyDetails change, reset the generation state
     if (storyDetails) {
       setIsDraftGenerated(false);
+      setShowAuthorSelection(false);
     }
   }, [storyDetails]);
 
@@ -53,8 +68,24 @@ If you've been facing similar challenges, I'd highly recommend giving ${storyDet
 [Click "Generate Full Draft" to expand this framework into a complete article]`;
   };
 
+  const selectedAuthorData = authors.find(author => author.id === selectedAuthor);
+
   const generateFullDraft = () => {
     if (!storyDetails) return;
+    
+    if (authors.length > 0 && !showAuthorSelection) {
+      setShowAuthorSelection(true);
+      return;
+    }
+
+    if (authors.length > 0 && !selectedAuthor) {
+      toast({
+        title: "Author selection required",
+        description: "Please select an author to generate the full draft.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsGenerating(true);
     
@@ -62,22 +93,47 @@ If you've been facing similar challenges, I'd highly recommend giving ${storyDet
     setTimeout(() => {
       setIsDraftGenerated(true);
       setIsGenerating(false);
+      setShowAuthorSelection(false);
       
-      // Generate a more detailed draft based on the story details
-      const fullDraft = `# How ${storyDetails.product} Transformed My Work as ${storyDetails.targetAudience || 'a Professional'}
+      // Generate a more detailed draft based on the story details and author info
+      let fullDraft = `# How ${storyDetails.product} Transformed My Work as ${storyDetails.targetAudience || 'a Professional'}`;
 
-## The Challenge
+      // Add author byline if author is selected
+      if (selectedAuthorData) {
+        fullDraft += `\n\nBy ${selectedAuthorData.name}, ${selectedAuthorData.role} at ${selectedAuthorData.organization}`;
+        
+        // Add selected writing tone if available
+        if (selectedWritingTone) {
+          const tone = selectedAuthorData.tones.find(t => t.id === selectedWritingTone);
+          if (tone) {
+            // Adjust tone in the introduction
+            fullDraft += `\n\n_Written in ${tone.tone} style._`;
+          }
+        }
+      }
+
+      fullDraft += `\n\n## The Challenge
 
 As someone who ${storyDetails.targetAudience ? `works with ${storyDetails.targetAudience}` : 'has been in this field'} for years, I've consistently faced one major challenge: ${storyDetails.problem || 'common industry challenges'}. 
 
 This problem wasn't just an annoyance – it had real consequences:
 * Wasted time and resources
 * Decreased productivity
-* Frustration and burnout
+* Frustration and burnout`;
 
-I remember specifically when [insert specific challenging situation]. It was at that moment I realized I needed a better solution.
+      // Add selected experience if available
+      if (selectedAuthorData && selectedExperience) {
+        const experience = selectedAuthorData.experiences.find(e => e.id === selectedExperience);
+        if (experience) {
+          fullDraft += `\n\nI remember specifically when I was working as a ${experience.title}. ${experience.description} It was at that moment I realized I needed a better solution.`;
+        } else {
+          fullDraft += `\n\nI remember specifically when [insert specific challenging situation]. It was at that moment I realized I needed a better solution.`;
+        }
+      } else {
+        fullDraft += `\n\nI remember specifically when [insert specific challenging situation]. It was at that moment I realized I needed a better solution.`;
+      }
 
-## The Discovery
+      fullDraft += `\n\n## The Discovery
 
 After trying numerous approaches that fell short, I discovered ${storyDetails.product}. Initially skeptical, I decided to give it a try based on a colleague's recommendation.
 
@@ -107,9 +163,17 @@ ${storyDetails.uniqueValue
   ? `## What Makes ${storyDetails.product} Different
 
 In a market full of similar solutions, ${storyDetails.product} stands out because ${storyDetails.uniqueValue}. This unique advantage has made all the difference in my experience.` 
-  : ''}
+  : ''}`;
 
-## The Results
+      // Add product belief if selected
+      if (selectedAuthorData && selectedBelief) {
+        const belief = selectedAuthorData.beliefs.find(b => b.id === selectedBelief);
+        if (belief) {
+          fullDraft += `\n\n## My Professional Perspective\n\n${belief.belief}. ${belief.description}`;
+        }
+      }
+
+      fullDraft += `\n\n## The Results
 
 Since implementing ${storyDetails.product}, I've experienced:
 
@@ -146,6 +210,21 @@ Take the first step toward transforming your workflow today. Your future self wi
     setShowExportOptions(!showExportOptions);
   };
 
+  const getAvailableTones = () => {
+    const author = authors.find(a => a.id === selectedAuthor);
+    return author?.tones || [];
+  };
+
+  const getAvailableExperiences = () => {
+    const author = authors.find(a => a.id === selectedAuthor);
+    return author?.experiences || [];
+  };
+
+  const getAvailableBeliefs = () => {
+    const author = authors.find(a => a.id === selectedAuthor);
+    return author?.beliefs || [];
+  };
+
   return (
     <Card className="w-full bg-white shadow-md">
       <CardHeader>
@@ -163,7 +242,7 @@ Take the first step toward transforming your workflow today. Your future self wi
                 size="sm"
                 disabled={isGenerating}
               >
-                {isGenerating ? "Generating..." : "Generate Full Draft"}
+                {isGenerating ? "Generating..." : showAuthorSelection ? "Generate with Author" : "Generate Full Draft"}
               </Button>
             )}
             <Button 
@@ -184,7 +263,72 @@ Take the first step toward transforming your workflow today. Your future self wi
         </div>
       </CardHeader>
       <CardContent>
-        {isEditing ? (
+        {showAuthorSelection && authors.length > 0 ? (
+          <div className="space-y-4 mb-4 p-4 border rounded-md bg-gray-50">
+            <h3 className="font-medium text-story-blue">Personalize Your Content</h3>
+            <p className="text-sm text-gray-600 mb-4">Select an author and tone to personalize your content</p>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Author</label>
+              <Select value={selectedAuthor} onValueChange={setSelectedAuthor}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an author" />
+                </SelectTrigger>
+                <SelectContent>
+                  {authors.map(author => (
+                    <SelectItem key={author.id} value={author.id}>{author.name} - {author.role}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {selectedAuthor && (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Writing Tone</label>
+                  <Select value={selectedWritingTone} onValueChange={setSelectedWritingTone}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a writing tone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableTones().map(tone => (
+                        <SelectItem key={tone.id} value={tone.id}>{tone.tone}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Relevant Experience</label>
+                  <Select value={selectedExperience} onValueChange={setSelectedExperience}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a relevant experience" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableExperiences().map(exp => (
+                        <SelectItem key={exp.id} value={exp.id}>{exp.title}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Product Belief</label>
+                  <Select value={selectedBelief} onValueChange={setSelectedBelief}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a product belief" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableBeliefs().map(belief => (
+                        <SelectItem key={belief.id} value={belief.id}>{belief.belief}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+          </div>
+        ) : isEditing ? (
           <Textarea 
             value={content || getPlaceholderText()}
             onChange={(e) => setContent(e.target.value)}
