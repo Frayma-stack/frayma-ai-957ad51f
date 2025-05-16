@@ -1,4 +1,3 @@
-
 import { FC, useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,14 +5,21 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import ExportOptions from './ExportOptions';
 import { Eye, EyeOff, Pencil, Save } from 'lucide-react';
-import { ICPStoryScript, StoryBrief } from '@/types/storytelling';
+import { ICPStoryScript, StoryBrief, Author, ProductContext } from '@/types/storytelling';
 
 interface EnhancedStoryPreviewProps {
   selectedBrief: StoryBrief | null;
   scripts: ICPStoryScript[];
+  authors?: Author[];
+  productContext?: ProductContext | null;
 }
 
-const EnhancedStoryPreview: FC<EnhancedStoryPreviewProps> = ({ selectedBrief, scripts }) => {
+const EnhancedStoryPreview: FC<EnhancedStoryPreviewProps> = ({ 
+  selectedBrief, 
+  scripts,
+  authors = [],
+  productContext = null
+}) => {
   const [content, setContent] = useState<string>('');
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [showExportOptions, setShowExportOptions] = useState<boolean>(false);
