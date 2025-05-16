@@ -17,6 +17,7 @@ const StoryPreview: FC<StoryPreviewProps> = ({ storyDetails }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [showExportOptions, setShowExportOptions] = useState<boolean>(false);
   const [isDraftGenerated, setIsDraftGenerated] = useState<boolean>(false);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -55,10 +56,15 @@ If you've been facing similar challenges, I'd highly recommend giving ${storyDet
   const generateFullDraft = () => {
     if (!storyDetails) return;
     
-    setIsDraftGenerated(true);
+    setIsGenerating(true);
     
-    // Generate a more detailed draft based on the story details
-    const fullDraft = `# How ${storyDetails.product} Transformed My Work as ${storyDetails.targetAudience || 'a Professional'}
+    // Simulate generation process with a short delay
+    setTimeout(() => {
+      setIsDraftGenerated(true);
+      setIsGenerating(false);
+      
+      // Generate a more detailed draft based on the story details
+      const fullDraft = `# How ${storyDetails.product} Transformed My Work as ${storyDetails.targetAudience || 'a Professional'}
 
 ## The Challenge
 
@@ -117,12 +123,13 @@ If you've been facing ${storyDetails.problem || 'similar challenges'}, I can't r
 
 Take the first step toward transforming your workflow today. Your future self will thank you.`;
 
-    setContent(fullDraft);
-    
-    toast({
-      title: "Full Draft Generated",
-      description: "Complete article draft has been created based on your story details.",
-    });
+      setContent(fullDraft);
+      
+      toast({
+        title: "Full Draft Generated",
+        description: "Complete article draft has been created based on your story details.",
+      });
+    }, 1500);
   };
 
   const handleEditToggle = () => {
@@ -154,8 +161,9 @@ Take the first step toward transforming your workflow today. Your future self wi
                 className="bg-story-blue hover:bg-story-light-blue text-white"
                 onClick={generateFullDraft}
                 size="sm"
+                disabled={isGenerating}
               >
-                Generate Full Draft
+                {isGenerating ? "Generating..." : "Generate Full Draft"}
               </Button>
             )}
             <Button 

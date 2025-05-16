@@ -5,15 +5,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ICPStoryScriptManager from '@/components/ICPStoryScriptManager';
 import StoryBriefManager from '@/components/StoryBriefManager';
 import EnhancedStoryPreview from '@/components/EnhancedStoryPreview';
+import ContentTypeSelector from '@/components/ContentTypeSelector';
+import ShortFormContentCreator from '@/components/ShortFormContentCreator';
 import { Button } from '@/components/ui/button';
-import { Info } from 'lucide-react';
+import { Info, Bookmark, Target, Package } from 'lucide-react';
 import { ICPStoryScript, StoryBrief } from '@/types/storytelling';
+import { ContentType } from '@/components/ContentTypeSelector';
 
 const Index = () => {
   const [scripts, setScripts] = useState<ICPStoryScript[]>([]);
   const [briefs, setBriefs] = useState<StoryBrief[]>([]);
   const [selectedBrief, setSelectedBrief] = useState<StoryBrief | null>(null);
-  const [activeTab, setActiveTab] = useState<string>('icps');
+  const [activeTab, setActiveTab] = useState<string>('create');
+  const [contentType, setContentType] = useState<ContentType | null>(null);
   
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -105,6 +109,19 @@ const Index = () => {
     setSelectedBrief(brief);
     setActiveTab('preview');
   };
+
+  const handleContentTypeSelect = (type: ContentType) => {
+    setContentType(type);
+    
+    // If article type, go to briefs tab
+    if (type === 'article') {
+      setActiveTab('briefs');
+    }
+  };
+  
+  const resetContentTypeSelection = () => {
+    setContentType(null);
+  };
   
   return (
     <div className="min-h-screen flex flex-col bg-story-cream">
@@ -112,22 +129,44 @@ const Index = () => {
       
       <div className="container mx-auto py-8 px-4 flex-1">
         <header className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-story-blue mb-2">StoryCraft</h1>
+          <h1 className="text-4xl font-bold text-story-blue mb-2">Frayma</h1>
           <p className="text-xl text-gray-700 mb-4">Product-Led Storytelling Framework</p>
           <div className="inline-flex items-center bg-story-sand/50 p-3 rounded-md text-gray-700">
             <Info className="h-5 w-5 mr-2 text-story-blue" />
-            <p>First define your ICPs, then create Story Briefs & Outlines to craft compelling narratives</p>
+            <p>First define your ICPs, then create content that resonates with your target audience</p>
           </div>
         </header>
         
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex justify-center mb-6">
             <TabsList>
+              <TabsTrigger value="create">Create Content</TabsTrigger>
               <TabsTrigger value="icps">ICP StoryScripts</TabsTrigger>
               <TabsTrigger value="briefs">Story Briefs & Outlines</TabsTrigger>
               <TabsTrigger value="preview">Story Preview</TabsTrigger>
+              <TabsTrigger value="assets">Assets</TabsTrigger>
             </TabsList>
           </div>
+
+          <TabsContent value="create" className="space-y-6">
+            {!contentType ? (
+              <ContentTypeSelector onSelect={handleContentTypeSelect} />
+            ) : contentType !== 'article' ? (
+              <ShortFormContentCreator 
+                contentType={contentType as 'email' | 'linkedin' | 'newsletter'}
+                scripts={scripts}
+                onBack={resetContentTypeSelection}
+              />
+            ) : null}
+            
+            {contentType === 'article' && (
+              <div className="flex justify-center">
+                <Button onClick={resetContentTypeSelection} className="bg-story-blue hover:bg-story-light-blue">
+                  Back to Content Types
+                </Button>
+              </div>
+            )}
+          </TabsContent>
           
           <TabsContent value="icps" className="space-y-6">
             <ICPStoryScriptManager 
@@ -177,10 +216,32 @@ const Index = () => {
               </div>
             )}
           </TabsContent>
+
+          <TabsContent value="assets" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Button variant="outline" className="h-auto py-8 flex flex-col items-center gap-3">
+                <Bookmark className="h-10 w-10 text-story-blue" />
+                <span className="text-lg font-medium">Authors</span>
+                <span className="text-sm text-gray-500">Manage author profiles</span>
+              </Button>
+              
+              <Button variant="outline" className="h-auto py-8 flex flex-col items-center gap-3">
+                <Target className="h-10 w-10 text-story-blue" />
+                <span className="text-lg font-medium">ICPs</span>
+                <span className="text-sm text-gray-500">Manage target audiences</span>
+              </Button>
+              
+              <Button variant="outline" className="h-auto py-8 flex flex-col items-center gap-3">
+                <Package className="h-10 w-10 text-story-blue" />
+                <span className="text-lg font-medium">Product Context</span>
+                <span className="text-sm text-gray-500">Manage product details</span>
+              </Button>
+            </div>
+          </TabsContent>
         </Tabs>
         
         <div className="text-center mt-8 mb-8">
-          <p className="text-gray-500 text-sm">StoryCraft helps you create authentic, resonant stories that sell without feeling like sales</p>
+          <p className="text-gray-500 text-sm">Frayma helps you create authentic, resonant stories that sell without feeling like sales</p>
         </div>
       </div>
     </div>
