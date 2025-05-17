@@ -1,5 +1,5 @@
 
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { 
   Card, 
   CardContent, 
@@ -19,7 +19,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { ICPStoryScript, Author } from '@/types/storytelling';
-import { Loader } from "lucide-react";
+import { Loader, Users } from "lucide-react";
 
 type NarrativeAnchor = 'belief' | 'pain' | 'struggle' | 'transformation';
 type ContentGoal = 'book_call' | 'learn_more' | 'try_product' | 'reply' | 'visit_article';
@@ -43,8 +43,35 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   const [contentGoal, setContentGoal] = useState<ContentGoal>("learn_more");
   const [generatedContent, setGeneratedContent] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [clientName, setClientName] = useState<string | null>(null);
   
   const { toast } = useToast();
+
+  // Determine if we're using client-specific assets
+  useEffect(() => {
+    if (scripts.length > 0 || authors.length > 0) {
+      // Check if all assets have the same clientId
+      const scriptClientId = scripts.length > 0 ? scripts[0].clientId : undefined;
+      const authorClientId = authors.length > 0 ? authors[0].clientId : undefined;
+      
+      // Get client name from localStorage if available
+      if (scriptClientId || authorClientId) {
+        const clientId = scriptClientId || authorClientId;
+        const savedClients = localStorage.getItem('clients');
+        if (savedClients && clientId) {
+          const clients = JSON.parse(savedClients);
+          const client = clients.find((c: any) => c.id === clientId);
+          if (client) {
+            setClientName(client.name);
+          }
+        }
+      } else {
+        setClientName("All Clients");
+      }
+    } else {
+      setClientName(null);
+    }
+  }, [scripts, authors]);
 
   const getContentTypeLabel = () => {
     switch (contentType) {
@@ -286,7 +313,15 @@ ${author.role ? `${author.role}${author.organization ? `, ${author.organization}
         <div className="flex justify-between items-center">
           <div>
             <CardTitle className="text-story-blue">Create {getContentTypeLabel()}</CardTitle>
-            <CardDescription>Quick-generate high-performing content</CardDescription>
+            <CardDescription>
+              Quick-generate high-performing content
+              {clientName && (
+                <span className="ml-1 bg-story-blue/10 px-2 py-0.5 rounded-full text-xs text-story-blue">
+                  <Users className="inline h-3 w-3 mr-1" />
+                  {clientName}
+                </span>
+              )}
+            </CardDescription>
           </div>
           <Button variant="outline" onClick={onBack}>Back to Content Types</Button>
         </div>

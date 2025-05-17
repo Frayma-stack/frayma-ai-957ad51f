@@ -12,6 +12,7 @@ export interface ICPStoryScript {
   internalPains: ICPStoryScriptItem[];
   externalStruggles: ICPStoryScriptItem[];
   desiredTransformations: ICPStoryScriptItem[];
+  clientId?: string; // Optional client ID to associate with a client
 }
 
 export interface StoryBrief {
@@ -44,6 +45,8 @@ export interface StoryBrief {
   
   // Content Outline
   outlineSteps: string[];
+  
+  clientId?: string; // Optional client ID to associate with a client
 }
 
 export interface AuthorExperience {
@@ -73,6 +76,7 @@ export interface Author {
   experiences: AuthorExperience[];
   tones: AuthorToneItem[];
   beliefs: AuthorBelief[];
+  clientId?: string; // Optional client ID to associate with a client
 }
 
 export interface MediaAttachment {
@@ -113,4 +117,13 @@ export interface ProductContext {
   categoryPOV: string;
   companyMission: string;
   uniqueInsight: string;
+  clientId?: string; // Optional client ID to associate with a client
+}
+
+// New interface for client/company organization
+export interface Client {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string;
 }

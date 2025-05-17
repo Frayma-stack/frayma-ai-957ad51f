@@ -9,9 +9,10 @@ import ContentTypeSelector from '@/components/ContentTypeSelector';
 import ShortFormContentCreator from '@/components/ShortFormContentCreator';
 import AuthorManager from '@/components/AuthorManager';
 import ProductContextManager from '@/components/ProductContextManager';
+import ClientManager from '@/components/ClientManager';
 import { Button } from '@/components/ui/button';
-import { Book, Bookmark, FileText, Package, Target, User } from 'lucide-react';
-import { ICPStoryScript, StoryBrief, Author, ProductContext } from '@/types/storytelling';
+import { Book, Bookmark, FileText, Package, Target, User, Users } from 'lucide-react';
+import { ICPStoryScript, StoryBrief, Author, ProductContext, Client } from '@/types/storytelling';
 import { ContentType } from '@/components/ContentTypeSelector';
 
 const Index = () => {
@@ -19,10 +20,12 @@ const Index = () => {
   const [briefs, setBriefs] = useState<StoryBrief[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [productContext, setProductContext] = useState<ProductContext | null>(null);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [selectedBrief, setSelectedBrief] = useState<StoryBrief | null>(null);
   const [activeTab, setActiveTab] = useState<string>('create');
   const [contentType, setContentType] = useState<ContentType | null>(null);
-  const [assetType, setAssetType] = useState<string>('authors');
+  const [assetType, setAssetType] = useState<string>('clients'); // Changed the default to 'clients'
   
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -30,11 +33,15 @@ const Index = () => {
     const savedBriefs = localStorage.getItem('storyBriefs');
     const savedAuthors = localStorage.getItem('authors');
     const savedProductContext = localStorage.getItem('productContext');
+    const savedClients = localStorage.getItem('clients');
+    const savedSelectedClientId = localStorage.getItem('selectedClientId');
     
     if (savedScripts) setScripts(JSON.parse(savedScripts));
     if (savedBriefs) setBriefs(JSON.parse(savedBriefs));
     if (savedAuthors) setAuthors(JSON.parse(savedAuthors));
     if (savedProductContext) setProductContext(JSON.parse(savedProductContext));
+    if (savedClients) setClients(JSON.parse(savedClients));
+    if (savedSelectedClientId) setSelectedClientId(JSON.parse(savedSelectedClientId));
   }, []);
   
   // Save data to localStorage whenever it changes
@@ -56,9 +63,53 @@ const Index = () => {
     }
   }, [productContext]);
 
+  useEffect(() => {
+    localStorage.setItem('clients', JSON.stringify(clients));
+  }, [clients]);
+
+  useEffect(() => {
+    localStorage.setItem('selectedClientId', JSON.stringify(selectedClientId));
+  }, [selectedClientId]);
+
+  // Filter assets based on selected client
+  const filteredScripts = selectedClientId 
+    ? scripts.filter(script => script.clientId === selectedClientId)
+    : scripts;
+  
+  const filteredBriefs = selectedClientId
+    ? briefs.filter(brief => brief.clientId === selectedClientId)
+    : briefs;
+  
+  const filteredAuthors = selectedClientId
+    ? authors.filter(author => author.clientId === selectedClientId)
+    : authors;
+
+  // Handle Client operations
+  const handleClientAdded = (client: Client) => {
+    setClients([...clients, client]);
+  };
+  
+  const handleClientUpdated = (updatedClient: Client) => {
+    setClients(clients.map(client => 
+      client.id === updatedClient.id ? updatedClient : client
+    ));
+  };
+  
+  const handleClientDeleted = (clientId: string) => {
+    setClients(clients.filter(client => client.id !== clientId));
+  };
+
+  const handleClientSelected = (clientId: string | null) => {
+    setSelectedClientId(clientId);
+  };
+
   // Handle ICP StoryScript operations
   const handleScriptAdded = (script: ICPStoryScript) => {
-    setScripts([...scripts, script]);
+    const scriptWithClient = {
+      ...script,
+      clientId: selectedClientId || undefined
+    };
+    setScripts([...scripts, scriptWithClient]);
   };
   
   const handleScriptUpdated = (updatedScript: ICPStoryScript) => {
@@ -96,7 +147,11 @@ const Index = () => {
   
   // Handle Author operations
   const handleAuthorAdded = (author: Author) => {
-    setAuthors([...authors, author]);
+    const authorWithClient = {
+      ...author,
+      clientId: selectedClientId || undefined
+    };
+    setAuthors([...authors, authorWithClient]);
   };
   
   const handleAuthorUpdated = (updatedAuthor: Author) => {
@@ -111,12 +166,20 @@ const Index = () => {
   
   // Handle Product Context operations
   const handleProductContextUpdated = (updatedContext: ProductContext) => {
-    setProductContext(updatedContext);
+    const contextWithClient = {
+      ...updatedContext,
+      clientId: selectedClientId || undefined
+    };
+    setProductContext(contextWithClient);
   };
   
   // Handle StoryBrief operations
   const handleBriefAdded = (brief: StoryBrief) => {
-    setBriefs([...briefs, brief]);
+    const briefWithClient = {
+      ...brief,
+      clientId: selectedClientId || undefined
+    };
+    setBriefs([...briefs, briefWithClient]);
   };
   
   const handleBriefUpdated = (updatedBrief: StoryBrief) => {
@@ -185,14 +248,14 @@ const Index = () => {
             ) : contentType === 'article' ? (
               <div>
                 <StoryBriefManager 
-                  briefs={briefs}
-                  scripts={scripts}
+                  briefs={filteredBriefs}
+                  scripts={filteredScripts}
                   onBriefAdded={handleBriefAdded}
                   onBriefUpdated={handleBriefUpdated}
                   onBriefDeleted={handleBriefDeleted}
                   onBriefSelected={handleBriefSelected}
                 />
-                {briefs.length > 0 && (
+                {filteredBriefs.length > 0 && (
                   <div className="flex justify-center mt-6">
                     <Button onClick={() => setActiveTab('preview')} className="bg-story-blue hover:bg-story-light-blue">
                       Preview Selected Story
@@ -203,8 +266,8 @@ const Index = () => {
             ) : (
               <ShortFormContentCreator 
                 contentType={contentType as 'email' | 'linkedin' | 'newsletter'}
-                scripts={scripts}
-                authors={authors}
+                scripts={filteredScripts}
+                authors={filteredAuthors}
                 onBack={resetContentTypeSelection}
               />
             )}
@@ -242,6 +305,14 @@ const Index = () => {
           <TabsContent value="assets" className="space-y-6">
             <div className="flex flex-wrap justify-center gap-4 mb-6">
               <Button 
+                variant={assetType === 'clients' ? 'default' : 'outline'} 
+                onClick={() => setAssetType('clients')}
+                className={assetType === 'clients' ? 'bg-story-blue hover:bg-story-light-blue' : ''}
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Clients
+              </Button>
+              <Button 
                 variant={assetType === 'authors' ? 'default' : 'outline'} 
                 onClick={() => setAssetType('authors')}
                 className={assetType === 'authors' ? 'bg-story-blue hover:bg-story-light-blue' : ''}
@@ -267,9 +338,20 @@ const Index = () => {
               </Button>
             </div>
             
+            {assetType === 'clients' && (
+              <ClientManager
+                clients={clients}
+                selectedClientId={selectedClientId}
+                onClientAdded={handleClientAdded}
+                onClientUpdated={handleClientUpdated}
+                onClientDeleted={handleClientDeleted}
+                onClientSelected={handleClientSelected}
+              />
+            )}
+            
             {assetType === 'authors' && (
               <AuthorManager 
-                authors={authors}
+                authors={filteredAuthors}
                 onAuthorAdded={handleAuthorAdded}
                 onAuthorUpdated={handleAuthorUpdated}
                 onAuthorDeleted={handleAuthorDeleted}
@@ -278,7 +360,7 @@ const Index = () => {
             
             {assetType === 'icps' && (
               <ICPStoryScriptManager 
-                scripts={scripts}
+                scripts={filteredScripts}
                 onScriptAdded={handleScriptAdded}
                 onScriptUpdated={handleScriptUpdated}
                 onScriptDeleted={handleScriptDeleted}
@@ -287,7 +369,9 @@ const Index = () => {
             
             {assetType === 'productContext' && (
               <ProductContextManager 
-                productContext={productContext}
+                productContext={selectedClientId ? 
+                  (productContext?.clientId === selectedClientId ? productContext : null) : 
+                  productContext}
                 onProductContextUpdated={handleProductContextUpdated}
               />
             )}
