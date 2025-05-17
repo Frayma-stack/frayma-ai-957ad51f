@@ -19,7 +19,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { ICPStoryScript, Author } from '@/types/storytelling';
-import { Loader, Users } from "lucide-react";
+import { Loader, Users, Info } from "lucide-react";
 
 type NarrativeAnchor = 'belief' | 'pain' | 'struggle' | 'transformation';
 type ContentGoal = 'book_call' | 'learn_more' | 'try_product' | 'reply' | 'visit_article';
@@ -39,11 +39,13 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
 }) => {
   const [selectedICP, setSelectedICP] = useState<string>("");
   const [selectedAuthor, setSelectedAuthor] = useState<string>("");
-  const [narrativeAnchor, setNarrativeAnchor] = useState<NarrativeAnchor>("pain");
+  const [narrativeAnchorType, setNarrativeAnchorType] = useState<NarrativeAnchor>("pain");
+  const [selectedNarrativeItem, setSelectedNarrativeItem] = useState<string>("");
   const [contentGoal, setContentGoal] = useState<ContentGoal>("learn_more");
   const [generatedContent, setGeneratedContent] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [clientName, setClientName] = useState<string | null>(null);
+  const [additionalContext, setAdditionalContext] = useState<string>("");
   
   const { toast } = useToast();
 
@@ -73,6 +75,11 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     }
   }, [scripts, authors]);
 
+  // Reset selected narrative item when ICP or narrative anchor type changes
+  useEffect(() => {
+    setSelectedNarrativeItem("");
+  }, [selectedICP, narrativeAnchorType]);
+
   const getContentTypeLabel = () => {
     switch (contentType) {
       case 'email': return 'Sales Email';
@@ -90,7 +97,8 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     return authors.find(author => author.id === selectedAuthor);
   };
 
-  const getAnchorOptions = () => {
+  // Get available narrative anchor types based on the selected ICP
+  const getAnchorTypeOptions = () => {
     const script = getSelectedICPScript();
     if (!script) return [];
 
@@ -115,6 +123,34 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     return options;
   };
 
+  // Get available items for the selected narrative anchor type
+  const getNarrativeItems = () => {
+    const script = getSelectedICPScript();
+    if (!script) return [];
+
+    switch (narrativeAnchorType) {
+      case 'belief':
+        return script.coreBeliefs.map(item => ({ id: item.id, content: item.content }));
+      case 'pain':
+        return script.internalPains.map(item => ({ id: item.id, content: item.content }));
+      case 'struggle':
+        return script.externalStruggles.map(item => ({ id: item.id, content: item.content }));
+      case 'transformation':
+        return script.desiredTransformations.map(item => ({ id: item.id, content: item.content }));
+      default:
+        return [];
+    }
+  };
+
+  // Get the selected narrative item's content
+  const getSelectedNarrativeContent = () => {
+    if (!selectedNarrativeItem) return "";
+    
+    const items = getNarrativeItems();
+    const selectedItem = items.find(item => item.id === selectedNarrativeItem);
+    return selectedItem ? selectedItem.content : "";
+  };
+
   const getGoalLabel = (goal: ContentGoal) => {
     switch (goal) {
       case 'book_call': return 'Book a call';
@@ -127,10 +163,10 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   };
 
   const generateContent = () => {
-    if (!selectedICP || !selectedAuthor) {
+    if (!selectedICP || !selectedAuthor || !selectedNarrativeItem) {
       toast({
         title: "Missing information",
-        description: "Please select both an ICP and an author to generate content.",
+        description: "Please select an ICP, author, and narrative item to generate content.",
         variant: "destructive"
       });
       return;
@@ -170,69 +206,51 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   };
 
   const generateEmailContent = (script: ICPStoryScript, author: Author) => {
-    let anchorText = "";
+    const narrativeContent = getSelectedNarrativeContent();
     
-    switch (narrativeAnchor) {
-      case 'belief':
-        anchorText = script.coreBeliefs[0]?.content || '';
-        break;
-      case 'pain':
-        anchorText = script.internalPains[0]?.content || '';
-        break;
-      case 'struggle':
-        anchorText = script.externalStruggles[0]?.content || '';
-        break;
-      case 'transformation':
-        anchorText = script.desiredTransformations[0]?.content || '';
-        break;
-    }
-    
-    return `Subject: Quick question about ${narrativeAnchor === 'struggle' ? 'handling' : 'addressing'} ${script.name} challenges
+    let content = `Subject: Quick question about ${narrativeAnchorType === 'struggle' ? 'handling' : 'addressing'} ${script.name} challenges
 
 Hi {{First Name}},
 
 I was looking at your recent work at {{Company}} and noticed you're focused on improving your team's ${script.name.toLowerCase()} operations.
 
-${anchorText}
+${narrativeContent}
 
-We've helped dozens of ${script.name} teams overcome this exact challenge. In fact, one client recently [specific result they achieved].
+We've helped dozens of ${script.name} teams overcome this exact challenge. In fact, one client recently [specific result they achieved].`;
 
-Would you be open to a quick 15-minute call to explore how we might be able to help your team too?
+    // Incorporate additional context if provided
+    if (additionalContext) {
+      content += `\n\n${additionalContext}`;
+    }
+
+    content += `\n\nWould you be open to a quick 15-minute call to explore how we might be able to help your team too?
 
 Best regards,
 ${author.name}
 ${author.role ? `${author.role}${author.organization ? `, ${author.organization}` : ''}` : ''}
 
 P.S. If you'd prefer to learn more before chatting, here's a case study that might be helpful: [LINK]`;
+    
+    return content;
   };
 
   const generateLinkedInContent = (script: ICPStoryScript, author: Author) => {
-    let anchorText = "";
+    const narrativeContent = getSelectedNarrativeContent();
     
-    switch (narrativeAnchor) {
-      case 'belief':
-        anchorText = script.coreBeliefs[0]?.content || '';
-        break;
-      case 'pain':
-        anchorText = script.internalPains[0]?.content || '';
-        break;
-      case 'struggle':
-        anchorText = script.externalStruggles[0]?.content || '';
-        break;
-      case 'transformation':
-        anchorText = script.desiredTransformations[0]?.content || '';
-        break;
+    let content = `# The ${script.name} Challenge No One's Talking About
+
+${narrativeContent}
+
+But what if there was a better way?`;
+
+    // Incorporate additional context if provided
+    if (additionalContext) {
+      content += `\n\n${additionalContext}\n`;
+    } else {
+      content += `\n\nAfter working with dozens of ${script.name}s, we've discovered that the most successful teams approach this differently:`;
     }
-    
-    return `# The ${script.name} Challenge No One's Talking About
 
-${anchorText}
-
-But what if there was a better way?
-
-After working with dozens of ${script.name}s, we've discovered that the most successful teams approach this differently:
-
-1. They focus on [key insight]
+    content += `\n\n1. They focus on [key insight]
 2. They implement [key process]
 3. They measure [key metric]
 
@@ -249,37 +267,29 @@ contentGoal === 'try_product' ? 'Try our free assessment tool (link in comments)
 'Comment below with your biggest challenge in this area.'}
 
 #${script.name.replace(/\s+/g, '')} #Leadership #Innovation`;
+    
+    return content;
   };
 
   const generateNewsletterContent = (script: ICPStoryScript, author: Author) => {
-    let anchorText = "";
+    const narrativeContent = getSelectedNarrativeContent();
     
-    switch (narrativeAnchor) {
-      case 'belief':
-        anchorText = script.coreBeliefs[0]?.content || '';
-        break;
-      case 'pain':
-        anchorText = script.internalPains[0]?.content || '';
-        break;
-      case 'struggle':
-        anchorText = script.externalStruggles[0]?.content || '';
-        break;
-      case 'transformation':
-        anchorText = script.desiredTransformations[0]?.content || '';
-        break;
-    }
-    
-    return `# This Week's Insights for ${script.name}s
+    let content = `# This Week's Insights for ${script.name}s
 
 Hey there,
 
 I hope this newsletter finds you well. This week, I wanted to address something I've been hearing from many ${script.name}s in our community:
 
-**${anchorText}**
+**${narrativeContent}**
 
-It's a common challenge, and one that deserves more attention. 
+It's a common challenge, and one that deserves more attention.`;
 
-## What's Working Now
+    // Incorporate additional context if provided
+    if (additionalContext) {
+      content += `\n\n${additionalContext}`;
+    }
+
+    content += `\n\n## What's Working Now
 
 In my recent conversations with successful ${script.name}s, three strategies keep coming up:
 
@@ -305,6 +315,8 @@ contentGoal === 'try_product' ? "We've just released a new tool that addresses t
 Until next time,
 ${author.name}
 ${author.role ? `${author.role}${author.organization ? `, ${author.organization}` : ''}` : ''}`;
+    
+    return content;
   };
 
   return (
@@ -367,19 +379,44 @@ ${author.role ? `${author.role}${author.organization ? `, ${author.organization}
         
         <div className="grid md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Narrative Anchor</label>
+            <label className="text-sm font-medium">Narrative Anchor Type</label>
             <Select 
-              value={narrativeAnchor} 
-              onValueChange={(value) => setNarrativeAnchor(value as NarrativeAnchor)}
+              value={narrativeAnchorType} 
+              onValueChange={(value) => setNarrativeAnchorType(value as NarrativeAnchor)}
               disabled={!selectedICP}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select anchor" />
+                <SelectValue placeholder="Select anchor type" />
               </SelectTrigger>
               <SelectContent>
-                {getAnchorOptions().map(option => (
+                {getAnchorTypeOptions().map(option => (
                   <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Narrative Item</label>
+            <Select 
+              value={selectedNarrativeItem} 
+              onValueChange={setSelectedNarrativeItem}
+              disabled={!selectedICP || !narrativeAnchorType}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select specific item" />
+              </SelectTrigger>
+              <SelectContent>
+                {getNarrativeItems().map(item => (
+                  <SelectItem key={item.id} value={item.id}>
+                    <div className="truncate max-w-[300px]">{item.content}</div>
+                  </SelectItem>
+                ))}
+                {getNarrativeItems().length === 0 && narrativeAnchorType && (
+                  <SelectItem value="no-items" disabled>
+                    No items available for this anchor type
+                  </SelectItem>
+                )}
               </SelectContent>
             </Select>
             {selectedICP && (
@@ -388,31 +425,47 @@ ${author.role ? `${author.role}${author.organization ? `, ${author.organization}
               </p>
             )}
           </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Content Goal / CTA</label>
-            <Select 
-              value={contentGoal} 
-              onValueChange={(value) => setContentGoal(value as ContentGoal)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="book_call">Book a call</SelectItem>
-                <SelectItem value="learn_more">Learn more</SelectItem>
-                <SelectItem value="try_product">Try product</SelectItem>
-                <SelectItem value="reply">Reply to email</SelectItem>
-                <SelectItem value="visit_article">Visit article</SelectItem>
-              </SelectContent>
-            </Select>
+        </div>
+        
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Content Goal / CTA</label>
+          <Select 
+            value={contentGoal} 
+            onValueChange={(value) => setContentGoal(value as ContentGoal)}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="book_call">Book a call</SelectItem>
+              <SelectItem value="learn_more">Learn more</SelectItem>
+              <SelectItem value="try_product">Try product</SelectItem>
+              <SelectItem value="reply">Reply to email</SelectItem>
+              <SelectItem value="visit_article">Visit article</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium">Additional Context (Optional)</label>
+            <span className="text-xs text-gray-500 flex items-center">
+              <Info className="h-3 w-3 mr-1" />
+              Add specific details to guide generation
+            </span>
           </div>
+          <Textarea 
+            placeholder="Add any additional context, market insights, or specific points you want to highlight in the generated content..."
+            value={additionalContext}
+            onChange={(e) => setAdditionalContext(e.target.value)}
+            className="min-h-[80px]"
+          />
         </div>
         
         <Button 
           className="w-full bg-story-blue hover:bg-story-light-blue"
           onClick={generateContent}
-          disabled={isGenerating || !selectedICP || !selectedAuthor}
+          disabled={isGenerating || !selectedICP || !selectedAuthor || !selectedNarrativeItem}
         >
           {isGenerating ? (
             <>
