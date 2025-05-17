@@ -8,9 +8,10 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Author } from '@/types/storytelling';
-import { Plus, Edit, Trash } from 'lucide-react';
+import { Author, Client } from '@/types/storytelling';
+import { Plus, Edit, Trash, Users } from 'lucide-react';
 import AuthorForm from './AuthorForm';
+import { useToast } from '@/components/ui/use-toast';
 
 interface AuthorManagerProps {
   authors: Author[];
@@ -27,12 +28,37 @@ const AuthorManager: FC<AuthorManagerProps> = ({
 }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
+  const { toast } = useToast();
+  
+  // Get current client info if we're in a client-specific view
+  const getClientInfo = () => {
+    const selectedClientId = authors[0]?.clientId;
+    
+    if (selectedClientId) {
+      const savedClients = localStorage.getItem('clients');
+      if (savedClients) {
+        const clients = JSON.parse(savedClients) as Client[];
+        return clients.find(client => client.id === selectedClientId);
+      }
+    }
+    return null;
+  };
+  
+  const clientInfo = getClientInfo();
   
   const handleSave = (author: Author) => {
     if (editingAuthor) {
       onAuthorUpdated(author);
+      toast({
+        title: "Author updated",
+        description: `${author.name} has been updated successfully.`
+      });
     } else {
       onAuthorAdded(author);
+      toast({
+        title: "Author added",
+        description: `${author.name} has been added successfully.`
+      });
     }
     setShowForm(false);
     setEditingAuthor(null);
@@ -51,13 +77,25 @@ const AuthorManager: FC<AuthorManagerProps> = ({
   const handleDelete = (authorId: string) => {
     if (confirm('Are you sure you want to delete this author? This action cannot be undone.')) {
       onAuthorDeleted(authorId);
+      toast({
+        title: "Author deleted",
+        description: "The author has been removed successfully."
+      });
     }
   };
   
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-story-blue">Authors</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-story-blue">Authors</h2>
+          {clientInfo && (
+            <p className="text-sm flex items-center text-gray-600">
+              <Users className="h-3.5 w-3.5 mr-1" />
+              For client: {clientInfo.name}
+            </p>
+          )}
+        </div>
         {!showForm && (
           <Button 
             className="bg-story-blue hover:bg-story-light-blue"
@@ -116,7 +154,11 @@ const AuthorManager: FC<AuthorManagerProps> = ({
             ))
           ) : (
             <div className="col-span-full text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-              <p className="text-gray-500">No authors yet. Add your first author to get started!</p>
+              <p className="text-gray-500">
+                {clientInfo 
+                  ? `No authors for ${clientInfo.name} yet. Add your first author to get started!` 
+                  : 'No authors yet. Add your first author to get started!'}
+              </p>
             </div>
           )}
         </div>

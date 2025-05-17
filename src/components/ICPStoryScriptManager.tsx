@@ -3,8 +3,8 @@ import { FC, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, FileText, Pencil, Trash } from 'lucide-react';
-import { ICPStoryScript } from '@/types/storytelling';
+import { Plus, FileText, Pencil, Trash, Users } from 'lucide-react';
+import { ICPStoryScript, Client } from '@/types/storytelling';
 import ICPStoryScriptForm from './ICPStoryScriptForm';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -26,15 +26,39 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedScript, setSelectedScript] = useState<ICPStoryScript | null>(null);
 
+  // Get current client info if we're in a client-specific view
+  const getClientInfo = () => {
+    const selectedClientId = scripts[0]?.clientId;
+    
+    if (selectedClientId) {
+      const savedClients = localStorage.getItem('clients');
+      if (savedClients) {
+        const clients = JSON.parse(savedClients) as Client[];
+        return clients.find(client => client.id === selectedClientId);
+      }
+    }
+    return null;
+  };
+  
+  const clientInfo = getClientInfo();
+
   const handleAddScript = (script: ICPStoryScript) => {
     onScriptAdded(script);
     setIsAddDialogOpen(false);
+    toast({
+      title: "ICP StoryScript created",
+      description: `"${script.name}" has been added successfully.`
+    });
   };
 
   const handleEditScript = (script: ICPStoryScript) => {
     onScriptUpdated(script);
     setIsEditDialogOpen(false);
     setSelectedScript(null);
+    toast({
+      title: "ICP StoryScript updated",
+      description: `"${script.name}" has been updated successfully.`
+    });
   };
 
   const handleDeleteScript = (script: ICPStoryScript) => {
@@ -65,7 +89,15 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle className="text-story-blue">Your ICP StoryScripts</CardTitle>
-          <CardDescription>Define your target audience personas</CardDescription>
+          <CardDescription>
+            Define your target audience personas
+            {clientInfo && (
+              <span className="ml-2 bg-story-blue/10 px-2 py-0.5 rounded-full text-xs text-story-blue">
+                <Users className="inline h-3 w-3 mr-1" />
+                For client: {clientInfo.name}
+              </span>
+            )}
+          </CardDescription>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
@@ -89,7 +121,11 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
           <div className="text-center py-8 text-gray-500">
             <FileText className="mx-auto h-12 w-12 opacity-30 mb-2" />
             <p>No ICP StoryScripts yet</p>
-            <p className="text-sm mt-1">Create your first ICP StoryScript to get started</p>
+            <p className="text-sm mt-1">
+              {clientInfo 
+                ? `Create your first ICP StoryScript for ${clientInfo.name}` 
+                : 'Create your first ICP StoryScript to get started'}
+            </p>
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

@@ -25,7 +25,7 @@ const Index = () => {
   const [selectedBrief, setSelectedBrief] = useState<StoryBrief | null>(null);
   const [activeTab, setActiveTab] = useState<string>('create');
   const [contentType, setContentType] = useState<ContentType | null>(null);
-  const [assetType, setAssetType] = useState<string>('clients'); // Changed the default to 'clients'
+  const [assetType, setAssetType] = useState<string>('clients');
   
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -101,6 +101,12 @@ const Index = () => {
 
   const handleClientSelected = (clientId: string | null) => {
     setSelectedClientId(clientId);
+  };
+
+  const handleViewClientAssets = (clientId: string, type: string) => {
+    setSelectedClientId(clientId);
+    setActiveTab('assets');
+    setAssetType(type);
   };
 
   // Handle ICP StoryScript operations
@@ -219,6 +225,10 @@ const Index = () => {
   const resetContentTypeSelection = () => {
     setContentType(null);
   };
+
+  const clientInfo = selectedClientId 
+    ? clients.find(client => client.id === selectedClientId)
+    : null;
   
   return (
     <div className="min-h-screen flex flex-col bg-story-cream">
@@ -232,6 +242,22 @@ const Index = () => {
             <Book className="h-5 w-5 mr-2 text-story-blue" />
             <p>First define your ICPs and Authors, then create content that resonates with your target audience</p>
           </div>
+          {selectedClientId && (
+            <div className="mt-3 inline-flex items-center bg-story-blue/10 px-4 py-2 rounded-full">
+              <Users className="h-5 w-5 mr-2 text-story-blue" />
+              <span className="font-medium">Currently working with: {clientInfo?.name}</span>
+              {selectedClientId && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="ml-2 text-story-blue hover:bg-story-blue/20"
+                  onClick={() => setSelectedClientId(null)}
+                >
+                  Clear Selection
+                </Button>
+              )}
+            </div>
+          )}
         </header>
         
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -346,6 +372,7 @@ const Index = () => {
                 onClientUpdated={handleClientUpdated}
                 onClientDeleted={handleClientDeleted}
                 onClientSelected={handleClientSelected}
+                onViewClientAssets={handleViewClientAssets}
               />
             )}
             

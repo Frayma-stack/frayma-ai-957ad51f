@@ -20,7 +20,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { Client } from '@/types/storytelling';
-import { Plus, Edit, Trash, Users } from 'lucide-react';
+import { Plus, Edit, Trash, Users, User, Target, Package } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 
 interface ClientManagerProps {
@@ -30,6 +30,7 @@ interface ClientManagerProps {
   onClientUpdated: (client: Client) => void;
   onClientDeleted: (clientId: string) => void;
   onClientSelected: (clientId: string | null) => void;
+  onViewClientAssets: (clientId: string, assetType: string) => void;
 }
 
 const ClientManager: FC<ClientManagerProps> = ({
@@ -38,7 +39,8 @@ const ClientManager: FC<ClientManagerProps> = ({
   onClientAdded,
   onClientUpdated,
   onClientDeleted,
-  onClientSelected
+  onClientSelected,
+  onViewClientAssets
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
@@ -128,6 +130,10 @@ const ClientManager: FC<ClientManagerProps> = ({
     });
   };
 
+  const handleViewClientAssets = (clientId: string, assetType: string) => {
+    onViewClientAssets(clientId, assetType);
+  };
+
   return (
     <div className="space-y-4">
       <Card className="bg-white shadow-md">
@@ -193,6 +199,39 @@ const ClientManager: FC<ClientManagerProps> = ({
                     <p className="text-xs text-gray-500 mt-2">
                       Created: {new Date(client.createdAt).toLocaleDateString()}
                     </p>
+                    
+                    <div className="mt-4 space-y-2">
+                      <p className="text-sm font-medium text-gray-700">Client Assets:</p>
+                      <div className="flex flex-wrap gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex items-center"
+                          onClick={() => handleViewClientAssets(client.id, 'authors')}
+                        >
+                          <User className="h-3.5 w-3.5 mr-1" />
+                          Authors
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex items-center"
+                          onClick={() => handleViewClientAssets(client.id, 'icps')}
+                        >
+                          <Target className="h-3.5 w-3.5 mr-1" />
+                          ICPs
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex items-center"
+                          onClick={() => handleViewClientAssets(client.id, 'productContext')}
+                        >
+                          <Package className="h-3.5 w-3.5 mr-1" />
+                          Product Context
+                        </Button>
+                      </div>
+                    </div>
                   </CardContent>
                   <CardFooter className="pt-0">
                     <Button 
@@ -201,7 +240,7 @@ const ClientManager: FC<ClientManagerProps> = ({
                       className="w-full"
                       onClick={() => handleSelectClient(client.id)}
                     >
-                      View Assets
+                      Select Client
                     </Button>
                   </CardFooter>
                 </Card>
