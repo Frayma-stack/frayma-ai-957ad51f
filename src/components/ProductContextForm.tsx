@@ -17,9 +17,11 @@ import {
   ProductContext,
   ProductFeature,
   ProductUseCase,
-  ProductDifferentiator
+  ProductDifferentiator,
+  MediaAttachment
 } from '@/types/storytelling';
 import { Plus, Trash } from 'lucide-react';
+import MediaUploader from './MediaUploader';
 
 interface ProductContextFormProps {
   initialProductContext: ProductContext | null;
@@ -31,14 +33,16 @@ interface ProductContextFormProps {
 const createEmptyFeature = (): ProductFeature => ({
   id: crypto.randomUUID(),
   name: '',
-  benefits: ['']
+  benefits: [''],
+  media: []
 });
 
 const createEmptyUseCase = (): ProductUseCase => ({
   id: crypto.randomUUID(),
   useCase: '',
   userRole: '',
-  description: ''
+  description: '',
+  media: []
 });
 
 const createEmptyDifferentiator = (): ProductDifferentiator => ({
@@ -100,6 +104,15 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
       })
     }));
   };
+
+  const handleFeatureMediaChange = (featureId: string, media: MediaAttachment[]) => {
+    setProductContext(prev => ({
+      ...prev,
+      features: prev.features.map(feature => 
+        feature.id === featureId ? { ...feature, media } : feature
+      )
+    }));
+  };
   
   const addFeatureBenefit = (featureId: string) => {
     setProductContext(prev => ({
@@ -144,13 +157,22 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
   // Handle use cases
   const handleUseCaseChange = (
     useCaseId: string, 
-    field: keyof ProductUseCase, 
+    field: keyof Omit<ProductUseCase, 'id' | 'media'>, 
     value: string
   ) => {
     setProductContext(prev => ({
       ...prev,
       useCases: prev.useCases.map(useCase => 
         useCase.id === useCaseId ? { ...useCase, [field]: value } : useCase
+      )
+    }));
+  };
+
+  const handleUseCaseMediaChange = (useCaseId: string, media: MediaAttachment[]) => {
+    setProductContext(prev => ({
+      ...prev,
+      useCases: prev.useCases.map(useCase => 
+        useCase.id === useCaseId ? { ...useCase, media } : useCase
       )
     }));
   };
@@ -354,6 +376,16 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
                       </div>
                     ))}
                   </div>
+
+                  {/* Media uploader for features */}
+                  <div className="pt-2 border-t mt-4">
+                    <h4 className="text-sm font-medium mb-2">Feature Media</h4>
+                    <MediaUploader 
+                      media={feature.media || []}
+                      onMediaChange={(media) => handleFeatureMediaChange(feature.id, media)}
+                      maxFiles={3}
+                    />
+                  </div>
                 </div>
               </div>
             ))}
@@ -407,6 +439,16 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
                     onChange={(e) => handleUseCaseChange(useCase.id, 'description', e.target.value)}
                     rows={3}
                   />
+                  
+                  {/* Media uploader for use cases */}
+                  <div className="pt-2 border-t mt-4">
+                    <h4 className="text-sm font-medium mb-2">Use Case Media</h4>
+                    <MediaUploader 
+                      media={useCase.media || []}
+                      onMediaChange={(media) => handleUseCaseMediaChange(useCase.id, media)}
+                      maxFiles={3}
+                    />
+                  </div>
                 </div>
               </div>
             ))}

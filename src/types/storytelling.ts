@@ -1,4 +1,3 @@
-
 export interface ICPStoryScriptItem {
   id: string;
   content: string;
@@ -74,10 +73,19 @@ export interface Author {
   beliefs: AuthorBelief[];
 }
 
+export interface MediaAttachment {
+  id: string;
+  type: 'image' | 'video' | 'gif';
+  url: string;
+  description: string;
+  fileName: string;
+}
+
 export interface ProductFeature {
   id: string;
   name: string;
   benefits: string[];
+  media?: MediaAttachment[];
 }
 
 export interface ProductUseCase {
@@ -85,6 +93,7 @@ export interface ProductUseCase {
   useCase: string;
   userRole: string;
   description: string;
+  media?: MediaAttachment[];
 }
 
 export interface ProductDifferentiator {

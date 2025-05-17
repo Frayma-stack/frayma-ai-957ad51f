@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProductContext } from '@/types/storytelling';
-import { Edit } from 'lucide-react';
+import { Edit, Image, FileVideo } from 'lucide-react';
 import ProductContextForm from './ProductContextForm';
 
 interface ProductContextManagerProps {
@@ -32,6 +32,19 @@ const ProductContextManager: FC<ProductContextManagerProps> = ({
     if (productContext) {
       setShowForm(false);
     }
+  };
+
+  // Count total media attachments
+  const countTotalMedia = () => {
+    if (!productContext) return 0;
+    
+    const featureMedia = productContext.features.reduce((total, feature) => 
+      total + (feature.media?.length || 0), 0);
+    
+    const useCaseMedia = productContext.useCases.reduce((total, useCase) => 
+      total + (useCase.media?.length || 0), 0);
+    
+    return featureMedia + useCaseMedia;
   };
   
   return (
@@ -80,12 +93,31 @@ const ProductContextManager: FC<ProductContextManagerProps> = ({
             </div>
             
             <div>
-              <h3 className="font-medium mb-2">Features ({productContext.features.length})</h3>
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-medium">Features ({productContext.features.length})</h3>
+                {countTotalMedia() > 0 && (
+                  <span className="text-xs bg-gray-100 py-1 px-2 rounded-full flex items-center gap-1">
+                    <Image className="h-3 w-3" /> {countTotalMedia()} Media
+                  </span>
+                )}
+              </div>
               {productContext.features.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {productContext.features.slice(0, 4).map(feature => (
                     <div key={feature.id} className="bg-gray-50 p-3 rounded-md">
-                      <h4 className="text-sm font-medium">{feature.name}</h4>
+                      <div className="flex justify-between">
+                        <h4 className="text-sm font-medium">{feature.name}</h4>
+                        {feature.media && feature.media.length > 0 && (
+                          <div className="flex gap-1 items-center">
+                            {feature.media.some(m => m.type === 'image' || m.type === 'gif') && (
+                              <Image className="h-3.5 w-3.5 text-gray-500" />
+                            )}
+                            {feature.media.some(m => m.type === 'video') && (
+                              <FileVideo className="h-3.5 w-3.5 text-gray-500" />
+                            )}
+                          </div>
+                        )}
+                      </div>
                       <ul className="text-xs text-gray-700 list-disc list-inside mt-1">
                         {feature.benefits.slice(0, 2).map((benefit, i) => (
                           <li key={i}>{benefit}</li>
@@ -111,9 +143,22 @@ const ProductContextManager: FC<ProductContextManagerProps> = ({
               <div>
                 <h3 className="font-medium mb-2">Use Cases ({productContext.useCases.length})</h3>
                 {productContext.useCases.length > 0 ? (
-                  <ul className="list-disc list-inside text-sm space-y-1">
+                  <ul className="text-sm space-y-1">
                     {productContext.useCases.slice(0, 3).map(useCase => (
-                      <li key={useCase.id}>{useCase.useCase} ({useCase.userRole})</li>
+                      <li key={useCase.id} className="flex items-center gap-2">
+                        <span className="list-disc list-inside">{useCase.useCase} ({useCase.userRole})</span>
+                        {useCase.media && useCase.media.length > 0 && (
+                          <div className="flex gap-1 items-center">
+                            {useCase.media.some(m => m.type === 'image' || m.type === 'gif') && (
+                              <Image className="h-3.5 w-3.5 text-gray-500" />
+                            )}
+                            {useCase.media.some(m => m.type === 'video') && (
+                              <FileVideo className="h-3.5 w-3.5 text-gray-500" />
+                            )}
+                            <span className="text-xs text-gray-500">{useCase.media.length}</span>
+                          </div>
+                        )}
+                      </li>
                     ))}
                     {productContext.useCases.length > 3 && (
                       <li>+{productContext.useCases.length - 3} more use cases</li>
