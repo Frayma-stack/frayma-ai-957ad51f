@@ -1,4 +1,3 @@
-
 import { FC, useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,6 +21,7 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
     initialBrief || {
       id: crypto.randomUUID(),
       title: '',
+      contentType: 'thought_leadership', // Adding the required contentType property with a default value
       
       // Strategic Alignment
       goal: '',
@@ -272,6 +272,22 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
             value={brief.title}
             onChange={(e) => handleInputChange('title', e.target.value)}
           />
+        </div>
+        
+        <div className="space-y-4 mb-4">
+          <label className="text-sm font-medium">Content Type*</label>
+          <Select 
+            value={brief.contentType} 
+            onValueChange={(value: 'customer_success' | 'thought_leadership') => handleInputChange('contentType', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select content type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="customer_success">Customer Success Story</SelectItem>
+              <SelectItem value="thought_leadership">Thought Leadership</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
