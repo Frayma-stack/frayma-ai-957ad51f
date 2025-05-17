@@ -139,11 +139,13 @@ const ClientManager: FC<ClientManagerProps> = ({
                 Client Manager
               </div>
             </CardTitle>
-            <DialogTrigger asChild onClick={() => handleOpenDialog()}>
-              <Button className="bg-story-blue hover:bg-story-light-blue">
-                <Plus className="h-4 w-4 mr-2" /> Add Client
-              </Button>
-            </DialogTrigger>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className="bg-story-blue hover:bg-story-light-blue" onClick={() => handleOpenDialog()}>
+                  <Plus className="h-4 w-4 mr-2" /> Add Client
+                </Button>
+              </DialogTrigger>
+            </Dialog>
           </div>
         </CardHeader>
         <CardContent>
