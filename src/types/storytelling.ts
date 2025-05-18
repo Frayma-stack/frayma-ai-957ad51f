@@ -38,7 +38,7 @@ export interface CustomerSuccessStory {
 export interface StoryBrief {
   id: string;
   title: string;
-  contentType: 'customer_success' | 'thought_leadership';
+  contentType: 'customer_success' | 'thought_leadership' | 'newsletter';
   
   // Strategic Alignment
   goal: string;

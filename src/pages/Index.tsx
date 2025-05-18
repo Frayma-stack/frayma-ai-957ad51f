@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -339,7 +338,7 @@ const Index = () => {
               </div>
             ) : (
               <ShortFormContentCreator 
-                contentType={contentType as 'email' | 'linkedin' | 'custom'}
+                contentType={contentType as 'email' | 'linkedin' | 'newsletter'}
                 scripts={filteredScripts}
                 authors={filteredAuthors}
                 onBack={resetContentTypeSelection}
