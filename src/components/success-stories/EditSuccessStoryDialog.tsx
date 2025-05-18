@@ -1,5 +1,5 @@
 
-import { FC, useState } from 'react';
+import { FC, useEffect } from 'react';
 import { CustomerSuccessStory } from '@/types/storytelling';
 import { 
   Dialog, 
@@ -75,7 +75,7 @@ const EditSuccessStoryDialog: FC<EditSuccessStoryDialogProps> = ({
   });
   
   // Reset form when the dialog opens with a new story
-  useState(() => {
+  useEffect(() => {
     if (story) {
       form.reset({
         title: story.title,
@@ -86,7 +86,7 @@ const EditSuccessStoryDialog: FC<EditSuccessStoryDialogProps> = ({
         features: story.features
       });
     }
-  });
+  }, [story, form]);
 
   const handleAddQuote = () => {
     const currentQuotes = form.getValues("quotes") || [];
