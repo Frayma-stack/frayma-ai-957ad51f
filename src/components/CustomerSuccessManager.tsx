@@ -195,7 +195,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
         description: "Successfully processed the success story URL",
       });
       
-      // Populate the form with mock data
+      // Populate the form with mock data - ensure all required fields have values
       form.setValue("title", "ABC Corporation Success Story");
       form.setValue("beforeSummary", "ABC Corporation was struggling with manual data entry processes that were error-prone and time-consuming. Their team was spending over 20 hours per week on data entry tasks. Customer satisfaction was declining due to delays in processing orders. They were losing potential clients to competitors with more efficient systems. The company needed a solution that could automate their workflow without requiring a complete overhaul of their existing systems.");
       form.setValue("afterSummary", "After implementing our solution, ABC Corporation reduced data entry time by 85%. Their error rate dropped from 12% to less than 1%. Customer satisfaction scores increased by 35% within three months. The company was able to reassign staff to more strategic roles, improving employee satisfaction. They've since expanded their use of our platform to three additional departments.");
