@@ -1,3 +1,4 @@
+
 import { FC, useState } from 'react';
 import { 
   Card, 
@@ -36,6 +37,7 @@ interface CustomerSuccessManagerProps {
   onSuccessStoryDeleted: (successStoryId: string) => void;
 }
 
+// Define strict schemas for the items
 const quoteItemSchema = z.object({
   id: z.string(),
   quote: z.string(),
@@ -58,6 +60,7 @@ const formSchema = z.object({
   features: z.array(featureItemSchema)
 });
 
+// Define strongly typed interfaces that exactly match the schema
 type FormValues = z.infer<typeof formSchema>;
 type QuoteItem = z.infer<typeof quoteItemSchema>;
 type FeatureItem = z.infer<typeof featureItemSchema>;
@@ -83,8 +86,17 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
       url: "",
       beforeSummary: "",
       afterSummary: "",
-      quotes: [{ id: crypto.randomUUID(), quote: "", author: "", title: "" }],
-      features: [{ id: crypto.randomUUID(), name: "", description: "" }]
+      quotes: [{
+        id: crypto.randomUUID(),
+        quote: "",
+        author: "",
+        title: ""
+      }],
+      features: [{
+        id: crypto.randomUUID(),
+        name: "",
+        description: ""
+      }]
     }
   });
 
@@ -106,8 +118,17 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
       url: "",
       beforeSummary: "",
       afterSummary: "",
-      quotes: [{ id: crypto.randomUUID(), quote: "", author: "", title: "" }],
-      features: [{ id: crypto.randomUUID(), name: "", description: "" }]
+      quotes: [{
+        id: crypto.randomUUID(),
+        quote: "",
+        author: "",
+        title: ""
+      }],
+      features: [{
+        id: crypto.randomUUID(), 
+        name: "", 
+        description: "" 
+      }]
     });
     setUrlToProcess("");
   };
@@ -129,7 +150,12 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
     const currentQuotes = form.getValues("quotes") || [];
     form.setValue("quotes", [
       ...currentQuotes, 
-      { id: crypto.randomUUID(), quote: "", author: "", title: "" }
+      { 
+        id: crypto.randomUUID(), 
+        quote: "", 
+        author: "", 
+        title: "" 
+      }
     ]);
   };
 
@@ -142,7 +168,11 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
     const currentFeatures = form.getValues("features") || [];
     form.setValue("features", [
       ...currentFeatures, 
-      { id: crypto.randomUUID(), name: "", description: "" }
+      { 
+        id: crypto.randomUUID(), 
+        name: "", 
+        description: "" 
+      }
     ]);
   };
 
@@ -155,7 +185,12 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
     const currentQuotes = editForm.getValues("quotes") || [];
     editForm.setValue("quotes", [
       ...currentQuotes, 
-      { id: crypto.randomUUID(), quote: "", author: "", title: "" }
+      { 
+        id: crypto.randomUUID(), 
+        quote: "", 
+        author: "", 
+        title: "" 
+      }
     ]);
   };
 
@@ -168,7 +203,11 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
     const currentFeatures = editForm.getValues("features") || [];
     editForm.setValue("features", [
       ...currentFeatures, 
-      { id: crypto.randomUUID(), name: "", description: "" }
+      { 
+        id: crypto.randomUUID(), 
+        name: "", 
+        description: "" 
+      }
     ]);
   };
 
