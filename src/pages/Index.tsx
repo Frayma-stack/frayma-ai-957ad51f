@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,9 +11,10 @@ import ShortFormContentCreator from '@/components/ShortFormContentCreator';
 import AuthorManager from '@/components/AuthorManager';
 import ProductContextManager from '@/components/ProductContextManager';
 import ClientManager from '@/components/ClientManager';
+import CustomerSuccessManager from '@/components/CustomerSuccessManager';
 import { Button } from '@/components/ui/button';
-import { Book, Bookmark, FileText, Package, Target, User, Users } from 'lucide-react';
-import { ICPStoryScript, StoryBrief, Author, ProductContext, Client } from '@/types/storytelling';
+import { Book, BookMarked, FileText, Package, Target, Trophy, User, Users } from 'lucide-react';
+import { ICPStoryScript, StoryBrief, Author, ProductContext, Client, CustomerSuccessStory } from '@/types/storytelling';
 import { ContentType } from '@/components/ContentTypeSelector';
 
 const Index = () => {
@@ -21,6 +23,7 @@ const Index = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [productContext, setProductContext] = useState<ProductContext | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
+  const [successStories, setSuccessStories] = useState<CustomerSuccessStory[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [selectedBrief, setSelectedBrief] = useState<StoryBrief | null>(null);
   const [activeTab, setActiveTab] = useState<string>('create');
@@ -36,6 +39,7 @@ const Index = () => {
     const savedProductContext = localStorage.getItem('productContext');
     const savedClients = localStorage.getItem('clients');
     const savedSelectedClientId = localStorage.getItem('selectedClientId');
+    const savedSuccessStories = localStorage.getItem('successStories');
     
     if (savedScripts) setScripts(JSON.parse(savedScripts));
     if (savedBriefs) setBriefs(JSON.parse(savedBriefs));
@@ -43,6 +47,7 @@ const Index = () => {
     if (savedProductContext) setProductContext(JSON.parse(savedProductContext));
     if (savedClients) setClients(JSON.parse(savedClients));
     if (savedSelectedClientId) setSelectedClientId(JSON.parse(savedSelectedClientId));
+    if (savedSuccessStories) setSuccessStories(JSON.parse(savedSuccessStories));
   }, []);
   
   // Save data to localStorage whenever it changes
@@ -72,6 +77,10 @@ const Index = () => {
     localStorage.setItem('selectedClientId', JSON.stringify(selectedClientId));
   }, [selectedClientId]);
 
+  useEffect(() => {
+    localStorage.setItem('successStories', JSON.stringify(successStories));
+  }, [successStories]);
+
   // Filter assets based on selected client
   const filteredScripts = selectedClientId 
     ? scripts.filter(script => script.clientId === selectedClientId)
@@ -84,6 +93,10 @@ const Index = () => {
   const filteredAuthors = selectedClientId
     ? authors.filter(author => author.clientId === selectedClientId)
     : authors;
+    
+  const filteredSuccessStories = selectedClientId
+    ? successStories.filter(story => story.clientId === selectedClientId)
+    : successStories;
 
   // Handle Client operations
   const handleClientAdded = (client: Client) => {
@@ -150,6 +163,25 @@ const Index = () => {
     if (selectedBrief && selectedBrief.targetAudience === scriptId) {
       setSelectedBrief(null);
     }
+  };
+  
+  // Handle Success Story operations
+  const handleSuccessStoryAdded = (story: CustomerSuccessStory) => {
+    const storyWithClient = {
+      ...story,
+      clientId: selectedClientId || undefined
+    };
+    setSuccessStories([...successStories, storyWithClient]);
+  };
+  
+  const handleSuccessStoryUpdated = (updatedStory: CustomerSuccessStory) => {
+    setSuccessStories(successStories.map(story => 
+      story.id === updatedStory.id ? updatedStory : story
+    ));
+  };
+  
+  const handleSuccessStoryDeleted = (storyId: string) => {
+    setSuccessStories(successStories.filter(story => story.id !== storyId));
   };
   
   // Handle Author operations
@@ -371,6 +403,14 @@ const Index = () => {
                 ICPs
               </Button>
               <Button 
+                variant={assetType === 'successStories' ? 'default' : 'outline'} 
+                onClick={() => setAssetType('successStories')}
+                className={assetType === 'successStories' ? 'bg-story-blue hover:bg-story-light-blue' : ''}
+              >
+                <Trophy className="h-4 w-4 mr-2" />
+                Success Stories
+              </Button>
+              <Button 
                 variant={assetType === 'productContext' ? 'default' : 'outline'} 
                 onClick={() => setAssetType('productContext')}
                 className={assetType === 'productContext' ? 'bg-story-blue hover:bg-story-light-blue' : ''}
@@ -407,6 +447,15 @@ const Index = () => {
                 onScriptAdded={handleScriptAdded}
                 onScriptUpdated={handleScriptUpdated}
                 onScriptDeleted={handleScriptDeleted}
+              />
+            )}
+            
+            {assetType === 'successStories' && (
+              <CustomerSuccessManager 
+                successStories={filteredSuccessStories}
+                onSuccessStoryAdded={handleSuccessStoryAdded}
+                onSuccessStoryUpdated={handleSuccessStoryUpdated}
+                onSuccessStoryDeleted={handleSuccessStoryDeleted}
               />
             )}
             

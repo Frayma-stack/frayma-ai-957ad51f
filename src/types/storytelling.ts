@@ -1,4 +1,3 @@
-
 export interface ICPStoryScriptItem {
   id: string;
   content: string;
@@ -13,6 +12,27 @@ export interface ICPStoryScript {
   externalStruggles: ICPStoryScriptItem[];
   desiredTransformations: ICPStoryScriptItem[];
   clientId?: string; // Optional client ID to associate with a client
+}
+
+export interface CustomerSuccessStory {
+  id: string;
+  title: string;
+  url?: string; // Optional URL if imported from web
+  beforeSummary: string;
+  afterSummary: string;
+  quotes: Array<{
+    id: string;
+    quote: string;
+    author: string;
+    title: string;
+  }>;
+  features: Array<{
+    id: string;
+    name: string;
+    description: string;
+  }>;
+  clientId?: string; // Optional client ID to associate with a client
+  createdAt: string;
 }
 
 export interface StoryBrief {

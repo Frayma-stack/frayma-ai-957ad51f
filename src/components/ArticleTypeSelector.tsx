@@ -51,6 +51,9 @@ const ArticleTypeSelector: FC<ArticleTypeSelectorProps> = ({ onSelect, onBack })
             <span className="text-sm text-gray-500 text-center">
               Highlight a customer's success using your solution
             </span>
+            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+              Uses Success Story Assets
+            </span>
           </Button>
           
           <Button 

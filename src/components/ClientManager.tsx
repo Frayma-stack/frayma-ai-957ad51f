@@ -20,7 +20,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { Client } from '@/types/storytelling';
-import { Plus, Edit, Trash, Users, User, Target, Package } from 'lucide-react';
+import { Plus, Edit, Trash, Users, User, Target, Package, Trophy } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 
 interface ClientManagerProps {
@@ -220,6 +220,15 @@ const ClientManager: FC<ClientManagerProps> = ({
                         >
                           <Target className="h-3.5 w-3.5 mr-1" />
                           ICPs
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex items-center"
+                          onClick={() => handleViewClientAssets(client.id, 'successStories')}
+                        >
+                          <Trophy className="h-3.5 w-3.5 mr-1" />
+                          Success Stories
                         </Button>
                         <Button 
                           variant="outline" 
