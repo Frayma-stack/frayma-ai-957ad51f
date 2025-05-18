@@ -1,8 +1,9 @@
 
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { CustomerSuccessStory } from '@/types/storytelling';
 import SuccessStoryCard from './SuccessStoryCard';
-import { BookMarked } from 'lucide-react';
+import { BookMarked, Search } from 'lucide-react';
+import { Input } from '../ui/input';
 
 interface SuccessStoryListProps {
   successStories: CustomerSuccessStory[];
@@ -15,6 +16,19 @@ const SuccessStoryList: FC<SuccessStoryListProps> = ({
   onEdit, 
   onDelete 
 }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Filter success stories based on search term
+  const filteredStories = successStories.filter(story => 
+    story.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Render empty state if no stories or no search results
   if (successStories.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -28,15 +42,37 @@ const SuccessStoryList: FC<SuccessStoryListProps> = ({
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {successStories.map((story) => (
-        <SuccessStoryCard 
-          key={story.id} 
-          story={story} 
-          onEdit={onEdit} 
-          onDelete={onDelete} 
+    <div className="space-y-4">
+      {/* Search bar */}
+      <div className="relative">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+        <Input
+          type="text"
+          placeholder="Search success stories by title..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="pl-9 w-full"
         />
-      ))}
+      </div>
+      
+      {/* Show message when no search results */}
+      {filteredStories.length === 0 && searchTerm !== '' && (
+        <div className="text-center py-6 text-gray-500">
+          <p>No success stories found matching "{searchTerm}"</p>
+        </div>
+      )}
+      
+      {/* Success stories grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {filteredStories.map((story) => (
+          <SuccessStoryCard 
+            key={story.id} 
+            story={story} 
+            onEdit={onEdit} 
+            onDelete={onDelete} 
+          />
+        ))}
+      </div>
     </div>
   );
 };
