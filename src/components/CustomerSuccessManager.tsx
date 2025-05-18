@@ -206,7 +206,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
       form.setValue("afterSummary", "After implementing our solution, ABC Corporation reduced data entry time by 85%. Their error rate dropped from 12% to less than 1%. Customer satisfaction scores increased by 35% within three months. The company was able to reassign staff to more strategic roles, improving employee satisfaction. They've since expanded their use of our platform to three additional departments.");
       
       // Create properly typed arrays for quotes and features
-      const quotes: QuoteItem[] = [
+      const mockQuotes: QuoteItem[] = [
         {
           id: crypto.randomUUID(),
           quote: "This solution transformed our daily operations. What used to take hours now happens in minutes with virtually no errors.",
@@ -221,7 +221,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
         }
       ];
       
-      const features: FeatureItem[] = [
+      const mockFeatures: FeatureItem[] = [
         {
           id: crypto.randomUUID(),
           name: "Automated Data Processing",
@@ -240,8 +240,8 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
       ];
       
       // Set the values with the properly typed arrays
-      form.setValue("quotes", quotes);
-      form.setValue("features", features);
+      form.setValue("quotes", mockQuotes);
+      form.setValue("features", mockFeatures);
     } catch (error) {
       toast({
         title: "Error",
