@@ -87,6 +87,12 @@ export interface AuthorBelief {
   description: string;
 }
 
+export interface AuthorSocialLink {
+  id: string;
+  type: 'linkedin' | 'blog' | 'website' | 'other';
+  url: string;
+}
+
 export interface Author {
   id: string;
   name: string;
@@ -96,6 +102,7 @@ export interface Author {
   experiences: AuthorExperience[];
   tones: AuthorToneItem[];
   beliefs: AuthorBelief[];
+  socialLinks?: AuthorSocialLink[]; // Added new field for social links
   clientId?: string; // Optional client ID to associate with a client
 }
 
