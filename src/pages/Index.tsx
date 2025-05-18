@@ -1,11 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ICPStoryScriptManager from '@/components/ICPStoryScriptManager';
 import StoryBriefManager from '@/components/StoryBriefManager';
 import EnhancedStoryPreview from '@/components/EnhancedStoryPreview';
-import ContentTypeSelector from '@/components/ContentTypeSelector';
+import ContentTypeSelector, { ArticleSubType } from '@/components/ContentTypeSelector';
+import ArticleTypeSelector from '@/components/ArticleTypeSelector';
 import ShortFormContentCreator from '@/components/ShortFormContentCreator';
 import AuthorManager from '@/components/AuthorManager';
 import ProductContextManager from '@/components/ProductContextManager';
@@ -25,6 +25,7 @@ const Index = () => {
   const [selectedBrief, setSelectedBrief] = useState<StoryBrief | null>(null);
   const [activeTab, setActiveTab] = useState<string>('create');
   const [contentType, setContentType] = useState<ContentType | null>(null);
+  const [articleSubType, setArticleSubType] = useState<ArticleSubType | null>(null);
   const [assetType, setAssetType] = useState<string>('clients');
   
   // Load data from localStorage on component mount
@@ -216,14 +217,23 @@ const Index = () => {
   const handleContentTypeSelect = (type: ContentType) => {
     setContentType(type);
     
-    // If article type, go to briefs tab
-    if (type === 'article') {
+    // Reset article subtype when changing content type
+    setArticleSubType(null);
+    
+    // If article type, we need to select the subtype
+    if (type !== 'article') {
       setActiveTab('briefs');
     }
+  };
+
+  const handleArticleSubTypeSelect = (subtype: ArticleSubType) => {
+    setArticleSubType(subtype);
+    setActiveTab('briefs');
   };
   
   const resetContentTypeSelection = () => {
     setContentType(null);
+    setArticleSubType(null);
   };
 
   const clientInfo = selectedClientId 
@@ -271,7 +281,12 @@ const Index = () => {
           <TabsContent value="create" className="space-y-6">
             {!contentType ? (
               <ContentTypeSelector onSelect={handleContentTypeSelect} />
-            ) : contentType === 'article' ? (
+            ) : contentType === 'article' && !articleSubType ? (
+              <ArticleTypeSelector 
+                onSelect={handleArticleSubTypeSelect} 
+                onBack={resetContentTypeSelection}
+              />
+            ) : contentType === 'article' || articleSubType ? (
               <div>
                 <StoryBriefManager 
                   briefs={filteredBriefs}
@@ -280,6 +295,7 @@ const Index = () => {
                   onBriefUpdated={handleBriefUpdated}
                   onBriefDeleted={handleBriefDeleted}
                   onBriefSelected={handleBriefSelected}
+                  articleSubType={articleSubType}
                 />
                 {filteredBriefs.length > 0 && (
                   <div className="flex justify-center mt-6">
@@ -291,14 +307,14 @@ const Index = () => {
               </div>
             ) : (
               <ShortFormContentCreator 
-                contentType={contentType as 'email' | 'linkedin' | 'newsletter'}
+                contentType={contentType as 'email' | 'linkedin' | 'custom'}
                 scripts={filteredScripts}
                 authors={filteredAuthors}
                 onBack={resetContentTypeSelection}
               />
             )}
             
-            {contentType === 'article' && (
+            {(contentType === 'article' || articleSubType) && (
               <div className="flex justify-center mt-4">
                 <Button onClick={resetContentTypeSelection} className="bg-story-blue hover:bg-story-light-blue">
                   Back to Content Types

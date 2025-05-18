@@ -12,17 +12,23 @@ import {
   FileText, 
   Mail, 
   MessageSquare, 
-  Send, 
   Settings 
 } from "lucide-react";
 
 export type ContentType = 'article' | 'email' | 'linkedin' | 'newsletter' | 'custom';
+export type ArticleSubType = 'thought_leadership' | 'customer_success' | 'newsletter';
 
 interface ContentTypeSelectorProps {
   onSelect: (type: ContentType) => void;
+  onSelectArticleSubtype?: (subtype: ArticleSubType) => void;
 }
 
-const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect }) => {
+const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect, onSelectArticleSubtype }) => {
+  // Handler for GTM Narrative Piece selection
+  const handleArticleSelection = () => {
+    onSelect('article');
+  };
+
   return (
     <Card className="w-full bg-white shadow-md">
       <CardHeader>
@@ -34,10 +40,10 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect }) => {
           <Button 
             variant="outline" 
             className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-story-blue transition-all"
-            onClick={() => onSelect('article')}
+            onClick={handleArticleSelection}
           >
             <FileText className="h-8 w-8 text-story-blue" />
-            <span className="text-lg font-medium">GTM Article</span>
+            <span className="text-lg font-medium">GTM Narrative Piece</span>
             <span className="text-sm text-gray-500 text-center">
               Create a full, structured article with high resonance and deep structure
             </span>
@@ -64,18 +70,6 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect }) => {
             <span className="text-lg font-medium">LinkedIn Post</span>
             <span className="text-sm text-gray-500 text-center">
               Create engaging social media content for professional audiences
-            </span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-story-blue transition-all"
-            onClick={() => onSelect('newsletter')}
-          >
-            <Send className="h-8 w-8 text-story-blue" />
-            <span className="text-lg font-medium">Newsletter</span>
-            <span className="text-sm text-gray-500 text-center">
-              Develop a newsletter that keeps your audience engaged
             </span>
           </Button>
           

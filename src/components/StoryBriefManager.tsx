@@ -7,6 +7,7 @@ import { Plus, FileText, Pencil, Trash, Eye } from 'lucide-react';
 import { ICPStoryScript, StoryBrief } from '@/types/storytelling';
 import StoryBriefForm from './StoryBriefForm';
 import { useToast } from '@/components/ui/use-toast';
+import { ArticleSubType } from './ContentTypeSelector';
 
 interface StoryBriefManagerProps {
   briefs: StoryBrief[];
@@ -15,6 +16,7 @@ interface StoryBriefManagerProps {
   onBriefUpdated: (brief: StoryBrief) => void;
   onBriefDeleted: (briefId: string) => void;
   onBriefSelected: (brief: StoryBrief) => void;
+  articleSubType?: ArticleSubType | null;
 }
 
 const StoryBriefManager: FC<StoryBriefManagerProps> = ({ 
@@ -23,15 +25,31 @@ const StoryBriefManager: FC<StoryBriefManagerProps> = ({
   onBriefAdded, 
   onBriefUpdated, 
   onBriefDeleted,
-  onBriefSelected
+  onBriefSelected,
+  articleSubType
 }) => {
   const { toast } = useToast();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedBrief, setSelectedBrief] = useState<StoryBrief | null>(null);
 
+  // Map article subtypes to readable titles
+  const getSubtypeTitle = () => {
+    switch (articleSubType) {
+      case 'newsletter': return 'First-Person Narrative Newsletter';
+      case 'customer_success': return 'Customer Success Story';
+      case 'thought_leadership': return 'GTM Thought Leadership Article';
+      default: return 'Story Brief & Outline';
+    }
+  };
+
   const handleAddBrief = (brief: StoryBrief) => {
-    onBriefAdded(brief);
+    // Set the content type from articleSubType if provided
+    const briefWithType = articleSubType 
+      ? { ...brief, contentType: articleSubType } 
+      : brief;
+      
+    onBriefAdded(briefWithType);
     setIsAddDialogOpen(false);
   };
 
@@ -65,7 +83,7 @@ const StoryBriefManager: FC<StoryBriefManagerProps> = ({
     <Card className="w-full bg-white shadow-md">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-story-blue">Your Story Briefs & Outlines</CardTitle>
+          <CardTitle className="text-story-blue">Your {getSubtypeTitle()}</CardTitle>
           <CardDescription>Create and manage your content frameworks</CardDescription>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -74,12 +92,12 @@ const StoryBriefManager: FC<StoryBriefManagerProps> = ({
               className="bg-story-blue hover:bg-story-light-blue"
               disabled={scripts.length === 0}
             >
-              <Plus className="h-4 w-4 mr-2" /> Create New Brief
+              <Plus className="h-4 w-4 mr-2" /> Create New {articleSubType ? getSubtypeTitle() : 'Brief'}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Create a new Story Brief & Outline</DialogTitle>
+              <DialogTitle>Create a new {getSubtypeTitle()}</DialogTitle>
               <DialogDescription>
                 Define the strategic framework for your content.
               </DialogDescription>
@@ -87,6 +105,7 @@ const StoryBriefManager: FC<StoryBriefManagerProps> = ({
             <StoryBriefForm 
               onSave={handleAddBrief} 
               availableScripts={scripts}
+              articleSubType={articleSubType}
             />
           </DialogContent>
         </Dialog>
@@ -101,8 +120,8 @@ const StoryBriefManager: FC<StoryBriefManagerProps> = ({
         ) : briefs.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <FileText className="mx-auto h-12 w-12 opacity-30 mb-2" />
-            <p>No Story Briefs yet</p>
-            <p className="text-sm mt-1">Create your first Story Brief to start crafting your narratives</p>
+            <p>No {getSubtypeTitle()} yet</p>
+            <p className="text-sm mt-1">Create your first {articleSubType ? getSubtypeTitle() : 'Story Brief'} to start crafting your narratives</p>
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -165,9 +184,9 @@ const StoryBriefManager: FC<StoryBriefManagerProps> = ({
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Edit Story Brief</DialogTitle>
+              <DialogTitle>Edit {getSubtypeTitle()}</DialogTitle>
               <DialogDescription>
-                Update the details for this Story Brief.
+                Update the details for this content.
               </DialogDescription>
             </DialogHeader>
             {selectedBrief && (
@@ -175,6 +194,7 @@ const StoryBriefManager: FC<StoryBriefManagerProps> = ({
                 onSave={handleEditBrief} 
                 initialBrief={selectedBrief} 
                 availableScripts={scripts}
+                articleSubType={articleSubType}
               />
             )}
           </DialogContent>

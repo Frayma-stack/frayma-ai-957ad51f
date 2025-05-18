@@ -8,20 +8,22 @@ import { useToast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ICPStoryScript, StoryBrief } from '@/types/storytelling';
 import { Plus, Trash } from 'lucide-react';
+import { ArticleSubType } from './ContentTypeSelector';
 
 interface StoryBriefFormProps {
   onSave: (brief: StoryBrief) => void;
   availableScripts: ICPStoryScript[];
   initialBrief?: StoryBrief;
+  articleSubType?: ArticleSubType | null;
 }
 
-const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, initialBrief }) => {
+const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, initialBrief, articleSubType }) => {
   const { toast } = useToast();
   const [brief, setBrief] = useState<StoryBrief>(
     initialBrief || {
       id: crypto.randomUUID(),
       title: '',
-      contentType: 'thought_leadership', // Adding the required contentType property with a default value
+      contentType: articleSubType || 'thought_leadership',
       
       // Strategic Alignment
       goal: '',
@@ -54,6 +56,16 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
   // For simplicity, we'll use a temporary state for anchoring element type and detail
   const [anchoringType, setAnchoringType] = useState<'belief' | 'pain' | 'struggle' | 'transformation'>('belief');
   const [anchoringItemId, setAnchoringItemId] = useState('');
+
+  // Get the content type title based on the article subtype
+  const getContentTypeTitle = () => {
+    switch (articleSubType) {
+      case 'newsletter': return 'First-Person Narrative Newsletter';
+      case 'customer_success': return 'Customer Success Story';
+      case 'thought_leadership': return 'GTM Thought Leadership Article';
+      default: return 'Story Brief & Outline';
+    }
+  };
 
   // Monitor tab changes to potentially generate outline
   useEffect(() => {
@@ -261,34 +273,38 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
   return (
     <Card className="w-full bg-white shadow-md">
       <CardHeader>
-        <CardTitle className="text-story-blue">Story Brief & Outline</CardTitle>
+        <CardTitle className="text-story-blue">{getContentTypeTitle()}</CardTitle>
         <CardDescription>Create a structured framework for your story</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4 mb-4">
-          <label className="text-sm font-medium">Brief Title*</label>
+          <label className="text-sm font-medium">Enter Your Angle/Idea*</label>
           <Input 
-            placeholder="Give this brief a descriptive title"
+            placeholder="Describe the angle/idea or hunch driving you to craft this narrative piece"
             value={brief.title}
             onChange={(e) => handleInputChange('title', e.target.value)}
           />
         </div>
         
-        <div className="space-y-4 mb-4">
-          <label className="text-sm font-medium">Content Type*</label>
-          <Select 
-            value={brief.contentType} 
-            onValueChange={(value: 'customer_success' | 'thought_leadership') => handleInputChange('contentType', value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select content type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="customer_success">Customer Success Story</SelectItem>
-              <SelectItem value="thought_leadership">Thought Leadership</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Hide content type selection if articleSubType is provided */}
+        {!articleSubType && (
+          <div className="space-y-4 mb-4">
+            <label className="text-sm font-medium">Content Type*</label>
+            <Select 
+              value={brief.contentType} 
+              onValueChange={(value: 'customer_success' | 'thought_leadership' | 'newsletter') => handleInputChange('contentType', value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select content type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="customer_success">Customer Success Story</SelectItem>
+                <SelectItem value="thought_leadership">Thought Leadership</SelectItem>
+                <SelectItem value="newsletter">First-Person Narrative Newsletter</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid grid-cols-4">

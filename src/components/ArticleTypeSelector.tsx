@@ -1,0 +1,79 @@
+
+import { FC } from 'react';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { 
+  FileText, 
+  Mail, 
+  Trophy 
+} from "lucide-react";
+import { ArticleSubType } from './ContentTypeSelector';
+
+interface ArticleTypeSelectorProps {
+  onSelect: (type: ArticleSubType) => void;
+  onBack: () => void;
+}
+
+const ArticleTypeSelector: FC<ArticleTypeSelectorProps> = ({ onSelect, onBack }) => {
+  return (
+    <Card className="w-full bg-white shadow-md">
+      <CardHeader>
+        <CardTitle className="text-story-blue">Choose Your GTM Narrative Piece Type</CardTitle>
+        <CardDescription>Select the type of narrative you want to create</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Button 
+            variant="outline" 
+            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-story-blue transition-all"
+            onClick={() => onSelect('newsletter')}
+          >
+            <Mail className="h-8 w-8 text-story-blue" />
+            <span className="text-lg font-medium">First-Person Narrative Newsletter</span>
+            <span className="text-sm text-gray-500 text-center">
+              Create an engaging newsletter in first-person voice
+            </span>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-story-blue transition-all"
+            onClick={() => onSelect('customer_success')}
+          >
+            <Trophy className="h-8 w-8 text-story-blue" />
+            <span className="text-lg font-medium">Customer Success Story</span>
+            <span className="text-sm text-gray-500 text-center">
+              Highlight a customer's success using your solution
+            </span>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-story-blue transition-all"
+            onClick={() => onSelect('thought_leadership')}
+          >
+            <FileText className="h-8 w-8 text-story-blue" />
+            <span className="text-lg font-medium">GTM Thought Leadership Article</span>
+            <span className="text-sm text-gray-500 text-center">
+              Establish authority with insightful industry perspectives
+            </span>
+          </Button>
+        </div>
+        
+        <div className="flex justify-center mt-4">
+          <Button onClick={onBack} variant="outline">
+            Back to Content Types
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default ArticleTypeSelector;
