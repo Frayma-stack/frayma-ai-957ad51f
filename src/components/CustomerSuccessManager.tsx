@@ -79,6 +79,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
   const [urlToProcess, setUrlToProcess] = useState("");
   const [addMode, setAddMode] = useState<'manual' | 'url'>('manual');
   
+  // Use the strongly typed form definition with defaults that match required properties
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -133,6 +134,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
     setUrlToProcess("");
   };
 
+  // This function handles the edit dialog opening
   const handleOpenEditDialog = (story: CustomerSuccessStory) => {
     setSelectedStory(story);
     editForm.reset({
@@ -146,6 +148,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
     setIsEditDialogOpen(true);
   };
 
+  // Adding a new quote to the form
   const handleAddQuote = () => {
     const currentQuotes = form.getValues("quotes") || [];
     form.setValue("quotes", [
@@ -216,6 +219,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
     editForm.setValue("features", currentFeatures.filter(feature => feature.id !== id));
   };
 
+  // Fixed the processSuccessStoryUrl function to use properly typed data
   const processSuccessStoryUrl = async () => {
     if (!urlToProcess) {
       toast({
@@ -233,18 +237,12 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
       // For now, we'll simulate the API call with a timeout
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Simulate success with mock data
       toast({
         title: "Success",
         description: "Successfully processed the success story URL",
       });
       
-      // Populate the form with mock data - ensure all required fields have values
-      form.setValue("title", "ABC Corporation Success Story");
-      form.setValue("beforeSummary", "ABC Corporation was struggling with manual data entry processes that were error-prone and time-consuming. Their team was spending over 20 hours per week on data entry tasks. Customer satisfaction was declining due to delays in processing orders. They were losing potential clients to competitors with more efficient systems. The company needed a solution that could automate their workflow without requiring a complete overhaul of their existing systems.");
-      form.setValue("afterSummary", "After implementing our solution, ABC Corporation reduced data entry time by 85%. Their error rate dropped from 12% to less than 1%. Customer satisfaction scores increased by 35% within three months. The company was able to reassign staff to more strategic roles, improving employee satisfaction. They've since expanded their use of our platform to three additional departments.");
-      
-      // Create properly typed arrays for quotes and features
+      // Create properly typed mock data that satisfies the QuoteItem and FeatureItem types
       const mockQuotes: QuoteItem[] = [
         {
           id: crypto.randomUUID(),
@@ -278,7 +276,10 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
         }
       ];
       
-      // Set the values with the properly typed arrays
+      // Populate the form with correctly typed data
+      form.setValue("title", "ABC Corporation Success Story");
+      form.setValue("beforeSummary", "ABC Corporation was struggling with manual data entry processes that were error-prone and time-consuming. Their team was spending over 20 hours per week on data entry tasks. Customer satisfaction was declining due to delays in processing orders. They were losing potential clients to competitors with more efficient systems. The company needed a solution that could automate their workflow without requiring a complete overhaul of their existing systems.");
+      form.setValue("afterSummary", "After implementing our solution, ABC Corporation reduced data entry time by 85%. Their error rate dropped from 12% to less than 1%. Customer satisfaction scores increased by 35% within three months. The company was able to reassign staff to more strategic roles, improving employee satisfaction. They've since expanded their use of our platform to three additional departments.");
       form.setValue("quotes", mockQuotes);
       form.setValue("features", mockFeatures);
     } catch (error) {
