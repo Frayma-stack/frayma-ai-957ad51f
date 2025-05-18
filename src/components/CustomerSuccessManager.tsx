@@ -1,3 +1,4 @@
+
 import { FC, useState } from 'react';
 import { 
   Card, 
@@ -55,6 +56,8 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+type QuoteItem = { id: string; quote: string; author: string; title: string; };
+type FeatureItem = { id: string; name: string; description: string; };
 
 const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
   successStories,
@@ -199,8 +202,8 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
       form.setValue("beforeSummary", "ABC Corporation was struggling with manual data entry processes that were error-prone and time-consuming. Their team was spending over 20 hours per week on data entry tasks. Customer satisfaction was declining due to delays in processing orders. They were losing potential clients to competitors with more efficient systems. The company needed a solution that could automate their workflow without requiring a complete overhaul of their existing systems.");
       form.setValue("afterSummary", "After implementing our solution, ABC Corporation reduced data entry time by 85%. Their error rate dropped from 12% to less than 1%. Customer satisfaction scores increased by 35% within three months. The company was able to reassign staff to more strategic roles, improving employee satisfaction. They've since expanded their use of our platform to three additional departments.");
       
-      // Fix: Ensure all required properties are properly typed for quotes
-      form.setValue("quotes", [
+      // Create properly typed arrays for quotes and features
+      const quotes: QuoteItem[] = [
         {
           id: crypto.randomUUID(),
           quote: "This solution transformed our daily operations. What used to take hours now happens in minutes with virtually no errors.",
@@ -213,10 +216,9 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
           author: "Michael Johnson",
           title: "IT Director at ABC Corporation"
         }
-      ] as {id: string; quote: string; author: string; title: string;}[]);
+      ];
       
-      // Fix: Ensure all required properties are properly typed for features
-      form.setValue("features", [
+      const features: FeatureItem[] = [
         {
           id: crypto.randomUUID(),
           name: "Automated Data Processing",
@@ -232,7 +234,11 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
           name: "Real-time Analytics Dashboard",
           description: "Provided management with visibility into operational efficiency metrics"
         }
-      ] as {id: string; name: string; description: string;}[]);
+      ];
+      
+      // Set the values with the properly typed arrays
+      form.setValue("quotes", quotes);
+      form.setValue("features", features);
     } catch (error) {
       toast({
         title: "Error",
