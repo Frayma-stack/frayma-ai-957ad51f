@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { 
   Card, 
@@ -37,27 +36,31 @@ interface CustomerSuccessManagerProps {
   onSuccessStoryDeleted: (successStoryId: string) => void;
 }
 
+const quoteItemSchema = z.object({
+  id: z.string(),
+  quote: z.string(),
+  author: z.string(),
+  title: z.string()
+});
+
+const featureItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string()
+});
+
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   url: z.string().optional(),
   beforeSummary: z.string().min(1, "Before summary is required"),
   afterSummary: z.string().min(1, "After summary is required"),
-  quotes: z.array(z.object({
-    id: z.string(),
-    quote: z.string(),
-    author: z.string(),
-    title: z.string()
-  })),
-  features: z.array(z.object({
-    id: z.string(),
-    name: z.string(),
-    description: z.string()
-  }))
+  quotes: z.array(quoteItemSchema),
+  features: z.array(featureItemSchema)
 });
 
 type FormValues = z.infer<typeof formSchema>;
-type QuoteItem = { id: string; quote: string; author: string; title: string; };
-type FeatureItem = { id: string; name: string; description: string; };
+type QuoteItem = z.infer<typeof quoteItemSchema>;
+type FeatureItem = z.infer<typeof featureItemSchema>;
 
 const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
   successStories,
