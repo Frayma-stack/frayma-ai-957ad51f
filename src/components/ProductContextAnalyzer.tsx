@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { ProductContext, ProductFeature, ProductUseCase, ProductDifferentiator, CompanyLink } from '@/types/storytelling';
-import { Loader2, ExternalLink, Plus, Trash } from 'lucide-react';
+import { Loader2, ExternalLink } from 'lucide-react';
+import { usePerplexity } from '@/contexts/PerplexityContext';
 
 interface ProductContextAnalyzerProps {
   companyLinks: CompanyLink[];
@@ -27,14 +28,17 @@ const ProductContextAnalyzer: FC<ProductContextAnalyzerProps> = ({
 }) => {
   const { toast } = useToast();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [apiKey, setApiKey] = useState('');
   const [additionalUrls, setAdditionalUrls] = useState('');
+  const { apiKey, isConfigured } = usePerplexity();
+  const [customApiKey, setCustomApiKey] = useState('');
   
   const handleAnalyze = async () => {
-    if (!apiKey.trim()) {
+    const keyToUse = customApiKey.trim() || apiKey;
+    
+    if (!keyToUse) {
       toast({
         title: "API Key Required",
-        description: "Please enter your Perplexity API key to continue.",
+        description: "Please enter a Perplexity API key to continue.",
         variant: "destructive"
       });
       return;
@@ -108,7 +112,7 @@ const ProductContextAnalyzer: FC<ProductContextAnalyzerProps> = ({
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          'Authorization': `Bearer ${keyToUse}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -220,22 +224,31 @@ const ProductContextAnalyzer: FC<ProductContextAnalyzerProps> = ({
       </CardHeader>
       
       <CardContent className="space-y-6">
-        <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-md">
-          <p className="text-sm text-yellow-800">
-            This feature uses Perplexity AI to analyze public information about the company.
-            You'll need a Perplexity API key to proceed.
-          </p>
-        </div>
+        {isConfigured ? (
+          <div className="bg-green-50 border border-green-200 p-3 rounded-md">
+            <p className="text-sm text-green-800">
+              Perplexity API key is already configured. You can start analyzing immediately.
+            </p>
+          </div>
+        ) : (
+          <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-md">
+            <p className="text-sm text-yellow-800">
+              This feature uses Perplexity AI to analyze public information about the company.
+            </p>
+          </div>
+        )}
         
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Perplexity API Key</label>
-          <Input 
-            type="password"
-            placeholder="Enter your Perplexity API key"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-          />
-        </div>
+        {!isConfigured && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Perplexity API Key</label>
+            <Input 
+              type="password"
+              placeholder="Enter your Perplexity API key"
+              value={customApiKey}
+              onChange={(e) => setCustomApiKey(e.target.value)}
+            />
+          </div>
+        )}
         
         <div className="space-y-2">
           <label className="text-sm font-medium">Company URLs to Analyze</label>

@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { AuthorSocialLink, AuthorExperience, AuthorToneItem } from '@/types/storytelling';
 import { Loader2, ExternalLink } from 'lucide-react';
+import { usePerplexity } from '@/contexts/PerplexityContext';
 
 interface ProfileAnalyzerProps {
   socialLinks: AuthorSocialLink[];
@@ -30,14 +31,17 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
 }) => {
   const { toast } = useToast();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [apiKey, setApiKey] = useState('');
   const [additionalUrls, setAdditionalUrls] = useState('');
+  const { apiKey, isConfigured } = usePerplexity();
+  const [customApiKey, setCustomApiKey] = useState('');
   
   const handleAnalyze = async () => {
-    if (!apiKey.trim()) {
+    const keyToUse = customApiKey.trim() || apiKey;
+    
+    if (!keyToUse) {
       toast({
         title: "API Key Required",
-        description: "Please enter your Perplexity API key to continue.",
+        description: "Please enter a Perplexity API key to continue.",
         variant: "destructive"
       });
       return;
@@ -90,7 +94,7 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          'Authorization': `Bearer ${keyToUse}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -183,27 +187,36 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
       </CardHeader>
       
       <CardContent className="space-y-6">
-        <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-md">
-          <p className="text-sm text-yellow-800">
-            This feature uses Perplexity AI to analyze public information about the author.
-            You'll need a Perplexity API key to proceed.
-          </p>
-        </div>
+        {isConfigured ? (
+          <div className="bg-green-50 border border-green-200 p-3 rounded-md">
+            <p className="text-sm text-green-800">
+              Perplexity API key is already configured. You can start analyzing immediately.
+            </p>
+          </div>
+        ) : (
+          <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-md">
+            <p className="text-sm text-yellow-800">
+              This feature uses Perplexity AI to analyze public information about the author.
+            </p>
+          </div>
+        )}
         
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Perplexity API Key</label>
-          <Input 
-            type="password"
-            placeholder="Enter your Perplexity API key"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-          />
-        </div>
+        {!isConfigured && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Perplexity API Key</label>
+            <Input 
+              type="password"
+              placeholder="Enter your Perplexity API key"
+              value={customApiKey}
+              onChange={(e) => setCustomApiKey(e.target.value)}
+            />
+          </div>
+        )}
         
         <div className="space-y-2">
           <label className="text-sm font-medium">LinkedIn and Other URLs to Analyze</label>
           <div className="space-y-2">
-            {socialLinks.map((link, index) => (
+            {socialLinks.map((link) => (
               <div key={link.id} className="flex items-center gap-2 text-sm">
                 <span className="w-20 text-gray-500">{link.type}:</span>
                 <div className="flex-1 truncate">{link.url}</div>
