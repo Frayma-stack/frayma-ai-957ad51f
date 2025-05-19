@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { CustomerSuccessStory } from '@/types/storytelling';
 import { useToast } from "@/hooks/use-toast";
-import AddSuccessStoryDialog from './success-stories/AddSuccessStoryDialog';
+import { AddSuccessStoryDialog } from './success-stories/AddSuccessStoryDialog';
 import EditSuccessStoryDialog from './success-stories/EditSuccessStoryDialog';
 import SuccessStoryList from './success-stories/SuccessStoryList';
 
@@ -76,7 +76,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
             )}
           </CardDescription>
         </div>
-        <AddSuccessStoryDialog onSuccessStoryAdded={onSuccessStoryAdded} />
+        <AddSuccessStoryDialog onStoryAdded={onSuccessStoryAdded} />
       </CardHeader>
       
       <CardContent>
@@ -88,13 +88,19 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
         
         {/* Edit Dialog */}
         <EditSuccessStoryDialog
-          isOpen={isEditDialogOpen}
-          onClose={() => {
-            setIsEditDialogOpen(false);
-            setSelectedStory(null);
+          open={isEditDialogOpen}
+          setOpen={setIsEditDialogOpen}
+          story={selectedStory || {
+            id: '',
+            title: '',
+            beforeSummary: '',
+            afterSummary: '',
+            quotes: [],
+            features: [],
+            createdAt: '',
           }}
-          story={selectedStory}
-          onSuccessStoryUpdated={onSuccessStoryUpdated}
+          onUpdate={onSuccessStoryUpdated}
+          onDelete={onSuccessStoryDeleted}
         />
       </CardContent>
     </Card>
