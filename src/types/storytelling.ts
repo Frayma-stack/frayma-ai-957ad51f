@@ -1,3 +1,4 @@
+
 export interface ICPStoryScriptItem {
   id: string;
   content: string;
@@ -136,6 +137,11 @@ export interface ProductDifferentiator {
   competitorComparison: string;
 }
 
+export interface CompanyLink {
+  type: 'linkedin' | 'website' | 'other';
+  url: string;
+}
+
 export interface ProductContext {
   id: string;
   features: ProductFeature[];
@@ -144,6 +150,7 @@ export interface ProductContext {
   categoryPOV: string;
   companyMission: string;
   uniqueInsight: string;
+  companyLinks?: CompanyLink[]; // Added new field for company links
   clientId?: string; // Optional client ID to associate with a client
 }
 

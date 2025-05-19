@@ -1,4 +1,3 @@
-
 import { FC, useEffect } from 'react';
 import { CustomerSuccessStory } from '@/types/storytelling';
 import { 
@@ -79,11 +78,19 @@ const EditSuccessStoryDialog: FC<EditSuccessStoryDialogProps> = ({
     if (story) {
       form.reset({
         title: story.title,
-        url: story.url || "",
         beforeSummary: story.beforeSummary,
         afterSummary: story.afterSummary,
-        quotes: story.quotes,
-        features: story.features
+        quotes: story.quotes.map(quote => ({
+          id: quote.id,
+          quote: quote.quote,
+          author: quote.author,
+          title: quote.title
+        })),
+        features: story.features.map(feature => ({
+          id: feature.id,
+          name: feature.name,
+          description: feature.description
+        }))
       });
     }
   }, [story, form]);

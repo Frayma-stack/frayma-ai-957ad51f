@@ -82,20 +82,19 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({ onSuccessStoryA
 
   const resetForm = () => {
     form.reset({
-      title: "",
-      url: "",
-      beforeSummary: "",
-      afterSummary: "",
-      quotes: [{
-        id: crypto.randomUUID(),
-        quote: "",
-        author: "",
-        title: ""
-      }],
-      features: [{
+      title: '',
+      beforeSummary: '',
+      afterSummary: '',
+      quotes: [{ 
         id: crypto.randomUUID(), 
-        name: "", 
-        description: "" 
+        quote: '', 
+        author: '', 
+        title: '' 
+      }],
+      features: [{ 
+        id: crypto.randomUUID(), 
+        name: '', 
+        description: '' 
       }]
     });
     setUrlToProcess("");

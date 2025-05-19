@@ -11,20 +11,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { AuthorSocialLink, AuthorExperience, AuthorToneItem } from '@/types/storytelling';
-import { Loader2, ExternalLink } from 'lucide-react';
+import { ProductContext, ProductFeature, ProductUseCase, ProductDifferentiator, CompanyLink } from '@/types/storytelling';
+import { Loader2, ExternalLink, Plus, Trash } from 'lucide-react';
 
-interface ProfileAnalyzerProps {
-  socialLinks: AuthorSocialLink[];
+interface ProductContextAnalyzerProps {
+  companyLinks: CompanyLink[];
   onClose: () => void;
-  onAnalysisComplete: (results: {
-    experiences?: AuthorExperience[],
-    tones?: AuthorToneItem[]
-  }) => void;
+  onAnalysisComplete: (results: Partial<ProductContext>) => void;
 }
 
-const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({ 
-  socialLinks, 
+const ProductContextAnalyzer: FC<ProductContextAnalyzerProps> = ({ 
+  companyLinks, 
   onClose,
   onAnalysisComplete
 }) => {
@@ -47,12 +44,16 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
     
     try {
       // Collect all URLs
-      const linkedinUrls = socialLinks
+      const companyWebsites = companyLinks
+        .filter(link => link.type === 'website' && link.url.trim() !== '')
+        .map(link => link.url);
+      
+      const linkedinUrls = companyLinks
         .filter(link => link.type === 'linkedin' && link.url.trim() !== '')
         .map(link => link.url);
       
-      const otherUrls = [...socialLinks
-        .filter(link => link.type !== 'linkedin' && link.url.trim() !== '')
+      const otherUrls = [...companyLinks
+        .filter(link => link.type === 'other' && link.url.trim() !== '')
         .map(link => link.url)];
       
       // Add any manually entered URLs
@@ -63,10 +64,12 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
           .forEach(url => otherUrls.push(url));
       }
       
-      if (linkedinUrls.length === 0 && otherUrls.length === 0) {
+      const allUrls = [...companyWebsites, ...linkedinUrls, ...otherUrls];
+      
+      if (allUrls.length === 0) {
         toast({
           title: "No URLs to analyze",
-          description: "Please provide at least one LinkedIn profile or other URL.",
+          description: "Please provide at least one company website or LinkedIn URL.",
           variant: "destructive"
         });
         setIsAnalyzing(false);
@@ -74,17 +77,32 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
       }
       
       // Format the prompt for Perplexity
-      let prompt = "";
-      if (linkedinUrls.length > 0) {
-        prompt += `Visit the last 20 posts on ${linkedinUrls.length > 1 ? 'these LinkedIn profiles' : 'this LinkedIn profile'}: ${linkedinUrls.join(', ')}`;
-      }
-      
-      if (otherUrls.length > 0) {
-        if (prompt) prompt += " and ";
-        prompt += `the following urls: ${otherUrls.join(', ')}`;
-      }
-      
-      prompt += " and create a summary of their experiences and their writing tones. Then give each experience and tone a name and a succinct summary of each in five sentences or less. Format the output as a JSON object with two arrays: 'experiences' (with fields 'title' and 'description') and 'tones' (with fields 'tone' and 'description').";
+      const prompt = `Visit the company website and LinkedIn urls: ${allUrls.join(', ')} and extract a summary of the company, their features, solutions, and use cases. For each of these, name each use case, feature, and solution, and add a succinct summary of each in about five sentences under the names. Format the output as a JSON object with these fields: 
+      {
+        "companyMission": "The company's mission statement or purpose",
+        "categoryPOV": "The company's perspective on their industry or product category",
+        "uniqueInsight": "What makes this company unique in their space",
+        "features": [
+          {
+            "name": "Feature name",
+            "benefits": ["Benefit 1", "Benefit 2"]
+          }
+        ],
+        "useCases": [
+          {
+            "useCase": "Use case name",
+            "userRole": "Target user for this use case",
+            "description": "Description of the use case"
+          }
+        ],
+        "differentiators": [
+          {
+            "name": "Differentiator name",
+            "description": "Description of this differentiator",
+            "competitorComparison": "How this compares to competitors"
+          }
+        ]
+      }`;
       
       // Call Perplexity API
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -98,7 +116,7 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
           messages: [
             {
               role: 'system',
-              content: 'You are an expert at analyzing professional profiles and content. Extract information in the format requested.'
+              content: 'You are an expert at analyzing company websites and LinkedIn profiles. Extract information in the format requested.'
             },
             {
               role: 'user',
@@ -106,7 +124,7 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
             }
           ],
           temperature: 0.2,
-          max_tokens: 2000,
+          max_tokens: 3000,
         }),
       });
       
@@ -137,35 +155,54 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
       }
       
       // Transform the data to match our expected format
-      const experiences: AuthorExperience[] = (parsedData.experiences || []).map((exp: any) => ({
-        id: crypto.randomUUID(),
-        title: exp.title || '',
-        description: exp.description || ''
-      }));
+      const transformedData: Partial<ProductContext> = {
+        companyMission: parsedData.companyMission || '',
+        categoryPOV: parsedData.categoryPOV || '',
+        uniqueInsight: parsedData.uniqueInsight || '',
+        features: (parsedData.features || []).map((feature: any) => ({
+          id: crypto.randomUUID(),
+          name: feature.name || '',
+          benefits: feature.benefits || ['']
+        } as ProductFeature)),
+        useCases: (parsedData.useCases || []).map((useCase: any) => ({
+          id: crypto.randomUUID(),
+          useCase: useCase.useCase || '',
+          userRole: useCase.userRole || '',
+          description: useCase.description || ''
+        } as ProductUseCase)),
+        differentiators: (parsedData.differentiators || []).map((diff: any) => ({
+          id: crypto.randomUUID(),
+          name: diff.name || '',
+          description: diff.description || '',
+          competitorComparison: diff.competitorComparison || ''
+        } as ProductDifferentiator))
+      };
       
-      const tones: AuthorToneItem[] = (parsedData.tones || []).map((tone: any) => ({
-        id: crypto.randomUUID(),
-        tone: tone.tone || '',
-        description: tone.description || ''
-      }));
-      
-      if (experiences.length === 0 && tones.length === 0) {
+      if (
+        !transformedData.features?.length && 
+        !transformedData.useCases?.length && 
+        !transformedData.differentiators?.length && 
+        !transformedData.companyMission && 
+        !transformedData.categoryPOV && 
+        !transformedData.uniqueInsight
+      ) {
         toast({
-          title: "Analysis yielded no results",
-          description: "No experiences or tones could be extracted from the provided URLs.",
+          title: "Analysis yielded minimal results",
+          description: "Limited information could be extracted from the provided URLs.",
           variant: "destructive"
         });
       } else {
-        onAnalysisComplete({
-          experiences: experiences.length > 0 ? experiences : undefined,
-          tones: tones.length > 0 ? tones : undefined
+        onAnalysisComplete(transformedData);
+        toast({
+          title: "Analysis Complete",
+          description: "Company information has been extracted successfully."
         });
       }
     } catch (error) {
-      console.error('Error analyzing profile:', error);
+      console.error('Error analyzing company profile:', error);
       toast({
         title: "Analysis Failed",
-        description: error instanceof Error ? error.message : "An unknown error occurred while analyzing the profile.",
+        description: error instanceof Error ? error.message : "An unknown error occurred while analyzing the company profile.",
         variant: "destructive"
       });
     } finally {
@@ -176,16 +213,16 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
   return (
     <Card className="bg-white shadow-md">
       <CardHeader>
-        <CardTitle className="text-story-blue">Analyze Author's Online Presence</CardTitle>
+        <CardTitle className="text-story-blue">Analyze Company Profile</CardTitle>
         <CardDescription>
-          Use Perplexity AI to analyze the author's LinkedIn profile and other online content
+          Use Perplexity AI to analyze the company's online presence
         </CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-6">
         <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-md">
           <p className="text-sm text-yellow-800">
-            This feature uses Perplexity AI to analyze public information about the author.
+            This feature uses Perplexity AI to analyze public information about the company.
             You'll need a Perplexity API key to proceed.
           </p>
         </div>
@@ -201,10 +238,10 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
         </div>
         
         <div className="space-y-2">
-          <label className="text-sm font-medium">LinkedIn and Other URLs to Analyze</label>
+          <label className="text-sm font-medium">Company URLs to Analyze</label>
           <div className="space-y-2">
-            {socialLinks.map((link, index) => (
-              <div key={link.id} className="flex items-center gap-2 text-sm">
+            {companyLinks.map((link, index) => (
+              <div key={index} className="flex items-center gap-2 text-sm">
                 <span className="w-20 text-gray-500">{link.type}:</span>
                 <div className="flex-1 truncate">{link.url}</div>
                 <Button 
@@ -231,7 +268,7 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
             onChange={(e) => setAdditionalUrls(e.target.value)}
           />
           <p className="text-xs text-gray-500">
-            Add links to blog posts, articles, or other content written by the author.
+            Add links to product pages, case studies, or other content about the company.
           </p>
         </div>
       </CardContent>
@@ -251,7 +288,7 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
               Analyzing...
             </>
           ) : (
-            'Analyze Profile'
+            'Analyze Company'
           )}
         </Button>
       </CardFooter>
@@ -259,4 +296,4 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
   );
 };
 
-export default ProfileAnalyzer;
+export default ProductContextAnalyzer;

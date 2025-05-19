@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProductContext } from '@/types/storytelling';
-import { Edit, Image, FileVideo } from 'lucide-react';
+import { Edit, Image, FileVideo, Globe, Linkedin, ExternalLink } from 'lucide-react';
 import ProductContextForm from './ProductContextForm';
 
 interface ProductContextManagerProps {
@@ -74,6 +74,35 @@ const ProductContextManager: FC<ProductContextManagerProps> = ({
             <CardDescription>Your product's core narrative and positioning</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Company links */}
+            {productContext.companyLinks && productContext.companyLinks.length > 0 && (
+              <div className="mb-4">
+                <h3 className="font-medium mb-2">Company Links</h3>
+                <div className="flex flex-wrap gap-2">
+                  {productContext.companyLinks.map((link, index) => (
+                    <a 
+                      key={index}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-md text-gray-700"
+                    >
+                      {link.type === 'website' ? (
+                        <Globe className="h-3.5 w-3.5 mr-1.5" />
+                      ) : link.type === 'linkedin' ? (
+                        <Linkedin className="h-3.5 w-3.5 mr-1.5" />
+                      ) : (
+                        <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
+                      )}
+                      {link.type === 'website' ? 'Website' : 
+                       link.type === 'linkedin' ? 'LinkedIn' : 
+                       'Resource'}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div>
               <h3 className="font-medium mb-2">Core Narrative</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
