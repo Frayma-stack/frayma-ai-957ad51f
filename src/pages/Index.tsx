@@ -338,9 +338,10 @@ const Index = () => {
               </div>
             ) : (
               <ShortFormContentCreator 
-                contentType={contentType as 'email' | 'linkedin' | 'newsletter'}
+                contentType={contentType as 'email' | 'linkedin' | 'custom'}
                 scripts={filteredScripts}
                 authors={filteredAuthors}
+                successStories={filteredSuccessStories}
                 onBack={resetContentTypeSelection}
               />
             )}

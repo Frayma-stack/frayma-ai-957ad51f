@@ -1,331 +1,367 @@
-import { FC, useEffect } from 'react';
-import { CustomerSuccessStory } from '@/types/storytelling';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle,
-  DialogFooter
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Plus, Trash } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-
-// Define strict schemas for the items
-const quoteItemSchema = z.object({
-  id: z.string(),
-  quote: z.string(),
-  author: z.string(),
-  title: z.string()
-});
-
-const featureItemSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string()
-});
-
-const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  url: z.string().optional(),
-  beforeSummary: z.string().min(1, "Before summary is required"),
-  afterSummary: z.string().min(1, "After summary is required"),
-  quotes: z.array(quoteItemSchema),
-  features: z.array(featureItemSchema)
-});
-
-// Define strongly typed interfaces that exactly match the schema
-type FormValues = z.infer<typeof formSchema>;
-type QuoteItem = z.infer<typeof quoteItemSchema>;
-type FeatureItem = z.infer<typeof featureItemSchema>;
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { Textarea } from "@/components/ui/textarea"
+import { useToast } from "@/components/ui/use-toast"
+import { Plus, Trash } from "lucide-react"
+import { FC, useState } from "react"
 
 interface EditSuccessStoryDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  story: CustomerSuccessStory | null;
-  onSuccessStoryUpdated: (successStory: CustomerSuccessStory) => void;
+  open: boolean
+  setOpen: (open: boolean) => void
+  story: {
+    id: string
+    title: string
+    url?: string
+    beforeSummary: string
+    afterSummary: string
+    quotes: Array<{
+      id: string
+      quote: string
+      author: string
+      title: string
+    }>
+    features: Array<{
+      id: string
+      name: string
+      description: string
+    }>
+    clientId?: string
+    createdAt: string
+  }
+  onUpdate: (story: any) => void
+  onDelete: (id: string) => void
 }
 
-const EditSuccessStoryDialog: FC<EditSuccessStoryDialogProps> = ({ 
-  isOpen, 
-  onClose, 
-  story, 
-  onSuccessStoryUpdated 
+const EditSuccessStoryDialog: FC<EditSuccessStoryDialogProps> = ({
+  open,
+  setOpen,
+  story,
+  onUpdate,
+  onDelete,
 }) => {
-  const { toast } = useToast();
-  
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: "",
-      url: "",
-      beforeSummary: "",
-      afterSummary: "",
-      quotes: [],
-      features: []
+  const { toast } = useToast()
+  const [title, setTitle] = useState(story.title)
+  const [url, setUrl] = useState(story.url || "")
+  const [beforeSummary, setBeforeSummary] = useState(story.beforeSummary)
+  const [afterSummary, setAfterSummary] = useState(story.afterSummary)
+  const [quotes, setQuotes] = useState(story.quotes)
+  const [features, setFeatures] = useState(story.features)
+
+  const handleQuoteAdd = () => {
+    setQuotes([
+      ...quotes,
+      { id: crypto.randomUUID(), quote: "", author: "", title: "" },
+    ])
+  }
+
+  const handleQuoteUpdate = (
+    id: string,
+    field: string,
+    value: string
+  ) => {
+    setQuotes(
+      quotes.map((quote) =>
+        quote.id === id ? { ...quote, [field]: value } : quote
+      )
+    )
+  }
+
+  const handleQuoteDelete = (id: string) => {
+    setQuotes(quotes.filter((quote) => quote.id !== id))
+  }
+
+  const handleFeatureAdd = () => {
+    setFeatures([
+      ...features,
+      { id: crypto.randomUUID(), name: "", description: "" },
+    ])
+  }
+
+  const handleFeatureUpdate = (
+    id: string,
+    field: string,
+    value: string
+  ) => {
+    setFeatures(
+      features.map((feature) =>
+        feature.id === id ? { ...feature, [field]: value } : feature
+      )
+    )
+  }
+
+  const handleFeatureDelete = (id: string) => {
+    setFeatures(features.filter((feature) => feature.id !== id))
+  }
+
+  const handleSubmit = () => {
+    if (!title || !beforeSummary || !afterSummary) {
+      toast({
+        title: "Missing fields",
+        description: "Please fill in all fields.",
+        variant: "destructive",
+      })
+      return
     }
-  });
-  
-  // Reset form when the dialog opens with a new story
-  useEffect(() => {
-    if (story) {
-      form.reset({
-        title: story.title,
-        beforeSummary: story.beforeSummary,
-        afterSummary: story.afterSummary,
-        quotes: story.quotes.map(quote => ({
-          id: quote.id,
-          quote: quote.quote,
-          author: quote.author,
-          title: quote.title
-        })),
-        features: story.features.map(feature => ({
-          id: feature.id,
-          name: feature.name,
-          description: feature.description
-        }))
-      });
-    }
-  }, [story, form]);
 
-  const handleAddQuote = () => {
-    const currentQuotes = form.getValues("quotes") || [];
-    form.setValue("quotes", [
-      ...currentQuotes, 
-      { 
-        id: crypto.randomUUID(), 
-        quote: "", 
-        author: "", 
-        title: "" 
-      }
-    ]);
-  };
-
-  const handleRemoveQuote = (id: string) => {
-    const currentQuotes = form.getValues("quotes");
-    form.setValue("quotes", currentQuotes.filter(quote => quote.id !== id));
-  };
-
-  const handleAddFeature = () => {
-    const currentFeatures = form.getValues("features") || [];
-    form.setValue("features", [
-      ...currentFeatures, 
-      { 
-        id: crypto.randomUUID(), 
-        name: "", 
-        description: "" 
-      }
-    ]);
-  };
-
-  const handleRemoveFeature = (id: string) => {
-    const currentFeatures = form.getValues("features");
-    form.setValue("features", currentFeatures.filter(feature => feature.id !== id));
-  };
-
-  const onSubmit = (data: FormValues) => {
-    if (!story) return;
-
-    const updatedSuccessStory: CustomerSuccessStory = {
+    const updatedStory = {
       ...story,
-      title: data.title,
-      url: data.url,
-      beforeSummary: data.beforeSummary,
-      afterSummary: data.afterSummary,
-      quotes: data.quotes,
-      features: data.features
-    };
+      title,
+      url,
+      beforeSummary,
+      afterSummary,
+      quotes,
+      features,
+    }
 
-    onSuccessStoryUpdated(updatedSuccessStory);
-    onClose();
+    onUpdate(updatedStory)
+    setOpen(false)
     toast({
-      title: "Success Story Updated",
-      description: `"${data.title}" has been updated successfully`,
-    });
-  };
+      title: "Success",
+      description: "Story updated.",
+    })
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Customer Success Story</DialogTitle>
-          <DialogDescription>
-            Update the details of your customer success story
-          </DialogDescription>
-        </DialogHeader>
-        
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="space-y-4 py-4">
-            <div className="grid grid-cols-1 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-title">Success Story Title</Label>
-                <Input 
-                  id="edit-title"
-                  placeholder="e.g. How Company X Achieved Y Results"
-                  {...form.register("title")}
-                />
-                {form.formState.errors.title && (
-                  <p className="text-sm text-red-500">{form.formState.errors.title.message}</p>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="edit-url">Original URL (Optional)</Label>
-                <Input 
-                  id="edit-url"
-                  placeholder="https://example.com/success-story"
-                  {...form.register("url")}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="edit-beforeSummary">Before Summary</Label>
-                <Textarea 
-                  id="edit-beforeSummary"
-                  placeholder="Describe the customer's situation before using your solution"
-                  className="min-h-[100px]"
-                  {...form.register("beforeSummary")}
-                />
-                {form.formState.errors.beforeSummary && (
-                  <p className="text-sm text-red-500">{form.formState.errors.beforeSummary.message}</p>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="edit-afterSummary">After Summary</Label>
-                <Textarea 
-                  id="edit-afterSummary"
-                  placeholder="Describe the results after implementing your solution"
-                  className="min-h-[100px]"
-                  {...form.register("afterSummary")}
-                />
-                {form.formState.errors.afterSummary && (
-                  <p className="text-sm text-red-500">{form.formState.errors.afterSummary.message}</p>
-                )}
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <Label>Customer Quotes</Label>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleAddQuote}
-                  >
-                    <Plus className="h-4 w-4 mr-1" /> Add Quote
-                  </Button>
-                </div>
-                
-                {form.watch("quotes").map((quote, index) => (
-                  <div key={quote.id} className="space-y-3 p-3 border rounded-md">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">Quote {index + 1}</span>
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => handleRemoveQuote(quote.id)}
-                      >
-                        <Trash className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Quote Text</Label>
-                      <Textarea 
-                        placeholder="Enter the customer's quote"
-                        {...form.register(`quotes.${index}.quote`)}
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-2">
-                        <Label>Author Name</Label>
-                        <Input 
-                          placeholder="e.g. John Smith"
-                          {...form.register(`quotes.${index}.author`)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Author Title</Label>
-                        <Input 
-                          placeholder="e.g. CTO at ABC Corp"
-                          {...form.register(`quotes.${index}.title`)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <Label>Features Used</Label>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleAddFeature}
-                  >
-                    <Plus className="h-4 w-4 mr-1" /> Add Feature
-                  </Button>
-                </div>
-                
-                {form.watch("features").map((feature, index) => (
-                  <div key={feature.id} className="space-y-3 p-3 border rounded-md">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">Feature {index + 1}</span>
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => handleRemoveFeature(feature.id)}
-                      >
-                        <Trash className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Feature Name</Label>
-                      <Input 
-                        placeholder="e.g. Automated Reporting"
-                        {...form.register(`features.${index}.name`)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>How It Was Used</Label>
-                      <Textarea 
-                        placeholder="Describe how the customer used this feature"
-                        {...form.register(`features.${index}.description`)}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button variant="outline">Edit</Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Edit Success Story</AlertDialogTitle>
+          <AlertDialogDescription>
+            Make changes to your success story here. Click save when you're
+            done.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="title" className="text-right">
+              Title
+            </Label>
+            <Input
+              type="text"
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="col-span-3"
+            />
           </div>
-          
-          <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={onClose}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" className="bg-story-blue hover:bg-story-light-blue">
-              Update Success Story
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-};
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="url" className="text-right">
+              URL
+            </Label>
+            <Input
+              type="text"
+              id="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="beforeSummary" className="text-right mt-2">
+              Before Summary
+            </Label>
+            <Textarea
+              id="beforeSummary"
+              value={beforeSummary}
+              onChange={(e) => setBeforeSummary(e.target.value)}
+              className="col-span-3 min-h-[80px]"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="afterSummary" className="text-right mt-2">
+              After Summary
+            </Label>
+            <Textarea
+              id="afterSummary"
+              value={afterSummary}
+              onChange={(e) => setAfterSummary(e.target.value)}
+              className="col-span-3 min-h-[80px]"
+            />
+          </div>
 
-export default EditSuccessStoryDialog;
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Quotes</CardTitle>
+                <CardDescription>
+                  Add quotes to your success story.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {quotes.map((quote) => (
+                  <div key={quote.id} className="space-y-2">
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor={`quote-${quote.id}`} className="text-right">
+                        Quote
+                      </Label>
+                      <Textarea
+                        id={`quote-${quote.id}`}
+                        value={quote.quote}
+                        onChange={(e) =>
+                          handleQuoteUpdate(quote.id, "quote", e.target.value)
+                        }
+                        className="col-span-2 min-h-[50px]"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor={`author-${quote.id}`} className="text-right">
+                        Author
+                      </Label>
+                      <Input
+                        type="text"
+                        id={`author-${quote.id}`}
+                        value={quote.author}
+                        onChange={(e) =>
+                          handleQuoteUpdate(quote.id, "author", e.target.value)
+                        }
+                        className="col-span-2"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor={`title-${quote.id}`} className="text-right">
+                        Title
+                      </Label>
+                      <Input
+                        type="text"
+                        id={`title-${quote.id}`}
+                        value={quote.title}
+                        onChange={(e) =>
+                          handleQuoteUpdate(quote.id, "title", e.target.value)
+                        }
+                        className="col-span-2"
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleQuoteDelete(quote.id)}
+                      >
+                        <Trash className="h-4 w-4 mr-2" />
+                        Delete
+                      </Button>
+                    </div>
+                    <Separator />
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleQuoteAdd}
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Quote
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Features</CardTitle>
+                <CardDescription>
+                  Add features to your success story.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {features.map((feature) => (
+                  <div key={feature.id} className="space-y-2">
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <Label htmlFor={`name-${feature.id}`} className="text-right">
+                        Name
+                      </Label>
+                      <Input
+                        type="text"
+                        id={`name-${feature.id}`}
+                        value={feature.name}
+                        onChange={(e) =>
+                          handleFeatureUpdate(feature.id, "name", e.target.value)
+                        }
+                        className="col-span-2"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 items-start gap-4">
+                      <Label htmlFor={`description-${feature.id}`} className="text-right mt-2">
+                        Description
+                      </Label>
+                      <Textarea
+                        id={`description-${feature.id}`}
+                        value={feature.description}
+                        onChange={(e) =>
+                          handleFeatureUpdate(
+                            feature.id,
+                            "description",
+                            e.target.value
+                          )
+                        }
+                        className="col-span-2 min-h-[50px]"
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleFeatureDelete(feature.id)}
+                      >
+                        <Trash className="h-4 w-4 mr-2" />
+                        Delete
+                      </Button>
+                    </div>
+                    <Separator />
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleFeatureAdd}
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Feature
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <Button onClick={handleSubmit}>Save</Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
+
+export default EditSuccessStoryDialog

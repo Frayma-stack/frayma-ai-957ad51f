@@ -161,3 +161,18 @@ export interface Client {
   description?: string;
   createdAt: string;
 }
+
+// New interface for narrative items selection
+export interface NarrativeSelection {
+  type: 'belief' | 'pain' | 'struggle' | 'transformation';
+  items: string[]; // Array of item IDs
+}
+
+// New interface for content generation options
+export interface ContentGenerationOptions {
+  wordCount?: number;
+  emailCount?: number;
+  successStoryId?: string;
+  authorTone?: string;
+  authorExperience?: string;
+}

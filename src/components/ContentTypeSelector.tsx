@@ -15,7 +15,7 @@ import {
   Settings 
 } from "lucide-react";
 
-export type ContentType = 'article' | 'email' | 'linkedin' | 'newsletter';
+export type ContentType = 'article' | 'email' | 'linkedin' | 'custom';
 export type ArticleSubType = 'thought_leadership' | 'customer_success' | 'newsletter';
 
 interface ContentTypeSelectorProps {
@@ -76,12 +76,12 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect, onSelectA
           <Button 
             variant="outline" 
             className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-story-blue transition-all"
-            onClick={() => onSelect('newsletter')}
+            onClick={() => onSelect('custom')}
           >
             <Settings className="h-8 w-8 text-story-blue" />
-            <span className="text-lg font-medium">Newsletter</span>
+            <span className="text-lg font-medium">Custom</span>
             <span className="text-sm text-gray-500 text-center">
-              Create engaging newsletter content for your audience
+              Create a custom GTM narrative piece in your unique voice
             </span>
           </Button>
         </div>
