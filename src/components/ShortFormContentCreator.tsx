@@ -1,4 +1,3 @@
-
 import { FC, useState, useEffect } from 'react';
 import { 
   Card, 
@@ -66,7 +65,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [clientName, setClientName] = useState<string | null>(null);
   const [additionalContext, setAdditionalContext] = useState<string>("");
-  const [selectedSuccessStory, setSelectedSuccessStory] = useState<string>("");
+  const [selectedSuccessStory, setSelectedSuccessStory] = useState<string>("none");
   const [wordCount, setWordCount] = useState<number>(300);
   const [emailCount, setEmailCount] = useState<number>(3);
   const [availableAnchors, setAvailableAnchors] = useState<{value: string, label: string}[]>([]);
@@ -76,12 +75,10 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   // Determine if we're using client-specific assets
   useEffect(() => {
     if (scripts.length > 0 || authors.length > 0 || successStories.length > 0) {
-      // Check if all assets have the same clientId
       const scriptClientId = scripts.length > 0 ? scripts[0].clientId : undefined;
       const authorClientId = authors.length > 0 ? authors[0].clientId : undefined;
       const storyClientId = successStories.length > 0 ? successStories[0].clientId : undefined;
       
-      // Get client name from localStorage if available
       const clientId = scriptClientId || authorClientId || storyClientId;
       if (clientId) {
         const savedClients = localStorage.getItem('clients');
@@ -125,7 +122,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
         
         setAvailableAnchors(options);
         
-        // Initialize narrative selections if empty
         if (narrativeSelections.length === 0) {
           const firstOption = options[0]?.value as NarrativeAnchor;
           if (firstOption) {
@@ -160,6 +156,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   };
   
   const getSelectedSuccessStory = () => {
+    if (selectedSuccessStory === "none") return undefined;
     return successStories.find(story => story.id === selectedSuccessStory);
   };
 
@@ -243,7 +240,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   const isFormValid = () => {
     if (!selectedICP || !selectedAuthor) return false;
     
-    // Check if at least one narrative item is selected
     const hasSelectedItems = narrativeSelections.some(
       selection => selection.items.length > 0
     );
@@ -274,7 +270,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
         return;
       }
       
-      // Generate different content based on content type and selected options
       let content = "";
       
       if (contentType === 'email') {
@@ -296,14 +291,12 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   };
 
   const generateEmailContent = (script: ICPStoryScript, author: Author, successStory?: CustomerSuccessStory | undefined) => {
-    // Get selected narrative content for first email
     const narrativeContent = getSelectedNarrativeContents();
     
     let content = `Subject: Quick question about ${narrativeSelections[0]?.type === 'struggle' ? 'handling' : 'addressing'} ${script.name} challenges\n\n`;
     content += `Hi {{First Name}},\n\n`;
     content += `I was looking at your recent work at {{Company}} and noticed you're focused on improving your team's ${script.name.toLowerCase()} operations.\n\n`;
     
-    // Add tone and experience if selected
     if (selectedAuthorTone || selectedAuthorExperience) {
       content += "As someone ";
       
@@ -324,19 +317,16 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
       content += "I wanted to reach out personally.\n\n";
     }
     
-    // Add narrative content
     if (narrativeContent.length > 0) {
       content += `${narrativeContent[0]}\n\n`;
     }
 
-    // Add success story if selected
     if (successStory) {
       content += `We've helped companies like ${successStory.title} overcome this exact challenge. ${successStory.afterSummary}\n\n`;
     } else {
       content += `We've helped dozens of ${script.name} teams overcome this exact challenge. In fact, one client recently [specific result they achieved].\n\n`;
     }
 
-    // Incorporate additional context if provided
     if (additionalContext) {
       content += `${additionalContext}\n\n`;
     }
@@ -346,7 +336,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     content += `${author.role ? `${author.role}${author.organization ? `, ${author.organization}` : ''}` : ''}\n\n`;
     content += `P.S. If you'd prefer to learn more before chatting, here's a case study that might be helpful: [LINK]`;
     
-    // If multiple emails requested, add follow-up emails
     if (emailCount > 1) {
       for (let i = 1; i < emailCount; i++) {
         content += `\n\n------- FOLLOW-UP EMAIL ${i} -------\n\n`;
@@ -357,7 +346,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
         if (i === 1) {
           content += `I wanted to follow up on my previous email about addressing ${script.name.toLowerCase()} challenges.\n\n`;
           
-          // Use a different narrative point if available
           if (narrativeContent.length > i) {
             content += `${narrativeContent[i]}\n\n`;
           }
@@ -382,7 +370,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     
     let content = `# The ${script.name} Challenge No One's Talking About\n\n`;
     
-    // Add tone and experience if selected
     if (selectedAuthorTone || selectedAuthorExperience) {
       content += "As someone ";
       
@@ -403,7 +390,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
       content += "I want to highlight an important issue.\n\n";
     }
     
-    // Add narrative content
     if (narrativeContent.length > 0) {
       content += `${narrativeContent[0]}\n\n`;
       
@@ -414,7 +400,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
 
     content += `But what if there was a better way?\n\n`;
 
-    // Add success story if selected
     if (successStory) {
       content += `We recently worked with ${successStory.title} who was facing this exact challenge.\n\n`;
       content += `Before: ${successStory.beforeSummary}\n\n`;
@@ -425,7 +410,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
       }
     }
 
-    // Incorporate additional context if provided
     if (additionalContext) {
       content += `${additionalContext}\n\n`;
     } else {
@@ -458,7 +442,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     
     let content = `# ${script.name}: Overcoming Key Challenges in Today's Market\n\n`;
     
-    // Add author intro with tone and experience if selected
     content += `By ${author.name}, ${author.role}${author.organization ? ` at ${author.organization}` : ''}\n\n`;
     
     if (selectedAuthorTone || selectedAuthorExperience) {
@@ -485,21 +468,18 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
       content += `.*\n\n`;
     }
     
-    // Introduction
     content += `## Introduction\n\n`;
     content += `In today's rapidly evolving landscape for ${script.name}, professionals face numerous challenges that can impact their effectiveness and results.\n\n`;
     
-    // Add narrative content in sections
     content += `## Key Challenges\n\n`;
     
     narrativeContent.forEach((item, index) => {
-      if (index < 3) { // Limit to first 3 for readability
+      if (index < 3) {
         content += `### Challenge ${index + 1}\n\n`;
         content += `${item}\n\n`;
       }
     });
 
-    // Add success story if selected
     if (successStory) {
       content += `## Customer Spotlight: ${successStory.title}\n\n`;
       content += `### Before\n${successStory.beforeSummary}\n\n`;
@@ -509,7 +489,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
         content += `> "${successStory.quotes[0].quote}"\n>\n> — ${successStory.quotes[0].author}, ${successStory.quotes[0].title}\n\n`;
       }
       
-      // Add key features if available
       if (successStory.features.length > 0) {
         content += `### Key Solutions Implemented\n\n`;
         successStory.features.forEach((feature, index) => {
@@ -519,7 +498,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
       }
     }
     
-    // Incorporate additional context if provided
     if (additionalContext) {
       content += `## Additional Insights\n\n${additionalContext}\n\n`;
     }
@@ -541,7 +519,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     return content;
   };
 
-  // Get all selected narrative content items as an array
   const getSelectedNarrativeContents = () => {
     const result: string[] = [];
     
@@ -754,7 +731,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
               <SelectValue placeholder="Select a success story (optional)" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">None</SelectItem>
+              <SelectItem value="none">None</SelectItem>
               {successStories.map(story => (
                 <SelectItem key={story.id} value={story.id}>
                   {story.title}
