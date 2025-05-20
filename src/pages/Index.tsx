@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import Sidebar from '@/components/Sidebar';
@@ -269,6 +268,13 @@ const Index = () => {
     setActiveTab('ideasBank');
   };
   
+  const handleHomeSelected = () => {
+    setActiveTab('create');
+    setContentType(null);
+    setArticleSubType(null);
+    setShowIdeasBank(false);
+  };
+
   const renderMainContent = () => {
     // If showing Ideas Bank
     if (showIdeasBank) {
@@ -409,6 +415,7 @@ const Index = () => {
           onAssetTypeChange={handleAssetTypeChange}
           onClientSelected={handleClientSelected}
           onIdeasBankSelected={handleIdeasBankSelected}
+          onHomeSelected={handleHomeSelected}
         />
         
         {/* Main Content Area */}

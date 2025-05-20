@@ -9,7 +9,8 @@ import {
   Trophy,
   Package,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from 'react';
@@ -21,6 +22,7 @@ interface SidebarProps {
   onAssetTypeChange: (type: string) => void;
   onClientSelected: (clientId: string | null) => void;
   onIdeasBankSelected: () => void;
+  onHomeSelected?: () => void;
 }
 
 const Sidebar: FC<SidebarProps> = ({ 
@@ -29,7 +31,8 @@ const Sidebar: FC<SidebarProps> = ({
   clients, 
   onAssetTypeChange, 
   onClientSelected,
-  onIdeasBankSelected
+  onIdeasBankSelected,
+  onHomeSelected
 }) => {
   const [assetsExpanded, setAssetsExpanded] = useState(true);
   
@@ -47,7 +50,7 @@ const Sidebar: FC<SidebarProps> = ({
         />
         <div>
           <h1 className="text-xl font-sora font-semibold text-brand-primary">Frayma AI</h1>
-          <p className="text-xs text-gray-600 leading-tight">Frame Your POV. Auto-craft resonant, compelling GTM narrative pieces. Win your market.</p>
+          <p className="text-xs text-gray-600 leading-tight">Frame POVs. Auto-craft resonant, compelling GTM narratives. Win your market.</p>
         </div>
       </div>
       
@@ -67,6 +70,18 @@ const Sidebar: FC<SidebarProps> = ({
           </Button>
         </div>
       )}
+
+      <div className="space-y-1 mb-6">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="w-full justify-start text-sm font-normal"
+          onClick={onHomeSelected}
+        >
+          <Home className="h-4 w-4 mr-2 text-brand-primary" />
+          Home
+        </Button>
+      </div>
       
       <div className="space-y-1 mb-6">
         <h3 className="text-sm font-medium text-gray-500 mb-2">Ideas Bank</h3>
