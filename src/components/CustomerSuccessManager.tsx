@@ -68,7 +68,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
         <div>
           <CardTitle className="text-story-blue">Customer Success Stories</CardTitle>
           <CardDescription>
-            Manage your customer success stories
+            Add powerful social proof to craft resonant GTM narrative pieces
             {clientInfo && (
               <span className="ml-2 bg-story-blue/10 px-2 py-0.5 rounded-full text-xs text-story-blue">
                 For client: {clientInfo.name}
