@@ -301,8 +301,8 @@ const Index = () => {
       
       <div className="container mx-auto py-8 px-4 flex-1">
         <header className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-story-blue mb-2">Frayma</h1>
-          <p className="text-xl text-gray-700 mb-4">Product-Led Storytelling Framework</p>
+          <h1 className="text-4xl font-bold text-story-blue mb-2">Frayma AI</h1>
+          <p className="text-xl text-gray-700 mb-4">Frame your POV. Auto-craft resonant stories. Win your market. Powered by the Product-Led Storytelling Execution frameworks.</p>
           <div className="inline-flex items-center bg-story-sand/50 p-3 rounded-md text-gray-700">
             <Book className="h-5 w-5 mr-2 text-story-blue" />
             <p>First define your ICPs and Authors, then create content that resonates with your target audience</p>
@@ -510,7 +510,7 @@ const Index = () => {
         </Tabs>
         
         <div className="text-center mt-8 mb-8">
-          <p className="text-gray-500 text-sm">Frayma helps you create authentic, resonant stories that sell without feeling like sales</p>
+          <p className="text-gray-500 text-sm">Frayma AI helps you create authentic, resonant stories that sell without feeling like sales</p>
         </div>
       </div>
     </div>

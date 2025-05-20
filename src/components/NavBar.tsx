@@ -9,7 +9,7 @@ const NavBar: FC = () => {
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <BookOpen className="h-6 w-6" />
-          <span className="text-xl font-semibold">Frayma</span>
+          <span className="text-xl font-semibold">Frayma AI</span>
         </div>
         
         <div className="flex items-center space-x-4">
