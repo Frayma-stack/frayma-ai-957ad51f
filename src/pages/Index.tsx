@@ -11,10 +11,12 @@ import AuthorManager from '@/components/AuthorManager';
 import ProductContextManager from '@/components/ProductContextManager';
 import ClientManager from '@/components/ClientManager';
 import CustomerSuccessManager from '@/components/CustomerSuccessManager';
+import IdeasBank from '@/components/ideas/IdeasBank';
 import { Button } from '@/components/ui/button';
-import { Book, BookMarked, FileText, Package, Target, Trophy, User, Users } from 'lucide-react';
+import { Book, BookMarked, FileText, Package, Target, Trophy, User, Users, Lightbulb } from 'lucide-react';
 import { ICPStoryScript, StoryBrief, Author, ProductContext, Client, CustomerSuccessStory } from '@/types/storytelling';
 import { ContentType } from '@/components/ContentTypeSelector';
+import { GeneratedIdea } from '@/types/ideas';
 
 const Index = () => {
   const [scripts, setScripts] = useState<ICPStoryScript[]>([]);
@@ -29,6 +31,7 @@ const Index = () => {
   const [contentType, setContentType] = useState<ContentType | null>(null);
   const [articleSubType, setArticleSubType] = useState<ArticleSubType | null>(null);
   const [assetType, setAssetType] = useState<string>('clients');
+  const [ideas, setIdeas] = useState<GeneratedIdea[]>([]);
   
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -39,6 +42,7 @@ const Index = () => {
     const savedClients = localStorage.getItem('clients');
     const savedSelectedClientId = localStorage.getItem('selectedClientId');
     const savedSuccessStories = localStorage.getItem('successStories');
+    const savedIdeas = localStorage.getItem('ideas');
     
     if (savedScripts) setScripts(JSON.parse(savedScripts));
     if (savedBriefs) setBriefs(JSON.parse(savedBriefs));
@@ -47,6 +51,7 @@ const Index = () => {
     if (savedClients) setClients(JSON.parse(savedClients));
     if (savedSelectedClientId) setSelectedClientId(JSON.parse(savedSelectedClientId));
     if (savedSuccessStories) setSuccessStories(JSON.parse(savedSuccessStories));
+    if (savedIdeas) setIdeas(JSON.parse(savedIdeas));
   }, []);
   
   // Save data to localStorage whenever it changes
@@ -79,6 +84,10 @@ const Index = () => {
   useEffect(() => {
     localStorage.setItem('successStories', JSON.stringify(successStories));
   }, [successStories]);
+
+  useEffect(() => {
+    localStorage.setItem('ideas', JSON.stringify(ideas));
+  }, [ideas]);
 
   // Filter assets based on selected client
   const filteredScripts = selectedClientId 
@@ -120,6 +129,21 @@ const Index = () => {
     setSelectedClientId(clientId);
     setActiveTab('assets');
     setAssetType(type);
+  };
+
+  // Handle Idea operations
+  const handleIdeaAdded = (idea: GeneratedIdea) => {
+    setIdeas([...ideas, idea]);
+  };
+  
+  const handleIdeaUpdated = (updatedIdea: GeneratedIdea) => {
+    setIdeas(ideas.map(idea => 
+      idea.id === updatedIdea.id ? updatedIdea : idea
+    ));
+  };
+  
+  const handleIdeaDeleted = (ideaId: string) => {
+    setIdeas(ideas.filter(idea => idea.id !== ideaId));
   };
 
   // Handle ICP StoryScript operations
@@ -304,10 +328,25 @@ const Index = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex justify-center mb-6">
             <TabsList>
+              <TabsTrigger value="ideasBank">
+                <Lightbulb className="h-4 w-4 mr-2" />
+                Ideas Bank
+              </TabsTrigger>
               <TabsTrigger value="create">Create Content</TabsTrigger>
               <TabsTrigger value="assets">Assets</TabsTrigger>
             </TabsList>
           </div>
+
+          <TabsContent value="ideasBank" className="space-y-6">
+            <IdeasBank
+              scripts={filteredScripts}
+              productContext={productContext}
+              ideas={ideas}
+              onIdeaAdded={handleIdeaAdded}
+              onIdeaUpdated={handleIdeaUpdated}
+              onIdeaDeleted={handleIdeaDeleted}
+            />
+          </TabsContent>
 
           <TabsContent value="create" className="space-y-6">
             {!contentType ? (
