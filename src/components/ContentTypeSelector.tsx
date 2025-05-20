@@ -12,10 +12,11 @@ import {
   FileText, 
   Mail, 
   MessageSquare, 
-  Settings 
+  Settings, 
+  Lightbulb 
 } from "lucide-react";
 
-export type ContentType = 'article' | 'email' | 'linkedin' | 'custom';
+export type ContentType = 'article' | 'email' | 'linkedin' | 'custom' | 'generate-ideas';
 export type ArticleSubType = 'thought_leadership' | 'customer_success' | 'newsletter';
 
 interface ContentTypeSelectorProps {
@@ -30,20 +31,20 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect, onSelectA
   };
 
   return (
-    <Card className="w-full bg-white shadow-md">
+    <Card className="w-full bg-white shadow-md border border-gray-100">
       <CardHeader>
-        <CardTitle className="text-story-blue">What would you like to create?</CardTitle>
+        <CardTitle className="text-brand-primary font-sora text-2xl">What would you like to create?</CardTitle>
         <CardDescription>Select a content type to begin crafting your message</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <Button 
             variant="outline" 
-            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-story-blue transition-all"
+            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-brand-primary transition-all card-hover"
             onClick={handleArticleSelection}
           >
-            <FileText className="h-8 w-8 text-story-blue" />
-            <span className="text-lg font-medium">GTM Narrative Piece</span>
+            <FileText className="h-8 w-8 text-brand-primary" />
+            <span className="text-lg font-medium font-sora">GTM Narrative Piece</span>
             <span className="text-sm text-gray-500 text-center">
               Create a full, structured article with high resonance and deep structure
             </span>
@@ -51,11 +52,11 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect, onSelectA
           
           <Button 
             variant="outline" 
-            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-story-blue transition-all"
+            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-brand-primary transition-all card-hover"
             onClick={() => onSelect('email')}
           >
-            <Mail className="h-8 w-8 text-story-blue" />
-            <span className="text-lg font-medium">Sales Email</span>
+            <Mail className="h-8 w-8 text-brand-primary" />
+            <span className="text-lg font-medium font-sora">Sales Email</span>
             <span className="text-sm text-gray-500 text-center">
               Craft a compelling sales email using simplified workflow
             </span>
@@ -63,11 +64,11 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect, onSelectA
           
           <Button 
             variant="outline" 
-            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-story-blue transition-all"
+            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-brand-primary transition-all card-hover"
             onClick={() => onSelect('linkedin')}
           >
-            <MessageSquare className="h-8 w-8 text-story-blue" />
-            <span className="text-lg font-medium">LinkedIn Post</span>
+            <MessageSquare className="h-8 w-8 text-brand-primary" />
+            <span className="text-lg font-medium font-sora">LinkedIn Post</span>
             <span className="text-sm text-gray-500 text-center">
               Create engaging social media content for professional audiences
             </span>
@@ -75,13 +76,25 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect, onSelectA
           
           <Button 
             variant="outline" 
-            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-story-blue transition-all"
+            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-brand-primary transition-all card-hover"
             onClick={() => onSelect('custom')}
           >
-            <Settings className="h-8 w-8 text-story-blue" />
-            <span className="text-lg font-medium">Custom</span>
+            <Settings className="h-8 w-8 text-brand-primary" />
+            <span className="text-lg font-medium font-sora">Custom</span>
             <span className="text-sm text-gray-500 text-center">
               Create a custom GTM narrative piece in your unique voice
+            </span>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-brand-primary transition-all card-hover"
+            onClick={() => onSelect('generate-ideas')}
+          >
+            <Lightbulb className="h-8 w-8 text-brand-primary" />
+            <span className="text-lg font-medium font-sora">Generate New Narrative Ideas</span>
+            <span className="text-sm text-gray-500 text-center">
+              Generate resonant, compelling GTM narrative ideas
             </span>
           </Button>
         </div>

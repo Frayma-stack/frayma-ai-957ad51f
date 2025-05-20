@@ -69,7 +69,19 @@ export default {
 					'cream': '#F9F6F0',
 					'sand': '#E5DCC3',
 					'earth': '#8B7E74'
+				},
+				// New brand colors
+				brand: {
+					'primary': '#005F73',    // Deep Teal
+					'accent': '#2EC4B6',     // Electric Green
+					'background': '#F7F9F9', // Eggshell White
+					'text': '#102A43',       // Dark Navy
+					'cta': '#FF9F1C',        // Bright Citrus
 				}
+			},
+			fontFamily: {
+				'sora': ['Sora', 'sans-serif'],
+				'inter': ['Inter', 'sans-serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

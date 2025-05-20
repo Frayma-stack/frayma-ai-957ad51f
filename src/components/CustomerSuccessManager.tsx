@@ -63,14 +63,14 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
   const clientInfo = getClientInfo();
 
   return (
-    <Card className="w-full bg-white shadow-md">
+    <Card className="w-full bg-white shadow-md border border-gray-100">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-story-blue">Customer Success Stories</CardTitle>
+          <CardTitle className="text-brand-primary font-sora">Customer Success Stories</CardTitle>
           <CardDescription>
             Add powerful social proof to craft resonant GTM narrative pieces
             {clientInfo && (
-              <span className="ml-2 bg-story-blue/10 px-2 py-0.5 rounded-full text-xs text-story-blue">
+              <span className="ml-2 bg-brand-primary/10 px-2 py-0.5 rounded-full text-xs text-brand-primary">
                 For client: {clientInfo.name}
               </span>
             )}

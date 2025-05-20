@@ -22,24 +22,28 @@ const NavBar: FC = () => {
   };
 
   return (
-    <nav className="bg-story-blue text-white p-4 shadow-md">
+    <nav className="bg-brand-primary text-white py-4 px-6 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-2">
-          <BookOpen className="h-6 w-6" />
-          <span className="text-xl font-semibold">Frayma AI</span>
+          <img 
+            src="/lovable-uploads/c03df3aa-a5a4-4db8-8a06-910f2452d629.png" 
+            alt="Frayma AI Logo" 
+            className="h-8 w-8" 
+          />
+          <span className="text-xl font-sora font-semibold">Frayma AI</span>
         </div>
         
         <div className="flex items-center space-x-4">
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-white hover:bg-story-light-blue">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-brand-primary/80">
                 <Settings className="h-5 w-5 mr-2" />
                 API Settings
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>API Configuration</DialogTitle>
+                <DialogTitle className="font-sora">API Configuration</DialogTitle>
                 <DialogDescription>
                   Enter your Perplexity API key to enable automatic extraction of success stories from URLs.
                 </DialogDescription>
@@ -58,7 +62,7 @@ const NavBar: FC = () => {
                       placeholder="Enter your API key"
                       className="flex-1"
                     />
-                    <Button onClick={handleSaveApiKey}>Save</Button>
+                    <Button onClick={handleSaveApiKey} className="bg-brand-primary hover:bg-brand-primary/90">Save</Button>
                   </div>
                 </div>
                 <div className={`px-3 py-2 rounded-md text-sm ${isConfigured ? "bg-green-50 text-green-800" : "bg-amber-50 text-amber-800"}`}>
@@ -73,11 +77,11 @@ const NavBar: FC = () => {
             </DialogContent>
           </Dialog>
           
-          <Button variant="ghost" className="text-white hover:bg-story-light-blue">
+          <Button variant="ghost" className="text-white hover:bg-brand-primary/80">
             <HelpCircle className="h-5 w-5 mr-2" />
             How it works
           </Button>
-          <Button className="bg-story-sand text-story-blue hover:bg-story-sand/90">
+          <Button className="bg-brand-cta text-white hover:bg-brand-cta/90">
             Get Started
           </Button>
         </div>
