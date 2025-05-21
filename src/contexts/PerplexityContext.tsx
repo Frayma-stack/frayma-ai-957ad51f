@@ -1,36 +1,26 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 interface PerplexityContextType {
   apiKey: string;
-  setApiKey: (key: string) => void;
   isConfigured: boolean;
 }
+
+// This is where you would put your actual API key
+// IMPORTANT: In a real-world application, this should be stored securely
+const API_KEY = "YOUR_PERPLEXITY_API_KEY_HERE"; // Replace with your actual API key
 
 const PerplexityContext = createContext<PerplexityContextType | undefined>(undefined);
 
 export const PerplexityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Try to load from localStorage first, otherwise use default key
-  const savedApiKey = localStorage.getItem('perplexity_api_key');
-  const [apiKey, setApiKey] = useState<string>(savedApiKey || "YOUR_API_KEY_HERE");
+  // Using the predefined API key, no need for user input
+  const [apiKey] = useState<string>(API_KEY);
   
-  // Calculate if the API is properly configured
-  const isConfigured = apiKey !== "YOUR_API_KEY_HERE" && apiKey.trim() !== "";
-
-  // Save API key to localStorage when it changes
-  useEffect(() => {
-    if (apiKey && apiKey !== "YOUR_API_KEY_HERE") {
-      localStorage.setItem('perplexity_api_key', apiKey);
-    }
-  }, [apiKey]);
-
-  // Function to update API key
-  const updateApiKey = (key: string) => {
-    setApiKey(key);
-  };
+  // API is always configured since we're providing the key
+  const isConfigured = apiKey !== "YOUR_PERPLEXITY_API_KEY_HERE" && apiKey.trim() !== "";
 
   return (
-    <PerplexityContext.Provider value={{ apiKey, setApiKey: updateApiKey, isConfigured }}>
+    <PerplexityContext.Provider value={{ apiKey, isConfigured }}>
       {children}
     </PerplexityContext.Provider>
   );

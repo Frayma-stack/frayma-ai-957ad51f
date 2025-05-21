@@ -46,8 +46,9 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect, onSelectA
             <FileText className="h-8 w-8 text-brand-primary" />
             <span className="text-lg font-medium font-sora">GTM Narrative Piece</span>
             <span className="text-sm text-gray-500 text-center">
-              Create a full, structured article with 
-              high resonance and deep structure
+              Create a full, structured<br/>
+              article with high resonance<br/>
+              and deep structure
             </span>
           </Button>
           
@@ -59,8 +60,9 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect, onSelectA
             <Mail className="h-8 w-8 text-brand-primary" />
             <span className="text-lg font-medium font-sora">Sales Email</span>
             <span className="text-sm text-gray-500 text-center">
-              Craft a compelling sales email 
-              using simplified workflow
+              Craft a compelling sales<br/>
+              email using simplified<br/>
+              workflow
             </span>
           </Button>
           
@@ -72,8 +74,9 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect, onSelectA
             <MessageSquare className="h-8 w-8 text-brand-primary" />
             <span className="text-lg font-medium font-sora">LinkedIn Post</span>
             <span className="text-sm text-gray-500 text-center">
-              Create engaging social media content 
-              for professional audiences
+              Create engaging social<br/>
+              media content for<br/>
+              professional audiences
             </span>
           </Button>
           
@@ -85,8 +88,9 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect, onSelectA
             <Settings className="h-8 w-8 text-brand-primary" />
             <span className="text-lg font-medium font-sora">Custom</span>
             <span className="text-sm text-gray-500 text-center">
-              Create a custom GTM narrative piece 
-              in your unique voice
+              Create a custom GTM<br/>
+              narrative piece in your<br/>
+              unique voice
             </span>
           </Button>
           
@@ -98,8 +102,9 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect, onSelectA
             <Lightbulb className="h-8 w-8 text-brand-primary" />
             <span className="text-lg font-medium font-sora">Generate New Narrative Ideas</span>
             <span className="text-sm text-gray-500 text-center">
-              Generate resonant, compelling 
-              GTM narrative ideas
+              Generate resonant,<br/>
+              compelling GTM<br/>
+              narrative ideas
             </span>
           </Button>
         </div>

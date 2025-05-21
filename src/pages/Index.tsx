@@ -243,12 +243,13 @@ const Index = () => {
     // Reset article subtype when changing content type
     setArticleSubType(null);
     
-    // If article type, we need to select the subtype next, otherwise go to briefs
+    // If article type, we need to select the subtype next, otherwise go directly to the content creator
     if (type === 'article') {
       // Do nothing here, wait for subtype selection
       console.log("Waiting for article subtype selection");
-    } else {
-      setActiveTab('briefs');
+    } else if (type === 'email' || type === 'linkedin' || type === 'custom') {
+      // For non-article types, skip briefs and go directly to content creator
+      setActiveTab('create');
     }
   };
 
