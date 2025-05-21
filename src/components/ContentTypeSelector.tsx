@@ -25,7 +25,7 @@ interface ContentTypeSelectorProps {
 }
 
 const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect, onSelectArticleSubtype }) => {
-  // Handler for GTM Narrative Piece selection
+  // Handler for selecting article type
   const handleArticleSelection = () => {
     onSelect('article');
   };

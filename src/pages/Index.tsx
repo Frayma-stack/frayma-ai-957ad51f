@@ -228,7 +228,9 @@ const Index = () => {
     setActiveTab('preview');
   };
 
+  // Handle Content Type selection
   const handleContentTypeSelect = (type: ContentType) => {
+    console.log("Content type selected:", type);
     setContentType(type);
     
     // If the user selects "generate-ideas", show the IdeasBank
@@ -241,18 +243,23 @@ const Index = () => {
     // Reset article subtype when changing content type
     setArticleSubType(null);
     
-    // If article type, we need to select the subtype
-    if (type !== 'article') {
+    // If article type, we need to select the subtype next, otherwise go to briefs
+    if (type === 'article') {
+      // Do nothing here, wait for subtype selection
+      console.log("Waiting for article subtype selection");
+    } else {
       setActiveTab('briefs');
     }
   };
 
   const handleArticleSubTypeSelect = (subtype: ArticleSubType) => {
+    console.log("Article subtype selected:", subtype);
     setArticleSubType(subtype);
     setActiveTab('briefs');
   };
   
   const resetContentTypeSelection = () => {
+    console.log("Resetting content type selection");
     setContentType(null);
     setArticleSubType(null);
   };
@@ -276,6 +283,8 @@ const Index = () => {
   };
 
   const renderMainContent = () => {
+    console.log("Rendering main content with:", { activeTab, contentType, articleSubType, showIdeasBank });
+    
     // If showing Ideas Bank
     if (showIdeasBank) {
       return (
@@ -360,7 +369,7 @@ const Index = () => {
             onBack={resetContentTypeSelection}
           />
         );
-      } else if (contentType === 'article' || articleSubType) {
+      } else if (contentType === 'article' && articleSubType) {
         return (
           <div>
             <StoryBriefManager 
@@ -374,10 +383,10 @@ const Index = () => {
             />
           </div>
         );
-      } else {
+      } else if (contentType === 'email' || contentType === 'linkedin' || contentType === 'custom') {
         return (
           <ShortFormContentCreator 
-            contentType={contentType as 'email' | 'linkedin' | 'custom'}
+            contentType={contentType}
             scripts={filteredScripts}
             authors={filteredAuthors}
             successStories={filteredSuccessStories}
@@ -399,7 +408,8 @@ const Index = () => {
       );
     }
     
-    return null;
+    // Default fallback - show the content selector
+    return <ContentTypeSelector onSelect={handleContentTypeSelect} />;
   };
 
   return (
