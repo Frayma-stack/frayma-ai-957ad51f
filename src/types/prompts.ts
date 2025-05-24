@@ -17,7 +17,9 @@ export type PromptCategory =
   | 'outline_sections'
   | 'intro_generation'
   | 'body_generation'
-  | 'conclusion_generation';
+  | 'body_recrafting'
+  | 'conclusion_generation'
+  | 'conclusion_recrafting';
 
 export interface PromptConfig {
   contentTriggers: PromptTemplate;
@@ -25,7 +27,9 @@ export interface PromptConfig {
   outlineSections: PromptTemplate;
   introGeneration: PromptTemplate;
   bodyGeneration: PromptTemplate;
+  bodyRecrafting: PromptTemplate;
   conclusionGeneration: PromptTemplate;
+  conclusionRecrafting: PromptTemplate;
 }
 
 export interface PromptVariable {

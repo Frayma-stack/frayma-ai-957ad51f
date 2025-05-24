@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,9 @@ const CATEGORY_LABELS: Record<PromptCategory, string> = {
   outline_sections: 'Outline Sections',
   intro_generation: 'Introduction Generation',
   body_generation: 'Body Generation',
-  conclusion_generation: 'Conclusion Generation'
+  body_recrafting: 'Body Recrafting',
+  conclusion_generation: 'Conclusion Generation',
+  conclusion_recrafting: 'Conclusion Recrafting'
 };
 
 const PromptConfigManager: FC<PromptConfigManagerProps> = ({ isOpen, onClose }) => {
