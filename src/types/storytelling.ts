@@ -1,4 +1,3 @@
-
 export interface ICPStoryScriptItem {
   id: string;
   content: string;
@@ -39,7 +38,7 @@ export interface CustomerSuccessStory {
 export interface StoryBrief {
   id: string;
   title: string;
-  contentType: 'customer_success' | 'thought_leadership' | 'newsletter';
+  contentType: 'thought_leadership' | 'newsletter'; // Updated to match ArticleSubType
   
   // Strategic Alignment
   goal: string;

@@ -61,7 +61,6 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
   const getContentTypeTitle = () => {
     switch (articleSubType) {
       case 'newsletter': return 'First-Person Narrative Newsletter';
-      case 'customer_success': return 'Customer Success Story';
       case 'thought_leadership': return 'GTM Thought Leadership Article';
       default: return 'Story Brief & Outline';
     }
@@ -292,13 +291,12 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
             <label className="text-sm font-medium">Content Type*</label>
             <Select 
               value={brief.contentType} 
-              onValueChange={(value: 'customer_success' | 'thought_leadership' | 'newsletter') => handleInputChange('contentType', value)}
+              onValueChange={(value: 'thought_leadership' | 'newsletter') => handleInputChange('contentType', value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select content type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="customer_success">Customer Success Story</SelectItem>
                 <SelectItem value="thought_leadership">Thought Leadership</SelectItem>
                 <SelectItem value="newsletter">First-Person Narrative Newsletter</SelectItem>
               </SelectContent>

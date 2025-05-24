@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,7 +36,6 @@ const StoryBriefManager: FC<StoryBriefManagerProps> = ({
   const getSubtypeTitle = () => {
     switch (articleSubType) {
       case 'newsletter': return 'First-Person Narrative Newsletter';
-      case 'customer_success': return 'Customer Success Story';
       case 'thought_leadership': return 'GTM Thought Leadership Article';
       default: return 'Story Brief & Outline';
     }
