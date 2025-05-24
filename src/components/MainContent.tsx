@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 import ContentTypeSelector from '@/components/ContentTypeSelector';
@@ -112,6 +111,12 @@ const MainContent: FC<MainContentProps> = ({
       return productContexts.filter(context => context.clientId === selectedClientId);
     }
     return productContexts;
+  };
+
+  // Get the first product context for the selected client (ProductContextManager expects a single context)
+  const getCurrentProductContext = () => {
+    const filtered = getFilteredProductContexts();
+    return filtered.length > 0 ? filtered[0] : null;
   };
 
   if (currentView === 'home') {
@@ -240,10 +245,8 @@ const MainContent: FC<MainContentProps> = ({
   if (currentView === 'productContext') {
     return (
       <ProductContextManager
-        productContexts={getFilteredProductContexts()}
-        onProductContextAdded={onProductContextAdded}
+        productContext={getCurrentProductContext()}
         onProductContextUpdated={onProductContextUpdated}
-        onProductContextDeleted={onProductContextDeleted}
       />
     );
   }

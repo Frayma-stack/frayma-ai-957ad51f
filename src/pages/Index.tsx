@@ -16,6 +16,9 @@ const Index = () => {
     clients,
     authors,
     ideas,
+    icpScripts,
+    successStories,
+    productContexts,
     handleClientAdded,
     handleClientUpdated,
     handleClientDeleted,
@@ -25,6 +28,15 @@ const Index = () => {
     handleIdeaAdded,
     handleIdeaUpdated,
     handleIdeaDeleted,
+    handleICPScriptAdded,
+    handleICPScriptUpdated,
+    handleICPScriptDeleted,
+    handleSuccessStoryAdded,
+    handleSuccessStoryUpdated,
+    handleSuccessStoryDeleted,
+    handleProductContextAdded,
+    handleProductContextUpdated,
+    handleProductContextDeleted,
   } = useLocalStorage();
 
   const {
@@ -91,6 +103,9 @@ const Index = () => {
               clients={clients}
               authors={authors}
               ideas={ideas}
+              icpScripts={icpScripts}
+              successStories={successStories}
+              productContexts={productContexts}
               onContentTypeSelect={handleContentTypeSelect}
               onArticleSubtypeSelect={handleArticleSubtypeSelect}
               onBack={handleBack}
@@ -105,6 +120,15 @@ const Index = () => {
               onIdeaAdded={handleIdeaAdded}
               onIdeaUpdated={handleIdeaUpdated}
               onIdeaDeleted={handleIdeaDeleted}
+              onICPScriptAdded={handleICPScriptAdded}
+              onICPScriptUpdated={handleICPScriptUpdated}
+              onICPScriptDeleted={handleICPScriptDeleted}
+              onSuccessStoryAdded={handleSuccessStoryAdded}
+              onSuccessStoryUpdated={handleSuccessStoryUpdated}
+              onSuccessStoryDeleted={handleSuccessStoryDeleted}
+              onProductContextAdded={handleProductContextAdded}
+              onProductContextUpdated={handleProductContextUpdated}
+              onProductContextDeleted={handleProductContextDeleted}
             />
           </div>
         </main>
