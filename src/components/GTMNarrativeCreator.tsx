@@ -145,7 +145,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
           onContinue={handleContentPhaseNext}
           onBack={() => setContentPhase('outline')}
           isGenerating={isGenerating}
-          canContinue={!!config.content}
+          canContinue={Boolean(config.content)}
         />
       );
     }

@@ -83,6 +83,7 @@ const MainContent: FC<MainContentProps> = ({
           articleSubType={selectedArticleSubtype}
           scripts={mockICPScripts}
           successStories={mockSuccessStories}
+          ideas={ideas}
           onBack={onBack}
         />
       );

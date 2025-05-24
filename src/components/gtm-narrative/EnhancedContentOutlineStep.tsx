@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -115,7 +114,7 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
       case 'use_case':
         return (asset as ProductUseCase).useCase || 'Untitled Use Case';
       case 'differentiator':
-        return (asset as ProductDifferentiator).title || 'Untitled Differentiator';
+        return (asset as ProductDifferentiator).name || 'Untitled Differentiator';
       default:
         return 'Unknown';
     }
