@@ -36,7 +36,8 @@ const ArticleTypeSelector: FC<ArticleTypeSelectorProps> = ({ onSelect, onBack })
             <Mail className="h-8 w-8 text-story-blue" />
             <span className="text-lg font-medium">First-Person Narrative Newsletter</span>
             <span className="text-sm text-gray-500 text-center">
-              Create an engaging newsletter in first-person voice
+              Create an engaging newsletter<br/>
+              in first-person voice
             </span>
           </Button>
           
@@ -48,7 +49,8 @@ const ArticleTypeSelector: FC<ArticleTypeSelectorProps> = ({ onSelect, onBack })
             <FileText className="h-8 w-8 text-story-blue" />
             <span className="text-lg font-medium">GTM Thought Leadership Article</span>
             <span className="text-sm text-gray-500 text-center">
-              Establish authority with insightful industry perspectives
+              Establish authority with insightful<br/>
+              industry perspectives
             </span>
           </Button>
         </div>

@@ -115,7 +115,7 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect, onSelectA
             onClick={() => onSelect('generate-ideas')}
           >
             <Lightbulb className="h-8 w-8 text-brand-primary" />
-            <span className="text-lg font-medium font-sora">Generate New Narrative Ideas</span>
+            <span className="text-lg font-medium font-sora">Mint New Narrative Ideas</span>
             <span className="text-sm text-gray-500 text-center">
               Generate resonant,<br/>
               compelling GTM<br/>
