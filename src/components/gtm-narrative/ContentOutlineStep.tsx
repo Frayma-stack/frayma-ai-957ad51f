@@ -2,7 +2,8 @@
 import { FC } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Plus, X, Loader2, FileText, ArrowRight } from 'lucide-react';
+import { Plus, X, Loader2, FileText, HelpCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ContentOutlineData {
   outlineSteps: string[];
@@ -37,110 +38,74 @@ const ContentOutlineStep: FC<ContentOutlineStepProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Step Header */}
-      <div className="border-l-4 border-story-blue pl-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-story-blue flex items-center">
-              <FileText className="h-5 w-5 mr-2" />
-              Content Architecture
-            </h3>
-            <p className="text-gray-600 text-sm mt-1">
-              AI-generated outline based on your strategic inputs. This structure will guide the creation of your compelling {articleSubType === 'newsletter' ? 'newsletter' : 'thought leadership article'}.
-            </p>
+    <TooltipProvider>
+      <div className="space-y-4">
+        {/* Minimal Step Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <FileText className="h-5 w-5 text-story-blue mr-2" />
+            <h3 className="text-lg font-semibold text-story-blue">Content Architecture</h3>
+            <Tooltip>
+              <TooltipTrigger>
+                <HelpCircle className="h-4 w-4 ml-2 text-gray-400" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs max-w-xs">AI-generated outline that structures your compelling {articleSubType === 'newsletter' ? 'newsletter' : 'thought leadership article'}</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
           {isGenerating && (
-            <div className="flex items-center text-sm text-story-blue">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              AI crafting outline...
+            <div className="flex items-center text-xs text-story-blue">
+              <Loader2 className="h-3 w-3 animate-spin mr-1" />
+              AI crafting...
             </div>
           )}
         </div>
-      </div>
-      
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Content Structure Sections</label>
-          <p className="text-sm text-gray-600 mb-4">
-            Review and refine the AI-generated outline. Each section represents a key part of your narrative that will drive engagement and action.
-          </p>
-          
+        
+        <div className="space-y-3">
           {data.outlineSteps.length === 0 && !isGenerating && (
-            <div className="text-center py-8 text-gray-500">
-              <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p>AI will generate your content outline based on your strategic inputs</p>
+            <div className="text-center py-6 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+              <FileText className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+              <p className="text-sm">AI will generate your content outline</p>
             </div>
           )}
           
-          <div className="space-y-3">
-            {data.outlineSteps.map((step, index) => (
-              <div key={index} className="flex gap-3 items-start">
-                <div className="flex-shrink-0 w-8 h-8 bg-story-blue text-white rounded-full flex items-center justify-center text-sm font-medium mt-1">
-                  {index + 1}
-                </div>
-                <Textarea 
-                  value={step}
-                  onChange={(e) => updateStep(index, e.target.value)}
-                  placeholder={`Section ${index + 1}: Define this part of your narrative`}
-                  rows={2}
-                  className="flex-1"
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => removeStep(index)}
-                  className="mt-1"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+          {data.outlineSteps.map((step, index) => (
+            <div key={index} className="flex gap-3 items-start">
+              <div className="flex-shrink-0 w-6 h-6 bg-story-blue text-white rounded-full flex items-center justify-center text-xs font-medium mt-2">
+                {index + 1}
               </div>
-            ))}
-            
-            {data.outlineSteps.length > 0 && (
+              <Textarea 
+                value={step}
+                onChange={(e) => updateStep(index, e.target.value)}
+                placeholder={`Section ${index + 1}: Define this part of your narrative`}
+                rows={2}
+                className="flex-1"
+              />
               <Button
                 variant="outline"
-                size="sm"
-                onClick={addStep}
-                className="w-full"
+                size="icon"
+                onClick={() => removeStep(index)}
+                className="mt-2 h-8 w-8"
               >
-                <Plus className="h-4 w-4 mr-2" /> Add Content Section
+                <X className="h-3 w-3" />
               </Button>
-            )}
-          </div>
+            </div>
+          ))}
+          
+          {data.outlineSteps.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={addStep}
+              className="w-full"
+            >
+              <Plus className="h-4 w-4 mr-2" /> Add Section
+            </Button>
+          )}
         </div>
       </div>
-
-      {/* AI Generation Preview */}
-      {data.outlineSteps.length > 0 && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <h4 className="text-sm font-semibold text-green-800 mb-2 flex items-center">
-            <ArrowRight className="h-4 w-4 mr-2" />
-            Ready for AI Content Generation
-          </h4>
-          <p className="text-xs text-green-700 mb-3">
-            Your StoryBrief & Outline is complete. The AI will use this structure to create:
-          </p>
-          <ul className="text-xs text-green-700 space-y-1">
-            <li>• Compelling introduction that hooks your target audience</li>
-            <li>• Narrative flow that addresses each outlined section</li>
-            <li>• Strategic integration of your chosen keywords and messaging</li>
-            <li>• Persuasive conclusion with your defined call-to-action</li>
-          </ul>
-        </div>
-      )}
-
-      {/* AI Guidance Preview */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-blue-800 mb-2">How this powers AI content creation:</h4>
-        <ul className="text-xs text-blue-700 space-y-1">
-          <li>• Each section guides AI to create focused, purposeful content blocks</li>
-          <li>• Sequential structure ensures logical narrative progression</li>
-          <li>• Strategic outline prevents AI from generating unfocused content</li>
-          <li>• Your refinements personalize the AI's creative direction</li>
-        </ul>
-      </div>
-    </div>
+    </TooltipProvider>
   );
 };
 

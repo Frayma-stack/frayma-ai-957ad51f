@@ -8,49 +8,26 @@ interface ProgressIndicatorProps {
 
 const ProgressIndicator: FC<ProgressIndicatorProps> = ({ currentStep }) => {
   const steps = [
-    { 
-      number: 1, 
-      title: 'Strategic Foundation', 
-      subtitle: 'Define your narrative direction',
-      description: 'Set the strategic foundation for AI-powered content creation'
-    },
-    { 
-      number: 2, 
-      title: 'Audience Resonance', 
-      subtitle: 'Target reader insights',
-      description: 'Guide AI to understand your audience deeply'
-    },
-    { 
-      number: 3, 
-      title: 'Discovery Optimization', 
-      subtitle: 'Content discoverability',
-      description: 'Optimize for search and audience needs'
-    },
-    { 
-      number: 4, 
-      title: 'Content Architecture', 
-      subtitle: 'AI-powered outline',
-      description: 'Structure for compelling narrative flow'
-    }
+    { number: 1, title: 'Strategic Foundation' },
+    { number: 2, title: 'Audience Resonance' },
+    { number: 3, title: 'Discovery Optimization' },
+    { number: 4, title: 'Content Architecture' }
   ];
 
   return (
-    <div className="mb-8">
-      {/* Journey Header */}
-      <div className="text-center mb-6">
-        <h2 className="text-xl font-semibold text-story-blue mb-2">StoryBrief & Outline Builder</h2>
-        <p className="text-gray-600 text-sm">
-          Building the foundation for AI-powered GTM narrative creation
-        </p>
+    <div className="mb-6">
+      {/* Compact Header */}
+      <div className="text-center mb-4">
+        <h2 className="text-lg font-semibold text-story-blue">StoryBrief & Outline Builder</h2>
+        <p className="text-xs text-gray-500">Step {currentStep} of 4 • Building foundation for AI-powered content creation</p>
       </div>
 
-      {/* Progress Steps */}
-      <div className="flex items-center justify-between">
+      {/* Compact Progress Steps */}
+      <div className="flex items-center justify-between max-w-lg mx-auto">
         {steps.map((step, index) => (
-          <div key={step.number} className="flex items-center flex-1">
+          <div key={step.number} className="flex items-center">
             <div className={`flex flex-col items-center ${currentStep >= step.number ? 'text-story-blue' : 'text-gray-400'}`}>
-              {/* Step Icon */}
-              <div className={`relative w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium mb-1 ${
                 currentStep > step.number 
                   ? 'bg-green-500 text-white' 
                   : currentStep === step.number 
@@ -58,44 +35,28 @@ const ProgressIndicator: FC<ProgressIndicatorProps> = ({ currentStep }) => {
                     : 'bg-gray-200'
               }`}>
                 {currentStep > step.number ? (
-                  <CheckCircle className="h-5 w-5" />
+                  <CheckCircle className="h-4 w-4" />
                 ) : (
-                  <span className="text-sm font-medium">{step.number}</span>
+                  step.number
                 )}
               </div>
-              
-              {/* Step Info */}
-              <div className="text-center max-w-[120px]">
-                <h4 className="text-xs font-semibold">{step.title}</h4>
-                <p className="text-xs text-gray-500 mt-1">{step.subtitle}</p>
-                {currentStep === step.number && (
-                  <p className="text-xs text-story-blue mt-1 font-medium">
-                    {step.description}
-                  </p>
-                )}
-              </div>
+              <span className="text-xs font-medium text-center max-w-[80px]">{step.title}</span>
             </div>
             
-            {/* Arrow between steps */}
             {index < steps.length - 1 && (
-              <div className="flex-1 flex justify-center mx-2">
-                <ArrowRight className={`h-4 w-4 ${currentStep > step.number ? 'text-green-500' : 'text-gray-300'}`} />
-              </div>
+              <ArrowRight className={`h-3 w-3 mx-3 ${currentStep > step.number ? 'text-green-500' : 'text-gray-300'}`} />
             )}
           </div>
         ))}
       </div>
 
-      {/* Next Phase Preview */}
+      {/* Completion Status */}
       {currentStep === 4 && (
-        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className="flex items-center text-green-800">
-            <CheckCircle className="h-5 w-5 mr-2" />
-            <span className="font-medium">Ready for AI Content Generation</span>
+        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-center">
+          <div className="flex items-center justify-center text-green-800 text-sm">
+            <CheckCircle className="h-4 w-4 mr-2" />
+            Ready for AI Content Generation
           </div>
-          <p className="text-green-700 text-sm mt-1">
-            Your StoryBrief is complete. Next: Generate your personalized GTM narrative in the Frayma AI Editor.
-          </p>
         </div>
       )}
     </div>

@@ -84,10 +84,6 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
       : 'AI-Powered GTM Thought Leadership Article';
   };
 
-  const getDescription = () => {
-    return `Building your StoryBrief to guide AI content creation - Step ${currentStep} of 4`;
-  };
-
   const handleInputChange = (field: keyof FormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -336,32 +332,36 @@ Format your response as JSON with the following structure:
   };
 
   return (
-    <Card className="w-full bg-white shadow-md">
-      <CardHeader>
+    <Card className="w-full bg-white shadow-sm border-gray-200">
+      <CardHeader className="pb-4">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={onBack}>
+          <Button variant="outline" size="icon" onClick={onBack} className="h-8 w-8">
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="flex-1">
-            <CardTitle className="text-story-blue flex items-center">
+            <CardTitle className="text-story-blue flex items-center text-lg">
               <Sparkles className="h-5 w-5 mr-2" />
               {getTitle()}
             </CardTitle>
-            <CardDescription>{getDescription()}</CardDescription>
+            <CardDescription className="text-xs">Building your personalized content creation blueprint</CardDescription>
           </div>
         </div>
       </CardHeader>
+      
       <CardContent className="space-y-6">
         <ProgressIndicator currentStep={currentStep} />
         
-        {renderCurrentStep()}
+        <div className="min-h-[400px]">
+          {renderCurrentStep()}
+        </div>
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between pt-6 border-t">
+        <div className="flex justify-between pt-4 border-t border-gray-100">
           <Button 
             variant="outline" 
             onClick={handlePrevious}
             disabled={currentStep === 1}
+            size="sm"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Previous
@@ -374,15 +374,16 @@ Format your response as JSON with the following structure:
                        (currentStep === 2 && !canProceedFromStep2()) ||
                        isGenerating}
               className="bg-story-blue hover:bg-story-light-blue"
+              size="sm"
             >
               {isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  AI Generating...
+                  AI Building...
                 </>
               ) : (
                 <>
-                  Continue Building
+                  Continue
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </>
               )}
@@ -397,9 +398,10 @@ Format your response as JSON with the following structure:
                 // TODO: Navigate to Frayma AI Editor with the complete StoryBrief data
               }}
               className="bg-green-600 hover:bg-green-700 text-white"
+              size="sm"
             >
               <Sparkles className="h-4 w-4 mr-2" />
-              Generate AI Content
+              Generate Content
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           )}
