@@ -1,129 +1,237 @@
-
 import { useState, useEffect } from 'react';
 import { PromptTemplate, PromptConfig, PromptCategory } from '@/types/prompts';
 
-// Default prompt templates
+// Default prompt templates with custom Frayma AI prompts
 const DEFAULT_PROMPTS: Record<PromptCategory, PromptTemplate> = {
   content_triggers: {
-    id: 'default_content_triggers',
-    name: 'Content Discovery Triggers',
-    description: 'Generate related keywords, search queries, and problem statements',
-    template: `Based on the following GTM narrative piece information, suggest relevant content discovery triggers:
+    id: 'frayma_content_triggers',
+    name: 'Frayma AI Content Discovery Triggers',
+    description: 'Generate related keywords, search queries, and problem statements using Frayma AI engine',
+    template: `You are Frayma AI, an AI narrative framing engine trained to execute the Product-Led Storytelling (PLS) approach. Product-Led Storytelling (PLS) is a narrative-first approach to crafting GTM content that resonates deeply, guides with relevance, and moves audiences to act. It emphasizes clarity of thought, structured empathy, and narrative logic to transform product messaging into compelling buyer-facing stories.
 
-STRATEGIC ALIGNMENT:
-- Idea/Trigger: {{ideaTrigger}}
+Your task is to analyze the completed sections of a StoryBrief & Outline (Part 1: Strategic Alignment and Part 2: Target Reader Resonance) and generate pre-filled suggestions for Part 3: Content Discovery Triggers.
+
+Use the fields provided below to generate the following:
+- A list of 5–10 *related keywords* to the Main Target Keyword
+- A list of 5–8 *search queries* (questions) the target ICP may be asking
+- A list of 6–9 *problem statements* the content could directly address
+
+Be sure all suggestions:
+- Align with the selected Narrative Anchors and Types
+- Reflect the stage of the customer journey (TOFU, MOFU, BOFU)
+- Match the tone, POV, and GTM strategy hinted at in the Strategic Alignment
+- Serve the primary goal or CTA of the article
+
+---
+
+Here is the input context:
+
+[Insert Strategic Alignment Fields]
+- Thesis/Trigger: {{ideaTrigger}}
 - Mutual Goal: {{mutualGoal}}
-- Target Keyword: {{targetKeyword}}
-- Content Cluster: {{contentCluster}}
-- Publish Reason: {{publishReason}}
+- Main Target Keyword: {{targetKeyword}}
+- Product/Service Cluster: {{contentCluster}}
+- Justification to Publish: {{publishReason}}
 - Call to Action: {{callToAction}}
-- Strategic Success Story: {{strategicSuccessStory}}
 
-TARGET READER RESONANCE:
+[Insert Target Reader Resonance Fields]
 - Main Target ICP: {{mainTargetICP}}
 - Journey Stage: {{journeyStage}}
-- Reading Prompt: {{readingPrompt}}
-- Narrative Anchors: {{narrativeAnchors}}
-- Success Story: {{successStory}}
+- Broader Audience: {{broaderAudience}}
+- Motivation to Read: {{readingPrompt}}
+- Narrative Anchors + Types: {{narrativeAnchors}}
+- Selected Success Story: {{successStory}}
 
-Please provide:
-1. 5-8 related keywords to "{{targetKeyword}}"
-2. 3-5 real search queries that the target audience would use
-3. 5 specific problem statements that the piece should address
+---
 
-Format your response as JSON with the following structure:
+Return your output in JSON format:
+
 {
-  "relatedKeywords": ["keyword1", "keyword2", ...],
-  "searchQueries": ["query1", "query2", ...],
-  "problemStatements": ["statement1", "statement2", ...]
-}`,
-    variables: ['ideaTrigger', 'mutualGoal', 'targetKeyword', 'contentCluster', 'publishReason', 'callToAction', 'strategicSuccessStory', 'mainTargetICP', 'journeyStage', 'readingPrompt', 'narrativeAnchors', 'successStory'],
+  "relatedKeywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
+  "searchQueries": ["query1", "query2", "query3", "query4", "query5"],
+  "problemStatements": ["problem1", "problem2", "problem3", "problem4", "problem5", "problem6"]
+}
+
+Keep the tone strategic yet digestible for Frayma's users. Avoid keyword stuffing or obvious SEO filler terms. Focus on real questions or signals that match what the ICP would search for or care about at this stage.`,
+    variables: ['ideaTrigger', 'mutualGoal', 'targetKeyword', 'contentCluster', 'publishReason', 'callToAction', 'mainTargetICP', 'journeyStage', 'broaderAudience', 'readingPrompt', 'narrativeAnchors', 'successStory'],
     category: 'content_triggers',
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   headlines_generation: {
-    id: 'default_headlines',
-    name: 'Headlines Generation',
-    description: 'Generate compelling headline alternatives',
-    template: `Based on the following strategic inputs, generate 9-12 compelling headline alternatives:
+    id: 'frayma_headlines',
+    name: 'Frayma AI Headline Alternatives',
+    description: 'Generate compelling headline alternatives using Frayma AI storytelling engine',
+    template: `You are Frayma AI, a GTM storytelling engine trained to execute the Product-Led Storytelling (PLS) approach. Product-Led Storytelling (PLS) is a narrative-first approach to crafting GTM content that resonates deeply, guides with relevance, and moves audiences to act. It emphasizes clarity of thought, structured empathy, and narrative logic to transform product messaging into compelling buyer-facing stories.
 
-STRATEGIC CONTEXT:
-- Core Idea: {{ideaTrigger}}
-- Target Keyword: {{targetKeyword}}
-- Target Audience: {{mainTargetICP}}
-- Journey Stage: {{journeyStage}}
+Your task is to generate a list of 9–12 headline/title alternatives for a long-form GTM narrative article. These headlines must attract the attention of the **main ICP** defined below by connecting with their **beliefs**, **internal pains**, **external struggles**, and **desired transformation**, while addressing one or more of the related keywords, search queries, or problem statements they've been shown to care about.
+
+These headline suggestions will be shown to the user inside the app's StoryBrief builder so they can choose or edit the one that best frames the final article. Avoid clickbait or overused tropes—prioritize originality, clarity, and narrative tension.
+
+Use this input context:
+
+---
+
+**Strategic Alignment**
+- Thesis/Trigger: {{ideaTrigger}}
 - Mutual Goal: {{mutualGoal}}
+- Main Keyword: {{targetKeyword}}
+- Product/Service Cluster: {{contentCluster}}
+- Why Publish: {{publishReason}}
+- CTA: {{callToAction}}
 
-DISCOVERY TRIGGERS:
+**Target Reader Resonance**
+- ICP: {{mainTargetICP}}
+- Journey Stage: {{journeyStage}}
+- Motivation: {{readingPrompt}}
+- Narrative Anchors + Types: {{narrativeAnchors}}
+- Success Story (summary): {{successStory}}
+
+**Content Discovery Triggers**
 - Related Keywords: {{relatedKeywords}}
+- Search Queries: {{searchQueries}}
 - Problem Statements: {{problemStatements}}
 
-Create headlines that are:
-1. Compelling and attention-grabbing
-2. Include the target keyword naturally
-3. Speak directly to the target audience's challenges
-4. Promise a clear value proposition
+---
 
-Format as JSON:
+Return 9–12 headline options in JSON format:
+
 {
-  "headlines": ["headline1", "headline2", ...]
-}`,
-    variables: ['ideaTrigger', 'targetKeyword', 'mainTargetICP', 'journeyStage', 'mutualGoal', 'relatedKeywords', 'problemStatements'],
+  "headlines": ["headline1", "headline2", "headline3", "headline4", "headline5", "headline6", "headline7", "headline8", "headline9", "headline10", "headline11", "headline12"]
+}
+
+Headlines should:
+- Feel specific and compelling to the ICP
+- Hint at the main transformation, pain, or struggle
+- Incorporate the phrasing of relevant queries, keywords, or problems
+- Spark curiosity without resorting to hype`,
+    variables: ['ideaTrigger', 'mutualGoal', 'targetKeyword', 'contentCluster', 'publishReason', 'callToAction', 'mainTargetICP', 'journeyStage', 'readingPrompt', 'narrativeAnchors', 'successStory', 'relatedKeywords', 'searchQueries', 'problemStatements'],
     category: 'headlines_generation',
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   outline_sections: {
-    id: 'default_outline',
-    name: 'Outline Sections',
-    description: 'Create detailed Product-Led Storytelling outline',
-    template: `Create a detailed Product-Led Storytelling outline with the 9-step approach organized into 3Rs phases:
+    id: 'frayma_outline',
+    name: 'Frayma AI Content Outline Generator',
+    description: 'Create detailed Product-Led Storytelling outline using 3Rs Formula',
+    template: `You are Frayma AI, a GTM narrative framing engine trained on the Product-Led Storytelling (PLS) approach and its corresponding 3Rs Formula. Product-Led Storytelling (PLS) is a narrative-first approach to crafting GTM content that resonates deeply, guides with relevance, and moves audiences to act. It emphasizes clarity of thought, structured empathy, and narrative logic to transform product messaging into compelling buyer-facing stories.
 
-CONTEXT:
-- Core Idea: {{ideaTrigger}}
-- Target Audience: {{mainTargetICP}}
-- Problems to Address: {{problemStatements}}
+Your task is to generate a complete outline for a long-form GTM article using the 9-step PLS execution framework, structured across the 3Rs Formula:
 
-Create sections following this structure:
-- ATTRACT (PLS Step 1): H2/H3 for hook and resonance
-- FILTER (PLS Steps 2-3): H2/H3 for context and transition  
-- ENGAGE (PLS Steps 4-6): H2/H3/H4 for main content body
-- RESULTS (PLS Steps 7-9): H2/H3/H4 for outcomes and CTA
+### ✳️ Product-Led Storytelling (PLS) Phases & the 3Rs Formula
 
-Format as JSON:
+- **Resonance (PLS Steps 1–3: Attract & Filter)**
+- **Relevance (PLS Steps 4–6: Engage & Show)**
+- **Results (PLS Steps 7–9: Persuade & Convert)**
+
+The outline must:
+- Use H2s for major sections and H3s (and H4s if needed) to support them
+- Integrate selected search queries, problem statements, and keywords into appropriate H2/H3 headers (to resonate and rank)
+- Reflect the narrative perspective and voice of the selected Author (optional)
+- Reflect the motivation, internal pain, and transformation of the ICP reader
+
+Use the following inputs to guide your structure:
+
+---
+
+**Strategic Alignment**
+- Trigger/Thesis: {{ideaTrigger}}
+- Main Keyword: {{targetKeyword}}
+- CTA: {{callToAction}}
+- Why Publish: {{publishReason}}
+
+**Target Reader Resonance**
+- Main ICP: {{mainTargetICP}}
+- Stage of Journey: {{journeyStage}}
+- Narrative Anchors + Types: {{narrativeAnchors}}
+- Success Story Summary: {{successStory}}
+
+**Content Discovery Triggers**
+- Related Keywords: {{relatedKeywords}}
+- Search Queries to Answer: {{searchQueries}}
+- Problem Statements to Address: {{problemStatements}}
+
+---
+
+Return output in JSON format:
+
 {
   "sections": [
     {
       "type": "H2",
-      "title": "Section Title",
-      "phase": "attract|filter|engage|results"
+      "title": "Resonance Phase - Hook & Filter",
+      "phase": "attract"
+    },
+    {
+      "type": "H3",
+      "title": "First-person narrative intro setting up the pain/tension",
+      "phase": "attract"
+    },
+    {
+      "type": "H3",
+      "title": "Filter for ICP (who this is for and why)",
+      "phase": "filter"
+    },
+    {
+      "type": "H2",
+      "title": "Relevance Phase - Main Challenge Addressed",
+      "phase": "engage"
+    },
+    {
+      "type": "H3",
+      "title": "Supporting subpoint with social proof",
+      "phase": "engage"
+    },
+    {
+      "type": "H3",
+      "title": "Product tie-in and value demonstration",
+      "phase": "engage"
+    },
+    {
+      "type": "H2",
+      "title": "Results Phase - Transformation & Future State",
+      "phase": "results"
+    },
+    {
+      "type": "H3",
+      "title": "Visualize future state with product insight",
+      "phase": "results"
+    },
+    {
+      "type": "H3",
+      "title": "Final CTA anchored to transformation",
+      "phase": "results"
     }
   ]
-}`,
-    variables: ['ideaTrigger', 'mainTargetICP', 'problemStatements'],
+}
+
+Don't repeat points across sections. Ensure all queries and pain points are addressed across the flow. Avoid fluff. Make each outline section build the narrative.`,
+    variables: ['ideaTrigger', 'targetKeyword', 'callToAction', 'publishReason', 'mainTargetICP', 'journeyStage', 'narrativeAnchors', 'successStory', 'relatedKeywords', 'searchQueries', 'problemStatements'],
     category: 'outline_sections',
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   intro_generation: {
-    id: 'default_intro',
-    name: 'Introduction Generation',
-    description: 'Generate compelling introduction and first section content',
-    template: `Generate a compelling introduction and first section content for:
+    id: 'frayma_intro',
+    name: 'Frayma AI Introduction Generation',
+    description: 'Generate compelling introduction following PLS Resonance phase',
+    template: `You are Frayma AI. Generate a compelling introduction for the Resonance phase (Attract & Filter) of this GTM narrative:
           
 HEADLINE: {{selectedHeadline}}
 TARGET AUDIENCE: {{mainTargetICP}}
 CORE IDEA: {{ideaTrigger}}
 
-Include:
-1. Hook that resonates with the target audience
-2. Introduction of the problem/challenge
-3. Personal connection or credibility
-4. Preview of what's coming`,
+Create content that:
+1. Opens with a hook that resonates with the target audience
+2. Introduces the problem/challenge with narrative tension
+3. Establishes personal connection or credibility
+4. Filters for the right audience
+5. Previews the transformation coming
+
+Use first-person narrative style when appropriate to create connection.`,
     variables: ['selectedHeadline', 'mainTargetICP', 'ideaTrigger'],
     category: 'intro_generation',
     isActive: true,
@@ -131,19 +239,22 @@ Include:
     updatedAt: new Date().toISOString()
   },
   body_generation: {
-    id: 'default_body',
-    name: 'Body Generation',
-    description: 'Generate main body content following the outline',
-    template: `Generate the main body content following the outline sections for ENGAGE phase:
+    id: 'frayma_body',
+    name: 'Frayma AI Body Content Generation',
+    description: 'Generate main body content for Relevance phase (Engage & Show)',
+    template: `You are Frayma AI. Generate the main body content for the Relevance phase (Engage & Show) following the outline sections:
 
 SECTIONS: {{outlineSections}}
 CONTEXT: {{outlineContext}}
 
-Focus on:
-1. Core framework/solution presentation
-2. Detailed explanation with examples
-3. Value demonstration
-4. Practical application`,
+Focus on the Relevance phase principles:
+1. Core framework/solution presentation with narrative structure
+2. Detailed explanation with examples and social proof
+3. Value demonstration through customer stories
+4. Practical application that moves toward the transformation
+5. Building credibility and trust through structured empathy
+
+Ensure content flows naturally between sections and maintains narrative coherence.`,
     variables: ['outlineSections', 'outlineContext'],
     category: 'body_generation',
     isActive: true,
@@ -151,19 +262,22 @@ Focus on:
     updatedAt: new Date().toISOString()
   },
   conclusion_generation: {
-    id: 'default_conclusion',
-    name: 'Conclusion Generation',
-    description: 'Generate conclusion content for RESULTS phase',
-    template: `Generate the conclusion content for RESULTS phase:
+    id: 'frayma_conclusion',
+    name: 'Frayma AI Conclusion Generation',
+    description: 'Generate conclusion content for Results phase (Persuade & Convert)',
+    template: `You are Frayma AI. Generate the conclusion content for the Results phase (Persuade & Convert):
 
 SECTIONS: {{outlineSections}}
 CALL TO ACTION: {{callToAction}}
 
-Include:
-1. Summary of key points
-2. Results and benefits
-3. Future implications
-4. Clear call to action`,
+Focus on the Results phase principles:
+1. Summary of key transformation points
+2. Clear results and benefits achieved
+3. Future implications and continued value
+4. Resolve any remaining objections
+5. Clear, compelling call to action that feels natural
+
+Ensure the conclusion feels like a natural culmination of the narrative journey, not a sales pitch.`,
     variables: ['outlineSections', 'callToAction'],
     category: 'conclusion_generation',
     isActive: true,
