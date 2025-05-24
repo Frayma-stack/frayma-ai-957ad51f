@@ -2,13 +2,13 @@ import { FC } from 'react';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 import ContentTypeSelector from '@/components/ContentTypeSelector';
 import ArticleTypeSelector from '@/components/ArticleTypeSelector';
-import StoryBriefManager from '@/components/StoryBriefManager';
+import GTMNarrativeCreator from '@/components/GTMNarrativeCreator';
 import SuccessStoryCreator from '@/components/SuccessStoryCreator';
 import ShortFormContentCreator from '@/components/ShortFormContentCreator';
 import ClientManager from '@/components/ClientManager';
 import AuthorManager from '@/components/AuthorManager';
 import IdeasBank from '@/components/ideas/IdeasBank';
-import { Client, Author, StoryBrief, ICPStoryScript } from '@/types/storytelling';
+import { Client, Author, ICPStoryScript, CustomerSuccessStory } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 
 interface MainContentProps {
@@ -65,30 +65,9 @@ const MainContent: FC<MainContentProps> = ({
     return authors;
   };
 
-  // Mock data for Story Briefs and ICP Scripts - in a real app these would come from props or storage
-  const mockStoryBriefs: StoryBrief[] = [];
+  // Mock data for ICP Scripts, Success Stories - in a real app these would come from props or storage
   const mockICPScripts: ICPStoryScript[] = [];
-  const mockSuccessStories = [];
-
-  const handleStoryBriefAdded = (brief: StoryBrief) => {
-    console.log('Story brief added:', brief);
-    // TODO: Implement story brief storage
-  };
-
-  const handleStoryBriefUpdated = (brief: StoryBrief) => {
-    console.log('Story brief updated:', brief);
-    // TODO: Implement story brief storage
-  };
-
-  const handleStoryBriefDeleted = (briefId: string) => {
-    console.log('Story brief deleted:', briefId);
-    // TODO: Implement story brief storage
-  };
-
-  const handleStoryBriefSelected = (brief: StoryBrief) => {
-    console.log('Story brief selected:', brief);
-    // TODO: Navigate to content generation with selected brief
-  };
+  const mockSuccessStories: CustomerSuccessStory[] = [];
 
   if (currentView === 'home') {
     if (selectedType === 'article' && !selectedArticleSubtype) {
@@ -100,14 +79,11 @@ const MainContent: FC<MainContentProps> = ({
       );
     } else if (selectedType === 'article' && selectedArticleSubtype) {
       return (
-        <StoryBriefManager
-          briefs={mockStoryBriefs}
-          scripts={mockICPScripts}
-          onBriefAdded={handleStoryBriefAdded}
-          onBriefUpdated={handleStoryBriefUpdated}
-          onBriefDeleted={handleStoryBriefDeleted}
-          onBriefSelected={handleStoryBriefSelected}
+        <GTMNarrativeCreator
           articleSubType={selectedArticleSubtype}
+          scripts={mockICPScripts}
+          successStories={mockSuccessStories}
+          onBack={onBack}
         />
       );
     } else if (selectedType === 'success-story') {
