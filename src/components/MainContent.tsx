@@ -1,3 +1,4 @@
+
 import { FC } from 'react';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 import ContentTypeSelector from '@/components/ContentTypeSelector';
@@ -8,7 +9,10 @@ import ShortFormContentCreator from '@/components/ShortFormContentCreator';
 import ClientManager from '@/components/ClientManager';
 import AuthorManager from '@/components/AuthorManager';
 import IdeasBank from '@/components/ideas/IdeasBank';
-import { Client, Author, ICPStoryScript, CustomerSuccessStory } from '@/types/storytelling';
+import ICPStoryScriptManager from '@/components/ICPStoryScriptManager';
+import CustomerSuccessManager from '@/components/CustomerSuccessManager';
+import ProductContextManager from '@/components/ProductContextManager';
+import { Client, Author, ICPStoryScript, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 
 interface MainContentProps {
@@ -19,6 +23,9 @@ interface MainContentProps {
   clients: Client[];
   authors: Author[];
   ideas: GeneratedIdea[];
+  icpScripts: ICPStoryScript[];
+  successStories: CustomerSuccessStory[];
+  productContexts: ProductContext[];
   onContentTypeSelect: (type: ContentType) => void;
   onArticleSubtypeSelect: (subtype: ArticleSubType) => void;
   onBack: () => void;
@@ -33,6 +40,15 @@ interface MainContentProps {
   onIdeaAdded: (idea: GeneratedIdea) => void;
   onIdeaUpdated: (idea: GeneratedIdea) => void;
   onIdeaDeleted: (ideaId: string) => void;
+  onICPScriptAdded: (script: ICPStoryScript) => void;
+  onICPScriptUpdated: (script: ICPStoryScript) => void;
+  onICPScriptDeleted: (scriptId: string) => void;
+  onSuccessStoryAdded: (story: CustomerSuccessStory) => void;
+  onSuccessStoryUpdated: (story: CustomerSuccessStory) => void;
+  onSuccessStoryDeleted: (storyId: string) => void;
+  onProductContextAdded: (context: ProductContext) => void;
+  onProductContextUpdated: (context: ProductContext) => void;
+  onProductContextDeleted: (contextId: string) => void;
 }
 
 const MainContent: FC<MainContentProps> = ({
@@ -43,6 +59,9 @@ const MainContent: FC<MainContentProps> = ({
   clients,
   authors,
   ideas,
+  icpScripts,
+  successStories,
+  productContexts,
   onContentTypeSelect,
   onArticleSubtypeSelect,
   onBack,
@@ -57,6 +76,15 @@ const MainContent: FC<MainContentProps> = ({
   onIdeaAdded,
   onIdeaUpdated,
   onIdeaDeleted,
+  onICPScriptAdded,
+  onICPScriptUpdated,
+  onICPScriptDeleted,
+  onSuccessStoryAdded,
+  onSuccessStoryUpdated,
+  onSuccessStoryDeleted,
+  onProductContextAdded,
+  onProductContextUpdated,
+  onProductContextDeleted,
 }) => {
   const getFilteredAuthors = () => {
     if (selectedClientId) {
@@ -65,9 +93,26 @@ const MainContent: FC<MainContentProps> = ({
     return authors;
   };
 
-  // Mock data for ICP Scripts, Success Stories - in a real app these would come from props or storage
-  const mockICPScripts: ICPStoryScript[] = [];
-  const mockSuccessStories: CustomerSuccessStory[] = [];
+  const getFilteredICPScripts = () => {
+    if (selectedClientId) {
+      return icpScripts.filter(script => script.clientId === selectedClientId);
+    }
+    return icpScripts;
+  };
+
+  const getFilteredSuccessStories = () => {
+    if (selectedClientId) {
+      return successStories.filter(story => story.clientId === selectedClientId);
+    }
+    return successStories;
+  };
+
+  const getFilteredProductContexts = () => {
+    if (selectedClientId) {
+      return productContexts.filter(context => context.clientId === selectedClientId);
+    }
+    return productContexts;
+  };
 
   if (currentView === 'home') {
     if (selectedType === 'article' && !selectedArticleSubtype) {
@@ -81,8 +126,8 @@ const MainContent: FC<MainContentProps> = ({
       return (
         <GTMNarrativeCreator
           articleSubType={selectedArticleSubtype}
-          scripts={mockICPScripts}
-          successStories={mockSuccessStories}
+          scripts={getFilteredICPScripts()}
+          successStories={getFilteredSuccessStories()}
           ideas={ideas}
           onBack={onBack}
         />
@@ -97,9 +142,9 @@ const MainContent: FC<MainContentProps> = ({
       return (
         <ShortFormContentCreator 
           contentType="linkedin"
-          scripts={mockICPScripts}
+          scripts={getFilteredICPScripts()}
           authors={getFilteredAuthors()}
-          successStories={mockSuccessStories}
+          successStories={getFilteredSuccessStories()}
           onBack={onBack}
         />
       );
@@ -107,9 +152,9 @@ const MainContent: FC<MainContentProps> = ({
       return (
         <ShortFormContentCreator 
           contentType="email"
-          scripts={mockICPScripts}
+          scripts={getFilteredICPScripts()}
           authors={getFilteredAuthors()}
-          successStories={mockSuccessStories}
+          successStories={getFilteredSuccessStories()}
           onBack={onBack}
         />
       );
@@ -117,9 +162,9 @@ const MainContent: FC<MainContentProps> = ({
       return (
         <ShortFormContentCreator 
           contentType="custom"
-          scripts={mockICPScripts}
+          scripts={getFilteredICPScripts()}
           authors={getFilteredAuthors()}
-          successStories={mockSuccessStories}
+          successStories={getFilteredSuccessStories()}
           onBack={onBack}
         />
       );
@@ -160,12 +205,45 @@ const MainContent: FC<MainContentProps> = ({
   if (currentView === 'ideas') {
     return (
       <IdeasBank
-        scripts={mockICPScripts}
+        scripts={getFilteredICPScripts()}
         productContext={{}}
         ideas={ideas}
         onIdeaAdded={onIdeaAdded}
         onIdeaUpdated={onIdeaUpdated}
         onIdeaDeleted={onIdeaDeleted}
+      />
+    );
+  }
+
+  if (currentView === 'icps') {
+    return (
+      <ICPStoryScriptManager
+        scripts={getFilteredICPScripts()}
+        onScriptAdded={onICPScriptAdded}
+        onScriptUpdated={onICPScriptUpdated}
+        onScriptDeleted={onICPScriptDeleted}
+      />
+    );
+  }
+
+  if (currentView === 'successStories') {
+    return (
+      <CustomerSuccessManager
+        successStories={getFilteredSuccessStories()}
+        onSuccessStoryAdded={onSuccessStoryAdded}
+        onSuccessStoryUpdated={onSuccessStoryUpdated}
+        onSuccessStoryDeleted={onSuccessStoryDeleted}
+      />
+    );
+  }
+
+  if (currentView === 'productContext') {
+    return (
+      <ProductContextManager
+        productContexts={getFilteredProductContexts()}
+        onProductContextAdded={onProductContextAdded}
+        onProductContextUpdated={onProductContextUpdated}
+        onProductContextDeleted={onProductContextDeleted}
       />
     );
   }

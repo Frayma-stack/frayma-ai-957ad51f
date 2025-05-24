@@ -1,12 +1,15 @@
 
 import { useState, useEffect } from 'react';
-import { Client, Author } from '@/types/storytelling';
+import { Client, Author, ICPStoryScript, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 
 export const useLocalStorage = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [ideas, setIdeas] = useState<GeneratedIdea[]>([]);
+  const [icpScripts, setICPScripts] = useState<ICPStoryScript[]>([]);
+  const [successStories, setSuccessStories] = useState<CustomerSuccessStory[]>([]);
+  const [productContexts, setProductContexts] = useState<ProductContext[]>([]);
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -23,6 +26,21 @@ export const useLocalStorage = () => {
     const savedIdeas = localStorage.getItem('ideas');
     if (savedIdeas) {
       setIdeas(JSON.parse(savedIdeas));
+    }
+
+    const savedICPScripts = localStorage.getItem('icpScripts');
+    if (savedICPScripts) {
+      setICPScripts(JSON.parse(savedICPScripts));
+    }
+
+    const savedSuccessStories = localStorage.getItem('successStories');
+    if (savedSuccessStories) {
+      setSuccessStories(JSON.parse(savedSuccessStories));
+    }
+
+    const savedProductContexts = localStorage.getItem('productContexts');
+    if (savedProductContexts) {
+      setProductContexts(JSON.parse(savedProductContexts));
     }
   }, []);
 
@@ -86,10 +104,73 @@ export const useLocalStorage = () => {
     localStorage.setItem('ideas', JSON.stringify(updatedIdeas));
   };
 
+  const handleICPScriptAdded = (script: ICPStoryScript) => {
+    const updatedScripts = [...icpScripts, script];
+    setICPScripts(updatedScripts);
+    localStorage.setItem('icpScripts', JSON.stringify(updatedScripts));
+  };
+
+  const handleICPScriptUpdated = (updatedScript: ICPStoryScript) => {
+    const updatedScripts = icpScripts.map(script => 
+      script.id === updatedScript.id ? updatedScript : script
+    );
+    setICPScripts(updatedScripts);
+    localStorage.setItem('icpScripts', JSON.stringify(updatedScripts));
+  };
+
+  const handleICPScriptDeleted = (scriptId: string) => {
+    const updatedScripts = icpScripts.filter(script => script.id !== scriptId);
+    setICPScripts(updatedScripts);
+    localStorage.setItem('icpScripts', JSON.stringify(updatedScripts));
+  };
+
+  const handleSuccessStoryAdded = (story: CustomerSuccessStory) => {
+    const updatedStories = [...successStories, story];
+    setSuccessStories(updatedStories);
+    localStorage.setItem('successStories', JSON.stringify(updatedStories));
+  };
+
+  const handleSuccessStoryUpdated = (updatedStory: CustomerSuccessStory) => {
+    const updatedStories = successStories.map(story => 
+      story.id === updatedStory.id ? updatedStory : story
+    );
+    setSuccessStories(updatedStories);
+    localStorage.setItem('successStories', JSON.stringify(updatedStories));
+  };
+
+  const handleSuccessStoryDeleted = (storyId: string) => {
+    const updatedStories = successStories.filter(story => story.id !== storyId);
+    setSuccessStories(updatedStories);
+    localStorage.setItem('successStories', JSON.stringify(updatedStories));
+  };
+
+  const handleProductContextAdded = (context: ProductContext) => {
+    const updatedContexts = [...productContexts, context];
+    setProductContexts(updatedContexts);
+    localStorage.setItem('productContexts', JSON.stringify(updatedContexts));
+  };
+
+  const handleProductContextUpdated = (updatedContext: ProductContext) => {
+    const updatedContexts = productContexts.map(context => 
+      context.id === updatedContext.id ? updatedContext : context
+    );
+    setProductContexts(updatedContexts);
+    localStorage.setItem('productContexts', JSON.stringify(updatedContexts));
+  };
+
+  const handleProductContextDeleted = (contextId: string) => {
+    const updatedContexts = productContexts.filter(context => context.id !== contextId);
+    setProductContexts(updatedContexts);
+    localStorage.setItem('productContexts', JSON.stringify(updatedContexts));
+  };
+
   return {
     clients,
     authors,
     ideas,
+    icpScripts,
+    successStories,
+    productContexts,
     handleClientAdded,
     handleClientUpdated,
     handleClientDeleted,
@@ -99,5 +180,14 @@ export const useLocalStorage = () => {
     handleIdeaAdded,
     handleIdeaUpdated,
     handleIdeaDeleted,
+    handleICPScriptAdded,
+    handleICPScriptUpdated,
+    handleICPScriptDeleted,
+    handleSuccessStoryAdded,
+    handleSuccessStoryUpdated,
+    handleSuccessStoryDeleted,
+    handleProductContextAdded,
+    handleProductContextUpdated,
+    handleProductContextDeleted,
   };
 };
