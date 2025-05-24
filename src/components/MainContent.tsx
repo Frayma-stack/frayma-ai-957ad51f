@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 import ContentTypeSelector from '@/components/ContentTypeSelector';
@@ -69,6 +68,7 @@ const MainContent: FC<MainContentProps> = ({
   // Mock data for Story Briefs and ICP Scripts - in a real app these would come from props or storage
   const mockStoryBriefs: StoryBrief[] = [];
   const mockICPScripts: ICPStoryScript[] = [];
+  const mockSuccessStories = [];
 
   const handleStoryBriefAdded = (brief: StoryBrief) => {
     console.log('Story brief added:', brief);
@@ -119,38 +119,32 @@ const MainContent: FC<MainContentProps> = ({
     } else if (selectedType === 'linkedin') {
       return (
         <ShortFormContentCreator 
+          contentType="linkedin"
+          scripts={mockICPScripts}
+          authors={getFilteredAuthors()}
+          successStories={mockSuccessStories}
           onBack={onBack}
         />
       );
     } else if (selectedType === 'email') {
       return (
-        <div className="text-center py-8">
-          <h2 className="text-2xl font-bold text-gray-700 mb-4">
-            Sales Email Creation
-          </h2>
-          <p className="text-gray-500">Email creation flow coming soon...</p>
-          <button 
-            onClick={onBack}
-            className="mt-4 px-4 py-2 bg-brand-primary text-white rounded hover:bg-brand-primary/90"
-          >
-            Back
-          </button>
-        </div>
+        <ShortFormContentCreator 
+          contentType="email"
+          scripts={mockICPScripts}
+          authors={getFilteredAuthors()}
+          successStories={mockSuccessStories}
+          onBack={onBack}
+        />
       );
     } else if (selectedType === 'custom') {
       return (
-        <div className="text-center py-8">
-          <h2 className="text-2xl font-bold text-gray-700 mb-4">
-            Custom Content Creation
-          </h2>
-          <p className="text-gray-500">Custom content creation flow coming soon...</p>
-          <button 
-            onClick={onBack}
-            className="mt-4 px-4 py-2 bg-brand-primary text-white rounded hover:bg-brand-primary/90"
-          >
-            Back
-          </button>
-        </div>
+        <ShortFormContentCreator 
+          contentType="custom"
+          scripts={mockICPScripts}
+          authors={getFilteredAuthors()}
+          successStories={mockSuccessStories}
+          onBack={onBack}
+        />
       );
     } else {
       return (
