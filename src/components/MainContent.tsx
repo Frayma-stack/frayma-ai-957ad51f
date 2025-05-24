@@ -1,3 +1,4 @@
+
 import { FC } from 'react';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 import ContentTypeSelector from '@/components/ContentTypeSelector';
@@ -140,7 +141,12 @@ const MainContent: FC<MainContentProps> = ({
     } else if (selectedType === 'success-story') {
       return (
         <SuccessStoryCreator 
+          scripts={getFilteredICPScripts()}
+          successStories={getFilteredSuccessStories()}
+          authors={getFilteredAuthors()}
+          productContext={getCurrentProductContext()}
           onBack={onBack}
+          onStoryCreated={onSuccessStoryAdded}
         />
       );
     } else if (selectedType === 'linkedin') {
