@@ -2,27 +2,44 @@
 import { FC } from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Lightbulb, HelpCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { CustomerSuccessStory } from '@/types/storytelling';
+import { GeneratedIdea } from '@/types/ideas';
 
 interface StrategicAlignmentData {
   ideaTrigger: string;
+  selectedIdeaId: string;
   mutualGoal: string;
   targetKeyword: string;
   contentCluster: string;
   publishReason: string;
   callToAction: string;
+  strategicSuccessStory: string;
 }
 
 interface StrategicAlignmentStepProps {
   data: StrategicAlignmentData;
+  successStories: CustomerSuccessStory[];
+  ideas: GeneratedIdea[];
   onDataChange: (field: keyof StrategicAlignmentData, value: string) => void;
 }
 
 const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
   data,
+  successStories,
+  ideas,
   onDataChange
 }) => {
+  const handleIdeaSelection = (ideaId: string) => {
+    const selectedIdea = ideas.find(idea => idea.id === ideaId);
+    if (selectedIdea) {
+      onDataChange('selectedIdeaId', ideaId);
+      onDataChange('ideaTrigger', selectedIdea.narrative);
+    }
+  };
+
   return (
     <TooltipProvider>
       <div className="space-y-4">
@@ -43,6 +60,32 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
             <label className="text-sm font-medium flex items-center">
+              Select from Ideas Bank
+              <Tooltip>
+                <TooltipTrigger>
+                  <HelpCircle className="h-3 w-3 ml-1 text-gray-400" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">Choose a saved idea to auto-populate the core concept</p>
+                </TooltipContent>
+              </Tooltip>
+            </label>
+            <Select value={data.selectedIdeaId} onValueChange={handleIdeaSelection}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Choose from your saved ideas..." />
+              </SelectTrigger>
+              <SelectContent>
+                {ideas.map((idea) => (
+                  <SelectItem key={idea.id} value={idea.id}>
+                    {idea.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="text-sm font-medium flex items-center">
               Core Idea/Trigger/Thesis *
               <Tooltip>
                 <TooltipTrigger>
@@ -60,6 +103,32 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
               rows={2}
               className="mt-1"
             />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium flex items-center">
+              Success Story Guide
+              <Tooltip>
+                <TooltipTrigger>
+                  <HelpCircle className="h-3 w-3 ml-1 text-gray-400" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">Select a success story to guide AI with real-life insights</p>
+                </TooltipContent>
+              </Tooltip>
+            </label>
+            <Select value={data.strategicSuccessStory} onValueChange={(value) => onDataChange('strategicSuccessStory', value)}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Choose a success story..." />
+              </SelectTrigger>
+              <SelectContent>
+                {successStories.map((story) => (
+                  <SelectItem key={story.id} value={story.id}>
+                    {story.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>

@@ -37,6 +37,7 @@ export const useGTMNarrativeGeneration = ({
     try {
       const selectedScript = scripts.find(s => s.id === formData.mainTargetICP);
       const selectedSuccessStory = successStories.find(s => s.id === formData.successStory);
+      const strategicSuccessStory = successStories.find(s => s.id === formData.strategicSuccessStory);
       
       const prompt = `Based on the following GTM narrative piece information, suggest relevant content discovery triggers:
 
@@ -47,6 +48,7 @@ STRATEGIC ALIGNMENT:
 - Content Cluster: ${formData.contentCluster}
 - Publish Reason: ${formData.publishReason}
 - Call to Action: ${formData.callToAction}
+- Strategic Success Story: ${strategicSuccessStory ? `${strategicSuccessStory.title} - Before: ${strategicSuccessStory.beforeSummary} - After: ${strategicSuccessStory.afterSummary}` : 'Not selected'}
 
 TARGET READER RESONANCE:
 - Main Target ICP: ${selectedScript?.name || 'Not selected'}

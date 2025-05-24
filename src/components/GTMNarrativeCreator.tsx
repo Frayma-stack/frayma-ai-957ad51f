@@ -3,6 +3,7 @@ import { FC, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ICPStoryScript, CustomerSuccessStory } from '@/types/storytelling';
+import { GeneratedIdea } from '@/types/ideas';
 import { ArticleSubType } from './ContentTypeSelector';
 import ProgressIndicator from './gtm-narrative/ProgressIndicator';
 import StrategicAlignmentStep from './gtm-narrative/StrategicAlignmentStep';
@@ -19,6 +20,7 @@ interface GTMNarrativeCreatorProps {
   articleSubType: ArticleSubType;
   scripts: ICPStoryScript[];
   successStories: CustomerSuccessStory[];
+  ideas: GeneratedIdea[];
   onBack: () => void;
 }
 
@@ -26,6 +28,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
   articleSubType,
   scripts,
   successStories,
+  ideas,
   onBack
 }) => {
   const { toast } = useToast();
@@ -153,12 +156,16 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
           <StrategicAlignmentStep
             data={{
               ideaTrigger: formData.ideaTrigger,
+              selectedIdeaId: formData.selectedIdeaId,
               mutualGoal: formData.mutualGoal,
               targetKeyword: formData.targetKeyword,
               contentCluster: formData.contentCluster,
               publishReason: formData.publishReason,
-              callToAction: formData.callToAction
+              callToAction: formData.callToAction,
+              strategicSuccessStory: formData.strategicSuccessStory
             }}
+            successStories={successStories}
+            ideas={ideas}
             onDataChange={(field, value) => handleInputChange(field, value)}
           />
         );

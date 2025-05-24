@@ -26,11 +26,13 @@ export interface OutlineSection {
 export interface FormData {
   // Strategic Alignment
   ideaTrigger: string;
+  selectedIdeaId: string; // New field for Ideas Bank selection
   mutualGoal: string;
   targetKeyword: string;
   contentCluster: string;
   publishReason: string;
   callToAction: string;
+  strategicSuccessStory: string; // New field for success story selection
   
   // Target Reader Resonance
   mainTargetICP: string;
@@ -59,11 +61,13 @@ export interface FormData {
 export const useGTMNarrativeData = () => {
   const [formData, setFormData] = useState<FormData>({
     ideaTrigger: '',
+    selectedIdeaId: '',
     mutualGoal: '',
     targetKeyword: '',
     contentCluster: '',
     publishReason: '',
     callToAction: '',
+    strategicSuccessStory: '',
     mainTargetICP: '',
     journeyStage: '',
     broaderAudience: '',
