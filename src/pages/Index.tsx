@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "@/components/NavBar";
@@ -7,8 +6,10 @@ import ContentTypeSelector, { ContentType, ArticleSubType } from "@/components/C
 import ArticleTypeSelector from "@/components/ArticleTypeSelector";
 import ClientManager from "@/components/ClientManager";
 import AuthorManager from "@/components/AuthorManager";
+import IdeasBank from "@/components/ideas/IdeasBank";
 import { useAuth } from "@/contexts/AuthContext";
 import { Client, Author } from "@/types/storytelling";
+import { GeneratedIdea } from "@/types/ideas";
 
 const Index = () => {
   const [selectedType, setSelectedType] = useState<ContentType | null>(null);
@@ -17,7 +18,7 @@ const Index = () => {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
-  const [ideas, setIdeas] = useState<any[]>([]);
+  const [ideas, setIdeas] = useState<GeneratedIdea[]>([]);
   
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -66,26 +67,43 @@ const Index = () => {
 
   const handleContentTypeSelect = (type: ContentType) => {
     setSelectedType(type);
+    
     if (type === 'article') {
-      // Show article sub-type selector
+      // Show article sub-type selector - don't navigate yet
       return;
     }
-    // Handle other content types here
+    
+    if (type === 'generate-ideas') {
+      // Navigate to ideas generation
+      setCurrentView('ideas');
+      return;
+    }
+    
+    // For other content types, we can add specific handling here
     console.log('Selected content type:', type);
+    // TODO: Add navigation logic for other content types
   };
 
   const handleArticleSubtypeSelect = (subtype: ArticleSubType) => {
     setSelectedArticleSubtype(subtype);
     console.log('Selected article subtype:', subtype);
+    // TODO: Navigate to article creation flow
   };
 
   const handleBack = () => {
-    setSelectedType(null);
-    setSelectedArticleSubtype(null);
+    if (selectedArticleSubtype) {
+      setSelectedArticleSubtype(null);
+    } else if (selectedType) {
+      setSelectedType(null);
+    } else {
+      setCurrentView('home');
+    }
   };
 
   const handleAssetTypeChange = (type: string) => {
     setCurrentView(type);
+    setSelectedType(null);
+    setSelectedArticleSubtype(null);
   };
 
   const handleClientSelected = (clientId: string | null) => {
@@ -94,10 +112,14 @@ const Index = () => {
 
   const handleIdeasBankSelected = () => {
     setCurrentView('ideas');
+    setSelectedType(null);
+    setSelectedArticleSubtype(null);
   };
 
   const handleHomeSelected = () => {
     setCurrentView('home');
+    setSelectedType(null);
+    setSelectedArticleSubtype(null);
   };
 
   const handleClientAdded = (client: Client) => {
@@ -145,6 +167,26 @@ const Index = () => {
     localStorage.setItem('authors', JSON.stringify(updatedAuthors));
   };
 
+  const handleIdeaAdded = (idea: GeneratedIdea) => {
+    const updatedIdeas = [...ideas, idea];
+    setIdeas(updatedIdeas);
+    localStorage.setItem('ideas', JSON.stringify(updatedIdeas));
+  };
+
+  const handleIdeaUpdated = (updatedIdea: GeneratedIdea) => {
+    const updatedIdeas = ideas.map(idea => 
+      idea.id === updatedIdea.id ? updatedIdea : idea
+    );
+    setIdeas(updatedIdeas);
+    localStorage.setItem('ideas', JSON.stringify(updatedIdeas));
+  };
+
+  const handleIdeaDeleted = (ideaId: string) => {
+    const updatedIdeas = ideas.filter(idea => idea.id !== ideaId);
+    setIdeas(updatedIdeas);
+    localStorage.setItem('ideas', JSON.stringify(updatedIdeas));
+  };
+
   const getFilteredAuthors = () => {
     if (selectedClientId) {
       return authors.filter(author => author.clientId === selectedClientId);
@@ -160,6 +202,24 @@ const Index = () => {
             onSelect={handleArticleSubtypeSelect}
             onBack={handleBack}
           />
+        );
+      } else if (selectedType && selectedType !== 'generate-ideas') {
+        // Show content creation flow for selected type
+        return (
+          <div className="text-center py-8">
+            <h2 className="text-2xl font-bold text-gray-700 mb-4">
+              {selectedType === 'article' && selectedArticleSubtype ? 
+                `Creating ${selectedArticleSubtype === 'newsletter' ? 'Newsletter' : 'Thought Leadership Article'}` :
+                `Creating ${selectedType}`}
+            </h2>
+            <p className="text-gray-500">Content creation flow coming soon...</p>
+            <button 
+              onClick={handleBack}
+              className="mt-4 px-4 py-2 bg-brand-primary text-white rounded hover:bg-brand-primary/90"
+            >
+              Back
+            </button>
+          </div>
         );
       } else {
         return (
@@ -197,10 +257,14 @@ const Index = () => {
 
     if (currentView === 'ideas') {
       return (
-        <div className="text-center py-8">
-          <h2 className="text-2xl font-bold text-gray-700">Ideas Bank</h2>
-          <p className="text-gray-500 mt-2">Your saved ideas will appear here</p>
-        </div>
+        <IdeasBank
+          scripts={[]} // TODO: Load actual scripts
+          productContext={{}} // TODO: Load actual product context
+          ideas={ideas}
+          onIdeaAdded={handleIdeaAdded}
+          onIdeaUpdated={handleIdeaUpdated}
+          onIdeaDeleted={handleIdeaDeleted}
+        />
       );
     }
 
