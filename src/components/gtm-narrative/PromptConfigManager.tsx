@@ -30,7 +30,6 @@ const PromptConfigManager: FC<PromptConfigManagerProps> = ({ isOpen, onClose }) 
   const { prompts, updatePrompt, resetPrompt, resetAllPrompts, importPrompts } = usePromptConfig();
   const { toast } = useToast();
   const [activeCategory, setActiveCategory] = useState<PromptCategory>('content_triggers');
-  const [editingPrompt, setEditingPrompt] = useState<string>('');
 
   const handlePromptChange = (category: PromptCategory, field: keyof PromptTemplate, value: string) => {
     updatePrompt(category, { [field]: value });
