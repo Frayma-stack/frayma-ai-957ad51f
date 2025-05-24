@@ -89,13 +89,23 @@ export const useGTMNarrativeData = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const canProceedFromStep1 = () => {
-    return formData.ideaTrigger && formData.mutualGoal && formData.targetKeyword && 
-           formData.contentCluster && formData.publishReason && formData.callToAction;
+  const canProceedFromStep1 = (): boolean => {
+    return Boolean(
+      formData.ideaTrigger && 
+      formData.mutualGoal && 
+      formData.targetKeyword && 
+      formData.contentCluster && 
+      formData.publishReason && 
+      formData.callToAction
+    );
   };
 
-  const canProceedFromStep2 = () => {
-    return formData.mainTargetICP && formData.journeyStage && formData.readingPrompt;
+  const canProceedFromStep2 = (): boolean => {
+    return Boolean(
+      formData.mainTargetICP && 
+      formData.journeyStage && 
+      formData.readingPrompt
+    );
   };
 
   return {
