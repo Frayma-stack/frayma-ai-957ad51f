@@ -27,33 +27,42 @@ Be sure all suggestions:
 Here is the input context:
 
 [Insert Strategic Alignment Fields]
-- Thesis/Trigger: {{ideaTrigger}}
-- Mutual Goal: {{mutualGoal}}
-- Main Target Keyword: {{targetKeyword}}
-- Product/Service Cluster: {{contentCluster}}
-- Justification to Publish: {{publishReason}}
-- Call to Action: {{callToAction}}
+- Thesis/Trigger: {{trigger_or_thesis}}
+- Mutual Goal: {{mutual_goal}}
+- Main Target Keyword: {{main_keyword}}
+- Product/Service Cluster: {{cluster}}
+- Justification to Publish: {{why_publish}}
+- Target CTA: {{cta}}
 
 [Insert Target Reader Resonance Fields]
-- Main Target ICP: {{mainTargetICP}}
-- Journey Stage: {{journeyStage}}
-- Broader Audience: {{broaderAudience}}
-- Motivation to Read: {{readingPrompt}}
-- Narrative Anchors + Types: {{narrativeAnchors}}
-- Selected Success Story: {{successStory}}
+- Main Target ICP: {{main_icp}}
+- Customer Journey Stage: {{journey_stage}}
+- Broader Audience: {{broader_audience}}
+- Motivation to Read: {{motivation}}
+- Narrative Anchors + Types: {{anchors_and_types}}
+- Selected Success Story: {{success_story_summary}}
 
 ---
 
-Return your output in JSON format:
+Return your output in the following format:
 
-{
-  "relatedKeywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
-  "searchQueries": ["query1", "query2", "query3", "query4", "query5"],
-  "problemStatements": ["problem1", "problem2", "problem3", "problem4", "problem5", "problem6"]
-}
+1. **Related Keywords:**
+- keyword 1
+- keyword 2
+...
+
+2. **Search Queries the Piece Should Answer:**
+- query 1
+- query 2
+...
+
+3. **Problem Statements to Address:**
+- problem 1
+- problem 2
+...
 
 Keep the tone strategic yet digestible for Frayma's users. Avoid keyword stuffing or obvious SEO filler terms. Focus on real questions or signals that match what the ICP would search for or care about at this stage.`,
-    variables: ['ideaTrigger', 'mutualGoal', 'targetKeyword', 'contentCluster', 'publishReason', 'callToAction', 'mainTargetICP', 'journeyStage', 'broaderAudience', 'readingPrompt', 'narrativeAnchors', 'successStory'],
+    variables: ['trigger_or_thesis', 'mutual_goal', 'main_keyword', 'cluster', 'why_publish', 'cta', 'main_icp', 'journey_stage', 'broader_audience', 'motivation', 'anchors_and_types', 'success_story_summary'],
     category: 'content_triggers',
     isActive: true,
     createdAt: new Date().toISOString(),
@@ -74,39 +83,33 @@ Use this input context:
 ---
 
 **Strategic Alignment**
-- Thesis/Trigger: {{ideaTrigger}}
-- Mutual Goal: {{mutualGoal}}
-- Main Keyword: {{targetKeyword}}
-- Product/Service Cluster: {{contentCluster}}
-- Why Publish: {{publishReason}}
-- CTA: {{callToAction}}
+- Thesis/Trigger: {{trigger_or_thesis}}
+- Mutual Goal: {{mutual_goal}}
+- Main Keyword: {{main_keyword}}
+- Product/Service Cluster: {{cluster}}
+- Why Publish: {{why_publish}}
+- CTA: {{cta}}
 
 **Target Reader Resonance**
-- ICP: {{mainTargetICP}}
-- Journey Stage: {{journeyStage}}
-- Motivation: {{readingPrompt}}
-- Narrative Anchors + Types: {{narrativeAnchors}}
-- Success Story (summary): {{successStory}}
+- ICP: {{main_icp}}
+- Journey Stage: {{journey_stage}}
+- Motivation: {{motivation}}
+- Narrative Anchors + Types: {{anchors_and_types}}
+- Success Story (summary): {{success_story_summary}}
 
 **Content Discovery Triggers**
-- Related Keywords: {{relatedKeywords}}
-- Search Queries: {{searchQueries}}
-- Problem Statements: {{problemStatements}}
+- Related Keywords: {{related_keywords_list}}
+- Search Queries: {{search_queries_list}}
+- Problem Statements: {{problem_statements_list}}
 
 ---
 
-Return 9–12 headline options in JSON format:
-
-{
-  "headlines": ["headline1", "headline2", "headline3", "headline4", "headline5", "headline6", "headline7", "headline8", "headline9", "headline10", "headline11", "headline12"]
-}
-
-Headlines should:
+Return 9–12 headline options that:
 - Feel specific and compelling to the ICP
 - Hint at the main transformation, pain, or struggle
 - Incorporate the phrasing of relevant queries, keywords, or problems
 - Spark curiosity without resorting to hype`,
-    variables: ['ideaTrigger', 'mutualGoal', 'targetKeyword', 'contentCluster', 'publishReason', 'callToAction', 'mainTargetICP', 'journeyStage', 'readingPrompt', 'narrativeAnchors', 'successStory', 'relatedKeywords', 'searchQueries', 'problemStatements'],
+    variables: ['trigger_or_thesis', 'mutual_goal', 'main_keyword', 'cluster', 'why_publish', 'cta', 'main_icp', 'journey_stage', 'motivation', 'anchors_and_types', 'success_story_summary', 'related_keywords_list', 'search_queries_list', 'problem_statements_list'],
     category: 'headlines_generation',
     isActive: true,
     createdAt: new Date().toISOString(),
@@ -137,125 +140,232 @@ Use the following inputs to guide your structure:
 ---
 
 **Strategic Alignment**
-- Trigger/Thesis: {{ideaTrigger}}
-- Main Keyword: {{targetKeyword}}
-- CTA: {{callToAction}}
-- Why Publish: {{publishReason}}
+- Trigger/Thesis: {{trigger_or_thesis}}
+- Main Keyword: {{main_keyword}}
+- CTA: {{cta}}
+- Why Publish: {{why_publish}}
 
 **Target Reader Resonance**
-- Main ICP: {{mainTargetICP}}
-- Stage of Journey: {{journeyStage}}
-- Narrative Anchors + Types: {{narrativeAnchors}}
-- Success Story Summary: {{successStory}}
+- Main ICP: {{main_icp}}
+- Stage of Journey: {{journey_stage}}
+- Narrative Anchors + Types: {{anchors_and_types}}
+- Success Story Summary: {{success_story_summary}}
 
 **Content Discovery Triggers**
-- Related Keywords: {{relatedKeywords}}
-- Search Queries to Answer: {{searchQueries}}
-- Problem Statements to Address: {{problemStatements}}
+- Related Keywords: {{related_keywords_list}}
+- Search Queries to Answer: {{search_queries_list}}
+- Problem Statements to Address: {{problem_statements_list}}
 
 ---
 
-Return output in JSON format:
+✅ Return output structured like this:
 
-{
-  "sections": [
-    {
-      "type": "H2",
-      "title": "Resonance Phase - Hook & Filter",
-      "phase": "attract"
-    },
-    {
-      "type": "H3",
-      "title": "First-person narrative intro setting up the pain/tension",
-      "phase": "attract"
-    },
-    {
-      "type": "H3",
-      "title": "Filter for ICP (who this is for and why)",
-      "phase": "filter"
-    },
-    {
-      "type": "H2",
-      "title": "Relevance Phase - Main Challenge Addressed",
-      "phase": "engage"
-    },
-    {
-      "type": "H3",
-      "title": "Supporting subpoint with social proof",
-      "phase": "engage"
-    },
-    {
-      "type": "H3",
-      "title": "Product tie-in and value demonstration",
-      "phase": "engage"
-    },
-    {
-      "type": "H2",
-      "title": "Results Phase - Transformation & Future State",
-      "phase": "results"
-    },
-    {
-      "type": "H3",
-      "title": "Visualize future state with product insight",
-      "phase": "results"
-    },
-    {
-      "type": "H3",
-      "title": "Final CTA anchored to transformation",
-      "phase": "results"
-    }
-  ]
-}
+# [Working Title Placeholder]
 
-Don't repeat points across sections. Ensure all queries and pain points are addressed across the flow. Avoid fluff. Make each outline section build the narrative.`,
-    variables: ['ideaTrigger', 'targetKeyword', 'callToAction', 'publishReason', 'mainTargetICP', 'journeyStage', 'narrativeAnchors', 'successStory', 'relatedKeywords', 'searchQueries', 'problemStatements'],
+## Resonance Phase (Attract & Filter)
+- H2: (headline-focused lead)
+  - H3: First-person narrative intro setting up the pain/tension
+  - H3: Filter for ICP (who this is for and why)
+
+## Relevance Phase (Engage & Show)
+- H2: (Query 1 or problem statement as main angle)
+  - H3: (Supporting subpoint 1)
+  - H3: (Supporting subpoint 2)
+- H2: (Query 2 or major challenge addressed)
+  - H3: (Include social proof via the selected success story)
+  - H3: (Supporting subpoint, product tie-in optional)
+
+## Results Phase (Persuade & Convert)
+- H2: (Transformation enabled by solving the problem)
+  - H3: (Visualize future state, supported by product insight)
+  - H3: (Quote, use case, or insight from real customer)
+- H2: (Final CTA anchored to ICP's transformation)
+  - H3: (Resolve minor objection or doubt)
+
+---
+
+Don't repeat points across sections. Ensure all queries and pain points are addressed across the flow.
+Avoid fluff. Make each outline section build the narrative. Return only the structured outline.`,
+    variables: ['trigger_or_thesis', 'main_keyword', 'cta', 'why_publish', 'main_icp', 'journey_stage', 'anchors_and_types', 'success_story_summary', 'related_keywords_list', 'search_queries_list', 'problem_statements_list'],
     category: 'outline_sections',
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   intro_generation: {
-    id: 'frayma_intro',
-    name: 'Frayma AI Introduction Generation',
-    description: 'Generate compelling introduction following PLS Resonance phase',
-    template: `You are Frayma AI. Generate a compelling introduction for the Resonance phase (Attract & Filter) of this GTM narrative:
-          
-HEADLINE: {{selectedHeadline}}
-TARGET AUDIENCE: {{mainTargetICP}}
-CORE IDEA: {{ideaTrigger}}
+    id: 'frayma_intro_crafting',
+    name: 'Frayma AI Introduction Auto-Crafting',
+    description: 'Auto-craft compelling introductions following PLS Resonance phase in first-person Author voice',
+    template: `Product-Led Storytelling (PLS) is a narrative-first approach to crafting GTM content that resonates deeply, guides with relevance, and moves audiences to act. It emphasizes clarity of thought, structured empathy, and narrative logic to transform product messaging into compelling buyer-facing stories. 
 
-Create content that:
-1. Opens with a hook that resonates with the target audience
-2. Introduces the problem/challenge with narrative tension
-3. Establishes personal connection or credibility
-4. Filters for the right audience
-5. Previews the transformation coming
+You are Frayma AI, a GTM storytelling engine trained on the Product-Led Storytelling (PLS) execution approach and the 3Rs Formula:
 
-Use first-person narrative style when appropriate to create connection.`,
-    variables: ['selectedHeadline', 'mainTargetICP', 'ideaTrigger'],
+- RESONANCE: Speak directly to your ICP's beliefs, pains, and goals.
+- RELEVANCE: Deliver insights and narrative structure that earn trust.
+- RESULTS: Compel readers to see what transformation is possible.
+
+This prompt is to auto-craft the **first full section of a GTM narrative article**, including:
+
+1. The Introduction (Filter the reader + establish resonance).
+2. The First Section of the article — under the heading: {{next_section_heading}} (usually an H2 or H3).
+
+This introduction corresponds to PLS Steps 2–3, and must do the following:
+
+1. FILTER the right ICP reader by reflecting their current belief, internal pain, external struggle, or desired transformation—using their own language and perspective.
+2. Build instant RESONANCE by making them feel deeply understood, while earning their trust through the lived experience and tone of the selected Author.
+3. Speak in the **first-person voice** of the Author selected. Lean on their experience, tone, and product beliefs for credibility, subtle authority, and narrative framing.
+4. SEGUE naturally into the text to go under the heading: {{next_section_heading}} (usually an H2 or H3), without sounding abrupt.
+
+⚠️ Tone & Voice Guidance:
+- Do **not** speak like an outsider summarizing thoughts.
+- Write *as if* you *are* the Author speaking directly to the reader.
+- Preserve the tone and taste captured in the Author's profile.
+- Weave in any specific POVs, product insights, or success stories the app user has chosen to associate with this section of the outline.
+
+### 🎯 Core Goals:
+- Establish deep resonance with the main ICP from the first paragraph.
+- Speak in the **first-person voice** of the selected Author.
+- Lean on the selected Author's experience and tone for credibility.
+- Begin with a story-driven or emotional hook, then expand into the ideas underpinning {{next_section_heading}}.
+
+### 🧠 Context to Ingest:
+
+**Headline:**  
+{{selected_headline}}
+
+**Strategic Alignment:**  
+Trigger/Thesis: {{trigger_or_thesis}}  
+Why Publish: {{why_publish}}  
+Mutual Goal: {{mutual_goal}}  
+Main Keyword: {{main_keyword}}  
+Cluster: {{cluster}}  
+CTA: {{cta}}
+
+**Target Reader Resonance:**  
+Main ICP: {{main_icp}}  
+Customer Journey Stage: {{journey_stage}}  
+Reading Trigger: {{prompt_to_read}}  
+Narrative Anchors/Types: {{narrative_anchors_and_types}}  
+Social Proof: {{selected_success_story_summary}}
+
+**Content Discovery Triggers:**  
+Related Keywords: {{related_keywords}}  
+Search Queries: {{search_queries}}  
+Problem Statements: {{problem_statements}}
+
+**Author Info:**  
+Name: {{author_name}}  
+Role/Backstory: {{author_summary}}  
+Writing Tone: {{selected_writing_tone}}  
+Relevant Experience to Pull From: {{relevant_author_experiences}}  
+Product Beliefs: {{product_beliefs}}
+
+**User Selected Intro Length (in words):**  
+{{selected_intro_length}}
+
+### ✍️ Output Instructions:
+
+- Craft the Introduction + {{next_section_heading}} content as one coherent narrative.
+- Use a tone matching {{selected_writing_tone}}, spoken from {{author_name}}'s first-person POV.
+- Speak to {{main_icp}}, anchored in their selected beliefs/pains/goals (from Narrative Anchors/Types).
+- Use a confident, narrative-driven tone that sounds like the Author's real voice.
+- Weave in the selected success story and relevant product POVs subtly.
+- Build credibility by referencing the Author's experience or product belief naturally (don't name-drop—show, don't tell).
+- Ensure a clear narrative thread that flows from intro → into the {{next_section_heading}} section.
+- Stay within {{selected_intro_length}} words for the introduction portion.
+- Use transitions and voice that feel human, smart, and emotionally attuned.
+
+🛑 Return only the full written output (intro + first section). No summaries, no instructions, no headings.`,
+    variables: ['next_section_heading', 'selected_headline', 'trigger_or_thesis', 'why_publish', 'mutual_goal', 'main_keyword', 'cluster', 'cta', 'main_icp', 'journey_stage', 'prompt_to_read', 'narrative_anchors_and_types', 'selected_success_story_summary', 'related_keywords', 'search_queries', 'problem_statements', 'author_name', 'author_summary', 'selected_writing_tone', 'relevant_author_experiences', 'product_beliefs', 'selected_intro_length'],
     category: 'intro_generation',
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   body_generation: {
-    id: 'frayma_body',
-    name: 'Frayma AI Body Content Generation',
-    description: 'Generate main body content for Relevance phase (Engage & Show)',
-    template: `You are Frayma AI. Generate the main body content for the Relevance phase (Engage & Show) following the outline sections:
+    id: 'frayma_body_crafting',
+    name: 'Frayma AI Main Body Auto-Crafting',
+    description: 'Auto-craft main body content using Engage & Show framework with product assets integration',
+    template: `Product-Led Storytelling (PLS) is a narrative-first approach to crafting GTM content that resonates deeply, guides with relevance, and moves audiences to act. It emphasizes clarity of thought, structured empathy, and narrative logic to transform product messaging into compelling buyer-facing stories. 
 
-SECTIONS: {{outlineSections}}
-CONTEXT: {{outlineContext}}
+You are Frayma AI, a GTM storytelling engine trained on the Product-Led Storytelling (PLS) execution approach and the 3Rs Formula.
 
-Focus on the Relevance phase principles:
-1. Core framework/solution presentation with narrative structure
-2. Detailed explanation with examples and social proof
-3. Value demonstration through customer stories
-4. Practical application that moves toward the transformation
-5. Building credibility and trust through structured empathy
+Your task is to auto-craft the middle section of a GTM narrative article using the **Engage & Show framework**. This includes:
+- **Step 4 – Engage:** Tackle key pain/problem queries with resonant insights.
+- **Step 5 – Show:** Break down these queries via H3s, SHOWING how the user's product solves them.
+- **Step 6 – Subtle CTA:** Add a low-friction call to action that nudges action—no hard selling.
 
-Ensure content flows naturally between sections and maintains narrative coherence.`,
-    variables: ['outlineSections', 'outlineContext'],
+### 🧠 Context for You to Use
+
+**1. Word Count Target for This Section:**  
+{{word_count_range}} (distribute wisely across all H2s + H3s)
+
+**2. Article Headline (PLS Step 1):**  
+{{selected_headline}}
+
+**3. Introduction (PLS Steps 2–3, Resonance):**  
+{{intro_text}}
+
+**4. Strategic Alignment from StoryBrief:**  
+- Trigger/Thesis: {{trigger}}  
+- Why Publish: {{why_publish}}  
+- CTA: {{cta}}  
+- Keyword Focus: {{main_keyword}}, Cluster: {{cluster}}  
+
+**5. Target Reader Resonance from StoryBrief:**  
+- Main ICP: {{target_icp}}  
+- Stage: {{journey_stage}}  
+- Narrative Anchors/Types: {{narrative_anchors}}  
+- Success Story: {{selected_success_story_summary}}
+
+**6. Content Discovery Triggers:**  
+- Related Keywords: {{related_keywords}}  
+- Queries to Address: {{queries}}  
+- Problem Statements: {{problems}}
+
+### 🧑‍💼 Author Instructions
+
+**Author Info:**  
+- Name: {{author_name}}  
+- Writing Tone: {{writing_tone}}  
+- Credibility Markers (Experience to Lean On):  
+  {{relevant_author_experiences}}  
+- Product Beliefs: {{author_product_beliefs}}
+
+### ✍️ How to Craft This Section
+
+**For Each H2:**  
+1. Start by transitioning naturally from the Introduction.  
+2. Address the core query/problem clearly. Use the user's POV if provided.  
+3. Establish why this challenge matters to the target ICP.
+
+**For Each H3 Under Each H2:**  
+1. Deepen the explanation with insights, metaphors, or narrative framing.  
+2. Weave in the selected asset (feature, use case, or differentiator):
+   - Use its description and benefits to SHOW how it solves the problem.
+   - Call out visual cues like this →  
+     `→ [Insert visual: {{uploaded_visual_caption}} related to {{asset_title}}]`
+3. If a custom POV is provided, center it in your framing.  
+4. Always guide, never market or be salesy. Be educational, strategic, and first-person.  
+5. Maintain consistent narrative voice and emotional continuity with the intro.
+
+**End the Final H3 of this section with a Subtle CTA:**  
+- CTA must tie back to the defined goal and challenge of the section.
+- Don't push. Just prompt reflection or momentum.
+- Use confidence, not pressure.
+
+### ⚠️ DO NOT:
+- Repeat anything already said in the intro.
+- Use hype language or marketing fluff.
+- Make up features or benefits that weren't in the assets provided.
+- Break out of the Author's tone, voice, or logical train of thought.
+
+📦 **Return ONLY the written output**: one continuous flow, including the H2 and all supporting H3s under it, plus the subtle CTA at the end of the section.
+
+Ensure total alignment with what's already been crafted. Structure the narrative like an experienced executive or operator teaching through story and insight—not like a blog writer or salesman.
+
+Once again, be: Personal. Visual. Resonant.`,
+    variables: ['word_count_range', 'selected_headline', 'intro_text', 'trigger', 'why_publish', 'cta', 'main_keyword', 'cluster', 'target_icp', 'journey_stage', 'narrative_anchors', 'selected_success_story_summary', 'related_keywords', 'queries', 'problems', 'author_name', 'writing_tone', 'relevant_author_experiences', 'author_product_beliefs'],
     category: 'body_generation',
     isActive: true,
     createdAt: new Date().toISOString(),
