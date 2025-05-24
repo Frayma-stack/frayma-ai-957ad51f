@@ -31,18 +31,32 @@ const SuccessStoryCreator: FC<SuccessStoryCreatorProps> = ({
 }) => {
   const [showFlow, setShowFlow] = useState(false);
 
+  console.log('SuccessStoryCreator rendered, showFlow:', showFlow);
+  console.log('Props:', { scripts, successStories, authors, productContext });
+
+  const handleStartFlow = () => {
+    console.log('Starting flow...');
+    setShowFlow(true);
+  };
+
   if (showFlow) {
+    console.log('Rendering SuccessStoryFlowCreator...');
     return (
       <SuccessStoryFlowCreator
         scripts={scripts}
         successStories={successStories}
         authors={authors}
         productContext={productContext}
-        onBack={() => setShowFlow(false)}
+        onBack={() => {
+          console.log('Flow back clicked');
+          setShowFlow(false);
+        }}
         onStoryCreated={onStoryCreated}
       />
     );
   }
+
+  console.log('Rendering main creator interface...');
 
   return (
     <Card className="w-full bg-white shadow-md border border-gray-100">
@@ -90,7 +104,7 @@ const SuccessStoryCreator: FC<SuccessStoryCreatorProps> = ({
             </div>
             
             <Button 
-              onClick={() => setShowFlow(true)}
+              onClick={handleStartFlow}
               className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white font-medium"
               size="lg"
             >
