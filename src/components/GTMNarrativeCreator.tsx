@@ -62,6 +62,16 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     generatePhaseContent
   });
 
+  const canProceedFromCurrentStep = () => {
+    if (currentStep === 1) {
+      return canProceedFromStep1();
+    }
+    if (currentStep === 2) {
+      return canProceedFromStep2();
+    }
+    return true;
+  };
+
   return (
     <Card className="w-full bg-white shadow-sm border-gray-200">
       <GTMNarrativeHeader
@@ -96,7 +106,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
             isGenerating={isGenerating}
             onPrevious={handlePrevious}
             onNext={handleNext}
-            canProceed={currentStep === 1 ? canProceedFromStep1() : true}
+            canProceed={canProceedFromCurrentStep()}
           />
         )}
       </CardContent>

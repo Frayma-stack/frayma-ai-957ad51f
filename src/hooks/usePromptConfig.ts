@@ -30,7 +30,7 @@ TARGET READER RESONANCE:
 Please provide:
 1. 5-8 related keywords to "{{targetKeyword}}"
 2. 3-5 real search queries that the target audience would use
-3. 3-5 specific problem statements that the piece should address
+3. 5 specific problem statements that the piece should address
 
 Format your response as JSON with the following structure:
 {
@@ -174,37 +174,52 @@ Include:
 };
 
 export const usePromptConfig = () => {
-  const [prompts, setPrompts] = useLocalStorage<Record<PromptCategory, PromptTemplate>>('gtm_prompts', DEFAULT_PROMPTS);
+  const [prompts, setPrompts] = useState<Record<PromptCategory, PromptTemplate>>(DEFAULT_PROMPTS);
   const [isLoaded, setIsLoaded] = useState(false);
+  const localStorage = useLocalStorage();
 
   useEffect(() => {
+    const savedPrompts = window.localStorage.getItem('gtm_prompts');
+    if (savedPrompts) {
+      try {
+        setPrompts(JSON.parse(savedPrompts));
+      } catch (error) {
+        console.error('Error loading saved prompts:', error);
+      }
+    }
     setIsLoaded(true);
   }, []);
 
   const updatePrompt = (category: PromptCategory, template: Partial<PromptTemplate>) => {
-    setPrompts(prev => ({
-      ...prev,
+    const updatedPrompts = {
+      ...prompts,
       [category]: {
-        ...prev[category],
+        ...prompts[category],
         ...template,
         updatedAt: new Date().toISOString()
       }
-    }));
+    };
+    setPrompts(updatedPrompts);
+    window.localStorage.setItem('gtm_prompts', JSON.stringify(updatedPrompts));
   };
 
   const resetPrompt = (category: PromptCategory) => {
-    setPrompts(prev => ({
-      ...prev,
+    const updatedPrompts = {
+      ...prompts,
       [category]: DEFAULT_PROMPTS[category]
-    }));
+    };
+    setPrompts(updatedPrompts);
+    window.localStorage.setItem('gtm_prompts', JSON.stringify(updatedPrompts));
   };
 
   const resetAllPrompts = () => {
     setPrompts(DEFAULT_PROMPTS);
+    window.localStorage.setItem('gtm_prompts', JSON.stringify(DEFAULT_PROMPTS));
   };
 
   const importPrompts = (importedPrompts: Record<PromptCategory, PromptTemplate>) => {
     setPrompts(importedPrompts);
+    window.localStorage.setItem('gtm_prompts', JSON.stringify(importedPrompts));
   };
 
   const getPromptTemplate = (category: PromptCategory): string => {
@@ -214,7 +229,6 @@ export const usePromptConfig = () => {
   const interpolateTemplate = (category: PromptCategory, variables: Record<string, any>): string => {
     let template = getPromptTemplate(category);
     
-    // Replace template variables with actual values
     Object.entries(variables).forEach(([key, value]) => {
       const placeholder = `{{${key}}}`;
       let replacement = '';
@@ -241,6 +255,10 @@ export const usePromptConfig = () => {
     resetAllPrompts,
     importPrompts,
     getPromptTemplate,
-    interpolateTemplate
+    interpolateTemplate,
+    // Include localStorage data for access if needed
+    clients: localStorage.clients,
+    authors: localStorage.authors,
+    ideas: localStorage.ideas
   };
 };
