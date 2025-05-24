@@ -2,7 +2,7 @@ import { FC, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import { ICPStoryScript, CustomerSuccessStory } from '@/types/storytelling';
 import { ArticleSubType } from './ContentTypeSelector';
 import { useChatGPT } from '@/contexts/ChatGPTContext';
@@ -80,8 +80,12 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
 
   const getTitle = () => {
     return articleSubType === 'newsletter' 
-      ? 'Create First-Person Narrative Newsletter'
-      : 'Create GTM Thought Leadership Article';
+      ? 'AI-Powered First-Person Narrative Newsletter'
+      : 'AI-Powered GTM Thought Leadership Article';
+  };
+
+  const getDescription = () => {
+    return `Building your StoryBrief to guide AI content creation - Step ${currentStep} of 4`;
   };
 
   const handleInputChange = (field: keyof FormData, value: any) => {
@@ -146,8 +150,8 @@ Format your response as JSON with the following structure:
       }));
 
       toast({
-        title: "Content triggers generated",
-        description: "Review and modify the suggested content discovery triggers as needed."
+        title: "AI suggestions generated",
+        description: "Review and refine the content discovery triggers to guide your narrative creation."
       });
     } catch (error) {
       console.error('Error generating content triggers:', error);
@@ -219,8 +223,8 @@ Format your response as JSON with the following structure:
       }));
 
       toast({
-        title: "Content outline generated",
-        description: "Review and modify the suggested content outline as needed."
+        title: "AI content outline generated",
+        description: "Your strategic inputs have been transformed into a compelling content structure."
       });
     } catch (error) {
       console.error('Error generating content outline:', error);
@@ -338,9 +342,12 @@ Format your response as JSON with the following structure:
           <Button variant="outline" size="icon" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <CardTitle className="text-story-blue">{getTitle()}</CardTitle>
-            <CardDescription>Step {currentStep} of 4 - StoryBrief & Outline creation process</CardDescription>
+          <div className="flex-1">
+            <CardTitle className="text-story-blue flex items-center">
+              <Sparkles className="h-5 w-5 mr-2" />
+              {getTitle()}
+            </CardTitle>
+            <CardDescription>{getDescription()}</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -371,11 +378,11 @@ Format your response as JSON with the following structure:
               {isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Generating...
+                  AI Generating...
                 </>
               ) : (
                 <>
-                  Next
+                  Continue Building
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </>
               )}
@@ -384,14 +391,15 @@ Format your response as JSON with the following structure:
             <Button 
               onClick={() => {
                 toast({
-                  title: "StoryBrief & Outline complete",
-                  description: "Your GTM narrative framework and content outline are ready for final content generation."
+                  title: "StoryBrief & Outline Complete!",
+                  description: "Ready to generate your AI-powered GTM narrative in the Frayma Editor."
                 });
-                // TODO: Implement final content generation logic
+                // TODO: Navigate to Frayma AI Editor with the complete StoryBrief data
               }}
-              className="bg-story-blue hover:bg-story-light-blue"
+              className="bg-green-600 hover:bg-green-700 text-white"
             >
-              Complete StoryBrief
+              <Sparkles className="h-4 w-4 mr-2" />
+              Generate AI Content
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           )}
