@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { PromptTemplate, PromptCategory } from '@/types/prompts';
-import { DEFAULT_PROMPTS } from './defaultPrompts';
+import { DEFAULT_PROMPTS } from './prompts';
 
 export const usePromptConfig = () => {
   const [prompts, setPrompts] = useState<Record<PromptCategory, PromptTemplate>>(DEFAULT_PROMPTS);
