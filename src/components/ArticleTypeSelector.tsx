@@ -10,8 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { 
   FileText, 
-  Mail, 
-  Trophy 
+  Mail
 } from "lucide-react";
 import { ArticleSubType } from './ContentTypeSelector';
 
@@ -28,7 +27,7 @@ const ArticleTypeSelector: FC<ArticleTypeSelectorProps> = ({ onSelect, onBack })
         <CardDescription>Select the type of narrative you want to create</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Button 
             variant="outline" 
             className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-story-blue transition-all"
@@ -38,21 +37,6 @@ const ArticleTypeSelector: FC<ArticleTypeSelectorProps> = ({ onSelect, onBack })
             <span className="text-lg font-medium">First-Person Narrative Newsletter</span>
             <span className="text-sm text-gray-500 text-center">
               Create an engaging newsletter in first-person voice
-            </span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-story-blue transition-all"
-            onClick={() => onSelect('customer_success')}
-          >
-            <Trophy className="h-8 w-8 text-story-blue" />
-            <span className="text-lg font-medium">Customer Success Story</span>
-            <span className="text-sm text-gray-500 text-center">
-              Highlight a customer's success using your solution
-            </span>
-            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-              Uses Success Story Assets
             </span>
           </Button>
           

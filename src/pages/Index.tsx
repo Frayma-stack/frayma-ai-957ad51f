@@ -1,9 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import Sidebar from '@/components/Sidebar';
 import ContentTypeSelector, { ArticleSubType, ContentType } from '@/components/ContentTypeSelector';
 import ArticleTypeSelector from '@/components/ArticleTypeSelector';
 import ShortFormContentCreator from '@/components/ShortFormContentCreator';
+import SuccessStoryCreator from '@/components/SuccessStoryCreator';
 import CustomerSuccessManager from '@/components/CustomerSuccessManager';
 import ICPStoryScriptManager from '@/components/ICPStoryScriptManager';
 import StoryBriefManager from '@/components/StoryBriefManager';
@@ -243,10 +245,13 @@ const Index = () => {
     // Reset article subtype when changing content type
     setArticleSubType(null);
     
-    // If article type, we need to select the subtype next, otherwise go directly to the content creator
+    // Handle different content types
     if (type === 'article') {
       // Do nothing here, wait for subtype selection
       console.log("Waiting for article subtype selection");
+    } else if (type === 'success-story') {
+      // Go directly to success story creator
+      setActiveTab('create');
     } else if (type === 'email' || type === 'linkedin' || type === 'custom') {
       // For non-article types, skip briefs and go directly to content creator
       setActiveTab('create');
@@ -363,6 +368,12 @@ const Index = () => {
     if (activeTab === 'create' || !activeTab) {
       if (!contentType) {
         return <ContentTypeSelector onSelect={handleContentTypeSelect} />;
+      } else if (contentType === 'success-story') {
+        return (
+          <SuccessStoryCreator 
+            onBack={resetContentTypeSelection}
+          />
+        );
       } else if (contentType === 'article' && !articleSubType) {
         return (
           <ArticleTypeSelector 

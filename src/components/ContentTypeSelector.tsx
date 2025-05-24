@@ -13,11 +13,12 @@ import {
   Mail, 
   MessageSquare, 
   Settings, 
-  Lightbulb 
+  Lightbulb,
+  Trophy
 } from "lucide-react";
 
-export type ContentType = 'article' | 'email' | 'linkedin' | 'custom' | 'generate-ideas';
-export type ArticleSubType = 'thought_leadership' | 'customer_success' | 'newsletter';
+export type ContentType = 'article' | 'email' | 'linkedin' | 'custom' | 'generate-ideas' | 'success-story';
+export type ArticleSubType = 'thought_leadership' | 'newsletter';
 
 interface ContentTypeSelectorProps {
   onSelect: (type: ContentType) => void;
@@ -49,6 +50,20 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ onSelect, onSelectA
               Create a full, structured<br/>
               article with high resonance<br/>
               and deep structure
+            </span>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-brand-primary transition-all card-hover"
+            onClick={() => onSelect('success-story')}
+          >
+            <Trophy className="h-8 w-8 text-brand-primary" />
+            <span className="text-lg font-medium font-sora">Success Story</span>
+            <span className="text-sm text-gray-500 text-center">
+              Auto-craft compelling<br/>
+              customer success stories<br/>
+              with structured narrative
             </span>
           </Button>
           

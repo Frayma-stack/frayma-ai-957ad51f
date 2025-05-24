@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { PerplexityProvider } from "./contexts/PerplexityContext";
+import { ChatGPTProvider } from "./contexts/ChatGPTContext";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -16,15 +17,17 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <PerplexityProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <ChatGPTProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </ChatGPTProvider>
         </PerplexityProvider>
       </TooltipProvider>
     </QueryClientProvider>
