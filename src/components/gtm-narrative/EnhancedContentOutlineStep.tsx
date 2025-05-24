@@ -103,7 +103,22 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
   const getAssetDisplayName = (type: string, id: string) => {
     const assets = getAssetOptions(type);
     const asset = assets.find((a: any) => a.id === id);
-    return asset ? (asset.title || asset.name || asset.useCase) : 'Unknown';
+    
+    if (!asset) return 'Unknown';
+    
+    // Handle different asset types with their specific properties
+    switch (type) {
+      case 'success_story':
+        return (asset as CustomerSuccessStory).title || 'Untitled Story';
+      case 'feature':
+        return (asset as ProductFeature).name || 'Untitled Feature';
+      case 'use_case':
+        return (asset as ProductUseCase).useCase || 'Untitled Use Case';
+      case 'differentiator':
+        return (asset as ProductDifferentiator).title || 'Untitled Differentiator';
+      default:
+        return 'Unknown';
+    }
   };
 
   return (
@@ -251,7 +266,7 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
                         <SelectContent>
                           {getAssetOptions(section.linkedAssetType).map((asset: any) => (
                             <SelectItem key={asset.id} value={asset.id}>
-                              {asset.title || asset.name || asset.useCase || 'Untitled'}
+                              {getAssetDisplayName(section.linkedAssetType!, asset.id)}
                             </SelectItem>
                           ))}
                         </SelectContent>
