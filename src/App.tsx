@@ -6,9 +6,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import { PerplexityProvider } from "./contexts/PerplexityContext";
 import { ChatGPTProvider } from "./contexts/ChatGPTContext";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -16,19 +18,22 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <PerplexityProvider>
-          <ChatGPTProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </ChatGPTProvider>
-        </PerplexityProvider>
+        <AuthProvider>
+          <PerplexityProvider>
+            <ChatGPTProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </ChatGPTProvider>
+          </PerplexityProvider>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

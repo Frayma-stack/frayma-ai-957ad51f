@@ -1,9 +1,23 @@
 
 import { FC } from 'react';
 import { Button } from "@/components/ui/button";
-import { BookOpen, HelpCircle } from "lucide-react";
+import { HelpCircle, LogOut, User } from "lucide-react";
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const NavBar: FC = () => {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
+
+  const handleAuthClick = () => {
+    navigate('/auth');
+  };
+
   return (
     <nav className="bg-brand-primary text-white py-4 px-6 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
@@ -21,9 +35,30 @@ const NavBar: FC = () => {
             <HelpCircle className="h-5 w-5 mr-2" />
             How it works
           </Button>
-          <Button className="bg-brand-cta text-white hover:bg-brand-cta/90">
-            Get Started
-          </Button>
+          
+          {user ? (
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <User className="h-4 w-4" />
+                <span className="text-sm">{user.email}</span>
+              </div>
+              <Button 
+                variant="ghost" 
+                className="text-white hover:bg-brand-primary/80"
+                onClick={handleSignOut}
+              >
+                <LogOut className="h-5 w-5 mr-2" />
+                Sign Out
+              </Button>
+            </div>
+          ) : (
+            <Button 
+              className="bg-brand-cta text-white hover:bg-brand-cta/90"
+              onClick={handleAuthClick}
+            >
+              Get Started
+            </Button>
+          )}
         </div>
       </div>
     </nav>
