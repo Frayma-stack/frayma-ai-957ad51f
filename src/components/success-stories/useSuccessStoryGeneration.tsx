@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useChatGPT } from '@/contexts/ChatGPTContext';
 import { useSuccessStoryPromptConfig } from './useSuccessStoryPromptConfig';
@@ -180,6 +179,177 @@ export const useSuccessStoryGeneration = () => {
     }
   };
 
+  const generateBodySection = async (
+    formData: SuccessStoryFlowData,
+    author?: Author,
+    productContext?: ProductContext | null,
+    previousSections?: {
+      headline?: string;
+      outline?: string;
+      introduction?: string;
+    },
+    options?: GenerationOptions
+  ): Promise<string> => {
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      const variables = {
+        ...prepareVariables(formData, author, productContext),
+        USER_DEFINED_WORD_COUNT: options?.wordCount?.toString() || '600-800',
+        HEADLINE: previousSections?.headline || '',
+        RELEVANCE_PHASE_OUTLINE: previousSections?.outline || '',
+        INTRO_FIRST_H2_H3_CONTENT: previousSections?.introduction || ''
+      };
+
+      const prompt = generatePromptWithVariables('body_sections', variables);
+
+      const content = await generateContent(prompt, {
+        maxTokens: 2000,
+        temperature: 0.7
+      });
+
+      setGeneratedContent(prev => ({ ...prev, body: content }));
+      return content;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to generate body section';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const recraftBodySection = async (
+    formData: SuccessStoryFlowData,
+    author?: Author,
+    productContext?: ProductContext | null,
+    newDirection?: string,
+    previousSections?: {
+      headline?: string;
+      introduction?: string;
+    },
+    options?: GenerationOptions
+  ): Promise<string> => {
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      const variables = {
+        ...prepareVariables(formData, author, productContext),
+        UPDATED_WORD_COUNT: options?.wordCount?.toString() || '600-800',
+        USER_PROVIDED_CONTEXT_POV_NARRATIVE: newDirection || '',
+        HEADLINE: previousSections?.headline || '',
+        PREVIOUS_SECTION: previousSections?.introduction || ''
+      };
+
+      // Note: Using body_sections category for recrafting as well
+      const prompt = generatePromptWithVariables('body_sections', variables);
+
+      const content = await generateContent(prompt, {
+        maxTokens: 2000,
+        temperature: 0.7
+      });
+
+      setGeneratedContent(prev => ({ ...prev, body: content }));
+      return content;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to recraft body section';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const generateConclusion = async (
+    formData: SuccessStoryFlowData,
+    author?: Author,
+    productContext?: ProductContext | null,
+    previousSections?: {
+      headline?: string;
+      outline?: string;
+      introduction?: string;
+      body?: string;
+    },
+    options?: GenerationOptions
+  ): Promise<string> => {
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      const variables = {
+        ...prepareVariables(formData, author, productContext),
+        DESIRED_WORD_COUNT: options?.wordCount?.toString() || '400-600',
+        APPROVED_HEADLINE: previousSections?.headline || '',
+        APPROVED_OUTLINE: previousSections?.outline || '',
+        CRAFTED_INTRO_SECTION: previousSections?.introduction || '',
+        CRAFTED_MAIN_BODY: previousSections?.body || ''
+      };
+
+      const prompt = generatePromptWithVariables('conclusion_generation', variables);
+
+      const content = await generateContent(prompt, {
+        maxTokens: 1500,
+        temperature: 0.7
+      });
+
+      setGeneratedContent(prev => ({ ...prev, conclusion: content }));
+      return content;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to generate conclusion';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const recraftConclusion = async (
+    formData: SuccessStoryFlowData,
+    author?: Author,
+    productContext?: ProductContext | null,
+    newDirection?: string,
+    previousSections?: {
+      headline?: string;
+      outline?: string;
+      introduction?: string;
+      body?: string;
+    },
+    options?: GenerationOptions
+  ): Promise<string> => {
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      const variables = {
+        ...prepareVariables(formData, author, productContext),
+        USER_PROVIDED_ADDITIONAL_CONTEXT_OR_DIRECTION: newDirection || '',
+        DESIRED_WORD_COUNT: options?.wordCount?.toString() || '400-600',
+        APPROVED_HEADLINE: previousSections?.headline || '',
+        APPROVED_OUTLINE: previousSections?.outline || '',
+        APPROVED_INTRO_SECTION: previousSections?.introduction || '',
+        APPROVED_MAIN_BODY: previousSections?.body || ''
+      };
+
+      const prompt = generatePromptWithVariables('conclusion_generation', variables);
+
+      const content = await generateContent(prompt, {
+        maxTokens: 1500,
+        temperature: 0.7
+      });
+
+      setGeneratedContent(prev => ({ ...prev, conclusion: content }));
+      return content;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to recraft conclusion';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return {
     isGenerating,
     generatedContent,
@@ -187,6 +357,10 @@ export const useSuccessStoryGeneration = () => {
     generateHeadlineAndOutline,
     generateIntroduction,
     recraftIntroduction,
+    generateBodySection,
+    recraftBodySection,
+    generateConclusion,
+    recraftConclusion,
     setError
   };
 };
