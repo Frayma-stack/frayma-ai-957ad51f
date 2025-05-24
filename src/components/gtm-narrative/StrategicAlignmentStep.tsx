@@ -1,12 +1,13 @@
-
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Lightbulb, HelpCircle } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Lightbulb, HelpCircle, Settings } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CustomerSuccessStory } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
+import PromptConfigManager from './PromptConfigManager';
 
 interface StrategicAlignmentData {
   ideaTrigger: string;
@@ -32,6 +33,8 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
   ideas,
   onDataChange
 }) => {
+  const [showPromptConfig, setShowPromptConfig] = useState(false);
+
   const handleIdeaSelection = (ideaId: string) => {
     const selectedIdea = ideas.find(idea => idea.id === ideaId);
     if (selectedIdea) {
@@ -43,18 +46,30 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
   return (
     <TooltipProvider>
       <div className="space-y-4">
-        {/* Minimal Step Header */}
-        <div className="flex items-center mb-4">
-          <Lightbulb className="h-5 w-5 text-story-blue mr-2" />
-          <h3 className="text-lg font-semibold text-story-blue">Strategic Foundation</h3>
-          <Tooltip>
-            <TooltipTrigger>
-              <HelpCircle className="h-4 w-4 ml-2 text-gray-400" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-xs max-w-xs">These inputs guide AI to create content aligned with your business goals and messaging strategy.</p>
-            </TooltipContent>
-          </Tooltip>
+        {/* Step Header with Prompt Config Button */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <Lightbulb className="h-5 w-5 text-story-blue mr-2" />
+            <h3 className="text-lg font-semibold text-story-blue">Strategic Foundation</h3>
+            <Tooltip>
+              <TooltipTrigger>
+                <HelpCircle className="h-4 w-4 ml-2 text-gray-400" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs max-w-xs">These inputs guide AI to create content aligned with your business goals and messaging strategy.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowPromptConfig(true)}
+            className="flex items-center gap-2"
+          >
+            <Settings className="h-4 w-4" />
+            Configure Prompts
+          </Button>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -232,6 +247,11 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
             </Select>
           </div>
         </div>
+
+        <PromptConfigManager 
+          isOpen={showPromptConfig}
+          onClose={() => setShowPromptConfig(false)}
+        />
       </div>
     </TooltipProvider>
   );
