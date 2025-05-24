@@ -3,10 +3,13 @@ import { FC } from 'react';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 import ContentTypeSelector from '@/components/ContentTypeSelector';
 import ArticleTypeSelector from '@/components/ArticleTypeSelector';
+import StoryBriefManager from '@/components/StoryBriefManager';
+import SuccessStoryCreator from '@/components/SuccessStoryCreator';
+import ShortFormContentCreator from '@/components/ShortFormContentCreator';
 import ClientManager from '@/components/ClientManager';
 import AuthorManager from '@/components/AuthorManager';
 import IdeasBank from '@/components/ideas/IdeasBank';
-import { Client, Author } from '@/types/storytelling';
+import { Client, Author, StoryBrief, ICPStoryScript } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 
 interface MainContentProps {
@@ -63,6 +66,30 @@ const MainContent: FC<MainContentProps> = ({
     return authors;
   };
 
+  // Mock data for Story Briefs and ICP Scripts - in a real app these would come from props or storage
+  const mockStoryBriefs: StoryBrief[] = [];
+  const mockICPScripts: ICPStoryScript[] = [];
+
+  const handleStoryBriefAdded = (brief: StoryBrief) => {
+    console.log('Story brief added:', brief);
+    // TODO: Implement story brief storage
+  };
+
+  const handleStoryBriefUpdated = (brief: StoryBrief) => {
+    console.log('Story brief updated:', brief);
+    // TODO: Implement story brief storage
+  };
+
+  const handleStoryBriefDeleted = (briefId: string) => {
+    console.log('Story brief deleted:', briefId);
+    // TODO: Implement story brief storage
+  };
+
+  const handleStoryBriefSelected = (brief: StoryBrief) => {
+    console.log('Story brief selected:', brief);
+    // TODO: Navigate to content generation with selected brief
+  };
+
   if (currentView === 'home') {
     if (selectedType === 'article' && !selectedArticleSubtype) {
       return (
@@ -71,16 +98,52 @@ const MainContent: FC<MainContentProps> = ({
           onBack={onBack}
         />
       );
-    } else if (selectedType && selectedType !== 'generate-ideas') {
-      // Show content creation flow for selected type
+    } else if (selectedType === 'article' && selectedArticleSubtype) {
+      return (
+        <StoryBriefManager
+          briefs={mockStoryBriefs}
+          scripts={mockICPScripts}
+          onBriefAdded={handleStoryBriefAdded}
+          onBriefUpdated={handleStoryBriefUpdated}
+          onBriefDeleted={handleStoryBriefDeleted}
+          onBriefSelected={handleStoryBriefSelected}
+          articleSubType={selectedArticleSubtype}
+        />
+      );
+    } else if (selectedType === 'success-story') {
+      return (
+        <SuccessStoryCreator 
+          onBack={onBack}
+        />
+      );
+    } else if (selectedType === 'linkedin') {
+      return (
+        <ShortFormContentCreator 
+          onBack={onBack}
+        />
+      );
+    } else if (selectedType === 'email') {
       return (
         <div className="text-center py-8">
           <h2 className="text-2xl font-bold text-gray-700 mb-4">
-            {selectedType === 'article' && selectedArticleSubtype ? 
-              `Creating ${selectedArticleSubtype === 'newsletter' ? 'Newsletter' : 'Thought Leadership Article'}` :
-              `Creating ${selectedType}`}
+            Sales Email Creation
           </h2>
-          <p className="text-gray-500">Content creation flow coming soon...</p>
+          <p className="text-gray-500">Email creation flow coming soon...</p>
+          <button 
+            onClick={onBack}
+            className="mt-4 px-4 py-2 bg-brand-primary text-white rounded hover:bg-brand-primary/90"
+          >
+            Back
+          </button>
+        </div>
+      );
+    } else if (selectedType === 'custom') {
+      return (
+        <div className="text-center py-8">
+          <h2 className="text-2xl font-bold text-gray-700 mb-4">
+            Custom Content Creation
+          </h2>
+          <p className="text-gray-500">Custom content creation flow coming soon...</p>
           <button 
             onClick={onBack}
             className="mt-4 px-4 py-2 bg-brand-primary text-white rounded hover:bg-brand-primary/90"
@@ -126,8 +189,8 @@ const MainContent: FC<MainContentProps> = ({
   if (currentView === 'ideas') {
     return (
       <IdeasBank
-        scripts={[]} // TODO: Load actual scripts
-        productContext={{}} // TODO: Load actual product context
+        scripts={mockICPScripts}
+        productContext={{}}
         ideas={ideas}
         onIdeaAdded={onIdeaAdded}
         onIdeaUpdated={onIdeaUpdated}
