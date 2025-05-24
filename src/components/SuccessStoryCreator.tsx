@@ -8,7 +8,7 @@ import {
   CardDescription
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trophy, Wand2 } from 'lucide-react';
+import { Trophy, Wand2, FileText } from 'lucide-react';
 import { ICPStoryScript, CustomerSuccessStory, Author, ProductContext } from '@/types/storytelling';
 import SuccessStoryFlowCreator from './success-stories/SuccessStoryFlowCreator';
 
@@ -52,68 +52,94 @@ const SuccessStoryCreator: FC<SuccessStoryCreatorProps> = ({
           <CardTitle className="text-brand-primary font-sora">Create Success Story</CardTitle>
         </div>
         <CardDescription>
-          Choose how you'd like to create your customer success story
+          Craft compelling customer success stories using Frayma AI's Product-Led Storytelling approach
         </CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="border-2 border-brand-primary/20 hover:border-brand-primary/40 transition-colors cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <Wand2 className="h-8 w-8 text-brand-primary" />
-                <div>
-                  <h3 className="font-semibold text-lg">Auto-Craft Success Story</h3>
-                  <p className="text-sm text-gray-600">5-step guided flow with AI assistance</p>
-                </div>
+        {/* Primary Option - Auto-Craft Flow */}
+        <Card className="border-2 border-brand-primary bg-gradient-to-br from-brand-primary/5 to-brand-primary/10 hover:from-brand-primary/10 hover:to-brand-primary/15 transition-colors">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="p-2 bg-brand-primary rounded-lg">
+                <Wand2 className="h-6 w-6 text-white" />
               </div>
-              <p className="text-sm text-gray-700 mb-4">
-                Use our structured 5-step process to collect all necessary inputs and auto-generate 
-                a compelling success story using Frayma AI's custom prompts.
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-lg text-brand-primary">Auto-Craft Success Story</h3>
+                  <span className="bg-brand-primary text-white text-xs px-2 py-1 rounded-full font-medium">
+                    RECOMMENDED
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600">Product-Led Storytelling with AI-powered crafting</p>
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <p className="text-sm text-gray-700 mb-3">
+                Use Frayma AI's unique <strong>Product-Led Storytelling (PLS)</strong> approach with our proven 
+                3Rs Formula: <em>Resonance, Relevance, Results</em>. This structured 5-step process ensures 
+                your success stories truly resonate, engage, and convert.
               </p>
-              <ul className="text-xs text-gray-600 space-y-1 mb-4">
-                <li>• Story Brief (Strategic Inputs)</li>
-                <li>• Narrative Anchors + Customer Voice</li>
-                <li>• Implementation Journey + Assets</li>
-                <li>• Outcome Metrics + Results</li>
-                <li>• Auto-Crafting Enhancements</li>
-              </ul>
-              <Button 
-                onClick={() => setShowFlow(true)}
-                className="w-full bg-brand-primary hover:bg-brand-primary/90"
-              >
-                Start Auto-Craft Flow
-              </Button>
-            </CardContent>
-          </Card>
+              
+              <div className="bg-white/70 rounded-lg p-3 mb-4">
+                <h4 className="font-medium text-sm text-brand-primary mb-2">5-Step Guided Process:</h4>
+                <ul className="text-xs text-gray-600 space-y-1">
+                  <li>• <strong>Story Brief:</strong> Strategic inputs & narrative direction</li>
+                  <li>• <strong>Narrative Anchors:</strong> Customer voice & resonance setup</li>
+                  <li>• <strong>Implementation Journey:</strong> Features, use cases & assets</li>
+                  <li>• <strong>Outcome Metrics:</strong> Results & persuasive evidence</li>
+                  <li>• <strong>Auto-Crafting:</strong> AI-powered story generation</li>
+                </ul>
+              </div>
+            </div>
+            
+            <Button 
+              onClick={() => setShowFlow(true)}
+              className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white font-medium"
+              size="lg"
+            >
+              Start Auto-Craft Flow
+              <Wand2 className="ml-2 h-4 w-4" />
+            </Button>
+          </CardContent>
+        </Card>
 
-          <Card className="border-2 border-gray-200 hover:border-gray-300 transition-colors">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <Trophy className="h-8 w-8 text-gray-500" />
-                <div>
-                  <h3 className="font-semibold text-lg text-gray-700">Manual Entry</h3>
-                  <p className="text-sm text-gray-600">Traditional form-based approach</p>
-                </div>
+        {/* Secondary Option - Manual Entry */}
+        <Card className="border border-gray-200 hover:border-gray-300 transition-colors">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="p-2 bg-gray-100 rounded-lg">
+                <FileText className="h-6 w-6 text-gray-500" />
               </div>
-              <p className="text-sm text-gray-700 mb-4">
-                Create a success story using the traditional manual form with basic fields 
-                for title, before/after summaries, quotes, and features.
+              <div>
+                <h3 className="font-semibold text-lg text-gray-700">Manual Entry</h3>
+                <p className="text-sm text-gray-600">Traditional form-based approach</p>
+              </div>
+            </div>
+            
+            <p className="text-sm text-gray-700 mb-4">
+              Create a success story using a simplified manual form with basic fields. 
+              This option bypasses Frayma AI's Product-Led Storytelling framework and 
+              custom prompt engine.
+            </p>
+            
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+              <p className="text-xs text-amber-800">
+                <strong>Note:</strong> Manual entry doesn't leverage Frayma AI's unique PLS approach, 
+                custom prompts, or the 3Rs Formula that makes stories truly resonate with your ICPs.
               </p>
-              <p className="text-xs text-gray-500 mb-4">
-                Note: This option uses the existing simple form interface and does not leverage 
-                the new AI-powered auto-crafting capabilities.
-              </p>
-              <Button 
-                variant="outline"
-                className="w-full"
-                disabled
-              >
-                Coming Soon
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+            
+            <Button 
+              variant="outline"
+              className="w-full"
+              disabled
+            >
+              Manual Entry (Coming Soon)
+            </Button>
+          </CardContent>
+        </Card>
 
         <div className="flex gap-4 pt-4">
           <Button variant="outline" onClick={onBack}>
