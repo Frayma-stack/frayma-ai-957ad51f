@@ -1,4 +1,3 @@
-
 import { FC, useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,6 +42,9 @@ interface FormData {
   relatedKeywords: string[];
   searchQueries: string[];
   problemStatements: string[];
+  
+  // Content Outline
+  outlineSteps: string[];
 }
 
 const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
@@ -70,7 +72,8 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     successStory: '',
     relatedKeywords: [],
     searchQueries: [],
-    problemStatements: []
+    problemStatements: [],
+    outlineSteps: []
   });
 
   const getTitle = () => {
@@ -190,6 +193,79 @@ Format your response as JSON with the following structure:
     }
   };
 
+  const generateContentOutline = async () => {
+    if (!isConfigured) {
+      toast({
+        title: "ChatGPT not configured",
+        description: "Please configure your ChatGPT API key to use auto-generation.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    
+    try {
+      const selectedScript = scripts.find(s => s.id === formData.mainTargetICP);
+      const selectedSuccessStory = successStories.find(s => s.id === formData.successStory);
+      
+      const prompt = `Based on the complete GTM narrative piece information below, create a detailed content outline:
+
+STRATEGIC ALIGNMENT:
+- Idea/Trigger: ${formData.ideaTrigger}
+- Mutual Goal: ${formData.mutualGoal}
+- Target Keyword: ${formData.targetKeyword}
+- Content Cluster: ${formData.contentCluster}
+- Publish Reason: ${formData.publishReason}
+- Call to Action: ${formData.callToAction}
+
+TARGET READER RESONANCE:
+- Main Target ICP: ${selectedScript?.name || 'Not selected'}
+- Journey Stage: ${formData.journeyStage}
+- Reading Prompt: ${formData.readingPrompt}
+- Narrative Anchors: ${formData.narrativeAnchors.map(anchor => `${anchor.type}: ${anchor.content}`).join('; ')}
+- Success Story: ${selectedSuccessStory?.title || 'Not selected'}
+
+CONTENT DISCOVERY TRIGGERS:
+- Related Keywords: ${formData.relatedKeywords.join(', ')}
+- Search Queries: ${formData.searchQueries.join('; ')}
+- Problem Statements: ${formData.problemStatements.join('; ')}
+
+Content Type: ${articleSubType === 'newsletter' ? 'First-Person Narrative Newsletter' : 'GTM Thought Leadership Article'}
+
+Please create a structured content outline with 6-10 main sections/steps that will guide the creation of this piece. Each step should be a clear, actionable section title.
+
+Format your response as JSON with the following structure:
+{
+  "outlineSteps": ["Step 1: Title", "Step 2: Title", ...]
+}`;
+
+      const response = await generateContent(prompt);
+      
+      // Parse the JSON response
+      const outline = JSON.parse(response);
+      
+      setFormData(prev => ({
+        ...prev,
+        outlineSteps: outline.outlineSteps || []
+      }));
+
+      toast({
+        title: "Content outline generated",
+        description: "Review and modify the suggested content outline as needed."
+      });
+    } catch (error) {
+      console.error('Error generating content outline:', error);
+      toast({
+        title: "Generation failed",
+        description: "Failed to generate content outline. Please try again or fill them manually.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const handleNext = async () => {
     if (currentStep === 2) {
       // Validate required fields before moving to step 3
@@ -204,6 +280,11 @@ Format your response as JSON with the following structure:
       
       // Auto-generate content triggers
       await generateContentTriggers();
+    }
+    
+    if (currentStep === 3) {
+      // Auto-generate content outline
+      await generateContentOutline();
     }
     
     setCurrentStep(prev => prev + 1);
@@ -233,7 +314,7 @@ Format your response as JSON with the following structure:
           </Button>
           <div>
             <CardTitle className="text-story-blue">{getTitle()}</CardTitle>
-            <CardDescription>Step {currentStep} of 3 - Guided content creation process</CardDescription>
+            <CardDescription>Step {currentStep} of 4 - StoryBrief & Outline creation process</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -257,6 +338,12 @@ Format your response as JSON with the following structure:
               3
             </div>
             <span className="ml-2 text-sm font-medium">Content Discovery</span>
+          </div>
+          <div className={`flex items-center ${currentStep >= 4 ? 'text-story-blue' : 'text-gray-400'}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 4 ? 'bg-story-blue text-white' : 'bg-gray-200'}`}>
+              4
+            </div>
+            <span className="ml-2 text-sm font-medium">Content Outline</span>
           </div>
         </div>
 
@@ -597,6 +684,61 @@ Format your response as JSON with the following structure:
           </div>
         )}
 
+        {/* Step 4: Content Outline */}
+        {currentStep === 4 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-story-blue">Content Outline</h3>
+              {isGenerating && (
+                <div className="flex items-center text-sm text-gray-600">
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Generating outline...
+                </div>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Content Structure Steps</label>
+              <p className="text-sm text-gray-600 mb-4">
+                Define the main sections/steps that will structure your {articleSubType === 'newsletter' ? 'newsletter' : 'article'}. Each step should represent a key section of your content.
+              </p>
+              <div className="space-y-2">
+                {formData.outlineSteps.map((step, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Textarea 
+                      value={step}
+                      onChange={(e) => {
+                        const newSteps = [...formData.outlineSteps];
+                        newSteps[index] = e.target.value;
+                        handleInputChange('outlineSteps', newSteps);
+                      }}
+                      placeholder={`Content section ${index + 1}`}
+                      rows={2}
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => {
+                        const newSteps = formData.outlineSteps.filter((_, i) => i !== index);
+                        handleInputChange('outlineSteps', newSteps);
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleInputChange('outlineSteps', [...formData.outlineSteps, ''])}
+                >
+                  <Plus className="h-4 w-4 mr-2" /> Add Content Section
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Navigation Buttons */}
         <div className="flex justify-between pt-6 border-t">
           <Button 
@@ -608,7 +750,7 @@ Format your response as JSON with the following structure:
             Previous
           </Button>
           
-          {currentStep < 3 ? (
+          {currentStep < 4 ? (
             <Button 
               onClick={handleNext}
               disabled={(currentStep === 1 && !canProceedFromStep1()) || 
@@ -616,7 +758,7 @@ Format your response as JSON with the following structure:
                        isGenerating}
               className="bg-story-blue hover:bg-story-light-blue"
             >
-              {currentStep === 2 && isGenerating ? (
+              {isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Generating...
@@ -632,14 +774,14 @@ Format your response as JSON with the following structure:
             <Button 
               onClick={() => {
                 toast({
-                  title: "Content framework complete",
-                  description: "Your GTM narrative framework is ready for content generation."
+                  title: "StoryBrief & Outline complete",
+                  description: "Your GTM narrative framework and content outline are ready for final content generation."
                 });
-                // TODO: Implement content generation logic
+                // TODO: Implement final content generation logic
               }}
               className="bg-story-blue hover:bg-story-light-blue"
             >
-              Generate Content
+              Complete StoryBrief
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           )}
