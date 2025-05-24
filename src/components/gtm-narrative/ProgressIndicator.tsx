@@ -1,6 +1,6 @@
 
 import { FC } from 'react';
-import { CheckCircle, Circle, ArrowRight } from 'lucide-react';
+import { CheckCircle, Circle, ArrowRight, Sparkles } from 'lucide-react';
 
 interface ProgressIndicatorProps {
   currentStep: number;
@@ -8,22 +8,27 @@ interface ProgressIndicatorProps {
 
 const ProgressIndicator: FC<ProgressIndicatorProps> = ({ currentStep }) => {
   const steps = [
-    { number: 1, title: 'Strategic Foundation' },
-    { number: 2, title: 'Audience Resonance' },
-    { number: 3, title: 'Discovery Optimization' },
-    { number: 4, title: 'Content Architecture' }
+    { number: 1, title: 'Strategic Foundation', description: 'Core inputs' },
+    { number: 2, title: 'Audience Resonance', description: 'Target alignment' },
+    { number: 3, title: 'Discovery Triggers', description: 'AI pre-fills' },
+    { number: 4, title: 'Content Architecture', description: 'Headlines & outline' }
   ];
 
   return (
     <div className="mb-6">
-      {/* Compact Header */}
+      {/* Journey Header */}
       <div className="text-center mb-4">
-        <h2 className="text-lg font-semibold text-story-blue">StoryBrief & Outline Builder</h2>
-        <p className="text-xs text-gray-500">Step {currentStep} of 4 • Building foundation for AI-powered content creation</p>
+        <div className="flex items-center justify-center mb-2">
+          <Sparkles className="h-4 w-4 text-story-blue mr-2" />
+          <h2 className="text-lg font-semibold text-story-blue">StoryBrief Builder</h2>
+        </div>
+        <p className="text-xs text-gray-500">
+          Step {currentStep} of 4 • Preparing AI for resonant content generation
+        </p>
       </div>
 
-      {/* Compact Progress Steps */}
-      <div className="flex items-center justify-between max-w-lg mx-auto">
+      {/* Progress Steps */}
+      <div className="flex items-center justify-between max-w-2xl mx-auto">
         {steps.map((step, index) => (
           <div key={step.number} className="flex items-center">
             <div className={`flex flex-col items-center ${currentStep >= step.number ? 'text-story-blue' : 'text-gray-400'}`}>
@@ -40,7 +45,10 @@ const ProgressIndicator: FC<ProgressIndicatorProps> = ({ currentStep }) => {
                   step.number
                 )}
               </div>
-              <span className="text-xs font-medium text-center max-w-[80px]">{step.title}</span>
+              <div className="text-center">
+                <span className="text-xs font-medium block max-w-[70px]">{step.title}</span>
+                <span className="text-[10px] text-gray-400 block">{step.description}</span>
+              </div>
             </div>
             
             {index < steps.length - 1 && (
@@ -50,12 +58,12 @@ const ProgressIndicator: FC<ProgressIndicatorProps> = ({ currentStep }) => {
         ))}
       </div>
 
-      {/* Completion Status */}
+      {/* Next Phase Preview */}
       {currentStep === 4 && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-center">
-          <div className="flex items-center justify-center text-green-800 text-sm">
-            <CheckCircle className="h-4 w-4 mr-2" />
-            Ready for AI Content Generation
+        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-center">
+          <div className="flex items-center justify-center text-story-blue text-sm">
+            <Sparkles className="h-4 w-4 mr-2" />
+            Ready for AI Content Generation → Text Editor
           </div>
         </div>
       )}
