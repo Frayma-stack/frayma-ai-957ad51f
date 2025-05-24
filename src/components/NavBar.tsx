@@ -3,23 +3,10 @@ import { FC } from 'react';
 import { Button } from "@/components/ui/button";
 import { BookOpen, HelpCircle, Settings } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { usePerplexity } from "@/contexts/PerplexityContext";
-import { useState } from 'react';
-import { useToast } from "@/hooks/use-toast";
 
 const NavBar: FC = () => {
-  const { apiKey, setApiKey, isConfigured } = usePerplexity();
-  const [tempApiKey, setTempApiKey] = useState(apiKey === "YOUR_API_KEY_HERE" ? "" : apiKey);
-  const { toast } = useToast();
-  
-  const handleSaveApiKey = () => {
-    setApiKey(tempApiKey);
-    toast({
-      title: "API Key Saved",
-      description: "Your Perplexity API key has been saved successfully."
-    });
-  };
+  const { isConfigured } = usePerplexity();
 
   return (
     <nav className="bg-brand-primary text-white py-4 px-6 shadow-md">
@@ -38,39 +25,23 @@ const NavBar: FC = () => {
             <DialogTrigger asChild>
               <Button variant="ghost" size="sm" className="text-white hover:bg-brand-primary/80">
                 <Settings className="h-5 w-5 mr-2" />
-                API Settings
+                API Status
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle className="font-sora">API Configuration</DialogTitle>
                 <DialogDescription>
-                  Enter your Perplexity API key to enable automatic extraction of success stories from URLs.
+                  Frayma AI uses integrated API services for content generation.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="apiKey" className="text-sm font-medium">
-                    Perplexity API Key
-                  </label>
-                  <div className="flex gap-2">
-                    <Input 
-                      id="apiKey"
-                      type="password"
-                      value={tempApiKey} 
-                      onChange={(e) => setTempApiKey(e.target.value)}
-                      placeholder="Enter your API key"
-                      className="flex-1"
-                    />
-                    <Button onClick={handleSaveApiKey} className="bg-brand-primary hover:bg-brand-primary/90">Save</Button>
-                  </div>
-                </div>
                 <div className={`px-3 py-2 rounded-md text-sm ${isConfigured ? "bg-green-50 text-green-800" : "bg-amber-50 text-amber-800"}`}>
-                  <p className="font-medium">{isConfigured ? "API Key Configured" : "API Key Not Configured"}</p>
+                  <p className="font-medium">{isConfigured ? "API Services Active" : "API Services Not Available"}</p>
                   <p className="text-xs mt-1">
                     {isConfigured 
-                      ? "URL extraction is enabled." 
-                      : "Without a valid API key, you won't be able to automatically extract information from URLs."}
+                      ? "All content generation features are enabled." 
+                      : "Content generation services are temporarily unavailable."}
                   </p>
                 </div>
               </div>
