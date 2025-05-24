@@ -107,32 +107,6 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
 
           <div>
             <label className="text-sm font-medium flex items-center">
-              Success Story Guide
-              <Tooltip>
-                <TooltipTrigger>
-                  <HelpCircle className="h-3 w-3 ml-1 text-gray-400" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-xs">Select a success story to guide AI with real-life insights</p>
-                </TooltipContent>
-              </Tooltip>
-            </label>
-            <Select value={data.strategicSuccessStory} onValueChange={(value) => onDataChange('strategicSuccessStory', value)}>
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Choose a success story..." />
-              </SelectTrigger>
-              <SelectContent>
-                {successStories.map((story) => (
-                  <SelectItem key={story.id} value={story.id}>
-                    {story.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium flex items-center">
               Mutual Goal *
               <Tooltip>
                 <TooltipTrigger>
@@ -230,6 +204,32 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
               rows={2}
               className="mt-1"
             />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="text-sm font-medium flex items-center">
+              Success Story Guide
+              <Tooltip>
+                <TooltipTrigger>
+                  <HelpCircle className="h-3 w-3 ml-1 text-gray-400" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">Select a success story to guide AI with real-life insights</p>
+                </TooltipContent>
+              </Tooltip>
+            </label>
+            <Select value={data.strategicSuccessStory} onValueChange={(value) => onDataChange('strategicSuccessStory', value)}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Choose a success story..." />
+              </SelectTrigger>
+              <SelectContent>
+                {successStories.map((story) => (
+                  <SelectItem key={story.id} value={story.id}>
+                    {story.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
