@@ -343,7 +343,7 @@ Your task is to auto-craft the middle section of a GTM narrative article using t
 2. Weave in the selected asset (feature, use case, or differentiator):
    - Use its description and benefits to SHOW how it solves the problem.
    - Call out visual cues like this →  
-     ` → [Insert visual: {{uploaded_visual_caption}} related to {{asset_title}}]`
+     → [Insert visual: {{uploaded_visual_caption}} related to {{asset_title}}]
 3. If a custom POV is provided, center it in your framing.  
 4. Always guide, never market or be salesy. Be educational, strategic, and first-person.  
 5. Maintain consistent narrative voice and emotional continuity with the intro.
