@@ -160,10 +160,11 @@ export const useSuccessStoryPromptConfig = () => {
       return '';
     }
 
-    // Replace all variables in the template
+    // Replace all variables in the template using global regex replace
     Object.entries(variables).forEach(([key, value]) => {
       const placeholder = `{${key}}`;
-      template = template.replaceAll(placeholder, value || '');
+      const regex = new RegExp(placeholder.replace(/[{}]/g, '\\$&'), 'g');
+      template = template.replace(regex, value || '');
     });
 
     return template;
