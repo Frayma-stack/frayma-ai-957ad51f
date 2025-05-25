@@ -1,22 +1,20 @@
 
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
-import { usePerplexity } from '@/contexts/PerplexityContext';
 import { PerplexityResponse } from '@/types/profileAnalyzer';
 import { 
   collectUrls, 
   buildPrompt, 
   parseAnalysisContent, 
   transformAnalysisResults, 
-  getErrorMessage,
-  getApiErrorMessage 
+  getErrorMessage 
 } from '@/utils/profileAnalyzerUtils';
 import { AuthorSocialLink, AuthorExperience, AuthorToneItem } from '@/types/storytelling';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useProfileAnalysis = () => {
   const { toast } = useToast();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const { apiKey } = usePerplexity();
 
   const analyzeProfile = async (
     socialLinks: AuthorSocialLink[], 
@@ -24,19 +22,7 @@ export const useProfileAnalysis = () => {
     onAnalysisComplete: (results: { experiences?: AuthorExperience[], tones?: AuthorToneItem[] }) => void
   ) => {
     console.log('Starting analysis...');
-    console.log('API key available:', !!apiKey);
-    console.log('API key length:', apiKey?.length);
     
-    if (!apiKey) {
-      console.log('No API key found');
-      toast({
-        title: "Service Unavailable",
-        description: "The analysis service is currently unavailable. Please try again later.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setIsAnalyzing(true);
     
     try {
@@ -56,47 +42,28 @@ export const useProfileAnalysis = () => {
       }
       
       const prompt = buildPrompt(linkedinUrls, otherUrls);
-      console.log('Sending prompt to Perplexity:', prompt);
+      console.log('Sending prompt to analysis service:', prompt);
       
-      console.log('Making fetch request to Perplexity API...');
+      console.log('Making request to Supabase Edge Function...');
       
-      const response = await fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are an expert at analyzing professional profiles and content. Extract information in the format requested and return valid JSON only.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.2,
-          max_tokens: 2000,
-        }),
+      const { data, error } = await supabase.functions.invoke('analyze-profile', {
+        body: { prompt }
       });
       
-      console.log('Fetch completed. Response status:', response.status);
-      console.log('Response ok:', response.ok);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API error response:', errorText);
-        
-        const errorMessage = getApiErrorMessage(response.status);
-        throw new Error(`${errorMessage} (Status: ${response.status})`);
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Failed to analyze profile');
       }
       
-      const data: PerplexityResponse = await response.json();
-      console.log('API response data:', data);
+      if (!data) {
+        throw new Error('No data received from analysis service');
+      }
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      console.log('Analysis service response:', data);
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
         console.error('Invalid response structure:', data);
@@ -104,7 +71,7 @@ export const useProfileAnalysis = () => {
       }
       
       const content = data.choices[0].message.content;
-      console.log('Raw content from API:', content);
+      console.log('Raw content from analysis service:', content);
       
       const parsedData = parseAnalysisContent(content);
       console.log('Parsed data:', parsedData);
