@@ -14,7 +14,7 @@ export const useClientAnalysis = () => {
     companyName: string,
     onAnalysisComplete: (productContext: ProductContext) => void
   ) => {
-    console.log('Starting client analysis...');
+    console.log('Starting client analysis...', { companyLinks, companyName });
     
     setIsAnalyzing(true);
     
@@ -95,6 +95,8 @@ export const useClientAnalysis = () => {
         uniqueInsight: parsedData.uniqueInsight || '',
         companyLinks
       };
+      
+      console.log('Generated product context:', productContext);
       
       onAnalysisComplete(productContext);
       

@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { 
   Card, 
@@ -54,14 +53,20 @@ const ClientManager: FC<ClientManagerProps> = ({
   };
 
   const handleClientCreated = (client: Client, productContext?: ProductContext) => {
+    console.log('ClientManager: handleClientCreated called', { client, productContext });
+    
     if (editingClient) {
       onClientUpdated(client);
     } else {
       onClientAdded(client);
-      if (productContext && onProductContextAdded) {
-        onProductContextAdded(productContext);
-      }
     }
+    
+    // Add the product context if it was created during analysis
+    if (productContext && onProductContextAdded) {
+      console.log('ClientManager: Adding product context', productContext);
+      onProductContextAdded(productContext);
+    }
+    
     handleCloseDialog();
   };
 

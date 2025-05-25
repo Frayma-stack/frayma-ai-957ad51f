@@ -88,22 +88,47 @@ const EnhancedClientDialog: FC<EnhancedClientDialogProps> = ({
 
     const hasValidLinks = companyLinks.some(link => link.url.trim() !== '');
     if (!hasValidLinks) {
-      toast({
-        title: "Error", 
-        description: "At least one company URL is required for analysis",
-        variant: "destructive"
-      });
+      // If no links, create client without analysis
+      handleCreateClientWithoutAnalysis();
       return;
     }
 
     setStep('analysis');
+    handleAnalyzeAndCreate();
+  };
+
+  const handleCreateClientWithoutAnalysis = () => {
+    const clientData: Client = {
+      id: editingClient?.id || crypto.randomUUID(),
+      name: name.trim(),
+      description: description.trim() || undefined,
+      companyLinks: companyLinks.filter(link => link.url.trim() !== ''),
+      createdAt: editingClient?.createdAt || new Date().toISOString()
+    };
+
+    onClientCreated(clientData);
+    
+    toast({
+      title: "Success",
+      description: "Client created successfully"
+    });
+
+    handleClose();
   };
 
   const handleAnalyzeAndCreate = async () => {
     const validLinks = companyLinks.filter(link => link.url.trim() !== '');
     
+    console.log('Starting analysis with links:', validLinks);
+    
     await analyzeClient(validLinks, name, (productContext) => {
-      setAnalyzedProductContext(productContext);
+      console.log('Analysis completed, product context:', productContext);
+      // Ensure the product context has the company links
+      const enrichedProductContext = {
+        ...productContext,
+        companyLinks: validLinks
+      };
+      setAnalyzedProductContext(enrichedProductContext);
       setStep('complete');
     });
   };
@@ -117,6 +142,10 @@ const EnhancedClientDialog: FC<EnhancedClientDialogProps> = ({
       createdAt: editingClient?.createdAt || new Date().toISOString()
     };
 
+    console.log('Creating client with data:', clientData);
+    console.log('With product context:', analyzedProductContext);
+
+    // Ensure clientId is set on the product context
     if (analyzedProductContext) {
       analyzedProductContext.clientId = clientData.id;
     }
@@ -177,7 +206,7 @@ const EnhancedClientDialog: FC<EnhancedClientDialogProps> = ({
             </div>
 
             <div className="space-y-3">
-              <Label>Company Links*</Label>
+              <Label>Company Links</Label>
               <p className="text-sm text-gray-600">
                 Provide company URLs for automated analysis (LinkedIn, website, about page, etc.)
               </p>
@@ -271,8 +300,27 @@ const EnhancedClientDialog: FC<EnhancedClientDialogProps> = ({
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h4 className="font-medium mb-2">Company Overview</h4>
-                  <p className="text-sm text-gray-700">{analyzedProductContext.companyMission}</p>
+                  <h4 className="font-medium mb-2">Core Narrative</h4>
+                  <div className="grid grid-cols-1 gap-3 text-sm">
+                    {analyzedProductContext.categoryPOV && (
+                      <div>
+                        <span className="font-medium">Category POV:</span>
+                        <p className="text-gray-700">{analyzedProductContext.categoryPOV}</p>
+                      </div>
+                    )}
+                    {analyzedProductContext.companyMission && (
+                      <div>
+                        <span className="font-medium">Company Mission:</span>
+                        <p className="text-gray-700">{analyzedProductContext.companyMission}</p>
+                      </div>
+                    )}
+                    {analyzedProductContext.uniqueInsight && (
+                      <div>
+                        <span className="font-medium">Unique Insight:</span>
+                        <p className="text-gray-700">{analyzedProductContext.uniqueInsight}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
@@ -301,7 +349,7 @@ const EnhancedClientDialog: FC<EnhancedClientDialogProps> = ({
                 Cancel
               </Button>
               <Button onClick={handleBasicInfoSubmit} className="bg-story-blue hover:bg-story-light-blue">
-                Continue to Analysis
+                {companyLinks.some(link => link.url.trim()) ? 'Analyze & Create' : 'Create Client'}
               </Button>
             </>
           )}
@@ -312,7 +360,7 @@ const EnhancedClientDialog: FC<EnhancedClientDialogProps> = ({
                 Back
               </Button>
               <Button 
-                onClick={handleAnalyzeAndCreate} 
+                onClick={handleFinalSubmit} 
                 disabled={isAnalyzing}
                 className="bg-story-blue hover:bg-story-light-blue"
               >
@@ -322,7 +370,7 @@ const EnhancedClientDialog: FC<EnhancedClientDialogProps> = ({
                     Analyzing...
                   </>
                 ) : (
-                  'Analyze & Create'
+                  'Skip Analysis & Create'
                 )}
               </Button>
             </>
