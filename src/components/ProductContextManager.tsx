@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { ProductContext, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
 import CollapsibleProductContext from './CollapsibleProductContext';
@@ -46,8 +45,7 @@ const ProductContextManager: FC<ProductContextManagerProps> = ({
       features,
       useCases,
       differentiators,
-      companyLinks: [],
-      createdAt: new Date().toISOString()
+      companyLinks: []
     };
 
     onProductContextUpdated(newProductContext);
