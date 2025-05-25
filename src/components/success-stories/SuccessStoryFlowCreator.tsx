@@ -7,7 +7,7 @@ import SuccessStoryStepRenderer from './SuccessStoryStepRenderer';
 import SuccessStoryProgressIndicator from './SuccessStoryProgressIndicator';
 import SuccessStoryFlowNavigation from './SuccessStoryFlowNavigation';
 import { useSuccessStoryFlowData } from './useSuccessStoryFlowData';
-import { useSuccessStoryFlow } from './useSuccessStoryFlow';
+import { useSuccessStoryFlowState } from './useSuccessStoryFlowState';
 
 interface SuccessStoryFlowCreatorProps {
   scripts: ICPStoryScript[];
@@ -39,16 +39,14 @@ const SuccessStoryFlowCreator: FC<SuccessStoryFlowCreatorProps> = ({
     handleNext,
     handlePrevious,
     handleGenerate
-  } = useSuccessStoryFlow({
+  } = useSuccessStoryFlowState({
     authors,
     productContext,
     onBack,
-    onStoryCreated
+    onStoryCreated,
+    formData,
+    resetForm
   });
-
-  const handleGenerateStory = () => {
-    handleGenerate(formData, resetForm);
-  };
 
   return (
     <Card className="w-full bg-white shadow-sm border-gray-200">
@@ -74,7 +72,7 @@ const SuccessStoryFlowCreator: FC<SuccessStoryFlowCreatorProps> = ({
           isGenerating={isGenerating}
           onPrevious={handlePrevious}
           onNext={handleNext}
-          onGenerate={handleGenerateStory}
+          onGenerate={handleGenerate}
         />
       </CardContent>
     </Card>

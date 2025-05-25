@@ -5,19 +5,23 @@ import { CustomerSuccessStory, Author, ProductContext } from '@/types/storytelli
 import { SuccessStoryFlowData } from './useSuccessStoryFlowData';
 import { useSuccessStoryGeneration } from './useSuccessStoryGeneration';
 
-interface UseSuccessStoryFlowProps {
+interface UseSuccessStoryFlowStateProps {
   authors: Author[];
   productContext: ProductContext | null;
   onBack: () => void;
   onStoryCreated: (story: CustomerSuccessStory) => void;
+  formData: SuccessStoryFlowData;
+  resetForm: () => void;
 }
 
-export const useSuccessStoryFlow = ({
+export const useSuccessStoryFlowState = ({
   authors,
   productContext,
   onBack,
-  onStoryCreated
-}: UseSuccessStoryFlowProps) => {
+  onStoryCreated,
+  formData,
+  resetForm
+}: UseSuccessStoryFlowStateProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const { toast } = useToast();
 
@@ -40,7 +44,7 @@ export const useSuccessStoryFlow = ({
     }
   };
 
-  const handleGenerate = async (formData: SuccessStoryFlowData, resetForm: () => void) => {
+  const handleGenerate = async () => {
     try {
       // Find the selected author
       const selectedAuthor = authors.find(author => author.id === formData.selectedAuthor);
