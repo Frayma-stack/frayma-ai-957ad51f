@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { 
   Card, 
@@ -154,7 +153,7 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
   };
   
   // Handle Social Link items
-  const handleSocialLinkChange = (id: string, field: keyof AuthorSocialLink, value: string | 'linkedin' | 'blog' | 'website' | 'other') => {
+  const handleSocialLinkChange = (id: string, field: keyof AuthorSocialLink, value: string | 'linkedin' | 'x' | 'blog' | 'website' | 'other') => {
     setAuthor(prev => ({
       ...prev,
       socialLinks: prev.socialLinks?.map(link => 
@@ -178,17 +177,25 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
   };
 
   const handleAuthorAnalysisResult = (results: {
-    experiences?: AuthorExperience[],
-    tones?: AuthorToneItem[]
+    currentRole?: string;
+    organization?: string;
+    backstory?: string;
+    experiences?: AuthorExperience[];
+    tones?: AuthorToneItem[];
+    beliefs?: AuthorBelief[];
   }) => {
     setAuthor(prev => ({
       ...prev,
+      role: results.currentRole || prev.role,
+      organization: results.organization || prev.organization,
+      backstory: results.backstory || prev.backstory,
       experiences: results.experiences || prev.experiences,
-      tones: results.tones || prev.tones
+      tones: results.tones || prev.tones,
+      beliefs: results.beliefs || prev.beliefs
     }));
     toast({
       title: "Analysis complete",
-      description: "Author's profile has been analyzed and information has been added to the form.",
+      description: "Author's profile has been analyzed and information has been auto-filled in the form.",
     });
     setShowProfileAnalyzer(false);
   };
@@ -307,9 +314,10 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
                     <select 
                       className="border border-input bg-background px-3 py-2 rounded-md text-sm h-10 min-w-[120px]"
                       value={link.type}
-                      onChange={(e) => handleSocialLinkChange(link.id, 'type', e.target.value as 'linkedin' | 'blog' | 'website' | 'other')}
+                      onChange={(e) => handleSocialLinkChange(link.id, 'type', e.target.value as 'linkedin' | 'x' | 'blog' | 'website' | 'other')}
                     >
                       <option value="linkedin">LinkedIn</option>
+                      <option value="x">X (Twitter)</option>
                       <option value="blog">Blog</option>
                       <option value="website">Website</option>
                       <option value="other">Other</option>
@@ -338,7 +346,7 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
                 onClick={() => setShowProfileAnalyzer(true)}
                 disabled={(author.socialLinks || []).every(link => !link.url.trim())}
               >
-                <LinkIcon className="h-4 w-4 mr-2" /> Analyze Profile
+                <LinkIcon className="h-4 w-4 mr-2" /> Analyze Profile & Auto-Fill
               </Button>
             </div>
             

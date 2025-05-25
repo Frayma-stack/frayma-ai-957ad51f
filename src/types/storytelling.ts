@@ -89,7 +89,7 @@ export interface AuthorBelief {
 
 export interface AuthorSocialLink {
   id: string;
-  type: 'linkedin' | 'blog' | 'website' | 'other';
+  type: 'linkedin' | 'x' | 'blog' | 'website' | 'other';
   url: string;
 }
 

@@ -1,5 +1,5 @@
 
-import { AuthorSocialLink, AuthorExperience, AuthorToneItem } from '@/types/storytelling';
+import { AuthorSocialLink, AuthorExperience, AuthorToneItem, AuthorBelief } from '@/types/storytelling';
 import { ParsedAnalysisData } from '@/types/profileAnalyzer';
 
 export const collectUrls = (socialLinks: AuthorSocialLink[], additionalUrls: string) => {
@@ -7,8 +7,12 @@ export const collectUrls = (socialLinks: AuthorSocialLink[], additionalUrls: str
     .filter(link => link.type === 'linkedin' && link.url.trim() !== '')
     .map(link => link.url);
   
+  const xUrls = socialLinks
+    .filter(link => link.type === 'x' && link.url.trim() !== '')
+    .map(link => link.url);
+  
   const otherUrls = [...socialLinks
-    .filter(link => link.type !== 'linkedin' && link.url.trim() !== '')
+    .filter(link => !['linkedin', 'x'].includes(link.type) && link.url.trim() !== '')
     .map(link => link.url)];
   
   // Add any manually entered URLs
@@ -19,21 +23,29 @@ export const collectUrls = (socialLinks: AuthorSocialLink[], additionalUrls: str
       .forEach(url => otherUrls.push(url));
   }
   
-  return { linkedinUrls, otherUrls };
+  return { linkedinUrls, xUrls, otherUrls };
 };
 
-export const buildPrompt = (linkedinUrls: string[], otherUrls: string[]) => {
-  let prompt = "";
+export const buildPrompt = (linkedinUrls: string[], xUrls: string[], otherUrls: string[]) => {
+  let prompt = "Visit the ";
+  
+  const urlParts = [];
+  
   if (linkedinUrls.length > 0) {
-    prompt += `Visit the last 20 posts on ${linkedinUrls.length > 1 ? 'these LinkedIn profiles' : 'this LinkedIn profile'}: ${linkedinUrls.join(', ')}`;
+    urlParts.push(`LinkedIn profile url${linkedinUrls.length > 1 ? 's' : ''} (${linkedinUrls.join(', ')})`);
+  }
+  
+  if (xUrls.length > 0) {
+    urlParts.push(`X profile url${xUrls.length > 1 ? 's' : ''} (${xUrls.join(', ')})`);
   }
   
   if (otherUrls.length > 0) {
-    if (prompt) prompt += " and ";
-    prompt += `the following urls: ${otherUrls.join(', ')}`;
+    urlParts.push(`other url${otherUrls.length > 1 ? 's' : ''} (${otherUrls.join(', ')})`);
   }
   
-  prompt += " and create a summary of their experiences and their writing tones. Then give each experience and tone a name and a succinct summary of each in five sentences or less. Format the output as a JSON object with two arrays: 'experiences' (with fields 'title' and 'description') and 'tones' (with fields 'tone' and 'description').";
+  prompt += urlParts.join(', and ');
+  
+  prompt += ", analyze their last 30 social posts, and extract the profile's current title/role and a summary of profile's career backstory (in four sentences or less), as well as their experiences, three writing tones, and four product beliefs. For each experience, extract their title/job role, company, and duration they spent or have spent at the company as the experience title; then, provide a summary of what they did in that role in four sentences or less. For each of the writing tones and product beliefs analyzed, give it a succinct title followed by a summary of each writing tone and product belief in four sentences or less. Write all summaries in first-person language (e.g. use \"I\" like the person whose profile is being analyzed is telling someone about themself). Format the output as a JSON object with fields: 'currentRole', 'organization', 'backstory', 'experiences' (array with fields 'title' and 'description'), 'tones' (array with fields 'tone' and 'description'), and 'beliefs' (array with fields 'belief' and 'description').";
   
   return prompt;
 };
@@ -63,8 +75,21 @@ export const transformAnalysisResults = (parsedData: ParsedAnalysisData) => {
     tone: tone.tone || '',
     description: tone.description || ''
   }));
+
+  const beliefs: AuthorBelief[] = (parsedData.beliefs || []).map((belief: any) => ({
+    id: crypto.randomUUID(),
+    belief: belief.belief || '',
+    description: belief.description || ''
+  }));
   
-  return { experiences, tones };
+  return { 
+    currentRole: parsedData.currentRole || '',
+    organization: parsedData.organization || '',
+    backstory: parsedData.backstory || '',
+    experiences, 
+    tones,
+    beliefs
+  };
 };
 
 export const getErrorMessage = (error: unknown): string => {

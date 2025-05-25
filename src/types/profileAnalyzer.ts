@@ -1,12 +1,16 @@
 
-import { AuthorSocialLink, AuthorExperience, AuthorToneItem } from '@/types/storytelling';
+import { AuthorSocialLink, AuthorExperience, AuthorToneItem, AuthorBelief } from '@/types/storytelling';
 
 export interface ProfileAnalyzerProps {
   socialLinks: AuthorSocialLink[];
   onClose: () => void;
   onAnalysisComplete: (results: {
-    experiences?: AuthorExperience[],
-    tones?: AuthorToneItem[]
+    currentRole?: string;
+    organization?: string;
+    backstory?: string;
+    experiences?: AuthorExperience[];
+    tones?: AuthorToneItem[];
+    beliefs?: AuthorBelief[];
   }) => void;
 }
 
@@ -19,12 +23,19 @@ export interface PerplexityResponse {
 }
 
 export interface ParsedAnalysisData {
+  currentRole?: string;
+  organization?: string;
+  backstory?: string;
   experiences?: Array<{
     title: string;
     description: string;
   }>;
   tones?: Array<{
     tone: string;
+    description: string;
+  }>;
+  beliefs?: Array<{
+    belief: string;
     description: string;
   }>;
 }
