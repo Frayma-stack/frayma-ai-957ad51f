@@ -38,6 +38,8 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
   const handleAnalyze = async () => {
     const keyToUse = customApiKey.trim() || apiKey;
     
+    console.log('Starting analysis with API key configured:', !!keyToUse);
+    
     if (!keyToUse) {
       toast({
         title: "API Key Required",
@@ -67,6 +69,9 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
           .forEach(url => otherUrls.push(url));
       }
       
+      console.log('LinkedIn URLs:', linkedinUrls);
+      console.log('Other URLs:', otherUrls);
+      
       if (linkedinUrls.length === 0 && otherUrls.length === 0) {
         toast({
           title: "No URLs to analyze",
@@ -90,6 +95,8 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
       
       prompt += " and create a summary of their experiences and their writing tones. Then give each experience and tone a name and a succinct summary of each in five sentences or less. Format the output as a JSON object with two arrays: 'experiences' (with fields 'title' and 'description') and 'tones' (with fields 'tone' and 'description').";
       
+      console.log('Sending prompt to Perplexity:', prompt);
+      
       // Call Perplexity API
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
@@ -102,7 +109,7 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
           messages: [
             {
               role: 'system',
-              content: 'You are an expert at analyzing professional profiles and content. Extract information in the format requested.'
+              content: 'You are an expert at analyzing professional profiles and content. Extract information in the format requested and return valid JSON only.'
             },
             {
               role: 'user',
@@ -114,29 +121,43 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
         }),
       });
       
+      console.log('Perplexity API response status:', response.status);
+      console.log('Perplexity API response headers:', Object.fromEntries(response.headers.entries()));
+      
       if (!response.ok) {
-        throw new Error(`Error from Perplexity API: ${response.statusText}`);
+        const errorText = await response.text();
+        console.error('Perplexity API error response:', errorText);
+        throw new Error(`Error from Perplexity API: ${response.status} ${response.statusText} - ${errorText}`);
       }
       
       const data = await response.json();
+      console.log('Perplexity API response data:', data);
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+        console.error('Invalid response structure:', data);
         throw new Error('Invalid response format from Perplexity API');
       }
       
       // Extract JSON from the response
       const content = data.choices[0].message.content;
-      let jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/{[\s\S]*}/);
+      console.log('Raw content from API:', content);
+      
+      let jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/```([\s\S]*?)```/) || content.match(/{[\s\S]*}/);
       let parsedData;
       
       if (jsonMatch) {
         try {
-          parsedData = JSON.parse(jsonMatch[1] || jsonMatch[0]);
+          const jsonString = jsonMatch[1] || jsonMatch[0];
+          console.log('Extracted JSON string:', jsonString);
+          parsedData = JSON.parse(jsonString);
+          console.log('Parsed data:', parsedData);
         } catch (e) {
           console.error('Failed to parse JSON from response:', e);
-          throw new Error('Failed to parse analysis results');
+          console.error('JSON string that failed to parse:', jsonMatch[1] || jsonMatch[0]);
+          throw new Error('Failed to parse analysis results - invalid JSON format');
         }
       } else {
+        console.error('Could not find JSON in response content:', content);
         throw new Error('Could not find JSON in the API response');
       }
       
@@ -153,6 +174,9 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
         description: tone.description || ''
       }));
       
+      console.log('Transformed experiences:', experiences);
+      console.log('Transformed tones:', tones);
+      
       if (experiences.length === 0 && tones.length === 0) {
         toast({
           title: "Analysis yielded no results",
@@ -163,6 +187,10 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
         onAnalysisComplete({
           experiences: experiences.length > 0 ? experiences : undefined,
           tones: tones.length > 0 ? tones : undefined
+        });
+        toast({
+          title: "Analysis complete",
+          description: `Successfully extracted ${experiences.length} experiences and ${tones.length} tones.`,
         });
       }
     } catch (error) {
