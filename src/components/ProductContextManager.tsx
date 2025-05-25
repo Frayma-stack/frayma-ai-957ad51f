@@ -63,9 +63,10 @@ const ProductContextManager: FC<ProductContextManagerProps> = ({
       
       {showForm ? (
         <ProductContextForm 
-          initialProductContext={productContext} 
-          onSave={handleSave}
-          onCancel={handleCancel}
+          isOpen={true}
+          onClose={handleCancel}
+          onProductContextCreated={handleSave}
+          editingProductContext={productContext}
         />
       ) : productContext ? (
         <Card className="bg-white shadow-sm">
