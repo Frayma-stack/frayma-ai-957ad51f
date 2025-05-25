@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { 
   Card, 
@@ -32,18 +31,15 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
   const { toast } = useToast();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [additionalUrls, setAdditionalUrls] = useState('');
-  const { apiKey, isConfigured } = usePerplexity();
-  const [customApiKey, setCustomApiKey] = useState('');
+  const { apiKey } = usePerplexity();
   
   const handleAnalyze = async () => {
-    const keyToUse = customApiKey.trim() || apiKey;
+    console.log('Starting analysis with API key configured:', !!apiKey);
     
-    console.log('Starting analysis with API key configured:', !!keyToUse);
-    
-    if (!keyToUse) {
+    if (!apiKey) {
       toast({
-        title: "API Key Required",
-        description: "Please enter a Perplexity API key to continue.",
+        title: "Service Unavailable",
+        description: "The analysis service is currently unavailable. Please try again later.",
         variant: "destructive"
       });
       return;
@@ -101,7 +97,7 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${keyToUse}`,
+          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -208,38 +204,22 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
   return (
     <Card className="bg-white shadow-md">
       <CardHeader>
-        <CardTitle className="text-story-blue">Analyze Author's Online Presence</CardTitle>
+        <CardTitle className="text-story-blue">Smart Author Profile Analysis</CardTitle>
         <CardDescription>
-          Use Perplexity AI to analyze the author's LinkedIn profile and other online content
+          Automatically extract professional experiences and writing style from online profiles to speed up author creation
         </CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-6">
-        {isConfigured ? (
-          <div className="bg-green-50 border border-green-200 p-3 rounded-md">
-            <p className="text-sm text-green-800">
-              Perplexity API key is already configured. You can start analyzing immediately.
-            </p>
-          </div>
-        ) : (
-          <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-md">
-            <p className="text-sm text-yellow-800">
-              This feature uses Perplexity AI to analyze public information about the author.
-            </p>
-          </div>
-        )}
-        
-        {!isConfigured && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Perplexity API Key</label>
-            <Input 
-              type="password"
-              placeholder="Enter your Perplexity API key"
-              value={customApiKey}
-              onChange={(e) => setCustomApiKey(e.target.value)}
-            />
-          </div>
-        )}
+        <div className="bg-blue-50 border border-blue-200 p-4 rounded-md">
+          <h4 className="text-sm font-medium text-blue-900 mb-2">How it works:</h4>
+          <ul className="text-sm text-blue-800 space-y-1">
+            <li>• We analyze public content from the provided links</li>
+            <li>• Extract key professional experiences and achievements</li>
+            <li>• Identify unique writing tones and communication style</li>
+            <li>• Auto-populate the author form to save you time</li>
+          </ul>
+        </div>
         
         <div className="space-y-2">
           <label className="text-sm font-medium">LinkedIn and Other URLs to Analyze</label>
@@ -289,10 +269,10 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
           {isAnalyzing ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Analyzing...
+              Analyzing Profile...
             </>
           ) : (
-            'Analyze Profile'
+            'Analyze & Auto-Fill'
           )}
         </Button>
       </CardFooter>
