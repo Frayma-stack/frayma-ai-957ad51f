@@ -32,30 +32,40 @@ export const useSuccessStoryFlowState = ({
     error
   } = useSuccessStoryGeneration();
 
+  console.log('useSuccessStoryFlowState initialized', { currentStep, isGenerating });
+
   const handleNext = () => {
+    console.log('handleNext called, current step:', currentStep);
     if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     }
   };
 
   const handlePrevious = () => {
+    console.log('handlePrevious called, current step:', currentStep);
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   };
 
   const handleGenerate = async () => {
+    console.log('handleGenerate called');
     try {
       // Find the selected author
       const selectedAuthor = authors.find(author => author.id === formData.selectedAuthor);
+      console.log('Selected author:', selectedAuthor);
       
       // Step 1: Generate headline and outline
+      console.log('Generating headline and outline...');
       const headlineOutline = await generateHeadlineAndOutline(formData, selectedAuthor, productContext);
+      console.log('Generated headline outline:', headlineOutline);
       
       // Step 2: Generate introduction
+      console.log('Generating introduction...');
       const introduction = await generateIntroduction(formData, selectedAuthor, productContext, undefined, undefined, undefined, {
         wordCount: 500
       });
+      console.log('Generated introduction:', introduction);
 
       // Create the success story object
       const newStory: CustomerSuccessStory = {
@@ -81,6 +91,7 @@ export const useSuccessStoryFlowState = ({
         createdAt: new Date().toISOString()
       };
 
+      console.log('Created story object:', newStory);
       onStoryCreated(newStory);
       
       toast({

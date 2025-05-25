@@ -26,6 +26,13 @@ const SuccessStoryFlowCreator: FC<SuccessStoryFlowCreatorProps> = ({
   onBack,
   onStoryCreated
 }) => {
+  console.log('SuccessStoryFlowCreator rendering with props:', {
+    scriptsCount: scripts.length,
+    successStoriesCount: successStories.length,
+    authorsCount: authors.length,
+    hasProductContext: !!productContext
+  });
+
   const {
     formData,
     handleInputChange,
@@ -47,6 +54,8 @@ const SuccessStoryFlowCreator: FC<SuccessStoryFlowCreatorProps> = ({
     formData,
     resetForm
   });
+
+  console.log('SuccessStoryFlowCreator state:', { currentStep, isGenerating });
 
   return (
     <Card className="w-full bg-white shadow-sm border-gray-200">

@@ -32,7 +32,12 @@ const SuccessStoryCreator: FC<SuccessStoryCreatorProps> = ({
   const [showFlow, setShowFlow] = useState(false);
 
   console.log('SuccessStoryCreator rendered, showFlow:', showFlow);
-  console.log('Props:', { scripts, successStories, authors, productContext });
+  console.log('Props:', { 
+    scriptsCount: scripts.length, 
+    successStoriesCount: successStories.length, 
+    authorsCount: authors.length, 
+    hasProductContext: !!productContext 
+  });
 
   const handleStartFlow = () => {
     console.log('Starting flow...');
@@ -48,7 +53,7 @@ const SuccessStoryCreator: FC<SuccessStoryCreatorProps> = ({
         authors={authors}
         productContext={productContext}
         onBack={() => {
-          console.log('Flow back clicked');
+          console.log('Flow back clicked, returning to main creator');
           setShowFlow(false);
         }}
         onStoryCreated={onStoryCreated}
