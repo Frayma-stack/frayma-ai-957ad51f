@@ -77,7 +77,6 @@ const DifferentiatorsSection: FC<DifferentiatorsSectionProps> = ({
                 <MediaUploader
                   media={diff.media || []}
                   onMediaChange={(media) => updateDifferentiatorMedia(index, media)}
-                  maxFiles={3}
                 />
               </div>
             </div>

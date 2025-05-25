@@ -116,7 +116,6 @@ const FeaturesSection: FC<FeaturesSectionProps> = ({
                 <MediaUploader
                   media={feature.media || []}
                   onMediaChange={(media) => updateFeatureMedia(index, media)}
-                  maxFiles={3}
                 />
               </div>
             </div>

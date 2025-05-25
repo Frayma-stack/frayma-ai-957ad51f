@@ -76,7 +76,6 @@ const UseCasesSection: FC<UseCasesSectionProps> = ({
                 <MediaUploader
                   media={useCase.media || []}
                   onMediaChange={(media) => updateUseCaseMedia(index, media)}
-                  maxFiles={3}
                 />
               </div>
             </div>
