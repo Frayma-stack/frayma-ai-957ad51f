@@ -140,12 +140,12 @@ const ImplementationJourneyStep: FC<ImplementationJourneyStepProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">Select Feature</label>
-                  <Select value={data.feature02} onValueChange={(value) => onDataChange('feature02', value)}>
+                  <Select value={data.feature02} onValueChange={(value) => onDataChange('feature02', value === 'none' ? '' : value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select feature..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {productContext?.features.map((feature) => (
                         <SelectItem key={feature.id} value={feature.id}>
                           {feature.name}
@@ -183,12 +183,12 @@ const ImplementationJourneyStep: FC<ImplementationJourneyStepProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">Select Feature</label>
-                  <Select value={data.feature03} onValueChange={(value) => onDataChange('feature03', value)}>
+                  <Select value={data.feature03} onValueChange={(value) => onDataChange('feature03', value === 'none' ? '' : value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select feature..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {productContext?.features.map((feature) => (
                         <SelectItem key={feature.id} value={feature.id}>
                           {feature.name}
@@ -273,12 +273,12 @@ const ImplementationJourneyStep: FC<ImplementationJourneyStepProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">Select Use Case</label>
-                  <Select value={data.useCase02} onValueChange={(value) => onDataChange('useCase02', value)}>
+                  <Select value={data.useCase02} onValueChange={(value) => onDataChange('useCase02', value === 'none' ? '' : value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select use case..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {productContext?.useCases.map((useCase) => (
                         <SelectItem key={useCase.id} value={useCase.id}>
                           {useCase.useCase}

@@ -109,12 +109,12 @@ const AutoCraftingEnhancementsStep: FC<AutoCraftingEnhancementsStepProps> = ({
           <div>
             <label className="text-sm font-medium">Credibility 02 (optional)</label>
             <p className="text-xs text-gray-500 mb-2">Select additional author experience</p>
-            <Select value={data.credibility02} onValueChange={(value) => onDataChange('credibility02', value)}>
+            <Select value={data.credibility02} onValueChange={(value) => onDataChange('credibility02', value === 'none' ? '' : value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select experience..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {selectedAuthor?.experiences.map((experience) => (
                   <SelectItem key={experience.id} value={experience.id}>
                     {experience.title}
@@ -127,12 +127,12 @@ const AutoCraftingEnhancementsStep: FC<AutoCraftingEnhancementsStepProps> = ({
           <div>
             <label className="text-sm font-medium">Credibility 03 (optional)</label>
             <p className="text-xs text-gray-500 mb-2">Select additional author experience</p>
-            <Select value={data.credibility03} onValueChange={(value) => onDataChange('credibility03', value)}>
+            <Select value={data.credibility03} onValueChange={(value) => onDataChange('credibility03', value === 'none' ? '' : value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select experience..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {selectedAuthor?.experiences.map((experience) => (
                   <SelectItem key={experience.id} value={experience.id}>
                     {experience.title}

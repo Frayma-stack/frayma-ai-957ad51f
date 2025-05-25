@@ -139,12 +139,12 @@ const StoryBriefStep: FC<StoryBriefStepProps> = ({ data, scripts, onDataChange }
           <div>
             <label className="text-sm font-medium">Target ICP 02 (optional)</label>
             <p className="text-xs text-gray-500 mb-2">A secondary relatable ICP</p>
-            <Select value={data.targetIcp02} onValueChange={(value) => onDataChange('targetIcp02', value)}>
+            <Select value={data.targetIcp02} onValueChange={(value) => onDataChange('targetIcp02', value === 'none' ? '' : value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select secondary ICP..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {scripts.map((script) => (
                   <SelectItem key={script.id} value={script.id}>
                     {script.name}
