@@ -6,9 +6,8 @@ interface PerplexityContextType {
   isConfigured: boolean;
 }
 
-// This is where you would put your actual API key
-// IMPORTANT: In a real-world application, this should be stored securely
-const API_KEY = "YOUR_PERPLEXITY_API_KEY_HERE"; // Replace with your actual API key
+// Updated with your Perplexity API key
+const API_KEY = "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";
 
 const PerplexityContext = createContext<PerplexityContextType | undefined>(undefined);
 
