@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SavedIdeas from './SavedIdeas';
 import GenerateIdeas from './GenerateIdeas';
-import { GeneratedIdea } from '@/types/ideas';
+import { GeneratedIdea, ContentIdea } from '@/types/ideas';
 
 interface IdeasBankProps {
   scripts: any[];
@@ -23,6 +23,29 @@ const IdeasBank = ({
   onIdeaDeleted
 }: IdeasBankProps) => {
   const [activeTab, setActiveTab] = useState<string>('saved');
+
+  // Convert ContentIdea to GeneratedIdea when adding from GenerateIdeas
+  const handleContentIdeaAdded = (contentIdea: ContentIdea) => {
+    const generatedIdea: GeneratedIdea = {
+      id: contentIdea.id,
+      title: contentIdea.title,
+      narrative: contentIdea.description || '',
+      productTieIn: '',
+      cta: '',
+      createdAt: contentIdea.createdAt,
+      score: null,
+      source: {
+        type: 'manual',
+        content: contentIdea.title
+      },
+      icpId: '',
+      narrativeAnchor: 'belief',
+      narrativeItemId: '',
+      productFeatures: [],
+      clientId: contentIdea.clientId
+    };
+    onIdeaAdded(generatedIdea);
+  };
 
   return (
     <div className="w-full">
@@ -62,7 +85,7 @@ const IdeasBank = ({
             successStories={[]}
             productContexts={productContext ? [productContext] : []}
             authors={[]}
-            onIdeaAdded={onIdeaAdded}
+            onIdeaAdded={handleContentIdeaAdded}
           />
         </TabsContent>
       </Tabs>
