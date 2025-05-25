@@ -1,3 +1,4 @@
+
 import { FC, useState } from 'react';
 import { 
   Card, 
@@ -7,10 +8,7 @@ import {
   CardTitle,
   CardFooter
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { 
   Author, 
@@ -19,8 +17,10 @@ import {
   AuthorBelief,
   AuthorSocialLink
 } from '@/types/storytelling';
-import { Plus, Trash, Loader2, Link as LinkIcon } from 'lucide-react';
 import ProfileAnalyzer from './ProfileAnalyzer';
+import AuthorBasicInfoSection from './author-form/AuthorBasicInfoSection';
+import AuthorSocialLinksSection from './author-form/AuthorSocialLinksSection';
+import AuthorFormTabs from './author-form/AuthorFormTabs';
 
 interface AuthorFormProps {
   initialAuthor?: Author | null;
@@ -252,254 +252,31 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
           </CardHeader>
           
           <CardContent className="space-y-8">
-            {/* Basic Info Section */}
-            <div className="space-y-4">
-              <h3 className="font-medium text-story-blue">Basic Information</h3>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Name*</label>
-                <Input 
-                  placeholder="Author's full name"
-                  value={author.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Role/Title</label>
-                  <Input 
-                    placeholder="e.g., Founder & CEO"
-                    value={author.role}
-                    onChange={(e) => handleInputChange('role', e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Organization</label>
-                  <Input 
-                    placeholder="Company or organization name"
-                    value={author.organization}
-                    onChange={(e) => handleInputChange('organization', e.target.value)}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Backstory</label>
-                <Textarea 
-                  placeholder="Describe the author's founding journey or background"
-                  value={author.backstory}
-                  onChange={(e) => handleInputChange('backstory', e.target.value)}
-                  rows={5}
-                />
-              </div>
-            </div>
+            <AuthorBasicInfoSection
+              author={author}
+              onInputChange={handleInputChange}
+            />
             
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="font-medium text-story-blue">Social Links</h3>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={addSocialLink}
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Add Link
-                </Button>
-              </div>
-              
-              <div className="space-y-4">
-                {(author.socialLinks || []).map((link, index) => (
-                  <div key={link.id} className="flex items-center gap-3">
-                    <select 
-                      className="border border-input bg-background px-3 py-2 rounded-md text-sm h-10 min-w-[120px]"
-                      value={link.type}
-                      onChange={(e) => handleSocialLinkChange(link.id, 'type', e.target.value as 'linkedin' | 'x' | 'blog' | 'website' | 'other')}
-                    >
-                      <option value="linkedin">LinkedIn</option>
-                      <option value="x">X (Twitter)</option>
-                      <option value="blog">Blog</option>
-                      <option value="website">Website</option>
-                      <option value="other">Other</option>
-                    </select>
-                    <Input 
-                      placeholder="Enter URL"
-                      value={link.url}
-                      onChange={(e) => handleSocialLinkChange(link.id, 'url', e.target.value)}
-                      className="flex-1"
-                    />
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => removeSocialLink(link.id)}
-                      disabled={(author.socialLinks || []).length <= 1}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-
-              <Button 
-                className="w-full mt-2"
-                variant="secondary"
-                onClick={() => setShowProfileAnalyzer(true)}
-                disabled={(author.socialLinks || []).every(link => !link.url.trim())}
-              >
-                <LinkIcon className="h-4 w-4 mr-2" /> Analyze Profile & Auto-Fill
-              </Button>
-            </div>
+            <AuthorSocialLinksSection
+              author={author}
+              onSocialLinkChange={handleSocialLinkChange}
+              onAddSocialLink={addSocialLink}
+              onRemoveSocialLink={removeSocialLink}
+              onAnalyzeProfile={() => setShowProfileAnalyzer(true)}
+            />
             
-            <Tabs defaultValue="experiences">
-              <TabsList className="grid grid-cols-3">
-                <TabsTrigger value="experiences">Experiences</TabsTrigger>
-                <TabsTrigger value="tones">Writing Tone</TabsTrigger>
-                <TabsTrigger value="beliefs">Product Beliefs</TabsTrigger>
-              </TabsList>
-              
-              {/* Experiences Tab */}
-              <TabsContent value="experiences" className="space-y-4 pt-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-medium">Professional Experiences</h3>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={addExperience}
-                  >
-                    <Plus className="h-4 w-4 mr-1" /> Add Experience
-                  </Button>
-                </div>
-                
-                {author.experiences.map((experience, index) => (
-                  <div key={experience.id} className="border p-4 rounded-md space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Experience #{index + 1}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => removeExperience(experience.id)}
-                        disabled={author.experiences.length <= 1}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Input 
-                        placeholder="Experience title"
-                        value={experience.title}
-                        onChange={(e) => handleExperienceChange(experience.id, 'title', e.target.value)}
-                      />
-                      
-                      <Textarea 
-                        placeholder="Experience description"
-                        value={experience.description}
-                        onChange={(e) => handleExperienceChange(experience.id, 'description', e.target.value)}
-                        rows={3}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </TabsContent>
-              
-              {/* Writing Tones Tab */}
-              <TabsContent value="tones" className="space-y-4 pt-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-medium">Writing Tone</h3>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={addTone}
-                  >
-                    <Plus className="h-4 w-4 mr-1" /> Add Tone
-                  </Button>
-                </div>
-                
-                <p className="text-sm text-gray-600">
-                  Define the author's writing style (e.g., candid, opinionated, data-driven, etc.)
-                </p>
-                
-                {author.tones.map((tone, index) => (
-                  <div key={tone.id} className="border p-4 rounded-md space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Tone #{index + 1}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => removeTone(tone.id)}
-                        disabled={author.tones.length <= 1}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Input 
-                        placeholder="Tone (e.g., Candid, Data-driven, Opinionated)"
-                        value={tone.tone}
-                        onChange={(e) => handleToneChange(tone.id, 'tone', e.target.value)}
-                      />
-                      
-                      <Textarea 
-                        placeholder="Description of this tone and when to use it"
-                        value={tone.description}
-                        onChange={(e) => handleToneChange(tone.id, 'description', e.target.value)}
-                        rows={2}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </TabsContent>
-              
-              {/* Product Beliefs Tab */}
-              <TabsContent value="beliefs" className="space-y-4 pt-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-medium">Product Beliefs & Takes</h3>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={addBelief}
-                  >
-                    <Plus className="h-4 w-4 mr-1" /> Add Belief
-                  </Button>
-                </div>
-                
-                <p className="text-sm text-gray-600">
-                  Add the author's strong opinions or unique insights about the product, industry, or problem space
-                </p>
-                
-                {author.beliefs.map((belief, index) => (
-                  <div key={belief.id} className="border p-4 rounded-md space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Belief #{index + 1}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => removeBelief(belief.id)}
-                        disabled={author.beliefs.length <= 1}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Input 
-                        placeholder="Core belief or opinion"
-                        value={belief.belief}
-                        onChange={(e) => handleBeliefChange(belief.id, 'belief', e.target.value)}
-                      />
-                      
-                      <Textarea 
-                        placeholder="Explanation of this belief"
-                        value={belief.description}
-                        onChange={(e) => handleBeliefChange(belief.id, 'description', e.target.value)}
-                        rows={2}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </TabsContent>
-            </Tabs>
+            <AuthorFormTabs
+              author={author}
+              onExperienceChange={handleExperienceChange}
+              onAddExperience={addExperience}
+              onRemoveExperience={removeExperience}
+              onToneChange={handleToneChange}
+              onAddTone={addTone}
+              onRemoveTone={removeTone}
+              onBeliefChange={handleBeliefChange}
+              onAddBelief={addBelief}
+              onRemoveBelief={removeBelief}
+            />
           </CardContent>
           
           <CardFooter className="flex justify-end space-x-2 border-t pt-4">
