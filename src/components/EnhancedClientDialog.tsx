@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { 
   Dialog, 
   DialogContent,
+  DialogDescription,
   DialogFooter, 
   DialogHeader, 
   DialogTitle
@@ -106,6 +107,7 @@ const EnhancedClientDialog: FC<EnhancedClientDialogProps> = ({
       createdAt: editingClient?.createdAt || new Date().toISOString()
     };
 
+    console.log('Creating client without analysis:', clientData);
     onClientCreated(clientData);
     
     toast({
@@ -121,16 +123,23 @@ const EnhancedClientDialog: FC<EnhancedClientDialogProps> = ({
     
     console.log('Starting analysis with links:', validLinks);
     
-    await analyzeClient(validLinks, name, (productContext) => {
-      console.log('Analysis completed, product context:', productContext);
-      // Ensure the product context has the company links
-      const enrichedProductContext = {
-        ...productContext,
-        companyLinks: validLinks
-      };
-      setAnalyzedProductContext(enrichedProductContext);
-      setStep('complete');
-    });
+    try {
+      await analyzeClient(validLinks, name, (productContext) => {
+        console.log('Analysis completed, received product context:', productContext);
+        
+        // Store the analyzed product context
+        setAnalyzedProductContext(productContext);
+        setStep('complete');
+      });
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      toast({
+        title: "Analysis Failed",
+        description: "Failed to analyze company information. You can still create the client.",
+        variant: "destructive"
+      });
+      setStep('basic');
+    }
   };
 
   const handleFinalSubmit = () => {
@@ -142,12 +151,12 @@ const EnhancedClientDialog: FC<EnhancedClientDialogProps> = ({
       createdAt: editingClient?.createdAt || new Date().toISOString()
     };
 
-    console.log('Creating client with data:', clientData);
-    console.log('With product context:', analyzedProductContext);
+    console.log('Creating client with analyzed data:', { clientData, analyzedProductContext });
 
     // Ensure clientId is set on the product context
     if (analyzedProductContext) {
       analyzedProductContext.clientId = clientData.id;
+      console.log('Updated product context with client ID:', analyzedProductContext);
     }
 
     onClientCreated(clientData, analyzedProductContext || undefined);
@@ -180,6 +189,11 @@ const EnhancedClientDialog: FC<EnhancedClientDialogProps> = ({
             {step === 'analysis' && 'Company Analysis'}
             {step === 'complete' && 'Review & Create'}
           </DialogTitle>
+          <DialogDescription>
+            {step === 'basic' && 'Provide company information and URLs for automated analysis'}
+            {step === 'analysis' && 'Analyzing company information to extract product context'}
+            {step === 'complete' && 'Review the extracted information and create the client'}
+          </DialogDescription>
         </DialogHeader>
 
         {step === 'basic' && (
@@ -360,7 +374,7 @@ const EnhancedClientDialog: FC<EnhancedClientDialogProps> = ({
                 Back
               </Button>
               <Button 
-                onClick={handleFinalSubmit} 
+                onClick={handleCreateClientWithoutAnalysis} 
                 disabled={isAnalyzing}
                 className="bg-story-blue hover:bg-story-light-blue"
               >

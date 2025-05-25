@@ -62,11 +62,11 @@ export const useClientAnalysis = () => {
       const parsedData = parseClientAnalysisContent(content);
       console.log('Parsed data:', parsedData);
       
-      // Transform parsed data into ProductContext
+      // Transform parsed data into ProductContext with proper structure
       const features: ProductFeature[] = (parsedData.features || []).map((feature: any) => ({
         id: crypto.randomUUID(),
         name: feature.name || '',
-        benefits: feature.benefits || [],
+        benefits: Array.isArray(feature.benefits) ? feature.benefits : [],
         media: []
       }));
       
@@ -93,11 +93,12 @@ export const useClientAnalysis = () => {
         categoryPOV: parsedData.categoryPOV || '',
         companyMission: parsedData.companyMission || '',
         uniqueInsight: parsedData.uniqueInsight || '',
-        companyLinks
+        companyLinks: companyLinks
       };
       
-      console.log('Generated product context:', productContext);
+      console.log('Generated product context from analysis:', productContext);
       
+      // Call the callback with the generated product context
       onAnalysisComplete(productContext);
       
       const extractedItems = [];

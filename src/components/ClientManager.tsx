@@ -63,8 +63,18 @@ const ClientManager: FC<ClientManagerProps> = ({
     
     // Add the product context if it was created during analysis
     if (productContext && onProductContextAdded) {
-      console.log('ClientManager: Adding product context', productContext);
+      console.log('ClientManager: Adding product context to app state', productContext);
       onProductContextAdded(productContext);
+      
+      toast({
+        title: "Success",
+        description: "Client and product context created successfully from analysis",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: editingClient ? "Client updated successfully" : "Client created successfully"
+      });
     }
     
     handleCloseDialog();
