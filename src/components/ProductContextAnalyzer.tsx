@@ -1,5 +1,7 @@
+
 import { FC, useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -53,7 +55,7 @@ const ProductContextAnalyzer: FC<ProductContextAnalyzerProps> = ({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showFullText, setShowFullText] = useState(false);
   const { toast } = useToast();
-  const { generateText } = useChatGPT();
+  const { generateContent } = useChatGPT();
   const [productName, setProductName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [urls, setUrls] = useState<string[]>([]);
@@ -95,7 +97,7 @@ const ProductContextAnalyzer: FC<ProductContextAnalyzerProps> = ({
       Here is the text to analyze:
       ${input}`;
 
-      const analysis = await generateText(prompt);
+      const analysis = await generateContent(prompt);
       if (analysis) {
         const parsedResult = parseAnalysisResult(analysis);
         if (parsedResult) {

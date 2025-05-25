@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { CustomerSuccessStory } from '@/types/storytelling';
 import { useToast } from "@/hooks/use-toast";
-import { AddSuccessStoryDialog } from './success-stories/AddSuccessStoryDialog';
+import AddSuccessStoryDialog from './success-stories/AddSuccessStoryDialog';
 import EditSuccessStoryDialog from './success-stories/EditSuccessStoryDialog';
 import SuccessStoryList from './success-stories/SuccessStoryList';
 

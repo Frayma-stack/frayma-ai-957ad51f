@@ -24,4 +24,27 @@ export interface GeneratedIdea {
   clientId?: string; // New field for client assignment
 }
 
+export interface ContentIdea {
+  id: string;
+  title: string;
+  description: string;
+  contentType: 'thought_leadership' | 'newsletter';
+  articleSubtype: 'blog_post' | 'article' | 'whitepaper';
+  status: 'draft' | 'in_progress' | 'completed';
+  clientId?: string;
+  createdAt: string;
+}
+
+export interface IdeaGenerationPrompt {
+  topic: string;
+  targetAudience: string;
+  keywords: string;
+  tone: string;
+  style: string;
+  successStoryId: string;
+  icpScriptId: string;
+  productContextId: string;
+  authorId: string;
+}
+
 export type IdeasSortOrder = 'score-desc' | 'date-desc' | 'date-asc';

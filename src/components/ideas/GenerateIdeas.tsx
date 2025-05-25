@@ -1,5 +1,8 @@
+
 import { FC, useState } from 'react';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -95,9 +98,14 @@ const GenerateIdeas: FC<GenerateIdeasProps> = ({
   const [generatedIdeas, setGeneratedIdeas] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { generateText } = useChatGPT();
+  const { generateContent } = useChatGPT();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setPrompt(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     setPrompt(prev => ({ ...prev, [name]: value }));
   };
@@ -155,7 +163,7 @@ const GenerateIdeas: FC<GenerateIdeasProps> = ({
         }
       }
 
-      const response = await generateText(fullPrompt);
+      const response = await generateContent(fullPrompt);
       if (response) {
         const ideas = response.split('\n').filter(idea => idea.trim() !== '');
         setGeneratedIdeas(ideas);
@@ -290,7 +298,7 @@ const GenerateIdeas: FC<GenerateIdeasProps> = ({
               <select
                 id="authorId"
                 name="authorId"
-                onChange={handleInputChange}
+                onChange={handleSelectChange}
                 value={prompt.authorId}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
@@ -307,7 +315,7 @@ const GenerateIdeas: FC<GenerateIdeasProps> = ({
               <select
                 id="successStoryId"
                 name="successStoryId"
-                onChange={handleInputChange}
+                onChange={handleSelectChange}
                 value={prompt.successStoryId}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
@@ -322,7 +330,7 @@ const GenerateIdeas: FC<GenerateIdeasProps> = ({
               <select
                 id="icpScriptId"
                 name="icpScriptId"
-                onChange={handleInputChange}
+                onChange={handleSelectChange}
                 value={prompt.icpScriptId}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
@@ -338,7 +346,7 @@ const GenerateIdeas: FC<GenerateIdeasProps> = ({
             <select
               id="productContextId"
               name="productContextId"
-              onChange={handleInputChange}
+              onChange={handleSelectChange}
               value={prompt.productContextId}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             >

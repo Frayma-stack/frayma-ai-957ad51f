@@ -5,6 +5,7 @@ interface ChatGPTContextType {
   apiKey: string;
   isConfigured: boolean;
   generateContent: (prompt: string, options?: GenerateOptions) => Promise<string>;
+  generateText: (prompt: string, options?: GenerateOptions) => Promise<string>; // Add alias for compatibility
 }
 
 interface GenerateOptions {
@@ -65,8 +66,11 @@ export const ChatGPTProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
+  // Add alias for backward compatibility
+  const generateText = generateContent;
+
   return (
-    <ChatGPTContext.Provider value={{ apiKey, isConfigured, generateContent }}>
+    <ChatGPTContext.Provider value={{ apiKey, isConfigured, generateContent, generateText }}>
       {children}
     </ChatGPTContext.Provider>
   );
