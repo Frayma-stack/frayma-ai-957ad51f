@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 import ContentTypeSelector from '@/components/ContentTypeSelector';
@@ -120,6 +119,20 @@ const MainContent: FC<MainContentProps> = ({
     return filtered.length > 0 ? filtered[0] : null;
   };
 
+  // Handle product context creation when none exists
+  const handleProductContextCreatedOrUpdated = (productContext: ProductContext) => {
+    const existingContext = getCurrentProductContext();
+    if (existingContext) {
+      onProductContextUpdated(productContext);
+    } else {
+      // Set clientId if we have a selected client
+      if (selectedClientId) {
+        productContext.clientId = selectedClientId;
+      }
+      onProductContextAdded(productContext);
+    }
+  };
+
   if (currentView === 'home') {
     if (selectedType === 'article' && !selectedArticleSubtype) {
       return (
@@ -198,6 +211,7 @@ const MainContent: FC<MainContentProps> = ({
         onClientDeleted={onClientDeleted}
         onClientSelected={onClientSelected}
         onViewClientAssets={onViewClientAssets}
+        onProductContextAdded={onProductContextAdded}
       />
     );
   }
@@ -252,7 +266,7 @@ const MainContent: FC<MainContentProps> = ({
     return (
       <ProductContextManager
         productContext={getCurrentProductContext()}
-        onProductContextUpdated={onProductContextUpdated}
+        onProductContextUpdated={handleProductContextCreatedOrUpdated}
       />
     );
   }
