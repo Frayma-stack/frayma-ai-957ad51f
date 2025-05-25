@@ -13,9 +13,8 @@ interface GenerateOptions {
   model?: string;
 }
 
-// This is where you would put your actual ChatGPT API key
-// IMPORTANT: In a real-world application, this should be stored securely
-const CHATGPT_API_KEY = "YOUR_CHATGPT_API_KEY_HERE"; // Replace with your actual API key
+// Updated with your ChatGPT API key
+const CHATGPT_API_KEY = "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";
 
 const ChatGPTContext = createContext<ChatGPTContextType | undefined>(undefined);
 
