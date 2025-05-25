@@ -8,20 +8,10 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { 
-  Dialog, 
-  DialogContent,
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle,
-  DialogTrigger
-} from "@/components/ui/dialog";
-import { Client } from '@/types/storytelling';
-import { Plus, Edit, Trash, Users, User, Target, Package, Trophy } from 'lucide-react';
+import { Client, ProductContext } from '@/types/storytelling';
+import { Plus, Edit, Trash, Users, User, Target, Package, Trophy, Globe, Linkedin, FileText, ExternalLink } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import EnhancedClientDialog from './EnhancedClientDialog';
 
 interface ClientManagerProps {
   clients: Client[];
@@ -31,6 +21,7 @@ interface ClientManagerProps {
   onClientDeleted: (clientId: string) => void;
   onClientSelected: (clientId: string | null) => void;
   onViewClientAssets: (clientId: string, assetType: string) => void;
+  onProductContextAdded?: (productContext: ProductContext) => void;
 }
 
 const ClientManager: FC<ClientManagerProps> = ({
@@ -40,70 +31,37 @@ const ClientManager: FC<ClientManagerProps> = ({
   onClientUpdated,
   onClientDeleted,
   onClientSelected,
-  onViewClientAssets
+  onViewClientAssets,
+  onProductContextAdded
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
   
   const { toast } = useToast();
-
-  const resetForm = () => {
-    setName('');
-    setDescription('');
-    setEditingClient(null);
-  };
 
   const handleOpenDialog = (client?: Client) => {
     if (client) {
       setEditingClient(client);
-      setName(client.name);
-      setDescription(client.description || '');
     } else {
-      resetForm();
+      setEditingClient(null);
     }
     setIsDialogOpen(true);
   };
 
   const handleCloseDialog = () => {
-    resetForm();
+    setEditingClient(null);
     setIsDialogOpen(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!name.trim()) {
-      toast({
-        title: "Error",
-        description: "Client name is required",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const clientData: Client = {
-      id: editingClient?.id || crypto.randomUUID(),
-      name: name.trim(),
-      description: description.trim() || undefined,
-      createdAt: editingClient?.createdAt || new Date().toISOString()
-    };
-
+  const handleClientCreated = (client: Client, productContext?: ProductContext) => {
     if (editingClient) {
-      onClientUpdated(clientData);
-      toast({
-        title: "Success",
-        description: "Client updated successfully"
-      });
+      onClientUpdated(client);
     } else {
-      onClientAdded(clientData);
-      toast({
-        title: "Success",
-        description: "Client added successfully"
-      });
+      onClientAdded(client);
+      if (productContext && onProductContextAdded) {
+        onProductContextAdded(productContext);
+      }
     }
-
     handleCloseDialog();
   };
 
@@ -134,6 +92,15 @@ const ClientManager: FC<ClientManagerProps> = ({
     onViewClientAssets(clientId, assetType);
   };
 
+  const getLinkTypeIcon = (type: string) => {
+    switch (type) {
+      case 'linkedin': return <Linkedin className="h-3.5 w-3.5" />;
+      case 'website': return <Globe className="h-3.5 w-3.5" />;
+      case 'about': return <FileText className="h-3.5 w-3.5" />;
+      default: return <ExternalLink className="h-3.5 w-3.5" />;
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Card className="bg-white shadow-md">
@@ -145,13 +112,12 @@ const ClientManager: FC<ClientManagerProps> = ({
                 Client Manager
               </div>
             </CardTitle>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="bg-story-blue hover:bg-story-light-blue" onClick={() => handleOpenDialog()}>
-                  <Plus className="h-4 w-4 mr-2" /> Add Client
-                </Button>
-              </DialogTrigger>
-            </Dialog>
+            <Button 
+              className="bg-story-blue hover:bg-story-light-blue" 
+              onClick={() => handleOpenDialog()}
+            >
+              <Plus className="h-4 w-4 mr-2" /> Add Client
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -194,13 +160,34 @@ const ClientManager: FC<ClientManagerProps> = ({
                   </CardHeader>
                   <CardContent className="text-sm pt-0">
                     {client.description && (
-                      <p className="text-gray-600 text-sm">{client.description}</p>
+                      <p className="text-gray-600 text-sm mb-2">{client.description}</p>
                     )}
-                    <p className="text-xs text-gray-500 mt-2">
+
+                    {client.companyLinks && client.companyLinks.length > 0 && (
+                      <div className="mb-3">
+                        <p className="text-xs font-medium text-gray-700 mb-1">Company Links:</p>
+                        <div className="flex flex-wrap gap-1">
+                          {client.companyLinks.map((link, index) => (
+                            <a 
+                              key={index}
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-gray-700"
+                            >
+                              {getLinkTypeIcon(link.type)}
+                              <span className="ml-1 capitalize">{link.type}</span>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="text-xs text-gray-500 mb-3">
                       Created: {new Date(client.createdAt).toLocaleDateString()}
                     </p>
                     
-                    <div className="mt-4 space-y-2">
+                    <div className="space-y-2">
                       <p className="text-sm font-medium text-gray-700">Client Assets:</p>
                       <div className="flex flex-wrap gap-2">
                         <Button 
@@ -259,50 +246,18 @@ const ClientManager: FC<ClientManagerProps> = ({
             <div className="text-center py-8 border border-dashed rounded-md">
               <Users className="h-10 w-10 mx-auto text-gray-400 mb-2" />
               <p className="text-gray-500">No clients added yet</p>
-              <p className="text-gray-400 text-sm">Add your first client to organize your assets</p>
+              <p className="text-gray-400 text-sm">Add your first client with automated company analysis</p>
             </div>
           )}
         </CardContent>
       </Card>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingClient ? 'Edit Client' : 'Add New Client'}</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Client Name*</Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter client name"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Brief description of the client"
-                  rows={3}
-                />
-              </div>
-            </div>
-            <DialogFooter className="mt-4">
-              <Button type="button" variant="outline" onClick={handleCloseDialog}>
-                Cancel
-              </Button>
-              <Button type="submit" className="bg-story-blue hover:bg-story-light-blue">
-                {editingClient ? 'Update' : 'Add'} Client
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <EnhancedClientDialog
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+        onClientCreated={handleClientCreated}
+        editingClient={editingClient}
+      />
     </div>
   );
 };
