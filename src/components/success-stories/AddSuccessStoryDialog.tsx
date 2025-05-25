@@ -1,237 +1,120 @@
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Plus, FileText, Link, Quote, Columns3 } from "lucide-react"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { CustomerSuccessStory } from "@/types/storytelling"
-import { v4 as uuidv4 } from 'uuid';
-import { Textarea } from "@/components/ui/textarea"
-import { useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { usePerplexity } from "@/contexts/PerplexityContext"
-import { useToast } from "@/hooks/use-toast"
-
-const manualFormSchema = z.object({
-  title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
-  }),
-  beforeSummary: z.string().min(10, {
-    message: "Before summary must be at least 10 characters.",
-  }),
-  afterSummary: z.string().min(10, {
-    message: "After summary must be at least 10 characters.",
-  }),
-})
-
-const urlFormSchema = z.object({
-  title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
-  }),
-  url: z.string().url({
-    message: "Please enter a valid URL.",
-  }),
-})
+import { FC, useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Loader2, Globe, Upload, FileText, Eye, EyeOff } from 'lucide-react';
+import { CustomerSuccessStory } from '@/types/storytelling';
+import { useToast } from "@/components/ui/use-toast";
+import { useChatGPT } from '@/contexts/ChatGPTContext';
 
 interface AddSuccessStoryDialogProps {
-  onStoryAdded: (story: CustomerSuccessStory) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccessStoryAdded: (story: CustomerSuccessStory) => void;
+  selectedClientId?: string;
 }
 
-export function AddSuccessStoryDialog({ onStoryAdded }: AddSuccessStoryDialogProps) {
-  const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentTab, setCurrentTab] = useState("manual");
-  const { toast } = useToast();
-  const { apiKey, isConfigured } = usePerplexity();
-  
-  // For manual entry
-  const manualForm = useForm<z.infer<typeof manualFormSchema>>({
-    defaultValues: {
-      title: "",
-      beforeSummary: "",
-      afterSummary: "",
-    },
-  })
-  
-  // For URL extraction
-  const urlForm = useForm<z.infer<typeof urlFormSchema>>({
-    defaultValues: {
-      title: "",
-      url: "",
-    },
-  })
-  
-  // For managing quotes
-  const [quotes, setQuotes] = useState<Array<{id: string, quote: string, author: string, title: string}>>([]);
-  
-  // For managing features
-  const [features, setFeatures] = useState<Array<{id: string, name: string, description: string}>>([]);
-  
-  // Add a new quote
-  const addQuote = () => {
-    setQuotes([...quotes, { id: uuidv4(), quote: "", author: "", title: "" }]);
-  };
-  
-  // Update a quote
-  const updateQuote = (id: string, field: string, value: string) => {
-    setQuotes(quotes.map(q => q.id === id ? { ...q, [field]: value } : q));
-  };
-  
-  // Remove a quote
-  const removeQuote = (id: string) => {
-    setQuotes(quotes.filter(q => q.id !== id));
-  };
-  
-  // Add a new feature
-  const addFeature = () => {
-    setFeatures([...features, { id: uuidv4(), name: "", description: "" }]);
-  };
-  
-  // Update a feature
-  const updateFeature = (id: string, field: string, value: string) => {
-    setFeatures(features.map(f => f.id === id ? { ...f, [field]: value } : f));
-  };
-  
-  // Remove a feature
-  const removeFeature = (id: string) => {
-    setFeatures(features.filter(f => f.id !== id));
-  };
-  
-  // Reset all form data
-  const resetFormData = () => {
-    manualForm.reset();
-    urlForm.reset();
-    setQuotes([]);
-    setFeatures([]);
-    setCurrentTab("manual");
-  };
+interface Quote {
+  id: string;
+  quote: string;
+  author: string;
+  title: string;
+}
 
-  // Extract success story details from URL using Perplexity API
-  const extractFromUrl = async (url: string) => {
-    if (!isConfigured) {
+interface Feature {
+  id: string;
+  name: string;
+  description: string;
+}
+
+const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({ 
+  open, 
+  onOpenChange, 
+  onSuccessStoryAdded,
+  selectedClientId
+}) => {
+  const [title, setTitle] = useState('');
+  const [url, setUrl] = useState('');
+  const [beforeSummary, setBeforeSummary] = useState('');
+  const [afterSummary, setAfterSummary] = useState('');
+  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [features, setFeatures] = useState<Feature[]>([]);
+  const [newQuote, setNewQuote] = useState({ quote: '', author: '', title: '' });
+  const [newFeature, setNewFeature] = useState({ name: '', description: '' });
+  const [isLoading, setIsLoading] = useState(false);
+  const [showBeforePreview, setShowBeforePreview] = useState(false);
+  const [showAfterPreview, setShowAfterPreview] = useState(false);
+  const { toast } = useToast();
+  const { generateText } = useChatGPT();
+  
+  const handleAddQuote = () => {
+    if (newQuote.quote && newQuote.author && newQuote.title) {
+      setQuotes([...quotes, { ...newQuote, id: crypto.randomUUID() }]);
+      setNewQuote({ quote: '', author: '', title: '' });
+    }
+  };
+  
+  const handleRemoveQuote = (id: string) => {
+    setQuotes(quotes.filter(quote => quote.id !== id));
+  };
+  
+  const handleAddFeature = () => {
+    if (newFeature.name && newFeature.description) {
+      setFeatures([...features, { ...newFeature, id: crypto.randomUUID() }]);
+      setNewFeature({ name: '', description: '' });
+    }
+  };
+  
+  const handleRemoveFeature = (id: string) => {
+    setFeatures(features.filter(feature => feature.id !== id));
+  };
+  
+  const handleSubmit = async () => {
+    if (!title || !beforeSummary || !afterSummary) {
       toast({
-        title: "API Key Not Configured",
-        description: "Please configure your Perplexity API key in the settings.",
+        title: "Missing fields",
+        description: "Please fill in all required fields.",
         variant: "destructive"
       });
       return;
     }
-
+    
     setIsLoading(true);
     
     try {
-      const prompt = `Extract details of the success story in this url: ${url} into a before and after succinct summary of blocks of five sentences or more. Also extract all the quotes by the profiled customer along with their names and titles, and a feature-by-feature summary of how each feature helped the profiled customer in the url. Format the response as JSON with the following structure: {"beforeSummary": "...", "afterSummary": "...", "quotes": [{"quote": "...", "author": "...", "title": "..."}], "features": [{"name": "...", "description": "..."}]}`;
+      const newStory: CustomerSuccessStory = {
+        id: crypto.randomUUID(),
+        title,
+        url,
+        beforeSummary,
+        afterSummary,
+        quotes,
+        features,
+        clientId: selectedClientId,
+        createdAt: new Date().toISOString(),
+      };
       
-      const response = await fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a helpful assistant that extracts success story information from URLs and formats it as JSON.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.2,
-          max_tokens: 2000
-        }),
-      });
+      onSuccessStoryAdded(newStory);
+      onOpenChange(false);
       
-      if (!response.ok) {
-        throw new Error('Failed to extract information');
-      }
+      setTitle('');
+      setUrl('');
+      setBeforeSummary('');
+      setAfterSummary('');
+      setQuotes([]);
+      setFeatures([]);
       
-      const data = await response.json();
-      const extractedText = data.choices[0].message.content;
-      
-      // Try to parse the JSON from the response
-      try {
-        // Find JSON content between backticks or just parse the content directly
-        let jsonContent = extractedText;
-        const jsonMatch = extractedText.match(/```json([\s\S]*?)```/) || extractedText.match(/```([\s\S]*?)```/);
-        if (jsonMatch && jsonMatch[1]) {
-          jsonContent = jsonMatch[1].trim();
-        }
-        
-        const extractedData = JSON.parse(jsonContent);
-        
-        // Populate the manual form with extracted data
-        if (extractedData.beforeSummary) {
-          manualForm.setValue('beforeSummary', extractedData.beforeSummary);
-        }
-        
-        if (extractedData.afterSummary) {
-          manualForm.setValue('afterSummary', extractedData.afterSummary);
-        }
-        
-        // Set extracted quotes
-        if (extractedData.quotes && Array.isArray(extractedData.quotes)) {
-          const formattedQuotes = extractedData.quotes.map(q => ({
-            id: uuidv4(),
-            quote: q.quote || "",
-            author: q.author || "",
-            title: q.title || ""
-          }));
-          setQuotes(formattedQuotes);
-        }
-        
-        // Set extracted features
-        if (extractedData.features && Array.isArray(extractedData.features)) {
-          const formattedFeatures = extractedData.features.map(f => ({
-            id: uuidv4(),
-            name: f.name || "",
-            description: f.description || ""
-          }));
-          setFeatures(formattedFeatures);
-        }
-        
-        // Switch to manual tab to edit the extracted data
-        setCurrentTab("manual");
-        toast({
-          title: "Success",
-          description: "Information extracted successfully. Please review and edit if needed.",
-        });
-      } catch (error) {
-        console.error("Failed to parse JSON:", error);
-        toast({
-          title: "Extraction Error",
-          description: "Failed to parse the extracted information. Please enter details manually.",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error("API call failed:", error);
       toast({
-        title: "Extraction Failed",
-        description: "Failed to extract information from the URL. Please enter details manually.",
+        title: "Success Story Added",
+        description: "Your success story has been added successfully.",
+      });
+    } catch (error) {
+      console.error("Error adding success story:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add success story. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -239,314 +122,286 @@ export function AddSuccessStoryDialog({ onStoryAdded }: AddSuccessStoryDialogPro
     }
   };
 
-  // Handle manual form submission
-  function onManualSubmit(values: z.infer<typeof manualFormSchema>) {
-    // Create the new success story with form values and collected quotes/features
-    const newStory: CustomerSuccessStory = {
-      id: uuidv4(),
-      title: values.title,
-      beforeSummary: values.beforeSummary,
-      afterSummary: values.afterSummary,
-      quotes: quotes,
-      features: features,
-      createdAt: new Date().toISOString(),
-    };
-    
-    onStoryAdded(newStory);
-    setOpen(false);
-    resetFormData();
-    
-    toast({
-      title: "Success Story Added",
-      description: `"${values.title}" has been added to your success stories.`,
-    });
-  }
+  const handleGenerateBeforeSummary = async () => {
+    setIsLoading(true);
+    try {
+      const prompt = `Generate a short 'before' summary for a customer success story, highlighting the problems or challenges the customer faced before using our product. Focus on the pain points and the situation before the transformation.`;
+      const generatedText = await generateText(prompt);
+      if (generatedText) {
+        setBeforeSummary(generatedText);
+      } else {
+        toast({
+          title: "Generation Failed",
+          description: "Failed to generate before summary.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error generating before summary:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate before summary. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  // Handle URL form submission
-  function onUrlSubmit(values: z.infer<typeof urlFormSchema>) {
-    extractFromUrl(values.url);
-    // Set the title from the URL form to the manual form for continuity
-    manualForm.setValue('title', values.title);
-  }
-
+  const handleGenerateAfterSummary = async () => {
+    setIsLoading(true);
+    try {
+      const prompt = `Generate a short 'after' summary for a customer success story, highlighting the positive outcomes and benefits the customer experienced after using our product. Focus on the transformation and the results achieved.`;
+      const generatedText = await generateText(prompt);
+      if (generatedText) {
+        setAfterSummary(generatedText);
+      } else {
+        toast({
+          title: "Generation Failed",
+          description: "Failed to generate after summary.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error generating after summary:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate after summary. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <Button variant="outline">
-          Add Success Story
-          <Plus className="ml-2 h-4 w-4" />
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <AlertDialogHeader>
-          <AlertDialogTitle>Add New Success Story</AlertDialogTitle>
-          <AlertDialogDescription>
-            Add a new customer success story to showcase your product's impact.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[525px]">
+        <DialogHeader>
+          <DialogTitle>Add New Success Story</DialogTitle>
+          <DialogDescription>
+            Create a new customer success story to showcase the benefits of your product.
+          </DialogDescription>
+        </DialogHeader>
         
-        <Tabs value={currentTab} onValueChange={setCurrentTab} className="mt-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="manual">Add Manually</TabsTrigger>
-            <TabsTrigger value="url">Add from URL</TabsTrigger>
-          </TabsList>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="title" className="text-right">
+              Title
+            </Label>
+            <Input 
+              type="text" 
+              id="title" 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)} 
+              className="col-span-3" 
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="url" className="text-right">
+              URL (Optional)
+            </Label>
+            <Input 
+              type="url" 
+              id="url" 
+              value={url} 
+              onChange={(e) => setUrl(e.target.value)} 
+              className="col-span-3" 
+              placeholder="https://example.com"
+            />
+          </div>
           
-          {/* Manual Entry Tab */}
-          <TabsContent value="manual">
-            <Form {...manualForm}>
-              <form onSubmit={manualForm.handleSubmit(onManualSubmit)} className="space-y-4">
-                <FormField
-                  control={manualForm.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Title of the success story" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+          <div className="grid grid-cols-4 gap-4">
+            <Label htmlFor="beforeSummary" className="text-right">
+              Before Summary
+            </Label>
+            <div className="col-span-3 space-y-2">
+              <div className="relative">
+                <Textarea
+                  id="beforeSummary"
+                  value={beforeSummary}
+                  onChange={(e) => setBeforeSummary(e.target.value)}
+                  placeholder="Describe the situation before the customer used the product."
+                  className="peer resize-none"
                 />
-                
-                <div className="flex items-center gap-2 mt-6 mb-2">
-                  <FileText className="h-5 w-5 text-story-blue" />
-                  <h3 className="text-lg font-medium">Before Summary</h3>
-                </div>
-                
-                <FormField
-                  control={manualForm.control}
-                  name="beforeSummary"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormDescription>
-                        Summarize the situation before using your product/service
-                      </FormDescription>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Describe the customer's situation before using the product"
-                          className="min-h-[100px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="flex items-center gap-2 mt-6 mb-2">
-                  <FileText className="h-5 w-5 text-story-blue" />
-                  <h3 className="text-lg font-medium">After Summary</h3>
-                </div>
-                
-                <FormField
-                  control={manualForm.control}
-                  name="afterSummary"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormDescription>
-                        Summarize the transformation after using your product/service
-                      </FormDescription>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Describe the customer's transformation after using the product"
-                          className="min-h-[100px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="flex items-center justify-between mt-6 mb-2">
-                  <div className="flex items-center gap-2">
-                    <Quote className="h-5 w-5 text-story-blue" />
-                    <h3 className="text-lg font-medium">Customer Quotes</h3>
-                  </div>
-                  <Button type="button" variant="outline" size="sm" onClick={addQuote}>
-                    Add Quote
+                <div className="absolute right-2 top-2 flex space-x-1.5">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setShowBeforePreview(!showBeforePreview)}
+                    type="button"
+                  >
+                    {showBeforePreview ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={handleGenerateBeforeSummary}
+                    disabled={isLoading}
+                    type="button"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <FileText className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
-                
-                <div className="space-y-4">
-                  {quotes.length === 0 && (
-                    <div className="text-center py-4 text-gray-500 border border-dashed rounded-md">
-                      No quotes added yet. Click "Add Quote" to include customer testimonials.
-                    </div>
-                  )}
-                  
-                  {quotes.map((quote, index) => (
-                    <div key={quote.id} className="border rounded-md p-4 space-y-3">
-                      <div className="flex justify-between items-center">
-                        <h4 className="font-medium">Quote #{index + 1}</h4>
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => removeQuote(quote.id)}
-                          className="text-destructive hover:text-destructive/90"
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div>
-                          <label className="text-sm font-medium">Quote Text</label>
-                          <Textarea
-                            placeholder="Enter the exact quote from the customer"
-                            value={quote.quote}
-                            onChange={(e) => updateQuote(quote.id, 'quote', e.target.value)}
-                            className="mt-1"
-                          />
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="text-sm font-medium">Author</label>
-                            <Input
-                              placeholder="Name of person quoted"
-                              value={quote.author}
-                              onChange={(e) => updateQuote(quote.id, 'author', e.target.value)}
-                              className="mt-1"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-sm font-medium">Title/Role</label>
-                            <Input
-                              placeholder="Job title or role"
-                              value={quote.title}
-                              onChange={(e) => updateQuote(quote.id, 'title', e.target.value)}
-                              className="mt-1"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+              </div>
+              {showBeforePreview && (
+                <div className="rounded-md border bg-muted p-4 text-sm">
+                  {beforeSummary}
                 </div>
-                
-                <div className="flex items-center justify-between mt-6 mb-2">
-                  <div className="flex items-center gap-2">
-                    <Columns3 className="h-5 w-5 text-story-blue" />
-                    <h3 className="text-lg font-medium">Feature-by-Feature Breakdown</h3>
-                  </div>
-                  <Button type="button" variant="outline" size="sm" onClick={addFeature}>
-                    Add Feature
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-4 gap-4">
+            <Label htmlFor="afterSummary" className="text-right">
+              After Summary
+            </Label>
+            <div className="col-span-3 space-y-2">
+              <div className="relative">
+                <Textarea
+                  id="afterSummary"
+                  value={afterSummary}
+                  onChange={(e) => setAfterSummary(e.target.value)}
+                  placeholder="Describe the positive outcomes after the customer used the product."
+                  className="peer resize-none"
+                />
+                <div className="absolute right-2 top-2 flex space-x-1.5">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setShowAfterPreview(!showAfterPreview)}
+                    type="button"
+                  >
+                    {showAfterPreview ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={handleGenerateAfterSummary}
+                    disabled={isLoading}
+                    type="button"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <FileText className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
-                
-                <div className="space-y-4">
-                  {features.length === 0 && (
-                    <div className="text-center py-4 text-gray-500 border border-dashed rounded-md">
-                      No features added yet. Click "Add Feature" to include product features that helped.
-                    </div>
-                  )}
-                  
-                  {features.map((feature, index) => (
-                    <div key={feature.id} className="border rounded-md p-4 space-y-3">
-                      <div className="flex justify-between items-center">
-                        <h4 className="font-medium">Feature #{index + 1}</h4>
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => removeFeature(feature.id)}
-                          className="text-destructive hover:text-destructive/90"
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div>
-                          <label className="text-sm font-medium">Feature Name</label>
-                          <Input
-                            placeholder="Name of the feature"
-                            value={feature.name}
-                            onChange={(e) => updateFeature(feature.id, 'name', e.target.value)}
-                            className="mt-1"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="text-sm font-medium">How It Helped</label>
-                          <Textarea
-                            placeholder="Describe how this feature helped the customer"
-                            value={feature.description}
-                            onChange={(e) => updateFeature(feature.id, 'description', e.target.value)}
-                            className="mt-1"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+              </div>
+              {showAfterPreview && (
+                <div className="rounded-md border bg-muted p-4 text-sm">
+                  {afterSummary}
                 </div>
-                
-                <AlertDialogFooter className="pt-4">
-                  <AlertDialogCancel onClick={resetFormData}>Cancel</AlertDialogCancel>
-                  <AlertDialogAction type="submit">Add Success Story</AlertDialogAction>
-                </AlertDialogFooter>
-              </form>
-            </Form>
-          </TabsContent>
+              )}
+            </div>
+          </div>
           
-          {/* URL Extraction Tab */}
-          <TabsContent value="url">
-            <Form {...urlForm}>
-              <form onSubmit={urlForm.handleSubmit(onUrlSubmit)} className="space-y-4">
-                <FormField
-                  control={urlForm.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Title of the success story" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={urlForm.control}
-                  name="url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Success Story URL</FormLabel>
-                      <FormControl>
-                        <div className="flex gap-2">
-                          <Input placeholder="https://example.com/success-story" {...field} className="flex-1" />
-                          <Button type="submit" disabled={isLoading}>
-                            {isLoading ? "Extracting..." : "Extract"}
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormDescription>
-                        Enter the URL of a published success story to automatically extract its details
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                {!isConfigured && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-amber-800 text-sm">
-                    <p className="font-medium">Perplexity API Key Not Configured</p>
-                    <p className="mt-1">URL extraction requires a valid Perplexity API key.</p>
+          <div>
+            <Label className="text-right">Quotes</Label>
+            <div className="col-span-3">
+              {quotes.map((quote) => (
+                <div key={quote.id} className="flex items-center justify-between mb-2">
+                  <div>
+                    <p className="font-semibold">{quote.quote}</p>
+                    <p className="text-sm">- {quote.author}, {quote.title}</p>
                   </div>
-                )}
-                
-                <AlertDialogFooter className="mt-6">
-                  <AlertDialogCancel onClick={resetFormData}>Cancel</AlertDialogCancel>
-                </AlertDialogFooter>
-              </form>
-            </Form>
-          </TabsContent>
-        </Tabs>
-      </AlertDialogContent>
-    </AlertDialog>
-  )
-}
+                  <Button variant="ghost" size="sm" onClick={() => handleRemoveQuote(quote.id)}>
+                    Remove
+                  </Button>
+                </div>
+              ))}
+              <div className="space-y-2">
+                <Input
+                  type="text"
+                  placeholder="Quote"
+                  value={newQuote.quote}
+                  onChange={(e) => setNewQuote({ ...newQuote, quote: e.target.value })}
+                />
+                <Input
+                  type="text"
+                  placeholder="Author"
+                  value={newQuote.author}
+                  onChange={(e) => setNewQuote({ ...newQuote, author: e.target.value })}
+                />
+                <Input
+                  type="text"
+                  placeholder="Author Title"
+                  value={newQuote.title}
+                  onChange={(e) => setNewQuote({ ...newQuote, title: e.target.value })}
+                />
+                <Button size="sm" onClick={handleAddQuote}>
+                  Add Quote
+                </Button>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <Label className="text-right">Features</Label>
+            <div className="col-span-3">
+              {features.map((feature) => (
+                <div key={feature.id} className="flex items-center justify-between mb-2">
+                  <div>
+                    <p className="font-semibold">{feature.name}</p>
+                    <p className="text-sm">{feature.description}</p>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => handleRemoveFeature(feature.id)}>
+                    Remove
+                  </Button>
+                </div>
+              ))}
+              <div className="space-y-2">
+                <Input
+                  type="text"
+                  placeholder="Feature Name"
+                  value={newFeature.name}
+                  onChange={(e) => setNewFeature({ ...newFeature, name: e.target.value })}
+                />
+                <Textarea
+                  placeholder="Feature Description"
+                  value={newFeature.description}
+                  onChange={(e) => setNewFeature({ ...newFeature, description: e.target.value })}
+                  className="resize-none"
+                />
+                <Button size="sm" onClick={handleAddFeature}>
+                  Add Feature
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <DialogFooter>
+          <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button type="submit" onClick={handleSubmit} disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Please wait
+              </>
+            ) : (
+              "Save"
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default AddSuccessStoryDialog;

@@ -1,310 +1,318 @@
-
-import { FC, useState } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle,
-  CardFooter
-} from "@/components/ui/card";
+import { FC, useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Upload, CheckCircle, FileText, Eye, EyeOff } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
-import { ProductContext, ProductFeature, ProductUseCase, ProductDifferentiator, CompanyLink } from '@/types/storytelling';
-import { Loader2, ExternalLink } from 'lucide-react';
-import { usePerplexity } from '@/contexts/PerplexityContext';
+import { ProductContext, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
+import { useQuery } from '@tanstack/react-query';
+import { useChatGPT } from '@/contexts/ChatGPTContext';
+
+interface AnalysisResult {
+  features: string[];
+  useCases: string[];
+  differentiators: string[];
+  categoryPOV: string;
+  companyMission: string;
+  uniqueInsight: string;
+}
+
+const parseAnalysisResult = (text: string): AnalysisResult | null => {
+  try {
+    const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+    const parsed = JSON.parse(jsonString);
+    return parsed as AnalysisResult;
+  } catch (error) {
+    console.error("Failed to parse analysis result:", error);
+    return null;
+  }
+};
+
+const extractUrls = (text: string): string[] => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const urls = [];
+  let match;
+  while ((match = urlRegex.exec(text)) !== null) {
+    urls.push(match[1]);
+  }
+  return urls;
+};
 
 interface ProductContextAnalyzerProps {
-  companyLinks: CompanyLink[];
+  onProductContextCreated: (productContext: ProductContext) => void;
   onClose: () => void;
-  onAnalysisComplete: (results: Partial<ProductContext>) => void;
 }
 
 const ProductContextAnalyzer: FC<ProductContextAnalyzerProps> = ({ 
-  companyLinks, 
-  onClose,
-  onAnalysisComplete
+  onProductContextCreated, 
+  onClose 
 }) => {
-  const { toast } = useToast();
+  const [input, setInput] = useState('');
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [additionalUrls, setAdditionalUrls] = useState('');
-  const { apiKey, isConfigured } = usePerplexity();
-  const [customApiKey, setCustomApiKey] = useState('');
-  
-  const handleAnalyze = async () => {
-    const keyToUse = customApiKey.trim() || apiKey;
-    
-    if (!keyToUse) {
-      toast({
-        title: "API Key Required",
-        description: "Please enter a Perplexity API key to continue.",
-        variant: "destructive"
-      });
-      return;
-    }
+  const [showFullText, setShowFullText] = useState(false);
+  const { toast } = useToast();
+  const { generateText } = useChatGPT();
+  const [productName, setProductName] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [urls, setUrls] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        setInput(text);
+        setUrls(extractUrls(text));
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const analyzeText = async () => {
     setIsAnalyzing(true);
-    
     try {
-      // Collect all URLs
-      const companyWebsites = companyLinks
-        .filter(link => link.type === 'website' && link.url.trim() !== '')
-        .map(link => link.url);
-      
-      const linkedinUrls = companyLinks
-        .filter(link => link.type === 'linkedin' && link.url.trim() !== '')
-        .map(link => link.url);
-      
-      const otherUrls = [...companyLinks
-        .filter(link => link.type === 'other' && link.url.trim() !== '')
-        .map(link => link.url)];
-      
-      // Add any manually entered URLs
-      if (additionalUrls.trim()) {
-        additionalUrls.split('\n')
-          .map(url => url.trim())
-          .filter(url => url !== '')
-          .forEach(url => otherUrls.push(url));
-      }
-      
-      const allUrls = [...companyWebsites, ...linkedinUrls, ...otherUrls];
-      
-      if (allUrls.length === 0) {
-        toast({
-          title: "No URLs to analyze",
-          description: "Please provide at least one company website or LinkedIn URL.",
-          variant: "destructive"
-        });
-        setIsAnalyzing(false);
-        return;
-      }
-      
-      // Format the prompt for Perplexity
-      const prompt = `Visit the company website and LinkedIn urls: ${allUrls.join(', ')} and extract a summary of the company, their features, solutions, and use cases. For each of these, name each use case, feature, and solution, and add a succinct summary of each in about five sentences under the names. Format the output as a JSON object with these fields: 
+      const prompt = `Analyze the following text about a product and extract key information to populate a product context. Identify product features, use cases, differentiators, the company's category point of view, company mission, and unique insight. Return the result as a JSON object with the following structure:
+
+      \`\`\`json
       {
-        "companyMission": "The company's mission statement or purpose",
-        "categoryPOV": "The company's perspective on their industry or product category",
-        "uniqueInsight": "What makes this company unique in their space",
-        "features": [
-          {
-            "name": "Feature name",
-            "benefits": ["Benefit 1", "Benefit 2"]
-          }
-        ],
-        "useCases": [
-          {
-            "useCase": "Use case name",
-            "userRole": "Target user for this use case",
-            "description": "Description of the use case"
-          }
-        ],
-        "differentiators": [
-          {
-            "name": "Differentiator name",
-            "description": "Description of this differentiator",
-            "competitorComparison": "How this compares to competitors"
-          }
-        ]
-      }`;
-      
-      // Call Perplexity API
-      const response = await fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${keyToUse}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are an expert at analyzing company websites and LinkedIn profiles. Extract information in the format requested.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.2,
-          max_tokens: 3000,
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Error from Perplexity API: ${response.statusText}`);
+        "features": ["feature 1", "feature 2", ...],
+        "useCases": ["use case 1", "use case 2", ...],
+        "differentiators": ["differentiator 1", "differentiator 2", ...],
+        "categoryPOV": "company's point of view on the product category",
+        "companyMission": "company's mission statement",
+        "uniqueInsight": "unique insight about the product or market"
       }
-      
-      const data = await response.json();
-      
-      if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
-        throw new Error('Invalid response format from Perplexity API');
-      }
-      
-      // Extract JSON from the response
-      const content = data.choices[0].message.content;
-      let jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/{[\s\S]*}/);
-      let parsedData;
-      
-      if (jsonMatch) {
-        try {
-          parsedData = JSON.parse(jsonMatch[1] || jsonMatch[0]);
-        } catch (e) {
-          console.error('Failed to parse JSON from response:', e);
-          throw new Error('Failed to parse analysis results');
+      \`\`\`
+
+      Here is the text to analyze:
+      ${input}`;
+
+      const analysis = await generateText(prompt);
+      if (analysis) {
+        const parsedResult = parseAnalysisResult(analysis);
+        if (parsedResult) {
+          setAnalysisResult(parsedResult);
+        } else {
+          toast({
+            title: "Analysis Failed",
+            description: "Could not parse the analysis result. Please ensure the text contains valid JSON.",
+            variant: "destructive",
+          });
         }
       } else {
-        throw new Error('Could not find JSON in the API response');
-      }
-      
-      // Transform the data to match our expected format
-      const transformedData: Partial<ProductContext> = {
-        companyMission: parsedData.companyMission || '',
-        categoryPOV: parsedData.categoryPOV || '',
-        uniqueInsight: parsedData.uniqueInsight || '',
-        features: (parsedData.features || []).map((feature: any) => ({
-          id: crypto.randomUUID(),
-          name: feature.name || '',
-          benefits: feature.benefits || ['']
-        } as ProductFeature)),
-        useCases: (parsedData.useCases || []).map((useCase: any) => ({
-          id: crypto.randomUUID(),
-          useCase: useCase.useCase || '',
-          userRole: useCase.userRole || '',
-          description: useCase.description || ''
-        } as ProductUseCase)),
-        differentiators: (parsedData.differentiators || []).map((diff: any) => ({
-          id: crypto.randomUUID(),
-          name: diff.name || '',
-          description: diff.description || '',
-          competitorComparison: diff.competitorComparison || ''
-        } as ProductDifferentiator))
-      };
-      
-      if (
-        !transformedData.features?.length && 
-        !transformedData.useCases?.length && 
-        !transformedData.differentiators?.length && 
-        !transformedData.companyMission && 
-        !transformedData.categoryPOV && 
-        !transformedData.uniqueInsight
-      ) {
         toast({
-          title: "Analysis yielded minimal results",
-          description: "Limited information could be extracted from the provided URLs.",
-          variant: "destructive"
-        });
-      } else {
-        onAnalysisComplete(transformedData);
-        toast({
-          title: "Analysis Complete",
-          description: "Company information has been extracted successfully."
+          title: "Analysis Failed",
+          description: "Failed to generate analysis. Please try again.",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Error analyzing company profile:', error);
+      console.error("Error during analysis:", error);
       toast({
         title: "Analysis Failed",
-        description: error instanceof Error ? error.message : "An unknown error occurred while analyzing the company profile.",
-        variant: "destructive"
+        description: "An error occurred while analyzing the text.",
+        variant: "destructive",
       });
     } finally {
       setIsAnalyzing(false);
     }
   };
 
+  const handleSubmit = () => {
+    if (!analysisResult) {
+      toast({
+        title: "Missing Analysis",
+        description: "Please analyze the text first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!productName || !companyName) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter the product and company names.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newProductContext: ProductContext = {
+      id: crypto.randomUUID(),
+      features: analysisResult.features.map(feature => ({
+        id: crypto.randomUUID(),
+        name: feature,
+        benefits: [],
+      })),
+      useCases: analysisResult.useCases.map(useCase => ({
+        id: crypto.randomUUID(),
+        useCase: useCase,
+        userRole: '',
+        description: '',
+      })),
+      differentiators: analysisResult.differentiators.map(differentiator => ({
+        id: crypto.randomUUID(),
+        name: differentiator,
+        description: '',
+        competitorComparison: '',
+      })),
+      categoryPOV: analysisResult.categoryPOV,
+      companyMission: analysisResult.companyMission,
+      uniqueInsight: analysisResult.uniqueInsight,
+      companyLinks: urls.map(url => ({ type: 'website', url })),
+    };
+
+    onProductContextCreated(newProductContext);
+    toast({
+      title: "Product Context Created",
+      description: "The product context has been created successfully.",
+    });
+    onClose();
+  };
+
   return (
     <Card className="bg-white shadow-md">
       <CardHeader>
-        <CardTitle className="text-story-blue">Analyze Company Profile</CardTitle>
+        <CardTitle className="text-lg font-semibold">Product Context Analyzer</CardTitle>
         <CardDescription>
-          Use Perplexity AI to analyze the company's online presence
+          Upload a document or paste text to analyze and extract key product information.
         </CardDescription>
       </CardHeader>
-      
-      <CardContent className="space-y-6">
-        {isConfigured ? (
-          <div className="bg-green-50 border border-green-200 p-3 rounded-md">
-            <p className="text-sm text-green-800">
-              Perplexity API key is already configured. You can start analyzing immediately.
-            </p>
-          </div>
-        ) : (
-          <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-md">
-            <p className="text-sm text-yellow-800">
-              This feature uses Perplexity AI to analyze public information about the company.
-            </p>
-          </div>
-        )}
-        
-        {!isConfigured && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Perplexity API Key</label>
-            <Input 
-              type="password"
-              placeholder="Enter your Perplexity API key"
-              value={customApiKey}
-              onChange={(e) => setCustomApiKey(e.target.value)}
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Product Name</label>
+            <Input
+              type="text"
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
+              placeholder="Enter product name"
             />
           </div>
-        )}
-        
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Company URLs to Analyze</label>
-          <div className="space-y-2">
-            {companyLinks.map((link, index) => (
-              <div key={index} className="flex items-center gap-2 text-sm">
-                <span className="w-20 text-gray-500">{link.type}:</span>
-                <div className="flex-1 truncate">{link.url}</div>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  asChild
-                  className="h-6 w-6"
-                >
-                  <a href={link.url} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                </Button>
-              </div>
-            ))}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Company Name</label>
+            <Input
+              type="text"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              placeholder="Enter company name"
+            />
           </div>
         </div>
-        
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Additional URLs (optional)</label>
-          <textarea 
-            className="min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            placeholder="Enter additional URLs (one per line)"
-            value={additionalUrls}
-            onChange={(e) => setAdditionalUrls(e.target.value)}
+        <div>
+          <Textarea
+            placeholder="Paste text here or upload a file to analyze..."
+            value={input}
+            onChange={(e) => {
+              setInput(e.target.value);
+              setUrls(extractUrls(e.target.value));
+            }}
+            className="min-h-[150px]"
           />
-          <p className="text-xs text-gray-500">
-            Add links to product pages, case studies, or other content about the company.
-          </p>
+          <div className="flex items-center justify-between mt-2">
+            <Button
+              variant="secondary"
+              onClick={handleUploadClick}
+              disabled={isAnalyzing}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Upload File
+            </Button>
+            <input
+              type="file"
+              accept=".txt,.pdf,.docx"
+              onChange={handleFileSelect}
+              className="hidden"
+              ref={fileInputRef}
+            />
+            <p className="text-sm text-gray-500">
+              Supported formats: .txt, .pdf, .docx
+            </p>
+          </div>
         </div>
+        <div className="flex justify-between">
+          <Button
+            className="bg-gray-500 hover:bg-gray-700 text-white"
+            onClick={onClose}
+            disabled={isAnalyzing}
+          >
+            Cancel
+          </Button>
+          <Button
+            className="bg-story-blue hover:bg-story-light-blue text-white"
+            onClick={analyzeText}
+            disabled={isAnalyzing || !input}
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                Analyze
+              </>
+            )}
+          </Button>
+        </div>
+        {analysisResult && (
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold">Analysis Result:</h3>
+            <div className="space-y-2">
+              <div>
+                <Badge variant="secondary">Features</Badge>
+                <ul className="list-disc pl-5">
+                  {analysisResult.features.map((feature, index) => (
+                    <li key={index}>{feature}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <Badge variant="secondary">Use Cases</Badge>
+                <ul className="list-disc pl-5">
+                  {analysisResult.useCases.map((useCase, index) => (
+                    <li key={index}>{useCase}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <Badge variant="secondary">Differentiators</Badge>
+                <ul className="list-disc pl-5">
+                  {analysisResult.differentiators.map((differentiator, index) => (
+                    <li key={index}>{differentiator}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <Badge variant="secondary">Category POV</Badge>
+                <p>{analysisResult.categoryPOV}</p>
+              </div>
+              <div>
+                <Badge variant="secondary">Company Mission</Badge>
+                <p>{analysisResult.companyMission}</p>
+              </div>
+              <div>
+                <Badge variant="secondary">Unique Insight</Badge>
+                <p>{analysisResult.uniqueInsight}</p>
+              </div>
+            </div>
+            <Button
+              className="bg-story-blue hover:bg-story-light-blue text-white mt-4 w-full"
+              onClick={handleSubmit}
+            >
+              Create Product Context
+            </Button>
+          </div>
+        )}
       </CardContent>
-      
-      <CardFooter className="flex justify-end space-x-2 border-t pt-4">
-        <Button variant="outline" onClick={onClose} disabled={isAnalyzing}>
-          Cancel
-        </Button>
-        <Button 
-          className="bg-story-blue hover:bg-story-light-blue"
-          onClick={handleAnalyze}
-          disabled={isAnalyzing}
-        >
-          {isAnalyzing ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Analyzing...
-            </>
-          ) : (
-            'Analyze Company'
-          )}
-        </Button>
-      </CardFooter>
     </Card>
   );
 };
