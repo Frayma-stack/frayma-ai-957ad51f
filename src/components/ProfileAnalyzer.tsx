@@ -1,3 +1,4 @@
+
 import { FC, useState } from 'react';
 import { 
   Card, 
@@ -34,9 +35,12 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
   const { apiKey } = usePerplexity();
   
   const handleAnalyze = async () => {
-    console.log('Starting analysis with API key configured:', !!apiKey);
+    console.log('Starting analysis...');
+    console.log('API key available:', !!apiKey);
+    console.log('API key length:', apiKey?.length);
     
     if (!apiKey) {
+      console.log('No API key found');
       toast({
         title: "Service Unavailable",
         description: "The analysis service is currently unavailable. Please try again later.",
@@ -93,7 +97,9 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
       
       console.log('Sending prompt to Perplexity:', prompt);
       
-      // Call Perplexity API
+      // Call Perplexity API with enhanced error handling
+      console.log('Making fetch request to Perplexity API...');
+      
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
         headers: {
@@ -117,21 +123,35 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
         }),
       });
       
-      console.log('Perplexity API response status:', response.status);
-      console.log('Perplexity API response headers:', Object.fromEntries(response.headers.entries()));
+      console.log('Fetch completed. Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Perplexity API error response:', errorText);
-        throw new Error(`Error from Perplexity API: ${response.status} ${response.statusText} - ${errorText}`);
+        console.error('API error response:', errorText);
+        
+        let errorMessage = "An error occurred while analyzing the profile.";
+        
+        if (response.status === 401) {
+          errorMessage = "Authentication failed. Please check your API configuration.";
+        } else if (response.status === 429) {
+          errorMessage = "Rate limit exceeded. Please try again in a few minutes.";
+        } else if (response.status === 403) {
+          errorMessage = "Access forbidden. Please check your API permissions.";
+        } else if (response.status >= 500) {
+          errorMessage = "Server error. Please try again later.";
+        }
+        
+        throw new Error(`${errorMessage} (Status: ${response.status})`);
       }
       
       const data = await response.json();
-      console.log('Perplexity API response data:', data);
+      console.log('API response data:', data);
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
         console.error('Invalid response structure:', data);
-        throw new Error('Invalid response format from Perplexity API');
+        throw new Error('Invalid response format from analysis service');
       }
       
       // Extract JSON from the response
@@ -154,7 +174,7 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
         }
       } else {
         console.error('Could not find JSON in response content:', content);
-        throw new Error('Could not find JSON in the API response');
+        throw new Error('Could not find JSON in the analysis response');
       }
       
       // Transform the data to match our expected format
@@ -191,9 +211,18 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
       }
     } catch (error) {
       console.error('Error analyzing profile:', error);
+      
+      let errorMessage = "An unknown error occurred while analyzing the profile.";
+      
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        errorMessage = "Network error: Unable to connect to the analysis service. Please check your internet connection and try again.";
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Analysis Failed",
-        description: error instanceof Error ? error.message : "An unknown error occurred while analyzing the profile.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
