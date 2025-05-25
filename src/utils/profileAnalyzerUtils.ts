@@ -45,7 +45,29 @@ export const buildPrompt = (linkedinUrls: string[], xUrls: string[], otherUrls: 
   
   prompt += urlParts.join(', and ');
   
-  prompt += ", analyze their last 30 social posts, and extract the profile's current title/role and a summary of profile's career backstory (in four sentences or less), as well as their experiences, three writing tones, and four product beliefs. For each experience, extract their title/job role, company, and duration they spent or have spent at the company as the experience title; then, provide a summary of what they did in that role in four sentences or less. For each of the writing tones and product beliefs analyzed, give it a succinct title followed by a summary of each writing tone and product belief in four sentences or less. Write all summaries in first-person language (e.g. use \"I\" like the person whose profile is being analyzed is telling someone about themself). Format the output as a JSON object with fields: 'currentRole', 'organization', 'backstory', 'experiences' (array with fields 'title' and 'description'), 'tones' (array with fields 'tone' and 'description'), and 'beliefs' (array with fields 'belief' and 'description').";
+  prompt += ", analyze their last 30 social posts, and extract the following information:
+
+1. CURRENT ROLE & ORGANIZATION: Extract the person's most recent/current job title and company name from their LinkedIn profile. This should be their latest position.
+
+2. CAREER BACKSTORY: Provide a summary of their career journey in four sentences or less, written in first-person language (using 'I').
+
+3. ALL PROFESSIONAL EXPERIENCES: Extract ALL professional experiences from their LinkedIn profile. For each experience, format as follows:
+   - Title: '[Job Title] at [Company Name] ([Duration/Years])'
+   - Description: Summary of what they did in that role (4 sentences or less, written in first-person using 'I')
+   
+   Include experiences in chronological order from most recent to oldest. Capture the exact job titles, company names, and duration as shown on LinkedIn.
+
+4. WRITING TONES: Analyze their social posts and identify 3 distinct writing tones with:
+   - Tone: A succinct title for the tone
+   - Description: Summary of this writing style (4 sentences or less, first-person)
+
+5. PRODUCT BELIEFS: Extract 4 product/business beliefs from their content with:
+   - Belief: A succinct title for the belief
+   - Description: Summary of this belief (4 sentences or less, first-person)
+
+Format the output as a JSON object with fields: 'currentRole', 'organization', 'backstory', 'experiences' (array with fields 'title' and 'description'), 'tones' (array with fields 'tone' and 'description'), and 'beliefs' (array with fields 'belief' and 'description').
+
+IMPORTANT: Ensure 'currentRole' contains ONLY the job title, 'organization' contains ONLY the company name, and all experiences are captured with their full context from LinkedIn.";
   
   return prompt;
 };
