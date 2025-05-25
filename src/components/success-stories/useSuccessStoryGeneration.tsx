@@ -1,9 +1,9 @@
+
 import { useState } from 'react';
 import { useChatGPT } from '@/contexts/ChatGPTContext';
 import { useSuccessStoryPromptConfig } from './useSuccessStoryPromptConfig';
 import { SuccessStoryFlowData } from './useSuccessStoryFlowData';
 import { Author, ProductContext } from '@/types/storytelling';
-import { SuccessStoryPromptCategory } from '@/types/successStoryPrompts';
 
 export interface GenerationOptions {
   wordCount?: number;
@@ -243,7 +243,6 @@ export const useSuccessStoryGeneration = () => {
         PREVIOUS_SECTION: previousSections?.introduction || ''
       };
 
-      // Note: Using body_sections category for recrafting as well
       const prompt = generatePromptWithVariables('body_sections', variables);
 
       const content = await generateContent(prompt, {
