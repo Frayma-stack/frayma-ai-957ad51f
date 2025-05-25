@@ -1,4 +1,3 @@
-
 export interface ICPStoryScriptItem {
   id: string;
   content: string;
@@ -135,6 +134,7 @@ export interface ProductDifferentiator {
   name: string;
   description: string;
   competitorComparison: string;
+  media?: MediaAttachment[];
 }
 
 export interface CompanyLink {

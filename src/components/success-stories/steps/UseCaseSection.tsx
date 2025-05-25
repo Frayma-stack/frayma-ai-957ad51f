@@ -23,6 +23,11 @@ const UseCaseSection: FC<UseCaseSectionProps> = ({
     console.log('Upload visuals for:', field);
   };
 
+  const getUseCaseVisuals = (useCaseId: string) => {
+    const useCase = productContext?.useCases.find(uc => uc.id === useCaseId);
+    return useCase?.media || [];
+  };
+
   return (
     <div className="border-t pt-6">
       <h4 className="text-md font-medium mb-4">Use Cases Unlocked</h4>
@@ -45,6 +50,11 @@ const UseCaseSection: FC<UseCaseSectionProps> = ({
                 ))}
               </SelectContent>
             </Select>
+            {data.useCase01 && getUseCaseVisuals(data.useCase01).length > 0 && (
+              <p className="text-xs text-green-600 mt-1">
+                {getUseCaseVisuals(data.useCase01).length} visual(s) available for this use case
+              </p>
+            )}
           </div>
           <div>
             <label className="text-sm font-medium">Use Case Visuals</label>
@@ -88,6 +98,11 @@ const UseCaseSection: FC<UseCaseSectionProps> = ({
                 ))}
               </SelectContent>
             </Select>
+            {data.useCase02 && getUseCaseVisuals(data.useCase02).length > 0 && (
+              <p className="text-xs text-green-600 mt-1">
+                {getUseCaseVisuals(data.useCase02).length} visual(s) available for this use case
+              </p>
+            )}
           </div>
           <div>
             <label className="text-sm font-medium">Use Case Visuals</label>

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProductFeature } from '@/types/storytelling';
 import { Plus, Trash } from 'lucide-react';
+import MediaUploader from '../MediaUploader';
 
 interface FeaturesSectionProps {
   features: ProductFeature[];
@@ -26,6 +27,12 @@ const FeaturesSection: FC<FeaturesSectionProps> = ({
   const updateFeature = (index: number, field: string, value: string) => {
     const updated = [...features];
     updated[index] = { ...updated[index], [field]: value };
+    onFeaturesChange(updated);
+  };
+
+  const updateFeatureMedia = (index: number, media: any[]) => {
+    const updated = [...features];
+    updated[index] = { ...updated[index], media };
     onFeaturesChange(updated);
   };
 
@@ -60,9 +67,9 @@ const FeaturesSection: FC<FeaturesSectionProps> = ({
       </div>
 
       {features.map((feature, index) => (
-        <div key={feature.id} className="border rounded p-3 space-y-2">
+        <div key={feature.id} className="border rounded p-3 space-y-3">
           <div className="flex items-start justify-between">
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-3">
               <Input
                 value={feature.name}
                 onChange={(e) => updateFeature(index, 'name', e.target.value)}
@@ -70,7 +77,7 @@ const FeaturesSection: FC<FeaturesSectionProps> = ({
                 className="text-sm"
               />
               
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <Label className="text-xs">Benefits</Label>
                 {feature.benefits.map((benefit, benefitIndex) => (
                   <div key={benefitIndex} className="flex gap-1">
@@ -102,6 +109,15 @@ const FeaturesSection: FC<FeaturesSectionProps> = ({
                   <Plus className="h-3 w-3 mr-1" />
                   Add Benefit
                 </Button>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs">Feature Visuals</Label>
+                <MediaUploader
+                  media={feature.media || []}
+                  onMediaChange={(media) => updateFeatureMedia(index, media)}
+                  maxFiles={3}
+                />
               </div>
             </div>
             

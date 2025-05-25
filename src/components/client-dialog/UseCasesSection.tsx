@@ -3,8 +3,10 @@ import { FC } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { ProductUseCase } from '@/types/storytelling';
 import { Plus, Trash } from 'lucide-react';
+import MediaUploader from '../MediaUploader';
 
 interface UseCasesSectionProps {
   useCases: ProductUseCase[];
@@ -29,6 +31,12 @@ const UseCasesSection: FC<UseCasesSectionProps> = ({
     onUseCasesChange(updated);
   };
 
+  const updateUseCaseMedia = (index: number, media: any[]) => {
+    const updated = [...useCases];
+    updated[index] = { ...updated[index], media };
+    onUseCasesChange(updated);
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -40,9 +48,9 @@ const UseCasesSection: FC<UseCasesSectionProps> = ({
       </div>
 
       {useCases.map((useCase, index) => (
-        <div key={useCase.id} className="border rounded p-3 space-y-2">
+        <div key={useCase.id} className="border rounded p-3 space-y-3">
           <div className="flex items-start justify-between">
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-3">
               <Input
                 value={useCase.useCase}
                 onChange={(e) => updateUseCase(index, 'useCase', e.target.value)}
@@ -62,6 +70,15 @@ const UseCasesSection: FC<UseCasesSectionProps> = ({
                 rows={2}
                 className="text-sm"
               />
+
+              <div className="space-y-2">
+                <Label className="text-xs">Use Case Visuals</Label>
+                <MediaUploader
+                  media={useCase.media || []}
+                  onMediaChange={(media) => updateUseCaseMedia(index, media)}
+                  maxFiles={3}
+                />
+              </div>
             </div>
             
             <Button

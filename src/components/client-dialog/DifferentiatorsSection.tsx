@@ -3,8 +3,10 @@ import { FC } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { ProductDifferentiator } from '@/types/storytelling';
 import { Plus, Trash } from 'lucide-react';
+import MediaUploader from '../MediaUploader';
 
 interface DifferentiatorsSectionProps {
   differentiators: ProductDifferentiator[];
@@ -16,7 +18,7 @@ const DifferentiatorsSection: FC<DifferentiatorsSectionProps> = ({
   onDifferentiatorsChange
 }) => {
   const addDifferentiator = () => {
-    onDifferentiatorsChange([...differentiators, { id: crypto.randomUUID(), name: '', description: '', competitorComparison: '' }]);
+    onDifferentiatorsChange([...differentiators, { id: crypto.randomUUID(), name: '', description: '', competitorComparison: '', media: [] }]);
   };
 
   const removeDifferentiator = (index: number) => {
@@ -26,6 +28,12 @@ const DifferentiatorsSection: FC<DifferentiatorsSectionProps> = ({
   const updateDifferentiator = (index: number, field: string, value: string) => {
     const updated = [...differentiators];
     updated[index] = { ...updated[index], [field]: value };
+    onDifferentiatorsChange(updated);
+  };
+
+  const updateDifferentiatorMedia = (index: number, media: any[]) => {
+    const updated = [...differentiators];
+    updated[index] = { ...updated[index], media };
     onDifferentiatorsChange(updated);
   };
 
@@ -40,9 +48,9 @@ const DifferentiatorsSection: FC<DifferentiatorsSectionProps> = ({
       </div>
 
       {differentiators.map((diff, index) => (
-        <div key={diff.id} className="border rounded p-3 space-y-2">
+        <div key={diff.id} className="border rounded p-3 space-y-3">
           <div className="flex items-start justify-between">
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-3">
               <Input
                 value={diff.name}
                 onChange={(e) => updateDifferentiator(index, 'name', e.target.value)}
@@ -63,6 +71,15 @@ const DifferentiatorsSection: FC<DifferentiatorsSectionProps> = ({
                 rows={2}
                 className="text-sm"
               />
+
+              <div className="space-y-2">
+                <Label className="text-xs">Differentiator Visuals</Label>
+                <MediaUploader
+                  media={diff.media || []}
+                  onMediaChange={(media) => updateDifferentiatorMedia(index, media)}
+                  maxFiles={3}
+                />
+              </div>
             </div>
             
             <Button

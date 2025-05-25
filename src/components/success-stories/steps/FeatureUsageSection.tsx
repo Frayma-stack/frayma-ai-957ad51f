@@ -23,6 +23,11 @@ const FeatureUsageSection: FC<FeatureUsageSectionProps> = ({
     console.log('Upload visuals for:', field);
   };
 
+  const getFeatureVisuals = (featureId: string) => {
+    const feature = productContext?.features.find(f => f.id === featureId);
+    return feature?.media || [];
+  };
+
   return (
     <div className="border-t pt-6">
       <h4 className="text-md font-medium mb-4">Features Used</h4>
@@ -45,6 +50,11 @@ const FeatureUsageSection: FC<FeatureUsageSectionProps> = ({
                 ))}
               </SelectContent>
             </Select>
+            {data.feature01 && getFeatureVisuals(data.feature01).length > 0 && (
+              <p className="text-xs text-green-600 mt-1">
+                {getFeatureVisuals(data.feature01).length} visual(s) available for this feature
+              </p>
+            )}
           </div>
           <div>
             <label className="text-sm font-medium">Feature Usage Visuals</label>
@@ -88,6 +98,11 @@ const FeatureUsageSection: FC<FeatureUsageSectionProps> = ({
                 ))}
               </SelectContent>
             </Select>
+            {data.feature02 && getFeatureVisuals(data.feature02).length > 0 && (
+              <p className="text-xs text-green-600 mt-1">
+                {getFeatureVisuals(data.feature02).length} visual(s) available for this feature
+              </p>
+            )}
           </div>
           <div>
             <label className="text-sm font-medium">Feature Usage Visuals</label>
@@ -131,6 +146,11 @@ const FeatureUsageSection: FC<FeatureUsageSectionProps> = ({
                 ))}
               </SelectContent>
             </Select>
+            {data.feature03 && getFeatureVisuals(data.feature03).length > 0 && (
+              <p className="text-xs text-green-600 mt-1">
+                {getFeatureVisuals(data.feature03).length} visual(s) available for this feature
+              </p>
+            )}
           </div>
           <div>
             <label className="text-sm font-medium">Feature Usage Visuals</label>
