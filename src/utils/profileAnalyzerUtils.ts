@@ -45,7 +45,7 @@ export const buildPrompt = (linkedinUrls: string[], xUrls: string[], otherUrls: 
   
   prompt += urlParts.join(', and ');
   
-  prompt += ", analyze their last 30 social posts, and extract the following information:
+  prompt += `, analyze their last 30 social posts, and extract the following information:
 
 1. CURRENT ROLE & ORGANIZATION: Extract the person's most recent/current job title and company name from their LinkedIn profile. This should be their latest position.
 
@@ -67,7 +67,7 @@ export const buildPrompt = (linkedinUrls: string[], xUrls: string[], otherUrls: 
 
 Format the output as a JSON object with fields: 'currentRole', 'organization', 'backstory', 'experiences' (array with fields 'title' and 'description'), 'tones' (array with fields 'tone' and 'description'), and 'beliefs' (array with fields 'belief' and 'description').
 
-IMPORTANT: Ensure 'currentRole' contains ONLY the job title, 'organization' contains ONLY the company name, and all experiences are captured with their full context from LinkedIn.";
+IMPORTANT: Ensure 'currentRole' contains ONLY the job title, 'organization' contains ONLY the company name, and all experiences are captured with their full context from LinkedIn.`;
   
   return prompt;
 };
