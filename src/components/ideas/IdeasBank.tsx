@@ -58,7 +58,6 @@ const IdeasBank = ({
         
         <TabsContent value="generate" className="mt-6">
           <GenerateIdeas 
-            scripts={scripts}
             productContext={productContext}
             onIdeaSaved={onIdeaAdded}
           />

@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import AddSuccessStoryDialog from './success-stories/AddSuccessStoryDialog';
 import EditSuccessStoryDialog from './success-stories/EditSuccessStoryDialog';
 import SuccessStoryList from './success-stories/SuccessStoryList';
+import { Button } from "@/components/ui/button";
+import { Plus } from 'lucide-react';
 
 interface CustomerSuccessManagerProps {
   successStories: CustomerSuccessStory[];
@@ -28,6 +30,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
 }) => {
   const { toast } = useToast();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedStory, setSelectedStory] = useState<CustomerSuccessStory | null>(null);
 
   // This function handles the edit dialog opening
@@ -76,7 +79,13 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
             )}
           </CardDescription>
         </div>
-        <AddSuccessStoryDialog onStoryAdded={onSuccessStoryAdded} />
+        <Button 
+          onClick={() => setIsAddDialogOpen(true)}
+          className="bg-brand-primary hover:bg-brand-primary/90"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Story
+        </Button>
       </CardHeader>
       
       <CardContent>
@@ -84,6 +93,14 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
           successStories={successStories}
           onEdit={handleOpenEditDialog}
           onDelete={handleDeleteStory}
+        />
+        
+        {/* Add Dialog */}
+        <AddSuccessStoryDialog
+          open={isAddDialogOpen}
+          onOpenChange={setIsAddDialogOpen}
+          onSuccessStoryAdded={onSuccessStoryAdded}
+          selectedClientId={clientInfo?.id}
         />
         
         {/* Edit Dialog */}

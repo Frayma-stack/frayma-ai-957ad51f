@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { 
   Card, 
@@ -322,9 +321,8 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
       <CardContent className="space-y-8">
         {showAnalyzer ? (
           <ProductContextAnalyzer 
-            companyLinks={productContext.companyLinks || []}
             onClose={() => setShowAnalyzer(false)}
-            onAnalysisComplete={handleAnalysisComplete}
+            onProductContextCreated={handleAnalysisComplete}
           />
         ) : (
           <>
