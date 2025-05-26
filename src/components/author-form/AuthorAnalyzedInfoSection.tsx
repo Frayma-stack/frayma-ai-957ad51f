@@ -7,11 +7,13 @@ import { Author } from '@/types/storytelling';
 interface AuthorAnalyzedInfoSectionProps {
   author: Author;
   onInputChange: (field: keyof Omit<Author, 'id' | 'experiences' | 'tones' | 'beliefs' | 'socialLinks'>, value: string) => void;
+  showSection?: boolean; // Add prop to control visibility
 }
 
 const AuthorAnalyzedInfoSection: FC<AuthorAnalyzedInfoSectionProps> = ({ 
   author, 
-  onInputChange
+  onInputChange,
+  showSection = false
 }) => {
   const hasAnalyzedInfo = author.role || author.organization || author.backstory;
   
@@ -19,10 +21,12 @@ const AuthorAnalyzedInfoSection: FC<AuthorAnalyzedInfoSectionProps> = ({
     role: author.role,
     organization: author.organization,
     backstory: author.backstory,
-    hasAnalyzedInfo
+    hasAnalyzedInfo,
+    showSection
   });
   
-  if (!hasAnalyzedInfo) {
+  // Show section if explicitly told to show it OR if there's analyzed info
+  if (!showSection && !hasAnalyzedInfo) {
     return null;
   }
 

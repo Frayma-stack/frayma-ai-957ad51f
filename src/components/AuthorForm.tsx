@@ -23,6 +23,7 @@ interface AuthorFormProps {
 
 const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) => {
   const [activeTab, setActiveTab] = useState('experiences');
+  const [showAnalyzedSection, setShowAnalyzedSection] = useState(false);
   
   const {
     author,
@@ -50,14 +51,30 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
     }
   };
 
-  const handleAnalyzeProfile = () => {
-    // This function is handled within AuthorSocialLinksSection
+  const handleAnalysisComplete = (results: {
+    currentRole?: string;
+    organization?: string;
+    backstory?: string;
+    experiences?: any[];
+    tones?: any[];
+    beliefs?: any[];
+  }) => {
+    // Show the analyzed section when analysis completes
+    setShowAnalyzedSection(true);
+    // Handle the analysis results
+    handleAuthorAnalysisResult(results);
   };
 
   const hasAnalyzedContent = author.role || author.organization || author.backstory || 
     author.experiences.some(exp => exp.title || exp.description) ||
     author.tones.some(tone => tone.tone) ||
     author.beliefs.some(belief => belief.belief);
+
+  console.log('AuthorForm state:', {
+    authorName: author.name,
+    showAnalyzedSection,
+    hasAnalyzedContent
+  });
 
   return (
     <Card className="bg-white shadow-md">
@@ -81,13 +98,14 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
           onSocialLinkChange={handleSocialLinkChange}
           onAddSocialLink={addSocialLink}
           onRemoveSocialLink={removeSocialLink}
-          onAnalyzeProfile={handleAnalyzeProfile}
-          onAnalysisComplete={handleAuthorAnalysisResult}
+          onAnalyzeProfile={() => {}} // This is handled within the component
+          onAnalysisComplete={handleAnalysisComplete}
         />
 
         <AuthorAnalyzedInfoSection
           author={author}
           onInputChange={handleInputChange}
+          showSection={showAnalyzedSection}
         />
 
         {hasAnalyzedContent && (
