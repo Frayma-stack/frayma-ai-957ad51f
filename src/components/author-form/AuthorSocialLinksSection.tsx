@@ -2,11 +2,9 @@
 import { FC, useState } from 'react';
 import { Author, AuthorSocialLink } from '@/types/storytelling';
 import { useProfileAnalysis } from '@/hooks/useProfileAnalysis';
-import { useSocialLinksState } from './social-links/useSocialLinksState';
-import StepOneLinkedInSection from './social-links/StepOneLinkedInSection';
-import StepTwoContentSection from './social-links/StepTwoContentSection';
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { UserPlus, Sparkles } from 'lucide-react';
+import { Plus, Trash, Sparkles, Loader2, UserPlus } from 'lucide-react';
 
 interface AuthorSocialLinksSectionProps {
   author: Author;
@@ -34,47 +32,20 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
 }) => {
   const { isAnalyzing, analyzeProfile } = useProfileAnalysis();
   const [manualMode, setManualMode] = useState(false);
-  const { 
-    stepOneCompleted, 
-    setStepOneCompleted, 
-    hasLinkedInUrl, 
-    hasStepOneResults, 
-    linkedInLink 
-  } = useSocialLinksState(author);
+  
+  const hasAnyUrls = (author.socialLinks || []).some(link => link.url.trim() !== '');
   
   console.log('AuthorSocialLinksSection state:', {
     authorName: author.name,
-    hasLinkedInUrl,
-    stepOneCompleted,
-    hasStepOneResults,
+    hasAnyUrls,
     manualMode
   });
 
-  const handleStepOneAnalysis = () => {
-    if (!author.name.trim() || !hasLinkedInUrl) {
+  const handleAnalysis = () => {
+    if (!author.name.trim() || !hasAnyUrls) {
       return;
     }
     
-    // Only pass LinkedIn URL for step 1
-    const linkedInUrls = linkedInLink ? [linkedInLink] : [];
-    
-    analyzeProfile(
-      linkedInUrls, 
-      '', 
-      author.name,
-      (results) => {
-        setStepOneCompleted(true);
-        onAnalysisComplete(results);
-      }
-    );
-  };
-
-  const handleStepTwoAnalysis = () => {
-    if (!author.name.trim()) {
-      return;
-    }
-    
-    // Pass all URLs for step 2 (including LinkedIn for content analysis)
     analyzeProfile(
       author.socialLinks || [], 
       '', 
@@ -89,67 +60,115 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
     onAnalysisComplete({});
   };
 
-  // If manual mode is selected, show expanded form immediately
+  // If manual mode is selected, show message and continue to expanded form
   if (manualMode) {
     return (
-      <StepTwoContentSection
-        author={author}
-        onSocialLinkChange={onSocialLinkChange}
-        onAddSocialLink={onAddSocialLink}
-        onRemoveSocialLink={onRemoveSocialLink}
-        onAnalyze={handleStepTwoAnalysis}
-        isAnalyzing={isAnalyzing}
-        stepOneCompleted={true}
-        hasStepOneResults={true}
-      />
-    );
-  }
-
-  // Show step 1: LinkedIn URL only
-  if (!stepOneCompleted && !hasStepOneResults) {
-    return (
       <div className="space-y-4">
-        <StepOneLinkedInSection
-          author={author}
-          onSocialLinkChange={onSocialLinkChange}
-          onAnalyze={handleStepOneAnalysis}
-          isAnalyzing={isAnalyzing}
-        />
-        
-        <div className="flex items-center justify-center">
-          <div className="flex items-center space-x-4">
-            <div className="h-px bg-gray-300 flex-1"></div>
-            <span className="text-sm text-gray-500 px-3">OR</span>
-            <div className="h-px bg-gray-300 flex-1"></div>
-          </div>
-        </div>
-        
-        <div className="flex justify-center">
-          <Button 
-            variant="outline"
-            onClick={handleManualMode}
-            className="border-story-blue text-story-blue hover:bg-story-blue hover:text-white"
-          >
-            <UserPlus className="h-4 w-4 mr-2" />
-            Add Author Manually
-          </Button>
+        <div className="bg-blue-50 border border-blue-200 p-3 rounded-md">
+          <p className="text-sm text-blue-700 font-medium">
+            Manual author mode enabled. You can now fill in all author details manually in the sections below.
+          </p>
         </div>
       </div>
     );
   }
 
-  // Show step 2: Add other links for content analysis
   return (
-    <StepTwoContentSection
-      author={author}
-      onSocialLinkChange={onSocialLinkChange}
-      onAddSocialLink={onAddSocialLink}
-      onRemoveSocialLink={onRemoveSocialLink}
-      onAnalyze={handleStepTwoAnalysis}
-      isAnalyzing={isAnalyzing}
-      stepOneCompleted={stepOneCompleted}
-      hasStepOneResults={hasStepOneResults}
-    />
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="font-medium text-story-blue">Social Links & Profile Analysis</h3>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={onAddSocialLink}
+        >
+          <Plus className="h-4 w-4 mr-1" /> Add Link
+        </Button>
+      </div>
+
+      <p className="text-sm text-gray-600">
+        Add your LinkedIn profile, X (Twitter), blog, or website URLs to auto-fill author information, or add author details manually.
+      </p>
+
+      <div className="space-y-4">
+        {(author.socialLinks || []).map((link) => (
+          <div key={link.id} className="flex items-center gap-3">
+            <select 
+              className="border border-input bg-background px-3 py-2 rounded-md text-sm h-10 min-w-[120px]"
+              value={link.type}
+              onChange={(e) => onSocialLinkChange(link.id, 'type', e.target.value as 'linkedin' | 'x' | 'blog' | 'website' | 'other')}
+            >
+              <option value="linkedin">LinkedIn</option>
+              <option value="x">X (Twitter)</option>
+              <option value="blog">Blog</option>
+              <option value="website">Website</option>
+              <option value="other">Other</option>
+            </select>
+            <Input 
+              placeholder="Enter profile or content URL"
+              value={link.url}
+              onChange={(e) => onSocialLinkChange(link.id, 'url', e.target.value)}
+              className="flex-1"
+            />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => onRemoveSocialLink(link.id)}
+              disabled={(author.socialLinks || []).length <= 1}
+            >
+              <Trash className="h-4 w-4" />
+            </Button>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex items-center justify-center space-x-4">
+        <Button 
+          onClick={handleAnalysis}
+          disabled={isAnalyzing || !author.name.trim() || !hasAnyUrls}
+          className="bg-story-blue hover:bg-story-light-blue"
+        >
+          {isAnalyzing ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" /> 
+              Analyzing profile...
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4 mr-2" /> 
+              Analyze & Auto-fill
+            </>
+          )}
+        </Button>
+        
+        <div className="flex items-center space-x-4">
+          <div className="h-px bg-gray-300 w-8"></div>
+          <span className="text-sm text-gray-500">OR</span>
+          <div className="h-px bg-gray-300 w-8"></div>
+        </div>
+        
+        <Button 
+          variant="outline"
+          onClick={handleManualMode}
+          className="border-story-blue text-story-blue hover:bg-story-blue hover:text-white"
+        >
+          <UserPlus className="h-4 w-4 mr-2" />
+          Add Manually
+        </Button>
+      </div>
+
+      {!author.name.trim() && (
+        <p className="text-sm text-amber-600 text-center">
+          Please enter the author's name first before analyzing their profile.
+        </p>
+      )}
+
+      {author.name.trim() && !hasAnyUrls && (
+        <p className="text-sm text-amber-600 text-center">
+          Please add at least one social link or URL to analyze the profile.
+        </p>
+      )}
+    </div>
   );
 };
 

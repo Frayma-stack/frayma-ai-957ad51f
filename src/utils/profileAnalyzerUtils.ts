@@ -1,192 +1,48 @@
+
 import { AuthorSocialLink, AuthorExperience, AuthorToneItem, AuthorBelief } from '@/types/storytelling';
 import { ParsedAnalysisData } from '@/types/profileAnalyzer';
 
 export const collectUrls = (socialLinks: AuthorSocialLink[], additionalUrls: string) => {
-  const linkedinUrls = socialLinks
-    .filter(link => link.type === 'linkedin' && link.url.trim() !== '')
+  const allUrls = socialLinks
+    .filter(link => link.url.trim() !== '')
     .map(link => link.url);
-  
-  const xUrls = socialLinks
-    .filter(link => link.type === 'x' && link.url.trim() !== '')
-    .map(link => link.url);
-  
-  const otherUrls = [...socialLinks
-    .filter(link => !['linkedin', 'x'].includes(link.type) && link.url.trim() !== '')
-    .map(link => link.url)];
   
   // Add any manually entered URLs
   if (additionalUrls.trim()) {
     additionalUrls.split('\n')
       .map(url => url.trim())
       .filter(url => url !== '')
-      .forEach(url => otherUrls.push(url));
+      .forEach(url => allUrls.push(url));
   }
   
-  return { linkedinUrls, xUrls, otherUrls };
+  return allUrls;
 };
 
-export const buildLinkedInExperiencesPrompt = (linkedinUrls: string[], authorName?: string) => {
-  const authorNameText = authorName || 'the profile owner';
+export const buildAnalysisPrompt = (urls: string[]) => {
+  const urlsString = urls.join('\n');
   
-  return `Visit the LinkedIn profile URL: ${linkedinUrls.join(', ')} of ${authorNameText}, extract their current role/title and organization, and prefill extracted into the first field below. Also, extract ALL professional experiences from ${linkedinUrls.join(', ')} and return each experience in the format: Title/Role @Company Name | Start Date – End Date or Present. Under each professional experience extracted from ${linkedinUrls.join(', ')}, create a summary of each experience in five sentences, using first-person language like ${authorNameText} was talking to someone one-on-one (e.g. use "I" like the person whose profile is being analyzed is telling someone about themself). From ALL listed professional experiences, awards, professional education, and recognition on ${linkedinUrls.join(', ')}, create a summarized backstory of their career trajectory to date in seven sentences. Auto-fill this in the field below.
-
-Return ONLY a JSON object with this exact structure:
-
-{
-  "currentRole": "current job title only",
-  "organization": "current company name only", 
-  "backstory": "exactly 7 sentences summarizing the complete career journey from earliest to current role in first-person",
-  "experiences": [
-    {
-      "title": "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]",
-      "description": "exactly 5 sentences describing responsibilities and achievements in first-person ('I' statements)"
-    }
-  ]
-}
-
-**REQUIREMENTS:**
-- Extract the MOST RECENT role for currentRole and organization
-- Include ALL experiences listed on the profile, starting with the most recent
-- Each experience description must be EXACTLY 5 sentences in first-person
-- The backstory must be EXACTLY 7 sentences covering the entire career progression in first-person
-- Use actual information from the LinkedIn profile
-- Return ONLY valid JSON, no additional text or explanations`;
-};
-
-export const buildSocialContentAnalysisPrompt = (linkedinUrls: string[], xUrls: string[], otherUrls: string[], authorName?: string) => {
-  const authorNameText = authorName || 'the profile owner';
-  
-  let prompt = `Revisit the personal LinkedIn profile URL ${linkedinUrls.join(', ')}`;
-  
-  if (xUrls.length > 0) {
-    prompt += ` and ${xUrls.join(', ')}`;
-  }
-  
-  prompt += ` and analyze their last 30 social posts.`;
-
-  if (otherUrls.length > 0) {
-    prompt += ` Also analyze the content by ${authorNameText} on these URLs: ${otherUrls.join(', ')}`;
-  }
-
-  prompt += ` to extract FOUR writing tones and FOUR product beliefs of ${authorNameText} from their LinkedIn`;
-  
-  if (xUrls.length > 0) {
-    prompt += ` and X posts`;
-  }
-  
-  if (otherUrls.length > 0) {
-    prompt += `, as well as from these other URLs: ${otherUrls.join(', ')}`;
-  }
-
-  prompt += `. For each of the writing tones and product beliefs analyzed, give it a succinct title in four words or less, followed by a summary of each writing tone and product belief in five sentences. Write all summaries in first-person language (e.g. use "I" like ${authorNameText} is telling someone about themself).
-
-Return ONLY a JSON object with this exact structure:
-
-{
-  "tones": [
-    {
-      "tone": "succinct tone name (4 words or less)",
-      "description": "exactly 5 sentences in first-person describing when and how I use this tone"
-    }
-  ],
-  "beliefs": [
-    {
-      "belief": "succinct belief title (4 words or less)", 
-      "description": "exactly 5 sentences in first-person explaining this belief with examples"
-    }
-  ]
-}
-
-**REQUIREMENTS:**
-- Generate exactly 4 writing tones based on actual content patterns
-- Generate exactly 4 product beliefs based on expressed opinions and viewpoints
-- Each description must be EXACTLY 5 sentences in first-person ("I...")
-- Tone and belief titles must be 4 words or less
-- Base analysis on actual social media posts and content
-- Return ONLY valid JSON, no additional text or explanations`;
-  
-  return prompt;
-};
-
-export const buildPrompt = (linkedinUrls: string[], xUrls: string[], otherUrls: string[], authorName?: string) => {
-  const authorNameText = authorName ? ` for ${authorName}` : '';
-  
-  let prompt = `**IMPORTANT NOTE: I understand you cannot access external websites or URLs. Instead, please generate realistic professional profile information based on the provided URLs and author name.**
-
-Based on the following profile information${authorNameText}:
-
-LinkedIn Profile(s): ${linkedinUrls.join(', ')}`;
-
-  if (xUrls.length > 0) {
-    prompt += `
-X Profile(s): ${xUrls.join(', ')}`;
-  }
-
-  if (otherUrls.length > 0) {
-    prompt += `
-Other URLs: ${otherUrls.join(', ')}`;
-  }
-
-  prompt += `
-
-Please generate realistic professional profile information in the following format:
-
-**STEP 1: Generate Current Role & Organization**
-Create a realistic job title and company name based on the profile URLs provided.
-
-**STEP 2: Generate Professional Experiences**
-Create 4-6 realistic professional experiences that would be typical for someone with the provided profile URLs. Each should include:
-- Title format: "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]"
-- Description: A realistic 2-3 sentence description of responsibilities and achievements
-
-**STEP 3: Generate Career Backstory**
-Write a realistic 5-sentence summary of a career trajectory that matches the generated experiences.
-
-**STEP 4: Generate Writing Tones and Product Beliefs**
-Create realistic content based on typical professional communication:
-
-**4 Writing Tones:**
-- Each tone should have a succinct title
-- Each description should be EXACTLY 5 sentences, written in first-person ("I...")
-
-**4 Product Beliefs:**
-- Each belief should have a succinct title  
-- Each description should be EXACTLY 5 sentences, written in first-person ("I...")
-
-**OUTPUT FORMAT:**
-Return ONLY a JSON object with this exact structure:
-{
-  "currentRole": "job title only",
-  "organization": "company name only", 
-  "backstory": "exactly 5 sentences about career trajectory",
-  "experiences": [
-    {
-      "title": "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]",
-      "description": "realistic job description"
-    }
-  ],
-  "tones": [
-    {
-      "tone": "tone title",
-      "description": "exactly 5 sentences in first-person"
-    }
-  ],
-  "beliefs": [
-    {
-      "belief": "belief title", 
-      "description": "exactly 5 sentences in first-person"
-    }
-  ]
-}
-
-**REQUIREMENTS:**
-- Generate realistic, professional content
-- Ensure all descriptions are exactly 5 sentences
-- Use first-person perspective for tones and beliefs
-- Make the content consistent with the provided profile URLs
-- Return ONLY valid JSON, no additional text`;
-  
-  return prompt;
+  return {
+    role: "system",
+    content: 
+    "You are an expert data extraction agent specialized in analyzing social profiles and related web content. Your task is to visit the provided URLs—including LinkedIn, X (Twitter), and specified blog posts—and extract detailed, structured information about the person's current title/role, career backstory, experiences, writing tones, and product beliefs. Return ONLY a JSON string with the following fields and structure, without any additional commentary or explanation:\n\n" +
+    "- currentTitle: string (current job title/role)\n" +
+    "- careerBackstory: string (summary in seven sentences or less, first-person)\n" +
+    "- experiences: array of objects, each with:\n" +
+    "    - title: string (job title/role)\n" +
+    "    - company: string\n" +
+    "    - duration: string (time spent at company)\n" +
+    "    - summary: string (what was done in the role, five sentences or less, first-person)\n" +
+    "- writingTones: array of objects, each with:\n" +
+    "    - toneTitle: string (succinct title of the writing tone)\n" +
+    "    - toneSummary: string (summary of writing tone, four sentences or less, first-person)\n" +
+    "- productBeliefs: array of objects, each with:\n" +
+    "    - beliefTitle: string (succinct title of the product belief)\n" +
+    "    - beliefSummary: string (summary of product belief, five sentences or less, first-person)\n\n" +
+    "Use first-person language as if the person is telling someone about themselves. Do NOT include any text outside the JSON string. Do NOT explain your process.\n\n" +
+    "CONTENT URLs:\n" +
+    urlsString + "\n\n" +
+    "Extract data only from these URLs."
+  };
 };
 
 export const parseAnalysisContent = (content: string): ParsedAnalysisData => {
@@ -224,29 +80,32 @@ export const parseAnalysisContent = (content: string): ParsedAnalysisData => {
   }
 };
 
-export const transformAnalysisResults = (parsedData: ParsedAnalysisData) => {
+export const transformAnalysisResults = (parsedData: any) => {
+  // Map experiences from new format
   const experiences: AuthorExperience[] = (parsedData.experiences || []).map((exp: any) => ({
     id: crypto.randomUUID(),
-    title: exp.title || '',
-    description: exp.description || ''
+    title: `${exp.title} @ ${exp.company} | ${exp.duration}`,
+    description: exp.summary || ''
   }));
   
-  const tones: AuthorToneItem[] = (parsedData.tones || []).map((tone: any) => ({
+  // Map writing tones from new format
+  const tones: AuthorToneItem[] = (parsedData.writingTones || []).map((tone: any) => ({
     id: crypto.randomUUID(),
-    tone: tone.tone || '',
-    description: tone.description || ''
+    tone: tone.toneTitle || '',
+    description: tone.toneSummary || ''
   }));
 
-  const beliefs: AuthorBelief[] = (parsedData.beliefs || []).map((belief: any) => ({
+  // Map product beliefs from new format
+  const beliefs: AuthorBelief[] = (parsedData.productBeliefs || []).map((belief: any) => ({
     id: crypto.randomUUID(),
-    belief: belief.belief || '',
-    description: belief.description || ''
+    belief: belief.beliefTitle || '',
+    description: belief.beliefSummary || ''
   }));
   
   return { 
-    currentRole: parsedData.currentRole || '',
-    organization: parsedData.organization || '',
-    backstory: parsedData.backstory || '',
+    currentRole: parsedData.currentTitle || '',
+    organization: '', // Not in new format, will be extracted from title if needed
+    backstory: parsedData.careerBackstory || '',
     experiences, 
     tones,
     beliefs

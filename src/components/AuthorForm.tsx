@@ -23,7 +23,7 @@ interface AuthorFormProps {
 
 const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) => {
   const [activeTab, setActiveTab] = useState('experiences');
-  const [showAnalyzedSection, setShowAnalyzedSection] = useState(false);
+  const [showExpandedForm, setShowExpandedForm] = useState(false);
   const [isManualMode, setIsManualMode] = useState(false);
   
   const {
@@ -60,8 +60,8 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
     tones?: any[];
     beliefs?: any[];
   }) => {
-    // Show the analyzed section when analysis completes or manual mode is triggered
-    setShowAnalyzedSection(true);
+    // Show the expanded form when analysis completes or manual mode is triggered
+    setShowExpandedForm(true);
     
     // Check if this is manual mode (empty results object)
     const isManual = Object.keys(results).length === 0;
@@ -80,7 +80,7 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
 
   console.log('AuthorForm state:', {
     authorName: author.name,
-    showAnalyzedSection,
+    showExpandedForm,
     hasAnalyzedContent,
     isManualMode
   });
@@ -111,7 +111,7 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
           onAnalysisComplete={handleAnalysisComplete}
         />
 
-        {(showAnalyzedSection || isManualMode) && (
+        {(showExpandedForm || hasAnalyzedContent) && (
           <AuthorAnalyzedInfoSection
             author={author}
             onInputChange={handleInputChange}
@@ -119,7 +119,7 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
           />
         )}
 
-        {(hasAnalyzedContent || isManualMode) && (
+        {(showExpandedForm || hasAnalyzedContent) && (
           <AuthorFormTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
