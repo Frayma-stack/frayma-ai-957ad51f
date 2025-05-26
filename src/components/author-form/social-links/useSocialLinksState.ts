@@ -14,7 +14,12 @@ export const useSocialLinksState = (author: Author) => {
   const hasOtherUrls = otherLinks.length > 0;
   
   // Check if step 1 analysis has been completed (has basic info from LinkedIn)
-  const hasStepOneResults = author.role || author.organization || author.experiences.some(exp => exp.title || exp.description);
+  // Convert to boolean explicitly to avoid string | boolean type
+  const hasStepOneResults = Boolean(
+    author.role || 
+    author.organization || 
+    author.experiences.some(exp => exp.title || exp.description)
+  );
 
   return {
     stepOneCompleted,
