@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Author, AuthorSocialLink } from '@/types/storytelling';
-import { Plus, Trash, Link as LinkIcon } from 'lucide-react';
+import { Plus, Trash } from 'lucide-react';
 
 interface AuthorSocialLinksSectionProps {
   author: Author;
@@ -64,15 +64,6 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
           </div>
         ))}
       </div>
-
-      <Button 
-        className="w-full mt-2"
-        variant="secondary"
-        onClick={onAnalyzeProfile}
-        disabled={(author.socialLinks || []).every(link => !link.url.trim())}
-      >
-        <LinkIcon className="h-4 w-4 mr-2" /> Analyze Profile & Auto-Fill
-      </Button>
     </div>
   );
 };

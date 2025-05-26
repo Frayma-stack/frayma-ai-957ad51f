@@ -19,6 +19,7 @@ export const useProfileAnalysis = () => {
   const analyzeProfile = async (
     socialLinks: AuthorSocialLink[], 
     additionalUrls: string,
+    authorName: string,
     onAnalysisComplete: (results: { 
       currentRole?: string;
       organization?: string;
@@ -28,7 +29,7 @@ export const useProfileAnalysis = () => {
       beliefs?: AuthorBelief[];
     }) => void
   ) => {
-    console.log('Starting analysis...');
+    console.log('Starting analysis for author:', authorName);
     
     setIsAnalyzing(true);
     
@@ -49,7 +50,7 @@ export const useProfileAnalysis = () => {
         return;
       }
       
-      const prompt = buildPrompt(linkedinUrls, xUrls, otherUrls);
+      const prompt = buildPrompt(linkedinUrls, xUrls, otherUrls, authorName);
       console.log('Sending prompt to analysis service:', prompt);
       
       console.log('Making request to Supabase Edge Function...');

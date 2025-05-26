@@ -17,7 +17,6 @@ import {
   AuthorBelief,
   AuthorSocialLink
 } from '@/types/storytelling';
-import ProfileAnalyzer from './ProfileAnalyzer';
 import AuthorBasicInfoSection from './author-form/AuthorBasicInfoSection';
 import AuthorSocialLinksSection from './author-form/AuthorSocialLinksSection';
 import AuthorFormTabs from './author-form/AuthorFormTabs';
@@ -68,7 +67,6 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
       socialLinks: [createEmptySocialLink()]
     }
   );
-  const [showProfileAnalyzer, setShowProfileAnalyzer] = useState(false);
   
   const handleInputChange = (
     field: keyof Omit<Author, 'id' | 'experiences' | 'tones' | 'beliefs' | 'socialLinks'>, 
@@ -193,11 +191,6 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
       tones: results.tones || prev.tones,
       beliefs: results.beliefs || prev.beliefs
     }));
-    toast({
-      title: "Analysis complete",
-      description: "Author's profile has been analyzed and information has been auto-filled in the form.",
-    });
-    setShowProfileAnalyzer(false);
   };
   
   const handleSubmit = () => {
@@ -233,64 +226,55 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
   };
   
   return (
-    <>
-      {showProfileAnalyzer ? (
-        <ProfileAnalyzer 
-          socialLinks={author.socialLinks || []} 
-          onClose={() => setShowProfileAnalyzer(false)}
+    <Card className="bg-white shadow-md">
+      <CardHeader>
+        <CardTitle className="text-story-blue">
+          {initialAuthor ? 'Edit Author' : 'Add New Author'}
+        </CardTitle>
+        <CardDescription>
+          Define author voice and perspective for generating authentic content
+        </CardDescription>
+      </CardHeader>
+      
+      <CardContent className="space-y-8">
+        <AuthorBasicInfoSection
+          author={author}
+          onInputChange={handleInputChange}
           onAnalysisComplete={handleAuthorAnalysisResult}
         />
-      ) : (
-        <Card className="bg-white shadow-md">
-          <CardHeader>
-            <CardTitle className="text-story-blue">
-              {initialAuthor ? 'Edit Author' : 'Add New Author'}
-            </CardTitle>
-            <CardDescription>
-              Define author voice and perspective for generating authentic content
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent className="space-y-8">
-            <AuthorBasicInfoSection
-              author={author}
-              onInputChange={handleInputChange}
-            />
-            
-            <AuthorSocialLinksSection
-              author={author}
-              onSocialLinkChange={handleSocialLinkChange}
-              onAddSocialLink={addSocialLink}
-              onRemoveSocialLink={removeSocialLink}
-              onAnalyzeProfile={() => setShowProfileAnalyzer(true)}
-            />
-            
-            <AuthorFormTabs
-              author={author}
-              onExperienceChange={handleExperienceChange}
-              onAddExperience={addExperience}
-              onRemoveExperience={removeExperience}
-              onToneChange={handleToneChange}
-              onAddTone={addTone}
-              onRemoveTone={removeTone}
-              onBeliefChange={handleBeliefChange}
-              onAddBelief={addBelief}
-              onRemoveBelief={removeBelief}
-            />
-          </CardContent>
-          
-          <CardFooter className="flex justify-end space-x-2 border-t pt-4">
-            <Button variant="outline" onClick={onCancel}>Cancel</Button>
-            <Button 
-              className="bg-story-blue hover:bg-story-light-blue"
-              onClick={handleSubmit}
-            >
-              Save Author
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
-    </>
+        
+        <AuthorSocialLinksSection
+          author={author}
+          onSocialLinkChange={handleSocialLinkChange}
+          onAddSocialLink={addSocialLink}
+          onRemoveSocialLink={removeSocialLink}
+          onAnalyzeProfile={() => {}} // Empty function since analysis is now handled in BasicInfoSection
+        />
+        
+        <AuthorFormTabs
+          author={author}
+          onExperienceChange={handleExperienceChange}
+          onAddExperience={addExperience}
+          onRemoveExperience={removeExperience}
+          onToneChange={handleToneChange}
+          onAddTone={addTone}
+          onRemoveTone={removeTone}
+          onBeliefChange={handleBeliefChange}
+          onAddBelief={addBelief}
+          onRemoveBelief={removeBelief}
+        />
+      </CardContent>
+      
+      <CardFooter className="flex justify-end space-x-2 border-t pt-4">
+        <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button 
+          className="bg-story-blue hover:bg-story-light-blue"
+          onClick={handleSubmit}
+        >
+          Save Author
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 

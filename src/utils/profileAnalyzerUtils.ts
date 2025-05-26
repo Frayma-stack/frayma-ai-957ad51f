@@ -1,4 +1,3 @@
-
 import { AuthorSocialLink, AuthorExperience, AuthorToneItem, AuthorBelief } from '@/types/storytelling';
 import { ParsedAnalysisData } from '@/types/profileAnalyzer';
 
@@ -26,44 +25,30 @@ export const collectUrls = (socialLinks: AuthorSocialLink[], additionalUrls: str
   return { linkedinUrls, xUrls, otherUrls };
 };
 
-export const buildPrompt = (linkedinUrls: string[], xUrls: string[], otherUrls: string[]) => {
-  let prompt = "Visit the ";
+export const buildPrompt = (linkedinUrls: string[], xUrls: string[], otherUrls: string[], authorName?: string) => {
+  const authorNameText = authorName ? ` of ${authorName}` : '';
   
-  const urlParts = [];
-  
-  if (linkedinUrls.length > 0) {
-    urlParts.push(`LinkedIn profile url${linkedinUrls.length > 1 ? 's' : ''} (${linkedinUrls.join(', ')})`);
-  }
-  
+  let prompt = `Visit the LinkedIn profile url${linkedinUrls.length > 1 ? 's' : ''} (${linkedinUrls.join(', ')})${authorNameText}, extract their most recent role/title and their current organization and prefill into the respective fields above.
+
+Then, revisit their LinkedIn profile url${linkedinUrls.length > 1 ? 's' : ''} (${linkedinUrls.join(', ')})`;
+
   if (xUrls.length > 0) {
-    urlParts.push(`X profile url${xUrls.length > 1 ? 's' : ''} (${xUrls.join(', ')})`);
+    prompt += ` and X profile${xUrls.length > 1 ? 's' : ''} (${xUrls.join(', ')})`;
   }
-  
+
+  prompt += ` and analyze their last 30 social posts.`;
+
   if (otherUrls.length > 0) {
-    urlParts.push(`other url${otherUrls.length > 1 ? 's' : ''} (${otherUrls.join(', ')})`);
+    prompt += ` Also analyze these other urls (${otherUrls.join(', ')}).`;
   }
-  
-  prompt += urlParts.join(', and ');
-  
-  prompt += `, analyze their last 30 social posts, and extract the following information:
 
-1. CURRENT ROLE & ORGANIZATION: Extract the person's most recent/current job title and company name from their LinkedIn profile. This should be their latest position.
+  prompt += ` After analyzing, provide a summary of profile's career backstory (in five sentences or less), covering their career trajectory up to date. Also analyze and extract all experiences from their LinkedIn profile, FOUR writing tones, and FOUR product beliefs from their LinkedIn and X posts`;
 
-2. CAREER BACKSTORY: Provide a summary of their career journey in four sentences or less, written in first-person language (using 'I').
+  if (otherUrls.length > 0) {
+    prompt += `, as well as from these other urls (${otherUrls.join(', ')})`;
+  }
 
-3. ALL PROFESSIONAL EXPERIENCES: Extract ALL professional experiences from their LinkedIn profile. For each experience, format as follows:
-   - Title: '[Job Title] at [Company Name] ([Duration/Years])'
-   - Description: Summary of what they did in that role (4 sentences or less, written in first-person using 'I')
-   
-   Include experiences in chronological order from most recent to oldest. Capture the exact job titles, company names, and duration as shown on LinkedIn.
-
-4. WRITING TONES: Analyze their social posts and identify 3 distinct writing tones with:
-   - Tone: A succinct title for the tone
-   - Description: Summary of this writing style (4 sentences or less, first-person)
-
-5. PRODUCT BELIEFS: Extract 4 product/business beliefs from their content with:
-   - Belief: A succinct title for the belief
-   - Description: Summary of this belief (4 sentences or less, first-person)
+  prompt += `. For each experience, extract their title/job role, company, and duration they spent or have spent at the company as the experience title; then, provide a summary of what they did in that role in five sentences. For each of the writing tones and product beliefs analyzed, give it a succinct title followed by a summary of each writing tone and product belief in five sentences. Write all summaries in first-person language (e.g. use "I" like the person whose profile is being analyzed is telling someone about themself).
 
 Format the output as a JSON object with fields: 'currentRole', 'organization', 'backstory', 'experiences' (array with fields 'title' and 'description'), 'tones' (array with fields 'tone' and 'description'), and 'beliefs' (array with fields 'belief' and 'description').
 
