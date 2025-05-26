@@ -1,3 +1,4 @@
+
 import { FC, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -219,7 +220,7 @@ Avoid fluff. Think like a narrative strategist guiding a category-defining found
         type: 'manual',
         content: ideaText,
       },
-      icpId: selectedICP || '',
+      icpId: selectedICP?.id || '',
       narrativeAnchor: 'belief',
       narrativeItemId: '',
       productFeatures: [],

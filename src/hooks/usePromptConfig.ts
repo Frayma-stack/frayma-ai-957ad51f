@@ -12,7 +12,7 @@ import {
   interpolateTemplate as interpolateTemplateUtil 
 } from './prompts/templateUtils';
 
-export { PromptCategory, PromptTemplate } from './prompts/types';
+export type { PromptCategory, PromptTemplate } from './prompts/types';
 
 export const usePromptConfig = () => {
   const [prompts, setPrompts] = useState<Record<PromptCategory, PromptTemplate>>(DEFAULT_PROMPTS);
