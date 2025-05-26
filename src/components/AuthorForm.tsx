@@ -1,18 +1,11 @@
 
-import { FC } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle
-} from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { FC, useState } from 'react';
+import { Button } from "@/components/ui/button";
 import { Author } from '@/types/storytelling';
 import { useAuthorForm } from '@/hooks/useAuthorForm';
+import AuthorFormTabs from './author-form/AuthorFormTabs';
 import AuthorBasicInfoSection from './author-form/AuthorBasicInfoSection';
 import AuthorSocialLinksSection from './author-form/AuthorSocialLinksSection';
-import AuthorFormTabs from './author-form/AuthorFormTabs';
 import AuthorFormActions from './author-form/AuthorFormActions';
 
 interface AuthorFormProps {
@@ -22,7 +15,8 @@ interface AuthorFormProps {
 }
 
 const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) => {
-  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('basic-info');
+  
   const {
     author,
     handleInputChange,
@@ -41,56 +35,54 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
     handleAuthorAnalysisResult,
     validateAndCleanAuthor
   } = useAuthorForm(initialAuthor);
-  
-  const handleSubmit = () => {
+
+  const handleSave = () => {
     const cleanedAuthor = validateAndCleanAuthor();
     if (cleanedAuthor) {
       onSave(cleanedAuthor);
     }
   };
-  
-  return (
-    <Card className="bg-white shadow-md">
-      <CardHeader>
-        <CardTitle className="text-story-blue">
-          {initialAuthor ? 'Edit Author' : 'Add New Author'}
-        </CardTitle>
-        <CardDescription>
-          Define author voice and perspective for generating authentic content. Add social links and use profile analysis to auto-fill information.
-        </CardDescription>
-      </CardHeader>
-      
-      <CardContent className="space-y-8">
-        <AuthorSocialLinksSection
-          author={author}
-          onSocialLinkChange={handleSocialLinkChange}
-          onAddSocialLink={addSocialLink}
-          onRemoveSocialLink={removeSocialLink}
-          onAnalyzeProfile={() => {}} // Empty function since analysis is now handled in the section itself
-          onAnalysisComplete={handleAuthorAnalysisResult}
-        />
 
-        <AuthorBasicInfoSection
-          author={author}
-          onInputChange={handleInputChange}
-        />
-        
-        <AuthorFormTabs
-          author={author}
-          onExperienceChange={handleExperienceChange}
-          onAddExperience={addExperience}
-          onRemoveExperience={removeExperience}
-          onToneChange={handleToneChange}
-          onAddTone={addTone}
-          onRemoveTone={removeTone}
-          onBeliefChange={handleBeliefChange}
-          onAddBelief={addBelief}
-          onRemoveBelief={removeBelief}
-        />
-      </CardContent>
-      
-      <AuthorFormActions onCancel={onCancel} onSave={handleSubmit} />
-    </Card>
+  const handleAnalyzeProfile = () => {
+    // This function is handled within AuthorSocialLinksSection
+  };
+
+  return (
+    <div className="space-y-6">
+      <AuthorBasicInfoSection 
+        author={author}
+        onInputChange={handleInputChange}
+      />
+
+      <AuthorSocialLinksSection
+        author={author}
+        onSocialLinkChange={handleSocialLinkChange}
+        onAddSocialLink={addSocialLink}
+        onRemoveSocialLink={removeSocialLink}
+        onAnalyzeProfile={handleAnalyzeProfile}
+        onAnalysisComplete={handleAuthorAnalysisResult}
+      />
+
+      <AuthorFormTabs
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        author={author}
+        onExperienceChange={handleExperienceChange}
+        onAddExperience={addExperience}
+        onRemoveExperience={removeExperience}
+        onToneChange={handleToneChange}
+        onAddTone={addTone}
+        onRemoveTone={removeTone}
+        onBeliefChange={handleBeliefChange}
+        onAddBelief={addBelief}
+        onRemoveBelief={removeBelief}
+      />
+
+      <AuthorFormActions 
+        onSave={handleSave}
+        onCancel={onCancel}
+      />
+    </div>
   );
 };
 
