@@ -1,7 +1,8 @@
+
 import { CompanyLink } from '@/types/storytelling';
 
 export const buildClientAnalysisPrompt = (companyLinks: CompanyLink[], companyName: string) => {
-  let userPrompt = `I need you to VISIT AND ANALYZE the following specific URLs for ${companyName} and extract REAL, FACTUAL information:
+  let userPrompt = `CRITICAL WEB ANALYSIS TASK - You MUST browse and extract REAL information from these specific URLs for ${companyName}:
 
 `;
   
@@ -32,59 +33,66 @@ export const buildClientAnalysisPrompt = (companyLinks: CompanyLink[], companyNa
   
   userPrompt += `
 
-CRITICAL: You MUST search and visit these exact URLs to extract REAL information. Do NOT provide template responses or placeholders.
+MANDATORY REQUIREMENTS:
+- YOU MUST SEARCH AND BROWSE THESE EXACT URLS
+- EXTRACT ONLY FACTUAL CONTENT FROM THE ACTUAL WEBSITES
+- DO NOT RETURN TEMPLATE TEXT OR PLACEHOLDER EXAMPLES
+- DO NOT USE GENERIC DESCRIPTIONS OR ASSUMED INFORMATION
+- IF YOU CANNOT ACCESS A URL, STATE THAT EXPLICITLY
 
-Extract the following from the ACTUAL content found on these URLs:
+EXTRACT FROM THE ACTUAL WEBSITE CONTENT:
 
-1. COMPANY SUMMARY: What does ${companyName} actually do? (from their website content)
-2. CATEGORY POV: Their actual stated perspective on their industry 
-3. COMPANY MISSION: Their real mission statement or purpose
-4. UNIQUE INSIGHT: What they actually say makes them unique
-5. FEATURES/SERVICES: Real features/services listed on their site
-6. USE CASES: Actual use cases they describe
-7. DIFFERENTIATORS: How they actually differentiate themselves
+1. COMPANY SUMMARY: Real description of what ${companyName} does (from their actual website text)
+2. CATEGORY POV: Their stated perspective on their industry (direct quotes preferred)
+3. COMPANY MISSION: Their actual mission statement or purpose (exact text from site)
+4. UNIQUE INSIGHT: What they claim makes them unique (their own words)
+5. FEATURES/SERVICES: Specific features/services they list on their site
+6. USE CASES: Actual use cases they describe on their website
+7. DIFFERENTIATORS: How they differentiate from competitors (their claims)
 
-Return ONLY this JSON structure with REAL data from the URLs:
+RETURN ONLY THIS JSON STRUCTURE WITH REAL DATA:
 
 {
-  "companySummary": "REAL summary from website content",
-  "categoryPOV": "ACTUAL perspective found on their site", 
-  "companyMission": "REAL mission from their content",
-  "uniqueInsight": "ACTUAL unique value they state",
+  "companySummary": "Actual summary text from their website",
+  "categoryPOV": "Real perspective statement found on site", 
+  "companyMission": "Exact mission text from website",
+  "uniqueInsight": "Real unique value proposition from site",
   "features": [
     {
-      "name": "REAL feature name",
-      "benefits": ["REAL benefit 1", "REAL benefit 2"]
+      "name": "Actual feature name from website",
+      "benefits": ["Real benefit 1 from site", "Real benefit 2 from site"]
     }
   ],
   "useCases": [
     {
-      "useCase": "REAL use case title",
-      "userRole": "ACTUAL target user", 
-      "description": "REAL description from their content"
+      "useCase": "Real use case title from website",
+      "userRole": "Actual target user mentioned on site", 
+      "description": "Real description from website content"
     }
   ],
   "differentiators": [
     {
-      "name": "REAL differentiator",
-      "description": "ACTUAL description from site",
-      "competitorComparison": "REAL comparison if mentioned"
+      "name": "Real differentiator from website",
+      "description": "Actual description from site content",
+      "competitorComparison": "Real comparison if mentioned on site"
     }
   ]
 }
 
-NO TEMPLATES. NO PLACEHOLDERS. NO BRACKETS WITH INSTRUCTIONS. ONLY REAL DATA FROM THE URLS.`;
+ABSOLUTELY NO PLACEHOLDERS, TEMPLATES, OR GENERIC TEXT. ONLY REAL EXTRACTED DATA.`;
 
-  const systemPrompt = `You are a web research agent that MUST visit and extract real information from provided URLs. 
+  const systemPrompt = `You are a web research specialist with the ability to browse and analyze websites. Your task is to visit specific URLs and extract factual information from the actual website content.
 
-MANDATORY REQUIREMENTS:
-- VISIT each provided URL and read the actual content
-- Extract ONLY factual information found on these specific pages
+CRITICAL INSTRUCTIONS:
+- You MUST browse and read the content of the provided URLs
+- Extract ONLY real, factual information found on these websites
 - NEVER create fictional, template, or placeholder content
-- If specific information isn't found, use minimal content or empty arrays
-- Return ONLY valid JSON with real data extracted from the URLs
+- NEVER use generic examples or assumed information
+- If you cannot access a specific URL, explicitly state this
+- Return ONLY valid JSON with actual data from the websites
+- Quote directly from website content when possible
 
-You MUST provide real, specific information found on the actual websites, not generic templates or examples.`;
+Your web browsing capability allows you to access and read website content in real-time. Use this capability to provide accurate, factual information extracted from the specific URLs provided.`;
 
   return { systemPrompt, userPrompt };
 };
