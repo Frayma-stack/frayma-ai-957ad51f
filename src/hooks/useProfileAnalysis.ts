@@ -46,13 +46,13 @@ export const useProfileAnalysis = () => {
         return;
       }
       
-      // Build the new analysis prompt
+      // Build the system prompt exactly as Perplexity recommends
       const systemPrompt = buildAnalysisPrompt(urls);
-      console.log('Analysis prompt:', systemPrompt);
+      console.log('System prompt:', systemPrompt);
       
       const { data, error } = await supabase.functions.invoke('analyze-profile', {
         body: { 
-          prompt: `${systemPrompt.content}\n\nPlease analyze the profile from the provided URLs and return the structured JSON data as specified.`
+          systemPrompt: systemPrompt
         }
       });
       

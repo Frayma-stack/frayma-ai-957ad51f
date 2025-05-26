@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt } = await req.json();
+    const { systemPrompt } = await req.json();
     
     const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
     
@@ -41,11 +41,11 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are an expert at analyzing professional profiles and content. Extract information in the format requested and return valid JSON only.'
+            content: systemPrompt
           },
           {
             role: 'user',
-            content: prompt
+            content: 'Extract the profile data as specified.'
           }
         ],
         temperature: 0.2,
