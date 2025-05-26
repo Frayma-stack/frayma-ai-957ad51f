@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -207,33 +206,30 @@ Avoid fluff. Think like a narrative strategist guiding a category-defining found
     }
   };
 
-  const handleAddIdea = (ideaContent: string) => {
+  const handleAddIdea = (ideaText: string) => {
     const newIdea: GeneratedIdea = {
       id: crypto.randomUUID(),
-      title: ideaContent.split('\n')[0].replace(/^Title[\s\-–:]+/i, '').trim(),
-      narrative: ideaContent,
+      title: ideaText.substring(0, 100),
+      narrative: ideaText,
       productTieIn: '',
       cta: '',
       createdAt: new Date().toISOString(),
       score: null,
       source: {
-        type: triggerInput.type,
-        content: triggerInput.content
+        type: 'manual',
+        content: ideaText,
       },
-      icpId: productInputs.targetICP,
-      narrativeAnchor: productInputs.narrativeAnchor,
-      narrativeItemId: productInputs.narrativeType,
-      productFeatures: productInputs.selectedFeatures.map(f => f.name),
-      perspective: productInputs.customPOV,
-      clientId: selectedClientId
+      icpId: selectedICP || '',
+      narrativeAnchor: 'belief',
+      narrativeItemId: '',
+      productFeatures: [],
+      clientId: selectedClientId || undefined,
     };
-    
     onIdeaAdded(newIdea);
-    setGeneratedIdeas(prev => prev.filter(idea => idea !== ideaContent));
     
     toast({
       title: "Idea Added",
-      description: "Product-Led Storytelling idea added to your bank.",
+      description: "New idea has been added to your collection.",
     });
   };
 
