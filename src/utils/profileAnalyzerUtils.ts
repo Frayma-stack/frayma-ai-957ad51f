@@ -45,7 +45,14 @@ Then, revisit their LinkedIn profile url${linkedinUrls.length > 1 ? 's' : ''} ($
 
   prompt += ` After analyzing, provide a summary of profile's career backstory (in five sentences or less), covering their career trajectory up to date. 
 
-For experiences, extract ALL career experiences from their LinkedIn profile. For each experience, the title MUST be formatted EXACTLY as: "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]" (for example: "Founder & Lead Content Strategy @ VEC Studio | 2020 – Present" or "Marketing Manager @ Tech Corp | 2018 – 2020"). The description should be the EXACT text from the LinkedIn experience description, written in first-person perspective as it appears on LinkedIn.
+CRITICAL INSTRUCTIONS FOR EXPERIENCES:
+- You MUST extract ALL and ONLY the experiences that are explicitly listed in the LinkedIn profile's "Experience" section
+- Do NOT create, infer, or hallucinate any experiences that are not directly visible on the LinkedIn profile
+- For each experience found on LinkedIn, the title MUST be formatted EXACTLY as: "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]"
+- The description MUST be the EXACT text from that specific LinkedIn experience description, written in first-person as it appears
+- If an experience has no description on LinkedIn, use an empty string for the description field
+- If you cannot clearly see all experiences due to access limitations, extract only what you can definitively see
+- Double-check each experience against what is actually listed on the LinkedIn profile before including it
 
 Also extract FOUR writing tones and FOUR product beliefs from their LinkedIn and X posts`;
 
@@ -57,13 +64,14 @@ Also extract FOUR writing tones and FOUR product beliefs from their LinkedIn and
 
 Format the output as a JSON object with fields: 'currentRole', 'organization', 'backstory', 'experiences' (array with fields 'title' and 'description'), 'tones' (array with fields 'tone' and 'description'), and 'beliefs' (array with fields 'belief' and 'description').
 
-IMPORTANT: 
-- Ensure 'currentRole' contains ONLY the job title
-- 'organization' contains ONLY the company name
-- For experiences, the 'title' field MUST follow the exact format: "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]"
-- For experiences, the 'description' field should contain the actual LinkedIn experience description in first-person
-- Extract ALL experiences from LinkedIn, not just recent ones
-- Include accurate date ranges for each experience`;
+FINAL VALIDATION REQUIREMENTS:
+- Ensure 'currentRole' contains ONLY the job title from the most recent position
+- 'organization' contains ONLY the company name from the most recent position
+- For experiences: the 'title' field MUST follow the exact format: "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]"
+- For experiences: the 'description' field should contain the actual LinkedIn experience description in first-person, or empty string if none exists
+- Include accurate date ranges for each experience as they appear on LinkedIn
+- VERIFY: Each experience you include actually exists on the LinkedIn profile - do not add any experiences that are not explicitly listed
+- If you're unsure about any experience details, do not include that experience rather than guessing`;
   
   return prompt;
 };
