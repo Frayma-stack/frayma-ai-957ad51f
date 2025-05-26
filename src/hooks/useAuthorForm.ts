@@ -6,8 +6,9 @@ import { useAuthorTones } from './useAuthorTones';
 import { useAuthorBeliefs } from './useAuthorBeliefs';
 import { useAuthorSocialLinks } from './useAuthorSocialLinks';
 import { useAuthorBasicInfo } from './useAuthorBasicInfo';
-import { useAuthorAnalysisHandler } from './useAuthorAnalysisHandler';
-import { useAuthorValidation } from './useAuthorValidation';
+import { useAuthorState } from './useAuthorState';
+import { useAuthorAnalysisIntegration } from './useAuthorAnalysisIntegration';
+import { useAuthorFormValidation } from './useAuthorFormValidation';
 
 export const useAuthorForm = (initialAuthor?: Author | null) => {
   const author = createInitialAuthor(initialAuthor);
@@ -45,45 +46,19 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
     removeSocialLink
   } = useAuthorSocialLinks(author.socialLinks || []);
 
-  const { handleAuthorAnalysisResult } = useAuthorAnalysisHandler(
-    // Pass setBasicInfo function from useAuthorBasicInfo
-    (updater) => {
-      if (typeof updater === 'function') {
-        const currentBasicInfo = basicInfo;
-        const newBasicInfo = updater(currentBasicInfo);
-        handleInputChange('role', newBasicInfo.role);
-        handleInputChange('organization', newBasicInfo.organization);
-        handleInputChange('backstory', newBasicInfo.backstory);
-      }
-    },
+  // Construct the current author state
+  const currentAuthor = useAuthorState(basicInfo, experiences, tones, beliefs, socialLinks);
+
+  // Handle analysis integration
+  const { handleAuthorAnalysisResult } = useAuthorAnalysisIntegration(
+    handleInputChange,
     setExperiencesFromAnalysis,
     setTonesFromAnalysis,
     setBeliefsFromAnalysis
   );
 
-  const { validateAndCleanAuthor: validateAndCleanAuthorData } = useAuthorValidation();
-
-  const validateAndCleanAuthor = () => {
-    // Construct the full author object
-    const fullAuthor: Author = {
-      ...basicInfo,
-      experiences,
-      tones,
-      beliefs,
-      socialLinks
-    };
-
-    return validateAndCleanAuthorData(fullAuthor);
-  };
-
-  // Construct the current author state for components that need the full object
-  const currentAuthor: Author = {
-    ...basicInfo,
-    experiences,
-    tones,
-    beliefs,
-    socialLinks
-  };
+  // Handle validation
+  const { validateAndCleanAuthor } = useAuthorFormValidation(currentAuthor);
 
   return {
     author: currentAuthor,
