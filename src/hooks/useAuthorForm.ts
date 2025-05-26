@@ -1,39 +1,68 @@
 
 import { Author } from '@/types/storytelling';
-import { useAuthorFormState } from './useAuthorFormState';
-import { useAuthorFormActions } from './useAuthorFormActions';
+import { createInitialAuthor } from '@/utils/authorFormUtils';
+import { useAuthorBasicInfo } from './useAuthorBasicInfo';
+import { useAuthorExperiences } from './useAuthorExperiences';
+import { useAuthorTones } from './useAuthorTones';
+import { useAuthorBeliefs } from './useAuthorBeliefs';
+import { useAuthorSocialLinks } from './useAuthorSocialLinks';
+import { useAuthorStateComposer } from './useAuthorStateComposer';
+import { useAuthorAnalysisHandler } from './useAuthorAnalysisHandler';
+import { useAuthorValidation } from './useAuthorValidation';
 
 export const useAuthorForm = (initialAuthor?: Author | null) => {
+  const author = createInitialAuthor(initialAuthor);
+  
+  const { basicInfo, handleInputChange } = useAuthorBasicInfo(author);
+
   const {
-    currentAuthor,
-    handleInputChange,
+    experiences,
     handleExperienceChange,
     addExperience,
     removeExperience,
+    setExperiencesFromAnalysis
+  } = useAuthorExperiences(author.experiences);
+
+  const {
+    tones,
     handleToneChange,
     addTone,
     removeTone,
+    setTonesFromAnalysis
+  } = useAuthorTones(author.tones);
+
+  const {
+    beliefs,
     handleBeliefChange,
     addBelief,
     removeBelief,
-    handleSocialLinkChange,
-    addSocialLink,
-    removeSocialLink,
-    setExperiencesFromAnalysis,
-    setTonesFromAnalysis,
     setBeliefsFromAnalysis
-  } = useAuthorFormState(initialAuthor);
+  } = useAuthorBeliefs(author.beliefs);
 
   const {
-    handleAuthorAnalysisResult,
-    validateAndCleanAuthor
-  } = useAuthorFormActions(
-    currentAuthor,
+    socialLinks,
+    handleSocialLinkChange,
+    addSocialLink,
+    removeSocialLink
+  } = useAuthorSocialLinks(author.socialLinks || []);
+
+  // Compose the current author state
+  const currentAuthor = useAuthorStateComposer(basicInfo, experiences, tones, beliefs, socialLinks);
+
+  // Handle analysis integration
+  const { handleAuthorAnalysisResult } = useAuthorAnalysisHandler(
     handleInputChange,
     setExperiencesFromAnalysis,
     setTonesFromAnalysis,
     setBeliefsFromAnalysis
   );
+
+  // Handle validation
+  const { validateAndCleanAuthor } = useAuthorValidation();
+
+  const validateAndCleanCurrentAuthor = () => {
+    return validateAndCleanAuthor(currentAuthor);
+  };
 
   return {
     author: currentAuthor,
@@ -51,6 +80,6 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
     addSocialLink,
     removeSocialLink,
     handleAuthorAnalysisResult,
-    validateAndCleanAuthor
+    validateAndCleanAuthor: validateAndCleanCurrentAuthor
   };
 };

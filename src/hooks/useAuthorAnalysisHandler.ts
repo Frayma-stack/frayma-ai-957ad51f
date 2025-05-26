@@ -3,13 +3,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { AuthorExperience, AuthorToneItem, AuthorBelief } from '@/types/storytelling';
 
 export const useAuthorAnalysisHandler = (
-  setBasicInfo: React.Dispatch<React.SetStateAction<{
-    id: string;
-    name: string;
-    role: string;
-    organization: string;
-    backstory: string;
-  }>>,
+  handleInputChange: (field: any, value: string) => void,
   setExperiencesFromAnalysis: (experiences: AuthorExperience[]) => void,
   setTonesFromAnalysis: (tones: AuthorToneItem[]) => void,
   setBeliefsFromAnalysis: (beliefs: AuthorBelief[]) => void
@@ -24,13 +18,10 @@ export const useAuthorAnalysisHandler = (
     tones?: AuthorToneItem[];
     beliefs?: AuthorBelief[];
   }) => {
-    // Update basic info
-    setBasicInfo(prev => ({
-      ...prev,
-      role: results.currentRole || prev.role,
-      organization: results.organization || prev.organization,
-      backstory: results.backstory || prev.backstory
-    }));
+    // Update basic info through individual field changes
+    if (results.currentRole) handleInputChange('role', results.currentRole);
+    if (results.organization) handleInputChange('organization', results.organization);
+    if (results.backstory) handleInputChange('backstory', results.backstory);
 
     // Update arrays if provided
     if (results.experiences) setExperiencesFromAnalysis(results.experiences);

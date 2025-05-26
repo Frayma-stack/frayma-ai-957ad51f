@@ -1,7 +1,7 @@
 
 import { Author } from '@/types/storytelling';
 
-export const useAuthorState = (
+export const useAuthorStateComposer = (
   basicInfo: {
     id: string;
     name: string;
