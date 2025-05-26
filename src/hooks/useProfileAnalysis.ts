@@ -29,7 +29,7 @@ export const useProfileAnalysis = () => {
       beliefs?: AuthorBelief[];
     }) => void
   ) => {
-    console.log('Starting OpenAI analysis for author:', authorName);
+    console.log('Starting OpenAI profile generation for author:', authorName);
     
     setIsAnalyzing(true);
     
@@ -42,8 +42,8 @@ export const useProfileAnalysis = () => {
       
       if (linkedinUrls.length === 0 && xUrls.length === 0 && otherUrls.length === 0) {
         toast({
-          title: "No URLs to analyze",
-          description: "Please provide at least one LinkedIn, X (Twitter), or other URL.",
+          title: "No URLs provided",
+          description: "Please provide at least one LinkedIn, X (Twitter), or other URL to generate profile information.",
           variant: "destructive"
         });
         setIsAnalyzing(false);
@@ -51,7 +51,7 @@ export const useProfileAnalysis = () => {
       }
       
       const prompt = buildPrompt(linkedinUrls, xUrls, otherUrls, authorName);
-      console.log('Sending prompt to OpenAI analysis service:', prompt);
+      console.log('Sending prompt to OpenAI generation service:', prompt);
       
       console.log('Making request to OpenAI Edge Function...');
       
@@ -61,26 +61,26 @@ export const useProfileAnalysis = () => {
       
       if (error) {
         console.error('Supabase function error:', error);
-        throw new Error(error.message || 'Failed to analyze profile with OpenAI');
+        throw new Error(error.message || 'Failed to generate profile with OpenAI');
       }
       
       if (!data) {
-        throw new Error('No data received from OpenAI analysis service');
+        throw new Error('No data received from OpenAI generation service');
       }
       
       if (data.error) {
         throw new Error(data.error);
       }
       
-      console.log('OpenAI analysis service response:', data);
+      console.log('OpenAI generation service response:', data);
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
         console.error('Invalid response structure:', data);
-        throw new Error('Invalid response format from OpenAI analysis service');
+        throw new Error('Invalid response format from OpenAI generation service');
       }
       
       const content = data.choices[0].message.content;
-      console.log('Raw content from OpenAI analysis service:', content);
+      console.log('Raw content from OpenAI generation service:', content);
       
       const parsedData = parseAnalysisContent(content);
       console.log('Parsed data:', parsedData);
@@ -91,8 +91,8 @@ export const useProfileAnalysis = () => {
       
       if (!currentRole && !organization && !backstory && experiences.length === 0 && tones.length === 0 && beliefs.length === 0) {
         toast({
-          title: "Analysis yielded no results",
-          description: "No information could be extracted from the provided URLs using OpenAI.",
+          title: "Generation yielded no results",
+          description: "No information could be generated from the provided URLs.",
           variant: "destructive"
         });
       } else {
@@ -105,26 +105,26 @@ export const useProfileAnalysis = () => {
           beliefs: beliefs.length > 0 ? beliefs : undefined
         });
         
-        const extractedItems = [];
-        if (currentRole) extractedItems.push('role');
-        if (organization) extractedItems.push('organization');
-        if (backstory) extractedItems.push('backstory');
-        if (experiences.length > 0) extractedItems.push(`${experiences.length} experiences`);
-        if (tones.length > 0) extractedItems.push(`${tones.length} writing tones`);
-        if (beliefs.length > 0) extractedItems.push(`${beliefs.length} product beliefs`);
+        const generatedItems = [];
+        if (currentRole) generatedItems.push('role');
+        if (organization) generatedItems.push('organization');
+        if (backstory) generatedItems.push('backstory');
+        if (experiences.length > 0) generatedItems.push(`${experiences.length} experiences`);
+        if (tones.length > 0) generatedItems.push(`${tones.length} writing tones`);
+        if (beliefs.length > 0) generatedItems.push(`${beliefs.length} product beliefs`);
         
         toast({
-          title: "OpenAI Analysis complete",
-          description: `Successfully extracted ${extractedItems.join(', ')}.`,
+          title: "Profile generation complete",
+          description: `Successfully generated ${generatedItems.join(', ')}.`,
         });
       }
     } catch (error) {
-      console.error('Error analyzing profile with OpenAI:', error);
+      console.error('Error generating profile with OpenAI:', error);
       
       const errorMessage = getErrorMessage(error);
       
       toast({
-        title: "OpenAI Analysis Failed",
+        title: "Profile Generation Failed",
         description: errorMessage,
         variant: "destructive"
       });

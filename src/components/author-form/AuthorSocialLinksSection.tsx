@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Author, AuthorSocialLink } from '@/types/storytelling';
-import { Plus, Trash, Info, LinkIcon, Loader2 } from 'lucide-react';
+import { Plus, Trash, Info, Sparkles, Loader2 } from 'lucide-react';
 import { useProfileAnalysis } from '@/hooks/useProfileAnalysis';
 
 interface AuthorSocialLinksSectionProps {
@@ -41,7 +41,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
     canAnalyze
   });
 
-  const handleAnalyzeProfile = () => {
+  const handleGenerateProfile = () => {
     if (!author.name.trim()) {
       return;
     }
@@ -72,7 +72,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
           <div className="flex items-start">
             <Info className="h-4 w-4 text-amber-600 mt-0.5 mr-2 flex-shrink-0" />
             <p className="text-sm text-amber-700">
-              Add LinkedIn, X (Twitter), website, blog, or other profile URLs to enable automatic profile analysis and auto-filling of author information.
+              Add LinkedIn, X (Twitter), website, blog, or other profile URLs to enable AI-powered profile generation and auto-filling of author information.
             </p>
           </div>
         </div>
@@ -114,25 +114,25 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
         <div className="space-y-3">
           <div className="bg-blue-50 border border-blue-200 p-3 rounded-md">
             <p className="text-sm text-blue-700">
-              Ready to analyze! Click "Analyze & Auto-Fill" below to automatically populate role, organization, backstory, experiences, tones, and beliefs from the provided links.
+              Ready to generate! Click "Generate Profile" below to automatically create role, organization, backstory, experiences, tones, and beliefs based on the provided links and author name.
             </p>
           </div>
           
           <div className="flex justify-center">
             <Button 
-              onClick={handleAnalyzeProfile}
+              onClick={handleGenerateProfile}
               disabled={isAnalyzing}
               className="bg-story-blue hover:bg-story-light-blue"
             >
               {isAnalyzing ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" /> 
-                  Analyzing...
+                  Generating...
                 </>
               ) : (
                 <>
-                  <LinkIcon className="h-4 w-4 mr-2" /> 
-                  Analyze & Auto-Fill
+                  <Sparkles className="h-4 w-4 mr-2" /> 
+                  Generate Profile
                 </>
               )}
             </Button>

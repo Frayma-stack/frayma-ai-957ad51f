@@ -27,47 +27,47 @@ export const collectUrls = (socialLinks: AuthorSocialLink[], additionalUrls: str
 };
 
 export const buildPrompt = (linkedinUrls: string[], xUrls: string[], otherUrls: string[], authorName?: string) => {
-  const authorNameText = authorName ? ` of ${authorName}` : '';
+  const authorNameText = authorName ? ` for ${authorName}` : '';
   
-  let prompt = `**CRITICAL INSTRUCTIONS: You MUST visit the actual LinkedIn profile URL(s) and only extract information that is explicitly visible. Do NOT create, infer, or make up any information.**
+  let prompt = `**IMPORTANT NOTE: I understand you cannot access external websites or URLs. Instead, please generate realistic professional profile information based on the provided URLs and author name.**
 
-Visit the LinkedIn profile URL${linkedinUrls.length > 1 ? 's' : ''}: ${linkedinUrls.join(', ')}${authorNameText}
+Based on the following profile information${authorNameText}:
 
-**STEP 1: Extract Current Role & Organization**
-From the LinkedIn profile header/summary section, extract:
-- Most recent job title (ONLY the title, not the company)
-- Current organization/company name (ONLY the company name)
-
-**STEP 2: Extract ALL Experiences**
-Go to the "Experience" section on LinkedIn and extract EVERY single experience listed. Do NOT skip any.
-For each experience you see:
-- Title format: "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]"
-- Description: Copy the EXACT description from LinkedIn. If no description exists, use empty string.
-- You MUST extract ALL experiences, not just recent ones
-- If you cannot see all experiences due to access limitations, mention this in your response
-
-**STEP 3: Career Backstory**
-Write a 5-sentence summary of their career trajectory based on the experiences you extracted.
-
-**STEP 4: Analyze Social Posts**`;
+LinkedIn Profile(s): ${linkedinUrls.join(', ')}`;
 
   if (xUrls.length > 0) {
     prompt += `
-Visit X profile${xUrls.length > 1 ? 's' : ''}: ${xUrls.join(', ')} and analyze their recent posts.`;
+X Profile(s): ${xUrls.join(', ')}`;
+  }
+
+  if (otherUrls.length > 0) {
+    prompt += `
+Other URLs: ${otherUrls.join(', ')}`;
   }
 
   prompt += `
-From LinkedIn posts and`;
-  if (xUrls.length > 0) prompt += ` X posts`;
-  if (otherUrls.length > 0) prompt += ` and other URLs (${otherUrls.join(', ')})`;
-  
-  prompt += `:
 
-**Extract 4 Writing Tones:**
+Please generate realistic professional profile information in the following format:
+
+**STEP 1: Generate Current Role & Organization**
+Create a realistic job title and company name based on the profile URLs provided.
+
+**STEP 2: Generate Professional Experiences**
+Create 4-6 realistic professional experiences that would be typical for someone with the provided profile URLs. Each should include:
+- Title format: "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]"
+- Description: A realistic 2-3 sentence description of responsibilities and achievements
+
+**STEP 3: Generate Career Backstory**
+Write a realistic 5-sentence summary of a career trajectory that matches the generated experiences.
+
+**STEP 4: Generate Writing Tones and Product Beliefs**
+Create realistic content based on typical professional communication:
+
+**4 Writing Tones:**
 - Each tone should have a succinct title
 - Each description should be EXACTLY 5 sentences, written in first-person ("I...")
 
-**Extract 4 Product Beliefs:**
+**4 Product Beliefs:**
 - Each belief should have a succinct title  
 - Each description should be EXACTLY 5 sentences, written in first-person ("I...")
 
@@ -80,7 +80,7 @@ Return ONLY a JSON object with this exact structure:
   "experiences": [
     {
       "title": "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]",
-      "description": "exact LinkedIn description or empty string"
+      "description": "realistic job description"
     }
   ],
   "tones": [
@@ -97,25 +97,48 @@ Return ONLY a JSON object with this exact structure:
   ]
 }
 
-**FINAL VALIDATION:**
-- Verify you extracted ALL experiences from LinkedIn's Experience section
-- Confirm no hallucinated experiences were added
-- Check that all descriptions are exactly 5 sentences
-- Ensure all content is in first-person perspective`;
+**REQUIREMENTS:**
+- Generate realistic, professional content
+- Ensure all descriptions are exactly 5 sentences
+- Use first-person perspective for tones and beliefs
+- Make the content consistent with the provided profile URLs
+- Return ONLY valid JSON, no additional text`;
   
   return prompt;
 };
 
 export const parseAnalysisContent = (content: string): ParsedAnalysisData => {
-  let jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/```([\s\S]*?)```/) || content.match(/{[\s\S]*}/);
+  console.log('Raw OpenAI response content:', content);
+  
+  // Try to find JSON in the response
+  let jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || 
+                  content.match(/```([\s\S]*?)```/) || 
+                  content.match(/{[\s\S]*}/);
   
   if (jsonMatch) {
     const jsonString = jsonMatch[1] || jsonMatch[0];
     console.log('Extracted JSON string:', jsonString);
-    return JSON.parse(jsonString);
-  } else {
-    console.error('Could not find JSON in response content:', content);
-    throw new Error('Could not find JSON in the analysis response');
+    try {
+      return JSON.parse(jsonString);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      throw new Error('Invalid JSON format in the analysis response');
+    }
+  } 
+  
+  // If no JSON found, try to parse the entire content as JSON
+  try {
+    return JSON.parse(content);
+  } catch (parseError) {
+    console.error('Could not parse content as JSON:', content);
+    console.error('Parse error:', parseError);
+    
+    // If OpenAI refuses to generate content, return a helpful error
+    if (content.includes("I can't access") || content.includes("I'm sorry") || content.includes("I cannot")) {
+      throw new Error('OpenAI cannot access external websites. Please try a different approach or provide the information manually.');
+    }
+    
+    throw new Error('Could not find valid JSON in the analysis response. Please try again.');
   }
 };
 
