@@ -3,7 +3,8 @@ import { FC } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Author, AuthorSocialLink } from '@/types/storytelling';
-import { Plus, Trash, Info } from 'lucide-react';
+import { Plus, Trash, Info, LinkIcon, Loader2 } from 'lucide-react';
+import { useProfileAnalysis } from '@/hooks/useProfileAnalysis';
 
 interface AuthorSocialLinksSectionProps {
   author: Author;
@@ -11,6 +12,14 @@ interface AuthorSocialLinksSectionProps {
   onAddSocialLink: () => void;
   onRemoveSocialLink: (id: string) => void;
   onAnalyzeProfile: () => void;
+  onAnalysisComplete: (results: {
+    currentRole?: string;
+    organization?: string;
+    backstory?: string;
+    experiences?: any[];
+    tones?: any[];
+    beliefs?: any[];
+  }) => void;
 }
 
 const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
@@ -18,9 +27,25 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
   onSocialLinkChange,
   onAddSocialLink,
   onRemoveSocialLink,
-  onAnalyzeProfile
+  onAnalyzeProfile,
+  onAnalysisComplete
 }) => {
+  const { isAnalyzing, analyzeProfile } = useProfileAnalysis();
   const hasValidUrls = (author.socialLinks || []).some(link => link.url.trim() !== '');
+  const canAnalyze = author.name.trim() && hasValidUrls;
+
+  const handleAnalyzeProfile = () => {
+    if (!author.name.trim()) {
+      return;
+    }
+    
+    analyzeProfile(
+      author.socialLinks || [], 
+      '', // additionalUrls - empty for now since it's handled in the social links section
+      author.name,
+      onAnalysisComplete
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -77,6 +102,36 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
           </div>
         ))}
       </div>
+
+      {canAnalyze && (
+        <div className="space-y-3">
+          <div className="bg-blue-50 border border-blue-200 p-3 rounded-md">
+            <p className="text-sm text-blue-700">
+              Ready to analyze! Click "Analyze & Auto-Fill" below to automatically populate role, organization, backstory, experiences, tones, and beliefs from the provided links.
+            </p>
+          </div>
+          
+          <div className="flex justify-center">
+            <Button 
+              onClick={handleAnalyzeProfile}
+              disabled={isAnalyzing}
+              className="bg-story-blue hover:bg-story-light-blue"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> 
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <LinkIcon className="h-4 w-4 mr-2" /> 
+                  Analyze & Auto-Fill
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

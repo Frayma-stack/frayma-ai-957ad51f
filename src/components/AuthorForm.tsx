@@ -66,13 +66,13 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
           onSocialLinkChange={handleSocialLinkChange}
           onAddSocialLink={addSocialLink}
           onRemoveSocialLink={removeSocialLink}
-          onAnalyzeProfile={() => {}} // Empty function since analysis is now handled in BasicInfoSection
+          onAnalyzeProfile={() => {}} // Empty function since analysis is now handled in the section itself
+          onAnalysisComplete={handleAuthorAnalysisResult}
         />
 
         <AuthorBasicInfoSection
           author={author}
           onInputChange={handleInputChange}
-          onAnalysisComplete={handleAuthorAnalysisResult}
         />
         
         <AuthorFormTabs
