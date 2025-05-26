@@ -11,6 +11,7 @@ import { Author } from '@/types/storytelling';
 import { useAuthorForm } from '@/hooks/useAuthorForm';
 import AuthorFormTabs from './author-form/AuthorFormTabs';
 import AuthorBasicInfoSection from './author-form/AuthorBasicInfoSection';
+import AuthorAnalyzedInfoSection from './author-form/AuthorAnalyzedInfoSection';
 import AuthorSocialLinksSection from './author-form/AuthorSocialLinksSection';
 import AuthorFormActions from './author-form/AuthorFormActions';
 
@@ -53,6 +54,11 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
     // This function is handled within AuthorSocialLinksSection
   };
 
+  const hasAnalyzedContent = author.role || author.organization || author.backstory || 
+    author.experiences.some(exp => exp.title || exp.description) ||
+    author.tones.some(tone => tone.tone) ||
+    author.beliefs.some(belief => belief.belief);
+
   return (
     <Card className="bg-white shadow-md">
       <CardHeader>
@@ -79,20 +85,27 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
           onAnalysisComplete={handleAuthorAnalysisResult}
         />
 
-        <AuthorFormTabs
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
+        <AuthorAnalyzedInfoSection
           author={author}
-          onExperienceChange={handleExperienceChange}
-          onAddExperience={addExperience}
-          onRemoveExperience={removeExperience}
-          onToneChange={handleToneChange}
-          onAddTone={addTone}
-          onRemoveTone={removeTone}
-          onBeliefChange={handleBeliefChange}
-          onAddBelief={addBelief}
-          onRemoveBelief={removeBelief}
+          onInputChange={handleInputChange}
         />
+
+        {hasAnalyzedContent && (
+          <AuthorFormTabs
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            author={author}
+            onExperienceChange={handleExperienceChange}
+            onAddExperience={addExperience}
+            onRemoveExperience={removeExperience}
+            onToneChange={handleToneChange}
+            onAddTone={addTone}
+            onRemoveTone={removeTone}
+            onBeliefChange={handleBeliefChange}
+            onAddBelief={addBelief}
+            onRemoveBelief={removeBelief}
+          />
+        )}
       </CardContent>
 
       <AuthorFormActions 
