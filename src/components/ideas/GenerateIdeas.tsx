@@ -227,9 +227,9 @@ const GenerateIdeas: FC<GenerateIdeasProps> = ({
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-story-blue">Generate Content Ideas</CardTitle>
+          <CardTitle className="text-story-blue">Legacy Idea Generator</CardTitle>
           <CardDescription>
-            Use AI to brainstorm new content ideas based on your inputs.
+            This is the legacy idea generation interface. Use the new Product-Led Storytelling generator for better results.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

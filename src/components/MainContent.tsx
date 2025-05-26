@@ -231,11 +231,12 @@ const MainContent: FC<MainContentProps> = ({
     return (
       <IdeasBank
         scripts={getFilteredICPScripts()}
-        productContext={{}}
+        productContext={getCurrentProductContext()}
         ideas={ideas}
         onIdeaAdded={onIdeaAdded}
         onIdeaUpdated={onIdeaUpdated}
         onIdeaDeleted={onIdeaDeleted}
+        selectedClientId={selectedClientId}
       />
     );
   }

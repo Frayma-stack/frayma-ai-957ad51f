@@ -2,16 +2,18 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SavedIdeas from './SavedIdeas';
-import GenerateIdeas from './GenerateIdeas';
-import { GeneratedIdea, ContentIdea } from '@/types/ideas';
+import ProductLedIdeaGenerator from './ProductLedIdeaGenerator';
+import { GeneratedIdea } from '@/types/ideas';
+import { ICPStoryScript, ProductContext } from '@/types/storytelling';
 
 interface IdeasBankProps {
-  scripts: any[];
-  productContext: any;
+  scripts: ICPStoryScript[];
+  productContext: ProductContext | null;
   ideas: GeneratedIdea[];
   onIdeaAdded: (idea: GeneratedIdea) => void;
   onIdeaUpdated: (idea: GeneratedIdea) => void;
   onIdeaDeleted: (ideaId: string) => void;
+  selectedClientId?: string;
 }
 
 const IdeasBank = ({
@@ -20,32 +22,10 @@ const IdeasBank = ({
   ideas,
   onIdeaAdded,
   onIdeaUpdated,
-  onIdeaDeleted
+  onIdeaDeleted,
+  selectedClientId
 }: IdeasBankProps) => {
   const [activeTab, setActiveTab] = useState<string>('saved');
-
-  // Convert ContentIdea to GeneratedIdea when adding from GenerateIdeas
-  const handleContentIdeaAdded = (contentIdea: ContentIdea) => {
-    const generatedIdea: GeneratedIdea = {
-      id: contentIdea.id,
-      title: contentIdea.title,
-      narrative: contentIdea.description || '',
-      productTieIn: '',
-      cta: '',
-      createdAt: contentIdea.createdAt,
-      score: null,
-      source: {
-        type: 'manual',
-        content: contentIdea.title
-      },
-      icpId: '',
-      narrativeAnchor: 'belief',
-      narrativeItemId: '',
-      productFeatures: [],
-      clientId: contentIdea.clientId
-    };
-    onIdeaAdded(generatedIdea);
-  };
 
   return (
     <div className="w-full">
@@ -55,7 +35,7 @@ const IdeasBank = ({
             Saved Ideas
           </TabsTrigger>
           <TabsTrigger value="generate">
-            Generate New Ideas
+            Mint New Ideas
           </TabsTrigger>
         </TabsList>
         
@@ -63,8 +43,8 @@ const IdeasBank = ({
           <div className="p-4 bg-story-sand/30 rounded-md text-sm text-gray-600">
             <p className="text-center">
               {activeTab === 'saved' ? 
-                'Turn one of your saved ideas into a narrative GTM piece or post' : 
-                'Generate new ideas for crafting resonant, compelling GTM narrative pieces or posts'}
+                'Turn one of your saved ideas into a resonant GTM narrative piece or post' : 
+                'Generate Product-Led Storytelling ideas that subtly weave in product value through compelling narratives'}
             </p>
           </div>
         </div>
@@ -80,12 +60,11 @@ const IdeasBank = ({
         </TabsContent>
         
         <TabsContent value="generate" className="mt-6">
-          <GenerateIdeas 
+          <ProductLedIdeaGenerator 
             icpScripts={scripts}
-            successStories={[]}
-            productContexts={productContext ? [productContext] : []}
-            authors={[]}
-            onIdeaAdded={handleContentIdeaAdded}
+            productContext={productContext}
+            onIdeaAdded={onIdeaAdded}
+            selectedClientId={selectedClientId}
           />
         </TabsContent>
       </Tabs>
