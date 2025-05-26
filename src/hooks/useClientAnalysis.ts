@@ -59,8 +59,31 @@ export const useClientAnalysis = () => {
       const content = data.choices[0].message.content;
       console.log('Raw content from analysis service:', content);
       
-      const parsedData = parseClientAnalysisContent(content);
-      console.log('Parsed data:', parsedData);
+      let parsedData;
+      try {
+        parsedData = parseClientAnalysisContent(content);
+        console.log('Parsed data:', parsedData);
+      } catch (parseError) {
+        console.error('JSON parsing error:', parseError);
+        console.error('Failed to parse content:', content);
+        
+        toast({
+          title: "Analysis Response Error",
+          description: "The analysis service returned invalid data. This may be due to the AI model returning incomplete information. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Validate that we have meaningful data
+      if (!parsedData.companySummary && !parsedData.features?.length && !parsedData.useCases?.length) {
+        toast({
+          title: "Analysis Incomplete",
+          description: "The analysis service couldn't extract meaningful information from the provided URLs. Please verify the URLs are accessible and try again.",
+          variant: "destructive"
+        });
+        return;
+      }
       
       // Transform parsed data into ProductContext with proper structure
       const features: ProductFeature[] = (parsedData.features || []).map((feature: any) => ({
@@ -108,7 +131,9 @@ export const useClientAnalysis = () => {
       
       toast({
         title: "Client analysis complete",
-        description: `Successfully extracted ${extractedItems.join(', ')}.`,
+        description: extractedItems.length > 0 
+          ? `Successfully extracted ${extractedItems.join(', ')}.`
+          : "Analysis completed. Please review and add more details as needed.",
       });
       
     } catch (error) {

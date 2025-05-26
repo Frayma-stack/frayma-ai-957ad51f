@@ -98,14 +98,76 @@ Return ONLY a JSON object with the exact structure requested. Write all descript
 };
 
 export const parseClientAnalysisContent = (content: string) => {
-  let jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/```([\s\S]*?)```/) || content.match(/{[\s\S]*}/);
+  console.log('Raw content to parse:', content);
   
-  if (jsonMatch) {
-    const jsonString = jsonMatch[1] || jsonMatch[0];
-    console.log('Extracted JSON string:', jsonString);
-    return JSON.parse(jsonString);
+  // Try to extract JSON from various formats
+  let jsonString = '';
+  
+  // First, try to find JSON wrapped in markdown code blocks
+  const codeBlockMatch = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/i);
+  if (codeBlockMatch) {
+    jsonString = codeBlockMatch[1];
+    console.log('Found JSON in code block:', jsonString);
   } else {
-    console.error('Could not find JSON in response content:', content);
-    throw new Error('Could not find JSON in the analysis response');
+    // Try to find a standalone JSON object
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      jsonString = jsonMatch[0];
+      console.log('Found standalone JSON:', jsonString);
+    } else {
+      console.error('No JSON found in content:', content);
+      throw new Error('Could not find JSON in the analysis response');
+    }
+  }
+  
+  // Clean up the JSON string
+  jsonString = jsonString.trim();
+  
+  // Try to fix common JSON issues
+  try {
+    // First attempt: parse as-is
+    return JSON.parse(jsonString);
+  } catch (firstError) {
+    console.log('First parse attempt failed:', firstError.message);
+    
+    try {
+      // Second attempt: remove any trailing commas and fix quotes
+      let cleanedJson = jsonString
+        .replace(/,\s*}/g, '}')        // Remove trailing commas before }
+        .replace(/,\s*]/g, ']')        // Remove trailing commas before ]
+        .replace(/([{,]\s*)(\w+):/g, '$1"$2":')  // Add quotes around unquoted keys
+        .replace(/:\s*'([^']*)'/g, ': "$1"');    // Replace single quotes with double quotes
+      
+      console.log('Attempting to parse cleaned JSON:', cleanedJson);
+      return JSON.parse(cleanedJson);
+    } catch (secondError) {
+      console.log('Second parse attempt failed:', secondError.message);
+      
+      try {
+        // Third attempt: try to extract just the core object
+        const objectMatch = cleanedJson.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/);
+        if (objectMatch) {
+          console.log('Attempting to parse extracted object:', objectMatch[0]);
+          return JSON.parse(objectMatch[0]);
+        }
+        throw new Error('Could not extract valid JSON object');
+      } catch (thirdError) {
+        console.error('All JSON parsing attempts failed');
+        console.error('Original content:', content);
+        console.error('Extracted JSON string:', jsonString);
+        console.error('Final error:', thirdError.message);
+        
+        // Return a default structure to prevent complete failure
+        return {
+          companySummary: 'Analysis failed - please try again',
+          categoryPOV: '',
+          companyMission: '',
+          uniqueInsight: '',
+          features: [],
+          useCases: [],
+          differentiators: []
+        };
+      }
+    }
   }
 };
