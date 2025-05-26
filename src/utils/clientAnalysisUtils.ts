@@ -2,7 +2,7 @@
 import { CompanyLink } from '@/types/storytelling';
 
 export const buildClientAnalysisPrompt = (companyLinks: CompanyLink[], companyName: string) => {
-  let prompt = `Visit the following URLs for ${companyName}: `;
+  let userPrompt = `Visit the following URLs for ${companyName}: `;
   
   const urlParts = [];
   
@@ -27,9 +27,9 @@ export const buildClientAnalysisPrompt = (companyLinks: CompanyLink[], companyNa
     urlParts.push(`other relevant pages (${otherUrls.join(', ')})`);
   }
   
-  prompt += urlParts.join(', ');
+  userPrompt += urlParts.join(', ');
   
-  prompt += `. Analyze the company information and extract the following details:
+  userPrompt += `. Analyze the company information and extract the following details:
 
 1. COMPANY SUMMARY: Provide a comprehensive overview of what the company does, their target market, and their value proposition (3-4 sentences).
 
@@ -83,7 +83,18 @@ Format the output as a JSON object with the following structure:
 
 IMPORTANT: Ensure all fields are populated with relevant information extracted from the provided URLs. Focus on factual, specific details rather than generic marketing language.`;
 
-  return prompt;
+  const systemPrompt = `You are an expert data extraction agent. You MUST visit and analyze the exact URLs provided by the user to extract real, factual information about the company. Do NOT create fictional or generic content.
+
+CRITICAL INSTRUCTIONS:
+- You MUST search and visit each provided URL to gather real information
+- Extract ONLY factual information found on these specific URLs
+- Do NOT hallucinate, invent, or create generic content
+- If information is not available on the URLs, leave those fields empty or minimal
+- Focus on company websites, LinkedIn profiles, about pages, and other relevant content
+
+Return ONLY a JSON object with the exact structure requested. Write all descriptions factually based on the actual content found on the URLs.`;
+
+  return { systemPrompt, userPrompt };
 };
 
 export const parseClientAnalysisContent = (content: string) => {

@@ -29,11 +29,11 @@ export const useClientAnalysis = () => {
         return;
       }
       
-      const prompt = buildClientAnalysisPrompt(companyLinks, companyName);
-      console.log('Sending prompt to analysis service:', prompt);
+      const { systemPrompt, userPrompt } = buildClientAnalysisPrompt(companyLinks, companyName);
+      console.log('Sending prompts to analysis service:', { systemPrompt, userPrompt });
       
       const { data, error } = await supabase.functions.invoke('analyze-profile', {
-        body: { prompt }
+        body: { systemPrompt, userPrompt }
       });
       
       if (error) {
