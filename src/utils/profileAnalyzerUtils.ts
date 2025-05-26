@@ -1,3 +1,4 @@
+
 import { AuthorSocialLink, AuthorExperience, AuthorToneItem, AuthorBelief } from '@/types/storytelling';
 import { ParsedAnalysisData } from '@/types/profileAnalyzer';
 
@@ -42,17 +43,27 @@ Then, revisit their LinkedIn profile url${linkedinUrls.length > 1 ? 's' : ''} ($
     prompt += ` Also analyze these other urls (${otherUrls.join(', ')}).`;
   }
 
-  prompt += ` After analyzing, provide a summary of profile's career backstory (in five sentences or less), covering their career trajectory up to date. Also analyze and extract all experiences from their LinkedIn profile, FOUR writing tones, and FOUR product beliefs from their LinkedIn and X posts`;
+  prompt += ` After analyzing, provide a summary of profile's career backstory (in five sentences or less), covering their career trajectory up to date. 
+
+For experiences, extract ALL career experiences from their LinkedIn profile. For each experience, the title MUST be formatted EXACTLY as: "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]" (for example: "Founder & Lead Content Strategy @ VEC Studio | 2020 – Present" or "Marketing Manager @ Tech Corp | 2018 – 2020"). The description should be the EXACT text from the LinkedIn experience description, written in first-person perspective as it appears on LinkedIn.
+
+Also extract FOUR writing tones and FOUR product beliefs from their LinkedIn and X posts`;
 
   if (otherUrls.length > 0) {
     prompt += `, as well as from these other urls (${otherUrls.join(', ')})`;
   }
 
-  prompt += `. For each experience, extract their title/job role, company, and duration they spent or have spent at the company as the experience title; then, provide a summary of what they did in that role in five sentences. For each of the writing tones and product beliefs analyzed, give it a succinct title followed by a summary of each writing tone and product belief in five sentences. Write all summaries in first-person language (e.g. use "I" like the person whose profile is being analyzed is telling someone about themself).
+  prompt += `. For each of the writing tones and product beliefs analyzed, give it a succinct title followed by a summary of each writing tone and product belief in five sentences. Write all tone and belief summaries in first-person language (e.g. use "I" like the person whose profile is being analyzed is telling someone about themself).
 
 Format the output as a JSON object with fields: 'currentRole', 'organization', 'backstory', 'experiences' (array with fields 'title' and 'description'), 'tones' (array with fields 'tone' and 'description'), and 'beliefs' (array with fields 'belief' and 'description').
 
-IMPORTANT: Ensure 'currentRole' contains ONLY the job title, 'organization' contains ONLY the company name, and all experiences are captured with their full context from LinkedIn.`;
+IMPORTANT: 
+- Ensure 'currentRole' contains ONLY the job title
+- 'organization' contains ONLY the company name
+- For experiences, the 'title' field MUST follow the exact format: "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]"
+- For experiences, the 'description' field should contain the actual LinkedIn experience description in first-person
+- Extract ALL experiences from LinkedIn, not just recent ones
+- Include accurate date ranges for each experience`;
   
   return prompt;
 };
