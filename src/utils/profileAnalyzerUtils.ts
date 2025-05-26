@@ -29,49 +29,79 @@ export const collectUrls = (socialLinks: AuthorSocialLink[], additionalUrls: str
 export const buildPrompt = (linkedinUrls: string[], xUrls: string[], otherUrls: string[], authorName?: string) => {
   const authorNameText = authorName ? ` of ${authorName}` : '';
   
-  let prompt = `Visit the LinkedIn profile url${linkedinUrls.length > 1 ? 's' : ''} (${linkedinUrls.join(', ')})${authorNameText}, extract their most recent role/title and their current organization and prefill into the respective fields above.
+  let prompt = `**CRITICAL INSTRUCTIONS: You MUST visit the actual LinkedIn profile URL(s) and only extract information that is explicitly visible. Do NOT create, infer, or make up any information.**
 
-Then, revisit their LinkedIn profile url${linkedinUrls.length > 1 ? 's' : ''} (${linkedinUrls.join(', ')})`;
+Visit the LinkedIn profile URL${linkedinUrls.length > 1 ? 's' : ''}: ${linkedinUrls.join(', ')}${authorNameText}
+
+**STEP 1: Extract Current Role & Organization**
+From the LinkedIn profile header/summary section, extract:
+- Most recent job title (ONLY the title, not the company)
+- Current organization/company name (ONLY the company name)
+
+**STEP 2: Extract ALL Experiences**
+Go to the "Experience" section on LinkedIn and extract EVERY single experience listed. Do NOT skip any.
+For each experience you see:
+- Title format: "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]"
+- Description: Copy the EXACT description from LinkedIn. If no description exists, use empty string.
+- You MUST extract ALL experiences, not just recent ones
+- If you cannot see all experiences due to access limitations, mention this in your response
+
+**STEP 3: Career Backstory**
+Write a 5-sentence summary of their career trajectory based on the experiences you extracted.
+
+**STEP 4: Analyze Social Posts**`;
 
   if (xUrls.length > 0) {
-    prompt += ` and X profile${xUrls.length > 1 ? 's' : ''} (${xUrls.join(', ')})`;
+    prompt += `
+Visit X profile${xUrls.length > 1 ? 's' : ''}: ${xUrls.join(', ')} and analyze their recent posts.`;
   }
 
-  prompt += ` and analyze their last 30 social posts.`;
+  prompt += `
+From LinkedIn posts and`;
+  if (xUrls.length > 0) prompt += ` X posts`;
+  if (otherUrls.length > 0) prompt += ` and other URLs (${otherUrls.join(', ')})`;
+  
+  prompt += `:
 
-  if (otherUrls.length > 0) {
-    prompt += ` Also analyze these other urls (${otherUrls.join(', ')}).`;
-  }
+**Extract 4 Writing Tones:**
+- Each tone should have a succinct title
+- Each description should be EXACTLY 5 sentences, written in first-person ("I...")
 
-  prompt += ` After analyzing, provide a summary of profile's career backstory (in five sentences or less), covering their career trajectory up to date. 
+**Extract 4 Product Beliefs:**
+- Each belief should have a succinct title  
+- Each description should be EXACTLY 5 sentences, written in first-person ("I...")
 
-CRITICAL INSTRUCTIONS FOR EXPERIENCES:
-- You MUST extract ALL and ONLY the experiences that are explicitly listed in the LinkedIn profile's "Experience" section
-- Do NOT create, infer, or hallucinate any experiences that are not directly visible on the LinkedIn profile
-- For each experience found on LinkedIn, the title MUST be formatted EXACTLY as: "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]"
-- The description MUST be the EXACT text from that specific LinkedIn experience description, written in first-person as it appears
-- If an experience has no description on LinkedIn, use an empty string for the description field
-- If you cannot clearly see all experiences due to access limitations, extract only what you can definitively see
-- Double-check each experience against what is actually listed on the LinkedIn profile before including it
+**OUTPUT FORMAT:**
+Return ONLY a JSON object with this exact structure:
+{
+  "currentRole": "job title only",
+  "organization": "company name only", 
+  "backstory": "exactly 5 sentences about career trajectory",
+  "experiences": [
+    {
+      "title": "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]",
+      "description": "exact LinkedIn description or empty string"
+    }
+  ],
+  "tones": [
+    {
+      "tone": "tone title",
+      "description": "exactly 5 sentences in first-person"
+    }
+  ],
+  "beliefs": [
+    {
+      "belief": "belief title", 
+      "description": "exactly 5 sentences in first-person"
+    }
+  ]
+}
 
-Also extract FOUR writing tones and FOUR product beliefs from their LinkedIn and X posts`;
-
-  if (otherUrls.length > 0) {
-    prompt += `, as well as from these other urls (${otherUrls.join(', ')})`;
-  }
-
-  prompt += `. For each of the writing tones and product beliefs analyzed, give it a succinct title followed by a summary of each writing tone and product belief in five sentences. Write all tone and belief summaries in first-person language (e.g. use "I" like the person whose profile is being analyzed is telling someone about themself).
-
-Format the output as a JSON object with fields: 'currentRole', 'organization', 'backstory', 'experiences' (array with fields 'title' and 'description'), 'tones' (array with fields 'tone' and 'description'), and 'beliefs' (array with fields 'belief' and 'description').
-
-FINAL VALIDATION REQUIREMENTS:
-- Ensure 'currentRole' contains ONLY the job title from the most recent position
-- 'organization' contains ONLY the company name from the most recent position
-- For experiences: the 'title' field MUST follow the exact format: "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]"
-- For experiences: the 'description' field should contain the actual LinkedIn experience description in first-person, or empty string if none exists
-- Include accurate date ranges for each experience as they appear on LinkedIn
-- VERIFY: Each experience you include actually exists on the LinkedIn profile - do not add any experiences that are not explicitly listed
-- If you're unsure about any experience details, do not include that experience rather than guessing`;
+**FINAL VALIDATION:**
+- Verify you extracted ALL experiences from LinkedIn's Experience section
+- Confirm no hallucinated experiences were added
+- Check that all descriptions are exactly 5 sentences
+- Ensure all content is in first-person perspective`;
   
   return prompt;
 };

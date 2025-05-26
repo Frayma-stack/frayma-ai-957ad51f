@@ -29,7 +29,7 @@ export const useProfileAnalysis = () => {
       beliefs?: AuthorBelief[];
     }) => void
   ) => {
-    console.log('Starting analysis for author:', authorName);
+    console.log('Starting OpenAI analysis for author:', authorName);
     
     setIsAnalyzing(true);
     
@@ -51,36 +51,36 @@ export const useProfileAnalysis = () => {
       }
       
       const prompt = buildPrompt(linkedinUrls, xUrls, otherUrls, authorName);
-      console.log('Sending prompt to analysis service:', prompt);
+      console.log('Sending prompt to OpenAI analysis service:', prompt);
       
-      console.log('Making request to Supabase Edge Function...');
+      console.log('Making request to OpenAI Edge Function...');
       
-      const { data, error } = await supabase.functions.invoke('analyze-profile', {
+      const { data, error } = await supabase.functions.invoke('analyze-profile-openai', {
         body: { prompt }
       });
       
       if (error) {
         console.error('Supabase function error:', error);
-        throw new Error(error.message || 'Failed to analyze profile');
+        throw new Error(error.message || 'Failed to analyze profile with OpenAI');
       }
       
       if (!data) {
-        throw new Error('No data received from analysis service');
+        throw new Error('No data received from OpenAI analysis service');
       }
       
       if (data.error) {
         throw new Error(data.error);
       }
       
-      console.log('Analysis service response:', data);
+      console.log('OpenAI analysis service response:', data);
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
         console.error('Invalid response structure:', data);
-        throw new Error('Invalid response format from analysis service');
+        throw new Error('Invalid response format from OpenAI analysis service');
       }
       
       const content = data.choices[0].message.content;
-      console.log('Raw content from analysis service:', content);
+      console.log('Raw content from OpenAI analysis service:', content);
       
       const parsedData = parseAnalysisContent(content);
       console.log('Parsed data:', parsedData);
@@ -92,7 +92,7 @@ export const useProfileAnalysis = () => {
       if (!currentRole && !organization && !backstory && experiences.length === 0 && tones.length === 0 && beliefs.length === 0) {
         toast({
           title: "Analysis yielded no results",
-          description: "No information could be extracted from the provided URLs.",
+          description: "No information could be extracted from the provided URLs using OpenAI.",
           variant: "destructive"
         });
       } else {
@@ -114,17 +114,17 @@ export const useProfileAnalysis = () => {
         if (beliefs.length > 0) extractedItems.push(`${beliefs.length} product beliefs`);
         
         toast({
-          title: "Analysis complete",
+          title: "OpenAI Analysis complete",
           description: `Successfully extracted ${extractedItems.join(', ')}.`,
         });
       }
     } catch (error) {
-      console.error('Error analyzing profile:', error);
+      console.error('Error analyzing profile with OpenAI:', error);
       
       const errorMessage = getErrorMessage(error);
       
       toast({
-        title: "Analysis Failed",
+        title: "OpenAI Analysis Failed",
         description: errorMessage,
         variant: "destructive"
       });
