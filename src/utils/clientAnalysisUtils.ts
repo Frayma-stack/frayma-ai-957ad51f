@@ -1,7 +1,9 @@
 import { CompanyLink } from '@/types/storytelling';
 
 export const buildClientAnalysisPrompt = (companyLinks: CompanyLink[], companyName: string) => {
-  let userPrompt = `Visit the following URLs for ${companyName}: `;
+  let userPrompt = `I need you to VISIT AND ANALYZE the following specific URLs for ${companyName} and extract REAL, FACTUAL information:
+
+`;
   
   const urlParts = [];
   
@@ -11,87 +13,78 @@ export const buildClientAnalysisPrompt = (companyLinks: CompanyLink[], companyNa
   const otherUrls = companyLinks.filter(link => link.type === 'other').map(link => link.url);
   
   if (linkedinUrls.length > 0) {
-    urlParts.push(`LinkedIn company page (${linkedinUrls.join(', ')})`);
+    urlParts.push(`LinkedIn: ${linkedinUrls.join(', ')}`);
   }
   
   if (websiteUrls.length > 0) {
-    urlParts.push(`website (${websiteUrls.join(', ')})`);
+    urlParts.push(`Website: ${websiteUrls.join(', ')}`);
   }
   
   if (aboutUrls.length > 0) {
-    urlParts.push(`about page (${aboutUrls.join(', ')})`);
+    urlParts.push(`About page: ${aboutUrls.join(', ')}`);
   }
   
   if (otherUrls.length > 0) {
-    urlParts.push(`other relevant pages (${otherUrls.join(', ')})`);
+    urlParts.push(`Other pages: ${otherUrls.join(', ')}`);
   }
   
-  userPrompt += urlParts.join(', ');
+  userPrompt += urlParts.join('\n');
   
-  userPrompt += `. Analyze the company information and extract the following details:
+  userPrompt += `
 
-1. COMPANY SUMMARY: Provide a comprehensive overview of what the company does, their target market, and their value proposition (3-4 sentences).
+CRITICAL: You MUST search and visit these exact URLs to extract REAL information. Do NOT provide template responses or placeholders.
 
-2. CATEGORY POINT OF VIEW: Extract or infer the company's perspective on their industry/category and how they position themselves in the market.
+Extract the following from the ACTUAL content found on these URLs:
 
-3. COMPANY MISSION: Identify the company's mission statement or core purpose.
+1. COMPANY SUMMARY: What does ${companyName} actually do? (from their website content)
+2. CATEGORY POV: Their actual stated perspective on their industry 
+3. COMPANY MISSION: Their real mission statement or purpose
+4. UNIQUE INSIGHT: What they actually say makes them unique
+5. FEATURES/SERVICES: Real features/services listed on their site
+6. USE CASES: Actual use cases they describe
+7. DIFFERENTIATORS: How they actually differentiate themselves
 
-4. UNIQUE INSIGHT: What unique perspective or insight does this company bring to their market?
+Return ONLY this JSON structure with REAL data from the URLs:
 
-5. FEATURES/SERVICES: List the main features, services, or products the company offers. For each feature/service, include:
-   - Name of the feature/service
-   - Key benefits it provides to customers
-
-6. USE CASES/SOLUTIONS: Identify the primary use cases or solutions the company addresses. For each use case:
-   - Use case title
-   - Target user role/persona
-   - Description of how the company solves this problem
-
-7. DIFFERENTIATORS: Identify what makes this company different from competitors. For each differentiator:
-   - Differentiator name
-   - Description of what makes them unique
-   - How this compares to their closest competitors (mention specific competitors if possible)
-
-Format the output as a JSON object with the following structure:
 {
-  "companySummary": "string",
-  "categoryPOV": "string", 
-  "companyMission": "string",
-  "uniqueInsight": "string",
+  "companySummary": "REAL summary from website content",
+  "categoryPOV": "ACTUAL perspective found on their site", 
+  "companyMission": "REAL mission from their content",
+  "uniqueInsight": "ACTUAL unique value they state",
   "features": [
     {
-      "name": "string",
-      "benefits": ["string", "string"]
+      "name": "REAL feature name",
+      "benefits": ["REAL benefit 1", "REAL benefit 2"]
     }
   ],
   "useCases": [
     {
-      "useCase": "string",
-      "userRole": "string", 
-      "description": "string"
+      "useCase": "REAL use case title",
+      "userRole": "ACTUAL target user", 
+      "description": "REAL description from their content"
     }
   ],
   "differentiators": [
     {
-      "name": "string",
-      "description": "string",
-      "competitorComparison": "string"
+      "name": "REAL differentiator",
+      "description": "ACTUAL description from site",
+      "competitorComparison": "REAL comparison if mentioned"
     }
   ]
 }
 
-IMPORTANT: Ensure all fields are populated with relevant information extracted from the provided URLs. Focus on factual, specific details rather than generic marketing language.`;
+NO TEMPLATES. NO PLACEHOLDERS. NO BRACKETS WITH INSTRUCTIONS. ONLY REAL DATA FROM THE URLS.`;
 
-  const systemPrompt = `You are an expert data extraction agent. You MUST visit and analyze the exact URLs provided by the user to extract real, factual information about the company. Do NOT create fictional or generic content.
+  const systemPrompt = `You are a web research agent that MUST visit and extract real information from provided URLs. 
 
-CRITICAL INSTRUCTIONS:
-- You MUST search and visit each provided URL to gather real information
-- Extract ONLY factual information found on these specific URLs
-- Do NOT hallucinate, invent, or create generic content
-- If information is not available on the URLs, leave those fields empty or minimal
-- Focus on company websites, LinkedIn profiles, about pages, and other relevant content
+MANDATORY REQUIREMENTS:
+- VISIT each provided URL and read the actual content
+- Extract ONLY factual information found on these specific pages
+- NEVER create fictional, template, or placeholder content
+- If specific information isn't found, use minimal content or empty arrays
+- Return ONLY valid JSON with real data extracted from the URLs
 
-Return ONLY a JSON object with the exact structure requested. Write all descriptions factually based on the actual content found on the URLs.`;
+You MUST provide real, specific information found on the actual websites, not generic templates or examples.`;
 
   return { systemPrompt, userPrompt };
 };
