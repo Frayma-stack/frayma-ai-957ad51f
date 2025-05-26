@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { 
   Card, 
@@ -191,6 +190,22 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
       tones: results.tones || prev.tones,
       beliefs: results.beliefs || prev.beliefs
     }));
+
+    // Show success message with what was extracted
+    const extractedItems = [];
+    if (results.currentRole) extractedItems.push('role');
+    if (results.organization) extractedItems.push('organization');
+    if (results.backstory) extractedItems.push('backstory');
+    if (results.experiences && results.experiences.length > 0) extractedItems.push(`${results.experiences.length} experiences`);
+    if (results.tones && results.tones.length > 0) extractedItems.push(`${results.tones.length} writing tones`);
+    if (results.beliefs && results.beliefs.length > 0) extractedItems.push(`${results.beliefs.length} product beliefs`);
+    
+    if (extractedItems.length > 0) {
+      toast({
+        title: "Profile analysis complete!",
+        description: `Successfully auto-filled: ${extractedItems.join(', ')}.`,
+      });
+    }
   };
   
   const handleSubmit = () => {
@@ -219,10 +234,6 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
     if (cleanedAuthor.beliefs.length === 0) cleanedAuthor.beliefs = [createEmptyBelief()];
     
     onSave(cleanedAuthor);
-    toast({
-      title: "Author saved",
-      description: `"${author.name}" has been saved successfully.`
-    });
   };
   
   return (
@@ -232,23 +243,23 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
           {initialAuthor ? 'Edit Author' : 'Add New Author'}
         </CardTitle>
         <CardDescription>
-          Define author voice and perspective for generating authentic content
+          Define author voice and perspective for generating authentic content. Add social links and use profile analysis to auto-fill information.
         </CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-8">
-        <AuthorBasicInfoSection
-          author={author}
-          onInputChange={handleInputChange}
-          onAnalysisComplete={handleAuthorAnalysisResult}
-        />
-        
         <AuthorSocialLinksSection
           author={author}
           onSocialLinkChange={handleSocialLinkChange}
           onAddSocialLink={addSocialLink}
           onRemoveSocialLink={removeSocialLink}
           onAnalyzeProfile={() => {}} // Empty function since analysis is now handled in BasicInfoSection
+        />
+
+        <AuthorBasicInfoSection
+          author={author}
+          onInputChange={handleInputChange}
+          onAnalysisComplete={handleAuthorAnalysisResult}
         />
         
         <AuthorFormTabs

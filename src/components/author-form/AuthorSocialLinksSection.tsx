@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Author, AuthorSocialLink } from '@/types/storytelling';
-import { Plus, Trash } from 'lucide-react';
+import { Plus, Trash, Info } from 'lucide-react';
 
 interface AuthorSocialLinksSectionProps {
   author: Author;
@@ -20,6 +20,8 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
   onRemoveSocialLink,
   onAnalyzeProfile
 }) => {
+  const hasValidUrls = (author.socialLinks || []).some(link => link.url.trim() !== '');
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -32,6 +34,17 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
           <Plus className="h-4 w-4 mr-1" /> Add Link
         </Button>
       </div>
+
+      {!hasValidUrls && (
+        <div className="bg-amber-50 border border-amber-200 p-3 rounded-md">
+          <div className="flex items-start">
+            <Info className="h-4 w-4 text-amber-600 mt-0.5 mr-2 flex-shrink-0" />
+            <p className="text-sm text-amber-700">
+              Add LinkedIn, X (Twitter), or other profile URLs to enable automatic profile analysis and auto-filling of author information.
+            </p>
+          </div>
+        </div>
+      )}
       
       <div className="space-y-4">
         {(author.socialLinks || []).map((link, index) => (
@@ -48,7 +61,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
               <option value="other">Other</option>
             </select>
             <Input 
-              placeholder="Enter URL"
+              placeholder="Enter profile or content URL"
               value={link.url}
               onChange={(e) => onSocialLinkChange(link.id, 'url', e.target.value)}
               className="flex-1"
