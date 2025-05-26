@@ -1,158 +1,63 @@
 
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
-import { 
-  Author, 
-  AuthorExperience, 
-  AuthorToneItem, 
-  AuthorBelief,
-  AuthorSocialLink
-} from '@/types/storytelling';
-
-// Helper functions to create empty items with unique IDs
-const createEmptyExperience = (): AuthorExperience => ({
-  id: crypto.randomUUID(),
-  title: '',
-  description: ''
-});
-
-const createEmptyTone = (): AuthorToneItem => ({
-  id: crypto.randomUUID(),
-  tone: '',
-  description: ''
-});
-
-const createEmptyBelief = (): AuthorBelief => ({
-  id: crypto.randomUUID(),
-  belief: '',
-  description: ''
-});
-
-const createEmptySocialLink = (): AuthorSocialLink => ({
-  id: crypto.randomUUID(),
-  type: 'linkedin',
-  url: ''
-});
+import { Author, AuthorExperience, AuthorToneItem, AuthorBelief } from '@/types/storytelling';
+import { createInitialAuthor, validateAndCleanAuthor } from '@/utils/authorFormUtils';
+import { useAuthorExperiences } from './useAuthorExperiences';
+import { useAuthorTones } from './useAuthorTones';
+import { useAuthorBeliefs } from './useAuthorBeliefs';
+import { useAuthorSocialLinks } from './useAuthorSocialLinks';
 
 export const useAuthorForm = (initialAuthor?: Author | null) => {
   const { toast } = useToast();
-  const [author, setAuthor] = useState<Author>(
-    initialAuthor || {
-      id: crypto.randomUUID(),
-      name: '',
-      role: '',
-      organization: '',
-      backstory: '',
-      experiences: [createEmptyExperience()],
-      tones: [createEmptyTone()],
-      beliefs: [createEmptyBelief()],
-      socialLinks: [createEmptySocialLink()]
-    }
-  );
+  const author = createInitialAuthor(initialAuthor);
+  
+  const [basicInfo, setBasicInfo] = useState({
+    id: author.id,
+    name: author.name,
+    role: author.role,
+    organization: author.organization,
+    backstory: author.backstory
+  });
+
+  const {
+    experiences,
+    handleExperienceChange,
+    addExperience,
+    removeExperience,
+    setExperiencesFromAnalysis
+  } = useAuthorExperiences(author.experiences);
+
+  const {
+    tones,
+    handleToneChange,
+    addTone,
+    removeTone,
+    setTonesFromAnalysis
+  } = useAuthorTones(author.tones);
+
+  const {
+    beliefs,
+    handleBeliefChange,
+    addBelief,
+    removeBelief,
+    setBeliefsFromAnalysis
+  } = useAuthorBeliefs(author.beliefs);
+
+  const {
+    socialLinks,
+    handleSocialLinkChange,
+    addSocialLink,
+    removeSocialLink
+  } = useAuthorSocialLinks(author.socialLinks || []);
   
   const handleInputChange = (
     field: keyof Omit<Author, 'id' | 'experiences' | 'tones' | 'beliefs' | 'socialLinks'>, 
     value: string
   ) => {
-    setAuthor(prev => ({
+    setBasicInfo(prev => ({
       ...prev,
       [field]: value
-    }));
-  };
-  
-  // Handle Experience items
-  const handleExperienceChange = (id: string, field: keyof AuthorExperience, value: string) => {
-    setAuthor(prev => ({
-      ...prev,
-      experiences: prev.experiences.map(exp => 
-        exp.id === id ? { ...exp, [field]: value } : exp
-      )
-    }));
-  };
-  
-  const addExperience = () => {
-    setAuthor(prev => ({
-      ...prev,
-      experiences: [...prev.experiences, createEmptyExperience()]
-    }));
-  };
-  
-  const removeExperience = (id: string) => {
-    setAuthor(prev => ({
-      ...prev,
-      experiences: prev.experiences.filter(exp => exp.id !== id)
-    }));
-  };
-  
-  // Handle Tone items
-  const handleToneChange = (id: string, field: keyof AuthorToneItem, value: string) => {
-    setAuthor(prev => ({
-      ...prev,
-      tones: prev.tones.map(tone => 
-        tone.id === id ? { ...tone, [field]: value } : tone
-      )
-    }));
-  };
-  
-  const addTone = () => {
-    setAuthor(prev => ({
-      ...prev,
-      tones: [...prev.tones, createEmptyTone()]
-    }));
-  };
-  
-  const removeTone = (id: string) => {
-    setAuthor(prev => ({
-      ...prev,
-      tones: prev.tones.filter(tone => tone.id !== id)
-    }));
-  };
-  
-  // Handle Belief items
-  const handleBeliefChange = (id: string, field: keyof AuthorBelief, value: string) => {
-    setAuthor(prev => ({
-      ...prev,
-      beliefs: prev.beliefs.map(belief => 
-        belief.id === id ? { ...belief, [field]: value } : belief
-      )
-    }));
-  };
-  
-  const addBelief = () => {
-    setAuthor(prev => ({
-      ...prev,
-      beliefs: [...prev.beliefs, createEmptyBelief()]
-    }));
-  };
-  
-  const removeBelief = (id: string) => {
-    setAuthor(prev => ({
-      ...prev,
-      beliefs: prev.beliefs.filter(belief => belief.id !== id)
-    }));
-  };
-  
-  // Handle Social Link items
-  const handleSocialLinkChange = (id: string, field: keyof AuthorSocialLink, value: string | 'linkedin' | 'x' | 'blog' | 'website' | 'other') => {
-    setAuthor(prev => ({
-      ...prev,
-      socialLinks: prev.socialLinks?.map(link => 
-        link.id === id ? { ...link, [field]: value } : link
-      ) || []
-    }));
-  };
-  
-  const addSocialLink = () => {
-    setAuthor(prev => ({
-      ...prev,
-      socialLinks: [...(prev.socialLinks || []), createEmptySocialLink()]
-    }));
-  };
-  
-  const removeSocialLink = (id: string) => {
-    setAuthor(prev => ({
-      ...prev,
-      socialLinks: prev.socialLinks?.filter(link => link.id !== id) || []
     }));
   };
 
@@ -164,15 +69,18 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
     tones?: AuthorToneItem[];
     beliefs?: AuthorBelief[];
   }) => {
-    setAuthor(prev => ({
+    // Update basic info
+    setBasicInfo(prev => ({
       ...prev,
       role: results.currentRole || prev.role,
       organization: results.organization || prev.organization,
-      backstory: results.backstory || prev.backstory,
-      experiences: results.experiences || prev.experiences,
-      tones: results.tones || prev.tones,
-      beliefs: results.beliefs || prev.beliefs
+      backstory: results.backstory || prev.backstory
     }));
+
+    // Update arrays if provided
+    if (results.experiences) setExperiencesFromAnalysis(results.experiences);
+    if (results.tones) setTonesFromAnalysis(results.tones);
+    if (results.beliefs) setBeliefsFromAnalysis(results.beliefs);
 
     // Show success message with what was extracted
     const extractedItems = [];
@@ -191,9 +99,9 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
     }
   };
 
-  const validateAndCleanAuthor = () => {
+  const validateAndCleanAuthorData = () => {
     // Basic validation
-    if (!author.name.trim()) {
+    if (!basicInfo.name.trim()) {
       toast({
         title: "Missing information",
         description: "Please provide a name for this author.",
@@ -202,26 +110,29 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
       return null;
     }
     
-    // Clean up empty items
-    const cleanedAuthor = {
-      ...author,
-      experiences: author.experiences.filter(exp => exp.title.trim() !== '' || exp.description.trim() !== ''),
-      tones: author.tones.filter(tone => tone.tone.trim() !== ''),
-      beliefs: author.beliefs.filter(belief => belief.belief.trim() !== ''),
-      socialLinks: author.socialLinks?.filter(link => link.url.trim() !== '') || undefined
+    // Construct the full author object
+    const fullAuthor: Author = {
+      ...basicInfo,
+      experiences,
+      tones,
+      beliefs,
+      socialLinks
     };
-    
-    // Make sure each array has at least one item
-    if (cleanedAuthor.experiences.length === 0) cleanedAuthor.experiences = [createEmptyExperience()];
-    if (cleanedAuthor.tones.length === 0) cleanedAuthor.tones = [createEmptyTone()];
-    if (cleanedAuthor.beliefs.length === 0) cleanedAuthor.beliefs = [createEmptyBelief()];
-    
-    return cleanedAuthor;
+
+    return validateAndCleanAuthor(fullAuthor);
+  };
+
+  // Construct the current author state for components that need the full object
+  const currentAuthor: Author = {
+    ...basicInfo,
+    experiences,
+    tones,
+    beliefs,
+    socialLinks
   };
 
   return {
-    author,
-    setAuthor,
+    author: currentAuthor,
     handleInputChange,
     handleExperienceChange,
     addExperience,
@@ -236,6 +147,6 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
     addSocialLink,
     removeSocialLink,
     handleAuthorAnalysisResult,
-    validateAndCleanAuthor
+    validateAndCleanAuthor: validateAndCleanAuthorData
   };
 };
