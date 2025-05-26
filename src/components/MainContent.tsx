@@ -1,16 +1,10 @@
+
 import { FC } from 'react';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
-import ContentTypeSelector from '@/components/ContentTypeSelector';
-import ArticleTypeSelector from '@/components/ArticleTypeSelector';
-import GTMNarrativeCreator from '@/components/GTMNarrativeCreator';
-import SuccessStoryCreator from '@/components/SuccessStoryCreator';
-import ShortFormContentCreator from '@/components/ShortFormContentCreator';
-import ClientManager from '@/components/ClientManager';
-import AuthorManager from '@/components/AuthorManager';
-import IdeasBank from '@/components/ideas/IdeasBank';
-import ICPStoryScriptManager from '@/components/ICPStoryScriptManager';
-import CustomerSuccessManager from '@/components/CustomerSuccessManager';
-import ProductContextManager from '@/components/ProductContextManager';
+import HomeViewRouter from '@/components/content/HomeViewRouter';
+import AssetViewRouter from '@/components/content/AssetViewRouter';
+import { useContentFiltering } from '@/hooks/useContentFiltering';
+import { useProductContextManager } from '@/hooks/useProductContextManager';
 import { Client, Author, ICPStoryScript, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 
@@ -85,199 +79,74 @@ const MainContent: FC<MainContentProps> = ({
   onProductContextUpdated,
   onProductContextDeleted,
 }) => {
-  const getFilteredAuthors = () => {
-    if (selectedClientId) {
-      return authors.filter(author => author.clientId === selectedClientId);
-    }
-    return authors;
-  };
+  const {
+    getFilteredAuthors,
+    getFilteredICPScripts,
+    getFilteredSuccessStories,
+    getCurrentProductContext,
+  } = useContentFiltering({
+    selectedClientId,
+    authors,
+    icpScripts,
+    successStories,
+    productContexts,
+  });
 
-  const getFilteredICPScripts = () => {
-    if (selectedClientId) {
-      return icpScripts.filter(script => script.clientId === selectedClientId);
-    }
-    return icpScripts;
-  };
-
-  const getFilteredSuccessStories = () => {
-    if (selectedClientId) {
-      return successStories.filter(story => story.clientId === selectedClientId);
-    }
-    return successStories;
-  };
-
-  const getFilteredProductContexts = () => {
-    if (selectedClientId) {
-      return productContexts.filter(context => context.clientId === selectedClientId);
-    }
-    return productContexts;
-  };
-
-  // Get the first product context for the selected client (ProductContextManager expects a single context)
-  const getCurrentProductContext = () => {
-    const filtered = getFilteredProductContexts();
-    return filtered.length > 0 ? filtered[0] : null;
-  };
-
-  // Handle product context creation when none exists
-  const handleProductContextCreatedOrUpdated = (productContext: ProductContext) => {
-    const existingContext = getCurrentProductContext();
-    if (existingContext) {
-      onProductContextUpdated(productContext);
-    } else {
-      // Set clientId if we have a selected client
-      if (selectedClientId) {
-        productContext.clientId = selectedClientId;
-      }
-      onProductContextAdded(productContext);
-    }
-  };
+  const { handleProductContextCreatedOrUpdated } = useProductContextManager({
+    selectedClientId,
+    getCurrentProductContext,
+    onProductContextAdded,
+    onProductContextUpdated,
+  });
 
   if (currentView === 'home') {
-    if (selectedType === 'article' && !selectedArticleSubtype) {
-      return (
-        <ArticleTypeSelector 
-          onSelect={onArticleSubtypeSelect}
-          onBack={onBack}
-        />
-      );
-    } else if (selectedType === 'article' && selectedArticleSubtype) {
-      return (
-        <GTMNarrativeCreator
-          articleSubType={selectedArticleSubtype}
-          scripts={getFilteredICPScripts()}
-          successStories={getFilteredSuccessStories()}
-          ideas={ideas}
-          onBack={onBack}
-        />
-      );
-    } else if (selectedType === 'success-story') {
-      return (
-        <SuccessStoryCreator 
-          scripts={getFilteredICPScripts()}
-          successStories={getFilteredSuccessStories()}
-          authors={getFilteredAuthors()}
-          productContext={getCurrentProductContext()}
-          onBack={onBack}
-          onStoryCreated={onSuccessStoryAdded}
-        />
-      );
-    } else if (selectedType === 'linkedin') {
-      return (
-        <ShortFormContentCreator 
-          contentType="linkedin"
-          scripts={getFilteredICPScripts()}
-          authors={getFilteredAuthors()}
-          successStories={getFilteredSuccessStories()}
-          onBack={onBack}
-        />
-      );
-    } else if (selectedType === 'email') {
-      return (
-        <ShortFormContentCreator 
-          contentType="email"
-          scripts={getFilteredICPScripts()}
-          authors={getFilteredAuthors()}
-          successStories={getFilteredSuccessStories()}
-          onBack={onBack}
-        />
-      );
-    } else if (selectedType === 'custom') {
-      return (
-        <ShortFormContentCreator 
-          contentType="custom"
-          scripts={getFilteredICPScripts()}
-          authors={getFilteredAuthors()}
-          successStories={getFilteredSuccessStories()}
-          onBack={onBack}
-        />
-      );
-    } else {
-      return (
-        <ContentTypeSelector 
-          onSelect={onContentTypeSelect}
-        />
-      );
-    }
-  }
-
-  if (currentView === 'clients') {
     return (
-      <ClientManager
-        clients={clients}
-        selectedClientId={selectedClientId}
-        onClientAdded={onClientAdded}
-        onClientUpdated={onClientUpdated}
-        onClientDeleted={onClientDeleted}
-        onClientSelected={onClientSelected}
-        onViewClientAssets={onViewClientAssets}
-        onProductContextAdded={onProductContextAdded}
-      />
-    );
-  }
-
-  if (currentView === 'authors') {
-    return (
-      <AuthorManager
-        authors={getFilteredAuthors()}
-        onAuthorAdded={onAuthorAdded}
-        onAuthorUpdated={onAuthorUpdated}
-        onAuthorDeleted={onAuthorDeleted}
-      />
-    );
-  }
-
-  if (currentView === 'ideas') {
-    return (
-      <IdeasBank
-        scripts={getFilteredICPScripts()}
-        productContext={getCurrentProductContext()}
+      <HomeViewRouter
+        selectedType={selectedType}
+        selectedArticleSubtype={selectedArticleSubtype}
+        filteredICPScripts={getFilteredICPScripts()}
+        filteredSuccessStories={getFilteredSuccessStories()}
+        filteredAuthors={getFilteredAuthors()}
+        currentProductContext={getCurrentProductContext()}
         ideas={ideas}
-        onIdeaAdded={onIdeaAdded}
-        onIdeaUpdated={onIdeaUpdated}
-        onIdeaDeleted={onIdeaDeleted}
-        selectedClientId={selectedClientId}
-      />
-    );
-  }
-
-  if (currentView === 'icps') {
-    return (
-      <ICPStoryScriptManager
-        scripts={getFilteredICPScripts()}
-        onScriptAdded={onICPScriptAdded}
-        onScriptUpdated={onICPScriptUpdated}
-        onScriptDeleted={onICPScriptDeleted}
-      />
-    );
-  }
-
-  if (currentView === 'successStories') {
-    return (
-      <CustomerSuccessManager
-        successStories={getFilteredSuccessStories()}
+        onContentTypeSelect={onContentTypeSelect}
+        onArticleSubtypeSelect={onArticleSubtypeSelect}
+        onBack={onBack}
         onSuccessStoryAdded={onSuccessStoryAdded}
-        onSuccessStoryUpdated={onSuccessStoryUpdated}
-        onSuccessStoryDeleted={onSuccessStoryDeleted}
       />
     );
   }
 
-  if (currentView === 'productContext') {
-    return (
-      <ProductContextManager
-        productContext={getCurrentProductContext()}
-        onProductContextUpdated={handleProductContextCreatedOrUpdated}
-      />
-    );
-  }
-
-  // Placeholder for other asset types
   return (
-    <div className="text-center py-8">
-      <h2 className="text-2xl font-bold text-gray-700">{currentView}</h2>
-      <p className="text-gray-500 mt-2">This section is coming soon</p>
-    </div>
+    <AssetViewRouter
+      currentView={currentView}
+      selectedClientId={selectedClientId}
+      clients={clients}
+      filteredAuthors={getFilteredAuthors()}
+      filteredICPScripts={getFilteredICPScripts()}
+      filteredSuccessStories={getFilteredSuccessStories()}
+      currentProductContext={getCurrentProductContext()}
+      ideas={ideas}
+      onClientAdded={onClientAdded}
+      onClientUpdated={onClientUpdated}
+      onClientDeleted={onClientDeleted}
+      onClientSelected={onClientSelected}
+      onViewClientAssets={onViewClientAssets}
+      onAuthorAdded={onAuthorAdded}
+      onAuthorUpdated={onAuthorUpdated}
+      onAuthorDeleted={onAuthorDeleted}
+      onIdeaAdded={onIdeaAdded}
+      onIdeaUpdated={onIdeaUpdated}
+      onIdeaDeleted={onIdeaDeleted}
+      onICPScriptAdded={onICPScriptAdded}
+      onICPScriptUpdated={onICPScriptUpdated}
+      onICPScriptDeleted={onICPScriptDeleted}
+      onSuccessStoryAdded={onSuccessStoryAdded}
+      onSuccessStoryUpdated={onSuccessStoryUpdated}
+      onSuccessStoryDeleted={onSuccessStoryDeleted}
+      onProductContextAdded={onProductContextAdded}
+      handleProductContextCreatedOrUpdated={handleProductContextCreatedOrUpdated}
+    />
   );
 };
 
