@@ -39,7 +39,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-sonar-huge-128k-online',
+        model: 'llama-3.1-sonar-large-128k-online',
         messages: [
           {
             role: 'system',
@@ -51,7 +51,7 @@ serve(async (req) => {
           }
         ],
         temperature: 0.2,
-        max_tokens: 8000,
+        max_tokens: 4000,
         return_images: false,
         return_related_questions: false,
         search_recency_filter: 'month',
