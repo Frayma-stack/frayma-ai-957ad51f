@@ -18,7 +18,7 @@ const ProfileAnalyzer: FC<ProfileAnalyzerProps> = ({
   const { isAnalyzing, analyzeProfile } = useProfileAnalysis();
   
   const handleAnalyze = () => {
-    analyzeProfile(socialLinks, additionalUrls, onAnalysisComplete);
+    analyzeProfile(socialLinks, additionalUrls, '', onAnalysisComplete);
   };
 
   return (
