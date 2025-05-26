@@ -7,6 +7,8 @@ import AuthorTonesTab from './AuthorTonesTab';
 import AuthorBeliefsTab from './AuthorBeliefsTab';
 
 interface AuthorFormTabsProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
   author: Author;
   onExperienceChange: (id: string, field: 'title' | 'description', value: string) => void;
   onAddExperience: () => void;
@@ -20,6 +22,8 @@ interface AuthorFormTabsProps {
 }
 
 const AuthorFormTabs: FC<AuthorFormTabsProps> = ({
+  activeTab,
+  onTabChange,
   author,
   onExperienceChange,
   onAddExperience,
@@ -32,7 +36,7 @@ const AuthorFormTabs: FC<AuthorFormTabsProps> = ({
   onRemoveBelief
 }) => {
   return (
-    <Tabs defaultValue="experiences">
+    <Tabs value={activeTab} onValueChange={onTabChange}>
       <TabsList className="grid grid-cols-3">
         <TabsTrigger value="experiences">Experiences</TabsTrigger>
         <TabsTrigger value="tones">Writing Tone</TabsTrigger>
