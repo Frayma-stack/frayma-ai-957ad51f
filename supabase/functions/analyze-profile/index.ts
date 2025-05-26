@@ -39,7 +39,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-sonar-small-128k-online',
+        model: 'llama-3.1-sonar-large-128k-online',
         messages: [
           {
             role: 'system',
@@ -50,8 +50,13 @@ serve(async (req) => {
             content: userPrompt
           }
         ],
-        temperature: 0.2,
-        max_tokens: 2000,
+        temperature: 0.1,
+        max_tokens: 4000,
+        return_images: false,
+        return_related_questions: false,
+        search_recency_filter: 'month',
+        frequency_penalty: 1,
+        presence_penalty: 0
       }),
     });
 
