@@ -1,10 +1,12 @@
 
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Author, AuthorSocialLink } from '@/types/storytelling';
 import { useProfileAnalysis } from '@/hooks/useProfileAnalysis';
 import { useSocialLinksState } from './social-links/useSocialLinksState';
 import StepOneLinkedInSection from './social-links/StepOneLinkedInSection';
 import StepTwoContentSection from './social-links/StepTwoContentSection';
+import { Button } from "@/components/ui/button";
+import { UserPlus, Sparkles } from 'lucide-react';
 
 interface AuthorSocialLinksSectionProps {
   author: Author;
@@ -31,6 +33,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
   onAnalysisComplete
 }) => {
   const { isAnalyzing, analyzeProfile } = useProfileAnalysis();
+  const [manualMode, setManualMode] = useState(false);
   const { 
     stepOneCompleted, 
     setStepOneCompleted, 
@@ -43,7 +46,8 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
     authorName: author.name,
     hasLinkedInUrl,
     stepOneCompleted,
-    hasStepOneResults
+    hasStepOneResults,
+    manualMode
   });
 
   const handleStepOneAnalysis = () => {
@@ -79,15 +83,58 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
     );
   };
 
+  const handleManualMode = () => {
+    setManualMode(true);
+    // Trigger analysis complete to show the expanded form
+    onAnalysisComplete({});
+  };
+
+  // If manual mode is selected, show expanded form immediately
+  if (manualMode) {
+    return (
+      <StepTwoContentSection
+        author={author}
+        onSocialLinkChange={onSocialLinkChange}
+        onAddSocialLink={onAddSocialLink}
+        onRemoveSocialLink={onRemoveSocialLink}
+        onAnalyze={handleStepTwoAnalysis}
+        isAnalyzing={isAnalyzing}
+        stepOneCompleted={true}
+        hasStepOneResults={true}
+      />
+    );
+  }
+
   // Show step 1: LinkedIn URL only
   if (!stepOneCompleted && !hasStepOneResults) {
     return (
-      <StepOneLinkedInSection
-        author={author}
-        onSocialLinkChange={onSocialLinkChange}
-        onAnalyze={handleStepOneAnalysis}
-        isAnalyzing={isAnalyzing}
-      />
+      <div className="space-y-4">
+        <StepOneLinkedInSection
+          author={author}
+          onSocialLinkChange={onSocialLinkChange}
+          onAnalyze={handleStepOneAnalysis}
+          isAnalyzing={isAnalyzing}
+        />
+        
+        <div className="flex items-center justify-center">
+          <div className="flex items-center space-x-4">
+            <div className="h-px bg-gray-300 flex-1"></div>
+            <span className="text-sm text-gray-500 px-3">OR</span>
+            <div className="h-px bg-gray-300 flex-1"></div>
+          </div>
+        </div>
+        
+        <div className="flex justify-center">
+          <Button 
+            variant="outline"
+            onClick={handleManualMode}
+            className="border-story-blue text-story-blue hover:bg-story-blue hover:text-white"
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            Add Author Manually
+          </Button>
+        </div>
+      </div>
     );
   }
 

@@ -26,22 +26,20 @@ export const collectUrls = (socialLinks: AuthorSocialLink[], additionalUrls: str
 };
 
 export const buildLinkedInExperiencesPrompt = (linkedinUrls: string[], authorName?: string) => {
-  const authorNameText = authorName ? ` for ${authorName}` : '';
+  const authorNameText = authorName || 'the profile owner';
   
-  return `Analyze the LinkedIn profile(s)${authorNameText} and extract professional experience information:
+  return `Visit the LinkedIn profile URL: ${linkedinUrls.join(', ')} of ${authorNameText}, extract their current role/title and organization, and prefill extracted into the first field below. Also, extract ALL professional experiences from ${linkedinUrls.join(', ')} and return each experience in the format: Title/Role @Company Name | Start Date – End Date or Present. Under each professional experience extracted from ${linkedinUrls.join(', ')}, create a summary of each experience in five sentences, using first-person language like ${authorNameText} was talking to someone one-on-one (e.g. use "I" like the person whose profile is being analyzed is telling someone about themself). From ALL listed professional experiences, awards, professional education, and recognition on ${linkedinUrls.join(', ')}, create a summarized backstory of their career trajectory to date in seven sentences. Auto-fill this in the field below.
 
-LinkedIn Profile(s): ${linkedinUrls.join(', ')}
-
-Please extract ALL professional experiences listed on the LinkedIn profile and return ONLY a JSON object with this exact structure:
+Return ONLY a JSON object with this exact structure:
 
 {
   "currentRole": "current job title only",
   "organization": "current company name only", 
-  "backstory": "exactly 6 sentences summarizing the complete career journey from earliest to current role",
+  "backstory": "exactly 7 sentences summarizing the complete career journey from earliest to current role in first-person",
   "experiences": [
     {
       "title": "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]",
-      "description": "exactly 5 sentences describing responsibilities and achievements"
+      "description": "exactly 5 sentences describing responsibilities and achievements in first-person ('I' statements)"
     }
   ]
 }
@@ -49,52 +47,61 @@ Please extract ALL professional experiences listed on the LinkedIn profile and r
 **REQUIREMENTS:**
 - Extract the MOST RECENT role for currentRole and organization
 - Include ALL experiences listed on the profile, starting with the most recent
-- Each experience description must be EXACTLY 5 sentences
-- The backstory must be EXACTLY 6 sentences covering the entire career progression
+- Each experience description must be EXACTLY 5 sentences in first-person
+- The backstory must be EXACTLY 7 sentences covering the entire career progression in first-person
 - Use actual information from the LinkedIn profile
 - Return ONLY valid JSON, no additional text or explanations`;
 };
 
 export const buildSocialContentAnalysisPrompt = (linkedinUrls: string[], xUrls: string[], otherUrls: string[], authorName?: string) => {
-  const authorNameText = authorName ? ` for ${authorName}` : '';
+  const authorNameText = authorName || 'the profile owner';
   
-  let prompt = `Analyze the social media posts and content${authorNameText} to identify writing tones and product beliefs:
-
-LinkedIn Profile(s): ${linkedinUrls.join(', ')}`;
-
+  let prompt = `Revisit the personal LinkedIn profile URL ${linkedinUrls.join(', ')}`;
+  
   if (xUrls.length > 0) {
-    prompt += `
-X Profile(s): ${xUrls.join(', ')}`;
+    prompt += ` and ${xUrls.join(', ')}`;
   }
+  
+  prompt += ` and analyze their last 30 social posts.`;
 
   if (otherUrls.length > 0) {
-    prompt += `
-Other URLs: ${otherUrls.join(', ')}`;
+    prompt += ` Also analyze the content by ${authorNameText} on these URLs: ${otherUrls.join(', ')}`;
   }
 
-  prompt += `
+  prompt += ` to extract FOUR writing tones and FOUR product beliefs of ${authorNameText} from their LinkedIn`;
+  
+  if (xUrls.length > 0) {
+    prompt += ` and X posts`;
+  }
+  
+  if (otherUrls.length > 0) {
+    prompt += `, as well as from these other URLs: ${otherUrls.join(', ')}`;
+  }
 
-Focus on analyzing the LAST 30 POSTS and content pieces to understand the author's communication style and beliefs. Return ONLY a JSON object with this exact structure:
+  prompt += `. For each of the writing tones and product beliefs analyzed, give it a succinct title in four words or less, followed by a summary of each writing tone and product belief in five sentences. Write all summaries in first-person language (e.g. use "I" like ${authorNameText} is telling someone about themself).
+
+Return ONLY a JSON object with this exact structure:
 
 {
   "tones": [
     {
-      "tone": "tone name (e.g., Analytical, Conversational, Inspirational)",
-      "description": "exactly 5 sentences in first-person describing when and how the author uses this tone"
+      "tone": "succinct tone name (4 words or less)",
+      "description": "exactly 5 sentences in first-person describing when and how I use this tone"
     }
   ],
   "beliefs": [
     {
-      "belief": "core belief or opinion about product/industry", 
+      "belief": "succinct belief title (4 words or less)", 
       "description": "exactly 5 sentences in first-person explaining this belief with examples"
     }
   ]
 }
 
 **REQUIREMENTS:**
-- Generate 4 writing tones based on actual content patterns
-- Generate 4 product beliefs based on expressed opinions and viewpoints
+- Generate exactly 4 writing tones based on actual content patterns
+- Generate exactly 4 product beliefs based on expressed opinions and viewpoints
 - Each description must be EXACTLY 5 sentences in first-person ("I...")
+- Tone and belief titles must be 4 words or less
 - Base analysis on actual social media posts and content
 - Return ONLY valid JSON, no additional text or explanations`;
   
