@@ -32,12 +32,14 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
 }) => {
   const { isAnalyzing, analyzeProfile } = useProfileAnalysis();
   const hasValidUrls = (author.socialLinks || []).some(link => link.url.trim() !== '');
+  const hasLinkedIn = (author.socialLinks || []).some(link => link.type === 'linkedin' && link.url.trim() !== '');
   const canAnalyze = author.name.trim() && hasValidUrls;
 
   console.log('AuthorSocialLinksSection state:', {
     authorName: author.name,
     socialLinks: author.socialLinks,
     hasValidUrls,
+    hasLinkedIn,
     canAnalyze
   });
 
@@ -113,9 +115,19 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
       {canAnalyze && (
         <div className="space-y-3">
           <div className="bg-blue-50 border border-blue-200 p-3 rounded-md">
-            <p className="text-sm text-blue-700">
-              Ready to generate! Click "Generate Profile" below to automatically create role, organization, backstory, experiences, tones, and beliefs based on the provided links and author name.
+            <p className="text-sm text-blue-700 font-medium mb-2">
+              Ready for two-step AI analysis!
             </p>
+            {hasLinkedIn ? (
+              <div className="text-sm text-blue-600 space-y-1">
+                <p><strong>Step 1:</strong> Extract experiences, role, and organization from LinkedIn profile</p>
+                <p><strong>Step 2:</strong> Analyze social content for writing tones and product beliefs</p>
+              </div>
+            ) : (
+              <p className="text-sm text-blue-600">
+                Add a LinkedIn profile URL for the most comprehensive analysis, or proceed with available links for social content analysis.
+              </p>
+            )}
           </div>
           
           <div className="flex justify-center">
@@ -127,7 +139,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
               {isAnalyzing ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" /> 
-                  Generating...
+                  Analyzing in 2 steps...
                 </>
               ) : (
                 <>

@@ -4,7 +4,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { PerplexityResponse } from '@/types/profileAnalyzer';
 import { 
   collectUrls, 
-  buildPrompt, 
+  buildLinkedInExperiencesPrompt,
+  buildSocialContentAnalysisPrompt,
   parseAnalysisContent, 
   transformAnalysisResults, 
   getErrorMessage 
@@ -29,7 +30,7 @@ export const useProfileAnalysis = () => {
       beliefs?: AuthorBelief[];
     }) => void
   ) => {
-    console.log('Starting OpenAI profile generation for author:', authorName);
+    console.log('Starting two-step profile analysis for author:', authorName);
     
     setIsAnalyzing(true);
     
@@ -50,81 +51,112 @@ export const useProfileAnalysis = () => {
         return;
       }
       
-      const prompt = buildPrompt(linkedinUrls, xUrls, otherUrls, authorName);
-      console.log('Sending prompt to OpenAI generation service:', prompt);
+      // Step 1: Extract experiences from LinkedIn profile only
+      let stepOneResults = { currentRole: '', organization: '', backstory: '', experiences: [] };
       
-      console.log('Making request to OpenAI Edge Function...');
-      
-      const { data, error } = await supabase.functions.invoke('analyze-profile-openai', {
-        body: { prompt }
-      });
-      
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw new Error(error.message || 'Failed to generate profile with OpenAI');
+      if (linkedinUrls.length > 0) {
+        console.log('Step 1: Extracting experiences from LinkedIn profile...');
+        const linkedInPrompt = buildLinkedInExperiencesPrompt(linkedinUrls, authorName);
+        console.log('LinkedIn experiences prompt:', linkedInPrompt);
+        
+        const { data: linkedInData, error: linkedInError } = await supabase.functions.invoke('analyze-profile', {
+          body: { prompt: linkedInPrompt }
+        });
+        
+        if (linkedInError) {
+          console.error('LinkedIn analysis error:', linkedInError);
+          throw new Error(linkedInError.message || 'Failed to analyze LinkedIn profile');
+        }
+        
+        if (!linkedInData || !linkedInData.choices || !linkedInData.choices[0]) {
+          throw new Error('Invalid response from LinkedIn analysis');
+        }
+        
+        const linkedInContent = linkedInData.choices[0].message.content;
+        console.log('LinkedIn analysis content:', linkedInContent);
+        
+        const linkedInParsed = parseAnalysisContent(linkedInContent);
+        stepOneResults = transformAnalysisResults(linkedInParsed);
+        console.log('Step 1 results:', stepOneResults);
       }
       
-      if (!data) {
-        throw new Error('No data received from OpenAI generation service');
+      // Step 2: Analyze social content for tones and beliefs
+      let stepTwoResults = { tones: [], beliefs: [] };
+      
+      if (linkedinUrls.length > 0 || xUrls.length > 0 || otherUrls.length > 0) {
+        console.log('Step 2: Analyzing social content for tones and beliefs...');
+        const socialContentPrompt = buildSocialContentAnalysisPrompt(linkedinUrls, xUrls, otherUrls, authorName);
+        console.log('Social content analysis prompt:', socialContentPrompt);
+        
+        const { data: socialData, error: socialError } = await supabase.functions.invoke('analyze-profile', {
+          body: { prompt: socialContentPrompt }
+        });
+        
+        if (socialError) {
+          console.error('Social content analysis error:', socialError);
+          // Don't fail the entire process if step 2 fails
+          console.log('Continuing with step 1 results only');
+        } else if (socialData && socialData.choices && socialData.choices[0]) {
+          const socialContent = socialData.choices[0].message.content;
+          console.log('Social content analysis:', socialContent);
+          
+          try {
+            const socialParsed = parseAnalysisContent(socialContent);
+            const socialTransformed = transformAnalysisResults(socialParsed);
+            stepTwoResults = {
+              tones: socialTransformed.tones || [],
+              beliefs: socialTransformed.beliefs || []
+            };
+            console.log('Step 2 results:', stepTwoResults);
+          } catch (parseError) {
+            console.error('Error parsing social content results:', parseError);
+            // Continue with empty tones and beliefs
+          }
+        }
       }
       
-      if (data.error) {
-        throw new Error(data.error);
-      }
+      // Combine results from both steps
+      const finalResults = {
+        currentRole: stepOneResults.currentRole || undefined,
+        organization: stepOneResults.organization || undefined,
+        backstory: stepOneResults.backstory || undefined,
+        experiences: stepOneResults.experiences.length > 0 ? stepOneResults.experiences : undefined,
+        tones: stepTwoResults.tones.length > 0 ? stepTwoResults.tones : undefined,
+        beliefs: stepTwoResults.beliefs.length > 0 ? stepTwoResults.beliefs : undefined
+      };
       
-      console.log('OpenAI generation service response:', data);
+      console.log('Final combined results:', finalResults);
       
-      if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
-        console.error('Invalid response structure:', data);
-        throw new Error('Invalid response format from OpenAI generation service');
-      }
-      
-      const content = data.choices[0].message.content;
-      console.log('Raw content from OpenAI generation service:', content);
-      
-      const parsedData = parseAnalysisContent(content);
-      console.log('Parsed data:', parsedData);
-      
-      const { currentRole, organization, backstory, experiences, tones, beliefs } = transformAnalysisResults(parsedData);
-      
-      console.log('Transformed data:', { currentRole, organization, backstory, experiences, tones, beliefs });
-      
-      if (!currentRole && !organization && !backstory && experiences.length === 0 && tones.length === 0 && beliefs.length === 0) {
+      if (!finalResults.currentRole && !finalResults.organization && !finalResults.backstory && 
+          !finalResults.experiences && !finalResults.tones && !finalResults.beliefs) {
         toast({
-          title: "Generation yielded no results",
-          description: "No information could be generated from the provided URLs.",
+          title: "Analysis yielded no results",
+          description: "No information could be extracted from the provided URLs.",
           variant: "destructive"
         });
       } else {
-        onAnalysisComplete({
-          currentRole: currentRole || undefined,
-          organization: organization || undefined,
-          backstory: backstory || undefined,
-          experiences: experiences.length > 0 ? experiences : undefined,
-          tones: tones.length > 0 ? tones : undefined,
-          beliefs: beliefs.length > 0 ? beliefs : undefined
-        });
+        onAnalysisComplete(finalResults);
         
         const generatedItems = [];
-        if (currentRole) generatedItems.push('role');
-        if (organization) generatedItems.push('organization');
-        if (backstory) generatedItems.push('backstory');
-        if (experiences.length > 0) generatedItems.push(`${experiences.length} experiences`);
-        if (tones.length > 0) generatedItems.push(`${tones.length} writing tones`);
-        if (beliefs.length > 0) generatedItems.push(`${beliefs.length} product beliefs`);
+        if (finalResults.currentRole) generatedItems.push('role');
+        if (finalResults.organization) generatedItems.push('organization');
+        if (finalResults.backstory) generatedItems.push('backstory');
+        if (finalResults.experiences) generatedItems.push(`${finalResults.experiences.length} experiences`);
+        if (finalResults.tones) generatedItems.push(`${finalResults.tones.length} writing tones`);
+        if (finalResults.beliefs) generatedItems.push(`${finalResults.beliefs.length} product beliefs`);
         
         toast({
-          title: "Profile generation complete",
+          title: "Two-step profile analysis complete",
           description: `Successfully generated ${generatedItems.join(', ')}.`,
         });
       }
     } catch (error) {
-      console.error('Error generating profile with OpenAI:', error);
+      console.error('Error in two-step profile analysis:', error);
       
       const errorMessage = getErrorMessage(error);
       
       toast({
-        title: "Profile Generation Failed",
+        title: "Profile Analysis Failed",
         description: errorMessage,
         variant: "destructive"
       });

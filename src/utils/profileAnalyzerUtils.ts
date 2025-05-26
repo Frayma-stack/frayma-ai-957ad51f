@@ -1,4 +1,3 @@
-
 import { AuthorSocialLink, AuthorExperience, AuthorToneItem, AuthorBelief } from '@/types/storytelling';
 import { ParsedAnalysisData } from '@/types/profileAnalyzer';
 
@@ -24,6 +23,82 @@ export const collectUrls = (socialLinks: AuthorSocialLink[], additionalUrls: str
   }
   
   return { linkedinUrls, xUrls, otherUrls };
+};
+
+export const buildLinkedInExperiencesPrompt = (linkedinUrls: string[], authorName?: string) => {
+  const authorNameText = authorName ? ` for ${authorName}` : '';
+  
+  return `Analyze the LinkedIn profile(s)${authorNameText} and extract professional experience information:
+
+LinkedIn Profile(s): ${linkedinUrls.join(', ')}
+
+Please extract ALL professional experiences listed on the LinkedIn profile and return ONLY a JSON object with this exact structure:
+
+{
+  "currentRole": "current job title only",
+  "organization": "current company name only", 
+  "backstory": "exactly 6 sentences summarizing the complete career journey from earliest to current role",
+  "experiences": [
+    {
+      "title": "[Job Title] @ [Company Name] | [Start Date] – [End Date or Present]",
+      "description": "exactly 5 sentences describing responsibilities and achievements"
+    }
+  ]
+}
+
+**REQUIREMENTS:**
+- Extract the MOST RECENT role for currentRole and organization
+- Include ALL experiences listed on the profile, starting with the most recent
+- Each experience description must be EXACTLY 5 sentences
+- The backstory must be EXACTLY 6 sentences covering the entire career progression
+- Use actual information from the LinkedIn profile
+- Return ONLY valid JSON, no additional text or explanations`;
+};
+
+export const buildSocialContentAnalysisPrompt = (linkedinUrls: string[], xUrls: string[], otherUrls: string[], authorName?: string) => {
+  const authorNameText = authorName ? ` for ${authorName}` : '';
+  
+  let prompt = `Analyze the social media posts and content${authorNameText} to identify writing tones and product beliefs:
+
+LinkedIn Profile(s): ${linkedinUrls.join(', ')}`;
+
+  if (xUrls.length > 0) {
+    prompt += `
+X Profile(s): ${xUrls.join(', ')}`;
+  }
+
+  if (otherUrls.length > 0) {
+    prompt += `
+Other URLs: ${otherUrls.join(', ')}`;
+  }
+
+  prompt += `
+
+Focus on analyzing the LAST 30 POSTS and content pieces to understand the author's communication style and beliefs. Return ONLY a JSON object with this exact structure:
+
+{
+  "tones": [
+    {
+      "tone": "tone name (e.g., Analytical, Conversational, Inspirational)",
+      "description": "exactly 5 sentences in first-person describing when and how the author uses this tone"
+    }
+  ],
+  "beliefs": [
+    {
+      "belief": "core belief or opinion about product/industry", 
+      "description": "exactly 5 sentences in first-person explaining this belief with examples"
+    }
+  ]
+}
+
+**REQUIREMENTS:**
+- Generate 4 writing tones based on actual content patterns
+- Generate 4 product beliefs based on expressed opinions and viewpoints
+- Each description must be EXACTLY 5 sentences in first-person ("I...")
+- Base analysis on actual social media posts and content
+- Return ONLY valid JSON, no additional text or explanations`;
+  
+  return prompt;
 };
 
 export const buildPrompt = (linkedinUrls: string[], xUrls: string[], otherUrls: string[], authorName?: string) => {
@@ -108,7 +183,7 @@ Return ONLY a JSON object with this exact structure:
 };
 
 export const parseAnalysisContent = (content: string): ParsedAnalysisData => {
-  console.log('Raw OpenAI response content:', content);
+  console.log('Raw analysis response content:', content);
   
   // Try to find JSON in the response
   let jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || 
@@ -133,9 +208,9 @@ export const parseAnalysisContent = (content: string): ParsedAnalysisData => {
     console.error('Could not parse content as JSON:', content);
     console.error('Parse error:', parseError);
     
-    // If OpenAI refuses to generate content, return a helpful error
+    // If AI refuses to generate content, return a helpful error
     if (content.includes("I can't access") || content.includes("I'm sorry") || content.includes("I cannot")) {
-      throw new Error('OpenAI cannot access external websites. Please try a different approach or provide the information manually.');
+      throw new Error('Analysis service cannot access external websites. Please try a different approach or provide the information manually.');
     }
     
     throw new Error('Could not find valid JSON in the analysis response. Please try again.');
