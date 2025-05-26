@@ -34,6 +34,13 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
   const hasValidUrls = (author.socialLinks || []).some(link => link.url.trim() !== '');
   const canAnalyze = author.name.trim() && hasValidUrls;
 
+  console.log('AuthorSocialLinksSection state:', {
+    authorName: author.name,
+    socialLinks: author.socialLinks,
+    hasValidUrls,
+    canAnalyze
+  });
+
   const handleAnalyzeProfile = () => {
     if (!author.name.trim()) {
       return;

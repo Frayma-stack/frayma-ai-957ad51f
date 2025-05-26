@@ -15,6 +15,13 @@ const AuthorAnalyzedInfoSection: FC<AuthorAnalyzedInfoSectionProps> = ({
 }) => {
   const hasAnalyzedInfo = author.role || author.organization || author.backstory;
   
+  console.log('AuthorAnalyzedInfoSection state:', {
+    role: author.role,
+    organization: author.organization,
+    backstory: author.backstory,
+    hasAnalyzedInfo
+  });
+  
   if (!hasAnalyzedInfo) {
     return null;
   }

@@ -1,4 +1,5 @@
 
+import { useState, useEffect } from 'react';
 import { Author } from '@/types/storytelling';
 import { createInitialAuthor } from '@/utils/authorFormUtils';
 import { useAuthorBasicInfo } from './useAuthorBasicInfo';
@@ -6,13 +7,13 @@ import { useAuthorExperiences } from './useAuthorExperiences';
 import { useAuthorTones } from './useAuthorTones';
 import { useAuthorBeliefs } from './useAuthorBeliefs';
 import { useAuthorSocialLinks } from './useAuthorSocialLinks';
-import { useAuthorStateComposer } from './useAuthorStateComposer';
 import { useAuthorAnalysisHandler } from './useAuthorAnalysisHandler';
 import { useAuthorValidation } from './useAuthorValidation';
 
 export const useAuthorForm = (initialAuthor?: Author | null) => {
   const author = createInitialAuthor(initialAuthor);
   
+  // Initialize all hooks with the initial author data
   const { basicInfo, handleInputChange } = useAuthorBasicInfo(author);
 
   const {
@@ -46,8 +47,25 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
     removeSocialLink
   } = useAuthorSocialLinks(author.socialLinks || []);
 
-  // Compose the current author state
-  const currentAuthor = useAuthorStateComposer(basicInfo, experiences, tones, beliefs, socialLinks);
+  // Compose the current author state directly
+  const [currentAuthor, setCurrentAuthor] = useState<Author>({
+    ...basicInfo,
+    experiences,
+    tones,
+    beliefs,
+    socialLinks
+  });
+
+  // Update the composed author state whenever any part changes
+  useEffect(() => {
+    setCurrentAuthor({
+      ...basicInfo,
+      experiences,
+      tones,
+      beliefs,
+      socialLinks
+    });
+  }, [basicInfo, experiences, tones, beliefs, socialLinks]);
 
   // Handle analysis integration
   const { handleAuthorAnalysisResult } = useAuthorAnalysisHandler(
