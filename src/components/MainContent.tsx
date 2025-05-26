@@ -145,6 +145,8 @@ const MainContent: FC<MainContentProps> = ({
       onSuccessStoryUpdated={onSuccessStoryUpdated}
       onSuccessStoryDeleted={onSuccessStoryDeleted}
       onProductContextAdded={onProductContextAdded}
+      onProductContextUpdated={onProductContextUpdated}
+      onProductContextDeleted={onProductContextDeleted}
       handleProductContextCreatedOrUpdated={handleProductContextCreatedOrUpdated}
     />
   );

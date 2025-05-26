@@ -21,7 +21,7 @@ export interface GeneratedIdea {
   narrativeItemId: string;
   productFeatures: string[];
   perspective?: string;
-  clientId?: string; // New field for client assignment
+  clientId?: string;
 }
 
 export interface ContentIdea {
