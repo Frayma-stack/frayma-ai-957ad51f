@@ -2,13 +2,11 @@
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { PerplexityResponse } from '@/types/profileAnalyzer';
-import { 
-  collectUrls, 
-  buildAnalysisPrompt,
-  parseAnalysisContent, 
-  transformAnalysisResults, 
-  getErrorMessage 
-} from '@/utils/profileAnalyzerUtils';
+import { collectUrls } from '@/utils/urlCollector';
+import { buildAnalysisPrompt } from '@/utils/promptBuilder';
+import { parseAnalysisContent } from '@/utils/responseParser';
+import { transformAnalysisResults } from '@/utils/dataTransformer';
+import { getErrorMessage } from '@/utils/errorHandler';
 import { AuthorSocialLink, AuthorExperience, AuthorToneItem, AuthorBelief } from '@/types/storytelling';
 import { supabase } from '@/integrations/supabase/client';
 
