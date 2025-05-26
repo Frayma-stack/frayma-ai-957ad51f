@@ -2,7 +2,10 @@
 export const buildAnalysisPrompt = (urls: string[]) => {
   const urlsString = urls.join('\n');
   
-  return `You are an expert data extraction agent specialized in analyzing social profiles and related web content. Your task is to visit the provided URLs—including LinkedIn, X (Twitter), and specified blog posts—and extract detailed, structured information about the person's current title/role, career backstory, experiences, writing tones, and product beliefs. Return ONLY a JSON string with the following fields and structure, without any additional commentary or explanation:
+  return {
+    systemPrompt: `You are an expert data extraction agent specialized in analyzing social profiles and related web content. Your task is to visit the provided URLs and extract detailed, structured information about the person's current title/role, career backstory, experiences, writing tones, and product beliefs. 
+
+Return ONLY a JSON string with the following fields and structure, without any additional commentary or explanation:
 
 - currentTitle: string (current job title/role)
 - careerBackstory: string (summary in seven sentences or less, first-person)
@@ -18,10 +21,11 @@ export const buildAnalysisPrompt = (urls: string[]) => {
     - beliefTitle: string (succinct title of the product belief)
     - beliefSummary: string (summary of product belief, five sentences or less, first-person)
 
-Use first-person language as if the person is telling someone about themselves. Do NOT include any text outside the JSON string. Do NOT explain your process.
+Use first-person language as if the person is telling someone about themselves. Do NOT include any text outside the JSON string. Do NOT explain your process.`,
+    userPrompt: `Please analyze the following URLs and extract the profile data as specified in the system message:
 
-CONTENT URLs:
 ${urlsString}
 
-Extract data only from these URLs.`;
+Visit each URL and extract data only from these URLs. Return the structured JSON data with the person's current title, career backstory, experiences, writing tones, and product beliefs.`
+  };
 };

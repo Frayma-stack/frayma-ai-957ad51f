@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { systemPrompt } = await req.json();
+    const { systemPrompt, userPrompt } = await req.json();
     
     const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
     
@@ -29,6 +29,8 @@ serve(async (req) => {
     }
 
     console.log('Making request to Perplexity API...');
+    console.log('System prompt:', systemPrompt);
+    console.log('User prompt:', userPrompt);
     
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
@@ -45,7 +47,7 @@ serve(async (req) => {
           },
           {
             role: 'user',
-            content: 'Extract the profile data as specified.'
+            content: userPrompt
           }
         ],
         temperature: 0.2,

@@ -46,13 +46,15 @@ export const useProfileAnalysis = () => {
         return;
       }
       
-      // Build the system prompt exactly as Perplexity recommends
-      const systemPrompt = buildAnalysisPrompt(urls);
+      // Build the prompt structure for Perplexity
+      const { systemPrompt, userPrompt } = buildAnalysisPrompt(urls);
       console.log('System prompt:', systemPrompt);
+      console.log('User prompt:', userPrompt);
       
       const { data, error } = await supabase.functions.invoke('analyze-profile', {
         body: { 
-          systemPrompt: systemPrompt
+          systemPrompt: systemPrompt,
+          userPrompt: userPrompt
         }
       });
       
