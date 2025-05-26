@@ -1,4 +1,3 @@
-
 import { CompanyLink } from '@/types/storytelling';
 
 export const buildClientAnalysisPrompt = (companyLinks: CompanyLink[], companyName: string) => {
@@ -130,14 +129,15 @@ export const parseClientAnalysisContent = (content: string) => {
   } catch (firstError) {
     console.log('First parse attempt failed:', firstError.message);
     
+    // Declare cleanedJson in the correct scope
+    let cleanedJson = jsonString
+      .replace(/,\s*}/g, '}')        // Remove trailing commas before }
+      .replace(/,\s*]/g, ']')        // Remove trailing commas before ]
+      .replace(/([{,]\s*)(\w+):/g, '$1"$2":')  // Add quotes around unquoted keys
+      .replace(/:\s*'([^']*)'/g, ': "$1"');    // Replace single quotes with double quotes
+    
     try {
-      // Second attempt: remove any trailing commas and fix quotes
-      let cleanedJson = jsonString
-        .replace(/,\s*}/g, '}')        // Remove trailing commas before }
-        .replace(/,\s*]/g, ']')        // Remove trailing commas before ]
-        .replace(/([{,]\s*)(\w+):/g, '$1"$2":')  // Add quotes around unquoted keys
-        .replace(/:\s*'([^']*)'/g, ': "$1"');    // Replace single quotes with double quotes
-      
+      // Second attempt: use cleaned JSON
       console.log('Attempting to parse cleaned JSON:', cleanedJson);
       return JSON.parse(cleanedJson);
     } catch (secondError) {
