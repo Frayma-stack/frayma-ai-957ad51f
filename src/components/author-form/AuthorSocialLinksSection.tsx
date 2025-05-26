@@ -25,7 +25,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="font-medium text-story-blue">Social Links</h3>
+        <h3 className="font-medium text-story-blue">Add Links</h3>
         <Button 
           variant="outline" 
           size="sm" 
@@ -40,7 +40,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
           <div className="flex items-start">
             <Info className="h-4 w-4 text-amber-600 mt-0.5 mr-2 flex-shrink-0" />
             <p className="text-sm text-amber-700">
-              Add LinkedIn, X (Twitter), or other profile URLs to enable automatic profile analysis and auto-filling of author information.
+              Add LinkedIn, X (Twitter), website, blog, or other profile URLs to enable automatic profile analysis and auto-filling of author information.
             </p>
           </div>
         </div>

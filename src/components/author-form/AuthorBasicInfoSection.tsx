@@ -45,7 +45,30 @@ const AuthorBasicInfoSection: FC<AuthorBasicInfoSectionProps> = ({
 
   return (
     <div className="space-y-4">
-      <h3 className="font-medium text-story-blue">Basic Information</h3>
+      <div className="flex justify-between items-center">
+        <h3 className="font-medium text-story-blue">Basic Information</h3>
+        
+        {canAnalyze && (
+          <Button 
+            size="sm"
+            onClick={handleAnalyzeProfile}
+            disabled={isAnalyzing}
+            className="bg-story-blue hover:bg-story-light-blue"
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> 
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <LinkIcon className="h-4 w-4 mr-2" /> 
+                Analyze & Auto-Fill
+              </>
+            )}
+          </Button>
+        )}
+      </div>
       
       <div className="space-y-2">
         <label className="text-sm font-medium">Name*</label>
@@ -57,35 +80,10 @@ const AuthorBasicInfoSection: FC<AuthorBasicInfoSectionProps> = ({
       </div>
 
       {canAnalyze && (
-        <div className="bg-blue-50 border border-blue-200 p-4 rounded-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-blue-900 mb-1">
-                Auto-fill from social profiles
-              </h4>
-              <p className="text-xs text-blue-700">
-                Analyze LinkedIn and other profiles to automatically populate role, organization, backstory, experiences, tones, and beliefs.
-              </p>
-            </div>
-            <Button 
-              size="sm"
-              onClick={handleAnalyzeProfile}
-              disabled={isAnalyzing}
-              className="ml-4"
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> 
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <LinkIcon className="h-4 w-4 mr-2" /> 
-                  Analyze & Auto-Fill
-                </>
-              )}
-            </Button>
-          </div>
+        <div className="bg-blue-50 border border-blue-200 p-3 rounded-md">
+          <p className="text-sm text-blue-700">
+            Ready to analyze! Click "Analyze & Auto-Fill" above to automatically populate role, organization, backstory, experiences, tones, and beliefs from the provided links.
+          </p>
         </div>
       )}
       
