@@ -40,12 +40,21 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
     setBeliefsFromAnalysis
   } = useAuthorBeliefs(author.beliefs);
 
+  // Ensure we always start with a LinkedIn link for new authors
+  const initialSocialLinks = author.socialLinks && author.socialLinks.length > 0 
+    ? author.socialLinks 
+    : [{ 
+        id: crypto.randomUUID(), 
+        type: 'linkedin' as const, 
+        url: '' 
+      }];
+
   const {
     socialLinks,
     handleSocialLinkChange,
     addSocialLink,
     removeSocialLink
-  } = useAuthorSocialLinks(author.socialLinks || []);
+  } = useAuthorSocialLinks(initialSocialLinks);
 
   // Compose the current author state directly
   const [currentAuthor, setCurrentAuthor] = useState<Author>({
