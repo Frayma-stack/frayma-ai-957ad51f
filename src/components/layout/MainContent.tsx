@@ -159,7 +159,7 @@ const MainContent: FC<MainContentProps> = ({
     return (
       <div className="p-6">
         <CustomerSuccessManager
-          stories={getFilteredSuccessStories()}
+          successStories={getFilteredSuccessStories()}
           onStoryAdded={onSuccessStoryAdded}
           onStoryUpdated={onSuccessStoryUpdated}
           onStoryDeleted={onSuccessStoryDeleted}

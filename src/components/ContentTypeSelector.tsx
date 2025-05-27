@@ -7,12 +7,13 @@ import {
   Mail, 
   Linkedin, 
   Sparkles,
-  Lightbulb
+  Lightbulb,
+  Type
 } from "lucide-react";
 import { GeneratedIdea } from '@/types/ideas';
 
 export type ContentType = 'article' | 'success-story' | 'linkedin' | 'email' | 'custom' | 'mint-ideas';
-export type ArticleSubType = 'thought-leadership' | 'newsletter';
+export type ArticleSubType = 'thought_leadership' | 'newsletter';
 
 interface ContentTypeSelectorProps {
   onSelect: (type: ContentType) => void;
@@ -33,7 +34,7 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
     {
       type: 'article' as ContentType,
       title: 'Article',
-      description: 'Long-form content',
+      description: 'Long-form thought leadership and newsletter content',
       icon: FileText,
       color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
       iconColor: 'text-blue-600'
@@ -41,7 +42,7 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
     {
       type: 'linkedin' as ContentType,
       title: 'LinkedIn Post',
-      description: 'Professional social content',
+      description: 'Professional social media content for engagement',
       icon: Linkedin,
       color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
       iconColor: 'text-blue-600'
@@ -49,7 +50,7 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
     {
       type: 'email' as ContentType,
       title: 'Email',
-      description: 'Direct communication',
+      description: 'Direct communication and nurture sequences',
       icon: Mail,
       color: 'bg-green-50 border-green-200 hover:bg-green-100',
       iconColor: 'text-green-600'
@@ -57,15 +58,23 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
     {
       type: 'success-story' as ContentType,
       title: 'Success Story',
-      description: 'Customer case studies',
+      description: 'Customer case studies and testimonials',
       icon: Sparkles,
       color: 'bg-purple-50 border-purple-200 hover:bg-purple-100',
       iconColor: 'text-purple-600'
     },
     {
+      type: 'custom' as ContentType,
+      title: 'Custom Content',
+      description: 'Flexible content for any format or platform',
+      icon: Type,
+      color: 'bg-gray-50 border-gray-200 hover:bg-gray-100',
+      iconColor: 'text-gray-600'
+    },
+    {
       type: 'mint-ideas' as ContentType,
       title: 'Mint New Ideas',
-      description: 'Generate fresh content concepts',
+      description: 'Generate fresh content concepts and inspiration',
       icon: Lightbulb,
       color: 'bg-yellow-50 border-yellow-200 hover:bg-yellow-100',
       iconColor: 'text-yellow-600'
@@ -89,10 +98,10 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          What Would You Auto-Craft?
+          Choose Content Type
         </h2>
         <p className="text-gray-600">
-          Choose the type of content you'd like to create
+          Select the type of content you'd like to create
         </p>
       </div>
 

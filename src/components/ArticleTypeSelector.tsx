@@ -1,11 +1,9 @@
-
 import { FC } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, FileText, Mail } from "lucide-react";
 import { GeneratedIdea } from '@/types/ideas';
-
-export type ArticleSubType = 'thought_leadership' | 'newsletter';
+import { ArticleSubType } from './ContentTypeSelector';
 
 interface ArticleTypeSelectorProps {
   onSelect: (subtype: ArticleSubType) => void;
