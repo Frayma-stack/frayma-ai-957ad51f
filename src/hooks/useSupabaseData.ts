@@ -68,11 +68,20 @@ export const useSupabaseData = () => {
     }
   }, [user]);
 
-  // Client handlers
-  const handleClientAdded = async (client: Client) => {
+  // Enhanced client handlers that can handle product context
+  const handleClientAdded = async (client: Client, productContext?: ProductContext) => {
     try {
       const newClient = await supabaseDataService.createClient(client);
       setClients(prev => [newClient, ...prev]);
+      
+      // If product context was provided, save it as well
+      if (productContext) {
+        console.log('useSupabaseData: Saving product context for new client', productContext);
+        // Ensure the product context has the correct client ID
+        const contextWithClientId = { ...productContext, clientId: newClient.id };
+        await handleProductContextAdded(contextWithClientId);
+      }
+      
       toast.success('Client created successfully');
     } catch (error) {
       console.error('Error creating client:', error);
@@ -80,10 +89,29 @@ export const useSupabaseData = () => {
     }
   };
 
-  const handleClientUpdated = async (updatedClient: Client) => {
+  const handleClientUpdated = async (updatedClient: Client, productContext?: ProductContext) => {
     try {
       const client = await supabaseDataService.updateClient(updatedClient);
       setClients(prev => prev.map(c => c.id === client.id ? client : c));
+      
+      // If product context was provided, handle it
+      if (productContext) {
+        console.log('useSupabaseData: Handling product context for updated client', productContext);
+        // Ensure the product context has the correct client ID
+        const contextWithClientId = { ...productContext, clientId: client.id };
+        
+        // Check if product context already exists for this client
+        const existingContext = productContexts.find(pc => pc.clientId === client.id);
+        if (existingContext) {
+          // Update existing context
+          const updatedContext = { ...contextWithClientId, id: existingContext.id };
+          await handleProductContextUpdated(updatedContext);
+        } else {
+          // Create new context
+          await handleProductContextAdded(contextWithClientId);
+        }
+      }
+      
       toast.success('Client updated successfully');
     } catch (error) {
       console.error('Error updating client:', error);
@@ -243,6 +271,7 @@ export const useSupabaseData = () => {
     try {
       const newContext = await supabaseDataService.createProductContext(context);
       setProductContexts(prev => [newContext, ...prev]);
+      console.log('useSupabaseData: Product context added successfully', newContext);
       toast.success('Product context created successfully');
     } catch (error) {
       console.error('Error creating product context:', error);
@@ -254,6 +283,7 @@ export const useSupabaseData = () => {
     try {
       const context = await supabaseDataService.updateProductContext(updatedContext);
       setProductContexts(prev => prev.map(c => c.id === context.id ? context : c));
+      console.log('useSupabaseData: Product context updated successfully', context);
       toast.success('Product context updated successfully');
     } catch (error) {
       console.error('Error updating product context:', error);
@@ -285,7 +315,7 @@ export const useSupabaseData = () => {
     // Actions
     loadAllData,
     
-    // Client handlers
+    // Client handlers (enhanced)
     handleClientAdded,
     handleClientUpdated,
     handleClientDeleted,

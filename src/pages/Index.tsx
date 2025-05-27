@@ -138,24 +138,6 @@ const Index = () => {
     // This could navigate to a content creation flow in the future
   };
 
-  // Enhanced client update handler to ensure product context is properly saved
-  const handleEnhancedClientUpdated = (client: any, productContext?: any) => {
-    console.log('Enhanced client update handler called:', { client, productContext });
-    
-    // Update the client
-    handleClientUpdated(client);
-    
-    // If product context was provided, ensure it's saved
-    if (productContext) {
-      console.log('Saving product context from client update:', productContext);
-      handleProductContextCreatedOrUpdated(productContext);
-      
-      toast.success('Client and product context updated successfully');
-    } else {
-      toast.success('Client updated successfully');
-    }
-  };
-
   // Show loading while checking authentication
   if (authLoading) {
     return (
@@ -239,7 +221,7 @@ const Index = () => {
               currentProductContext={getCurrentProductContext()}
               ideas={ideas}
               onClientAdded={handleClientAdded}
-              onClientUpdated={handleEnhancedClientUpdated}
+              onClientUpdated={handleClientUpdated}
               onClientDeleted={handleClientDeleted}
               onAuthorAdded={handleAuthorAdded}
               onAuthorUpdated={handleAuthorUpdated}

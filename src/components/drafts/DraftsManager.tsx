@@ -3,8 +3,8 @@ import { FC, useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Users, Plus, Edit, Trash, Clock, User } from 'lucide-react';
-import { useToast } from "@/components/ui/use-toast";
-import { useSupabaseData } from '@/hooks/useSupabaseData';
+import { useToast } from "@/hooks/use-toast";
+import DraftEditor from './DraftEditor';
 
 interface Draft {
   id: string;
@@ -28,6 +28,7 @@ const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
   const { toast } = useToast();
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingDraft, setEditingDraft] = useState<Draft | null>(null);
 
   // Mock data for now - in the future this would come from Supabase
   useEffect(() => {
@@ -83,6 +84,7 @@ const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
     };
     
     setDrafts(prev => [newDraft, ...prev]);
+    setEditingDraft(newDraft);
     
     toast({
       title: "Draft Created",
@@ -91,10 +93,25 @@ const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
   };
 
   const handleEditDraft = (draftId: string) => {
+    const draft = drafts.find(d => d.id === draftId);
+    if (draft) {
+      setEditingDraft(draft);
+    }
+  };
+
+  const handleSaveDraft = (updatedDraft: Draft) => {
+    setDrafts(prev => prev.map(draft => 
+      draft.id === updatedDraft.id ? updatedDraft : draft
+    ));
+    
     toast({
-      title: "Opening Editor",
-      description: "Draft editor functionality will be implemented when the Editor is complete.",
+      title: "Draft Updated",
+      description: "Your changes have been saved successfully.",
     });
+  };
+
+  const handleBackToList = () => {
+    setEditingDraft(null);
   };
 
   const handleDeleteDraft = (draftId: string) => {
@@ -125,6 +142,17 @@ const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  // If editing a draft, show the editor
+  if (editingDraft) {
+    return (
+      <DraftEditor
+        draft={editingDraft}
+        onSave={handleSaveDraft}
+        onBack={handleBackToList}
+      />
+    );
+  }
 
   if (!selectedClientId) {
     return (

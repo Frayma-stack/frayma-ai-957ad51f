@@ -1,3 +1,4 @@
+
 import { FC, useState } from 'react';
 import { 
   Card, 
@@ -9,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Client, ProductContext } from '@/types/storytelling';
 import { Plus, Edit, Trash, Users, User, Target, Package, Trophy, Globe, Linkedin, FileText, ExternalLink } from 'lucide-react';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import EnhancedClientDialog from './EnhancedClientDialog';
 
 interface ClientManagerProps {
@@ -56,27 +57,14 @@ const ClientManager: FC<ClientManagerProps> = ({
     console.log('ClientManager: handleClientCreated called', { client, productContext });
     
     if (editingClient) {
+      // For updates, call the enhanced update handler that handles both client and product context
       onClientUpdated(client, productContext);
     } else {
+      // For new clients, call the enhanced add handler
       onClientAdded(client, productContext);
     }
     
-    // Add the product context if it was created during analysis
-    if (productContext && onProductContextAdded) {
-      console.log('ClientManager: Adding product context to app state', productContext);
-      onProductContextAdded(productContext);
-      
-      toast({
-        title: "Success",
-        description: "Client and product context created successfully from analysis",
-      });
-    } else {
-      toast({
-        title: "Success",
-        description: editingClient ? "Client updated successfully" : "Client created successfully"
-      });
-    }
-    
+    // Don't handle product context separately here since it's now handled by the enhanced handlers
     handleCloseDialog();
   };
 
