@@ -1,0 +1,195 @@
+import { useShortFormState } from './useShortFormState';
+import { useContentGeneration } from './useContentGeneration';
+import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
+import { GeneratedIdea } from '@/types/ideas';
+import { ContentType, ContentGoal } from './types';
+
+interface UseShortFormContentCreatorProps {
+  contentType: ContentType;
+  scripts: ICPStoryScript[];
+  authors: Author[];
+  successStories: CustomerSuccessStory[];
+  ideas: GeneratedIdea[];
+}
+
+export const useShortFormContentCreator = ({
+  contentType,
+  scripts,
+  authors,
+  successStories,
+  ideas
+}: UseShortFormContentCreatorProps) => {
+  const {
+    selectedICP,
+    selectedAuthor,
+    selectedAuthorTone,
+    selectedAuthorExperience,
+    narrativeSelections,
+    contentGoal,
+    generatedContent,
+    isGenerating,
+    clientName,
+    additionalContext,
+    selectedSuccessStory,
+    wordCount,
+    emailCount,
+    availableAnchors,
+    selectedIdeaId,
+    toast,
+    getSelectedIdea,
+    setSelectedICP,
+    setSelectedAuthor,
+    setSelectedAuthorTone,
+    setSelectedAuthorExperience,
+    setNarrativeSelections,
+    setContentGoal,
+    setGeneratedContent,
+    setIsGenerating,
+    setAdditionalContext,
+    setSelectedSuccessStory,
+    setWordCount,
+    setEmailCount,
+    setSelectedIdeaId
+  } = useShortFormState({ scripts, authors, successStories, ideas });
+
+  const {
+    getSelectedICPScript,
+    getSelectedAuthor,
+    getSelectedSuccessStory,
+    generateEmailContent,
+    generateLinkedInContent,
+    generateCustomContent
+  } = useContentGeneration({
+    contentType,
+    scripts,
+    authors,
+    successStories,
+    narrativeSelections,
+    selectedICP,
+    selectedAuthor,
+    selectedAuthorTone,
+    selectedAuthorExperience,
+    selectedSuccessStory,
+    contentGoal,
+    wordCount,
+    emailCount,
+    additionalContext
+  });
+
+  const getContentTypeLabel = () => {
+    switch (contentType) {
+      case 'email': return 'Sales Email';
+      case 'linkedin': return 'LinkedIn Post';
+      case 'custom': return 'Custom Content';
+      default: return 'Content';
+    }
+  };
+
+  const isFormValid = () => {
+    // If an idea is selected, we don't need ICP and narrative selections
+    if (getSelectedIdea()) {
+      return selectedAuthor;
+    }
+    
+    // Otherwise, we need the full form
+    if (!selectedICP || !selectedAuthor) return false;
+    
+    const hasSelectedItems = narrativeSelections.some(
+      selection => selection.items.length > 0
+    );
+    
+    return hasSelectedItems;
+  };
+
+  const generateContent = () => {
+    if (!isFormValid()) {
+      const selectedIdea = getSelectedIdea();
+      if (selectedIdea) {
+        toast({
+          title: "Missing information",
+          description: "Please select an author to generate content using your saved idea.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Missing information",
+          description: "Please select an ICP, author, and at least one narrative item to generate content.",
+          variant: "destructive"
+        });
+      }
+      return;
+    }
+
+    setIsGenerating(true);
+
+    // Simulate content generation
+    setTimeout(() => {
+      const script = getSelectedICPScript();
+      const author = getSelectedAuthor();
+      const successStory = getSelectedSuccessStory();
+      const selectedIdea = getSelectedIdea();
+      
+      if (!author) {
+        setIsGenerating(false);
+        return;
+      }
+      
+      let content = "";
+      
+      if (contentType === 'email') {
+        content = generateEmailContent(script, author, successStory, selectedIdea);
+      } else if (contentType === 'linkedin') {
+        content = generateLinkedInContent(script, author, successStory, selectedIdea);
+      } else if (contentType === 'custom') {
+        content = generateCustomContent(script, author, successStory, selectedIdea);
+      }
+      
+      setGeneratedContent(content);
+      setIsGenerating(false);
+      
+      toast({
+        title: `${getContentTypeLabel()} generated`,
+        description: "Your content has been created. Feel free to edit it as needed."
+      });
+    }, 1500);
+  };
+
+  return {
+    // State
+    selectedICP,
+    selectedAuthor,
+    selectedAuthorTone,
+    selectedAuthorExperience,
+    narrativeSelections,
+    contentGoal,
+    generatedContent,
+    isGenerating,
+    clientName,
+    additionalContext,
+    selectedSuccessStory,
+    wordCount,
+    emailCount,
+    availableAnchors,
+    selectedIdeaId,
+    getSelectedIdea,
+    
+    // Actions
+    setSelectedICP,
+    setSelectedAuthor,
+    setSelectedAuthorTone,
+    setSelectedAuthorExperience,
+    setNarrativeSelections,
+    setContentGoal,
+    setGeneratedContent,
+    setAdditionalContext,
+    setSelectedSuccessStory,
+    setWordCount,
+    setEmailCount,
+    setSelectedIdeaId,
+    
+    // Computed
+    getContentTypeLabel,
+    isFormValid,
+    generateContent
+  };
+};
