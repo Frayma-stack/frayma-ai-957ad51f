@@ -8,6 +8,7 @@ import SuccessStoryCreator from '@/components/SuccessStoryCreator';
 import ShortFormContentCreator from '@/components/ShortFormContentCreator';
 import { ICPStoryScript, CustomerSuccessStory, Author, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface HomeViewRouterProps {
   selectedType: ContentType | null;
@@ -38,22 +39,26 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
 }) => {
   if (selectedType === 'article' && !selectedArticleSubtype) {
     return (
-      <ArticleTypeSelector 
-        onSelect={onArticleSubtypeSelect}
-        onBack={onBack}
-      />
+      <ScrollArea className="h-[calc(100vh-200px)]">
+        <ArticleTypeSelector 
+          onSelect={onArticleSubtypeSelect}
+          onBack={onBack}
+        />
+      </ScrollArea>
     );
   }
   
   if (selectedType === 'article' && selectedArticleSubtype) {
     return (
-      <GTMNarrativeCreator
-        articleSubType={selectedArticleSubtype}
-        scripts={filteredICPScripts}
-        successStories={filteredSuccessStories}
-        ideas={ideas}
-        onBack={onBack}
-      />
+      <ScrollArea className="h-[calc(100vh-200px)]">
+        <GTMNarrativeCreator
+          articleSubType={selectedArticleSubtype}
+          scripts={filteredICPScripts}
+          successStories={filteredSuccessStories}
+          ideas={ideas}
+          onBack={onBack}
+        />
+      </ScrollArea>
     );
   }
   
@@ -72,44 +77,52 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
   
   if (selectedType === 'linkedin') {
     return (
-      <ShortFormContentCreator 
-        contentType="linkedin"
-        scripts={filteredICPScripts}
-        authors={filteredAuthors}
-        successStories={filteredSuccessStories}
-        onBack={onBack}
-      />
+      <ScrollArea className="h-[calc(100vh-200px)]">
+        <ShortFormContentCreator 
+          contentType="linkedin"
+          scripts={filteredICPScripts}
+          authors={filteredAuthors}
+          successStories={filteredSuccessStories}
+          onBack={onBack}
+        />
+      </ScrollArea>
     );
   }
   
   if (selectedType === 'email') {
     return (
-      <ShortFormContentCreator 
-        contentType="email"
-        scripts={filteredICPScripts}
-        authors={filteredAuthors}
-        successStories={filteredSuccessStories}
-        onBack={onBack}
-      />
+      <ScrollArea className="h-[calc(100vh-200px)]">
+        <ShortFormContentCreator 
+          contentType="email"
+          scripts={filteredICPScripts}
+          authors={filteredAuthors}
+          successStories={filteredSuccessStories}
+          onBack={onBack}
+        />
+      </ScrollArea>
     );
   }
   
   if (selectedType === 'custom') {
     return (
-      <ShortFormContentCreator 
-        contentType="custom"
-        scripts={filteredICPScripts}
-        authors={filteredAuthors}
-        successStories={filteredSuccessStories}
-        onBack={onBack}
-      />
+      <ScrollArea className="h-[calc(100vh-200px)]">
+        <ShortFormContentCreator 
+          contentType="custom"
+          scripts={filteredICPScripts}
+          authors={filteredAuthors}
+          successStories={filteredSuccessStories}
+          onBack={onBack}
+        />
+      </ScrollArea>
     );
   }
   
   return (
-    <ContentTypeSelector 
-      onSelect={onContentTypeSelect}
-    />
+    <ScrollArea className="h-[calc(100vh-200px)]">
+      <ContentTypeSelector 
+        onSelect={onContentTypeSelect}
+      />
+    </ScrollArea>
   );
 };
 

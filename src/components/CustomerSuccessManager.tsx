@@ -14,6 +14,7 @@ import EditSuccessStoryDialog from './success-stories/EditSuccessStoryDialog';
 import SuccessStoryList from './success-stories/SuccessStoryList';
 import { Button } from "@/components/ui/button";
 import { Plus } from 'lucide-react';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CustomerSuccessManagerProps {
   successStories: CustomerSuccessStory[];
@@ -66,14 +67,14 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
   const clientInfo = getClientInfo();
 
   return (
-    <Card className="w-full bg-white shadow-md border border-gray-100">
-      <CardHeader className="flex flex-row items-center justify-between">
+    <Card className="w-full bg-white shadow-md border border-gray-100 h-full flex flex-col">
+      <CardHeader className="flex flex-row items-center justify-between flex-shrink-0">
         <div>
           <CardTitle className="text-brand-primary font-sora">Customer Success Stories</CardTitle>
-          <CardDescription>
+          <CardDescription className="opacity-60">
             Add powerful social proof to craft resonant GTM narrative pieces
             {clientInfo && (
-              <span className="ml-2 bg-brand-primary/10 px-2 py-0.5 rounded-full text-xs text-brand-primary">
+              <span className="ml-2 bg-brand-primary/10 px-2 py-0.5 rounded-full text-xs text-brand-primary opacity-80">
                 For client: {clientInfo.name}
               </span>
             )}
@@ -88,12 +89,16 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
         </Button>
       </CardHeader>
       
-      <CardContent>
-        <SuccessStoryList 
-          successStories={successStories}
-          onEdit={handleOpenEditDialog}
-          onDelete={handleDeleteStory}
-        />
+      <CardContent className="flex-1 flex flex-col">
+        <ScrollArea className="flex-1">
+          <div className="pr-4">
+            <SuccessStoryList 
+              successStories={successStories}
+              onEdit={handleOpenEditDialog}
+              onDelete={handleDeleteStory}
+            />
+          </div>
+        </ScrollArea>
         
         {/* Add Dialog */}
         <AddSuccessStoryDialog

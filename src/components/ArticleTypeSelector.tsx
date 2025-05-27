@@ -24,7 +24,7 @@ const ArticleTypeSelector: FC<ArticleTypeSelectorProps> = ({ onSelect, onBack })
     <Card className="w-full bg-white shadow-md">
       <CardHeader>
         <CardTitle className="text-story-blue">Choose Your GTM Narrative Piece Type</CardTitle>
-        <CardDescription>Select the type of narrative you want to create</CardDescription>
+        <CardDescription className="opacity-60">Select the type of narrative you want to create</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -35,7 +35,7 @@ const ArticleTypeSelector: FC<ArticleTypeSelectorProps> = ({ onSelect, onBack })
           >
             <Mail className="h-8 w-8 text-story-blue" />
             <span className="text-lg font-medium">First-Person Narrative Newsletter</span>
-            <span className="text-sm text-gray-500 text-center">
+            <span className="text-sm text-gray-500 text-center opacity-70">
               Create an engaging newsletter<br/>
               in first-person voice
             </span>
@@ -48,7 +48,7 @@ const ArticleTypeSelector: FC<ArticleTypeSelectorProps> = ({ onSelect, onBack })
           >
             <FileText className="h-8 w-8 text-story-blue" />
             <span className="text-lg font-medium">GTM Thought Leadership Article</span>
-            <span className="text-sm text-gray-500 text-center">
+            <span className="text-sm text-gray-500 text-center opacity-70">
               Establish authority with insightful<br/>
               industry perspectives
             </span>

@@ -7,6 +7,7 @@ import SavedIdeas from './SavedIdeas';
 import TwoSidedIdeaGenerator from './TwoSidedIdeaGenerator';
 import { GeneratedIdea } from '@/types/ideas';
 import { ICPStoryScript, ProductContext } from '@/types/storytelling';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface IdeasBankProps {
   scripts: ICPStoryScript[];
@@ -52,7 +53,7 @@ const IdeasBank = ({
         <CardContent className="p-8 text-center">
           <Users className="mx-auto h-12 w-12 opacity-30 mb-4 text-gray-400" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">Select a Client</h3>
-          <p className="text-gray-500">
+          <p className="text-gray-500 opacity-70">
             Please select a client from the sidebar to view and manage their Ideas Bank.
           </p>
         </CardContent>
@@ -61,8 +62,8 @@ const IdeasBank = ({
   }
 
   return (
-    <div className="w-full">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+    <div className="w-full h-full flex flex-col">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="saved">
             Saved Ideas ({filteredIdeas.length})
@@ -72,25 +73,29 @@ const IdeasBank = ({
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="saved" className="mt-6">
-          <SavedIdeas 
-            ideas={filteredIdeas} 
-            scripts={scripts}
-            onIdeaUpdated={onIdeaUpdated}
-            onIdeaDeleted={onIdeaDeleted}
-            onAddManualIdea={handleIdeaAdded}
-            onContentTypeSelect={onContentTypeSelect}
-          />
+        <TabsContent value="saved" className="mt-6 flex-1">
+          <ScrollArea className="h-[calc(100vh-250px)]">
+            <SavedIdeas 
+              ideas={filteredIdeas} 
+              scripts={scripts}
+              onIdeaUpdated={onIdeaUpdated}
+              onIdeaDeleted={onIdeaDeleted}
+              onAddManualIdea={handleIdeaAdded}
+              onContentTypeSelect={onContentTypeSelect}
+            />
+          </ScrollArea>
         </TabsContent>
         
-        <TabsContent value="generate" className="mt-6">
-          <TwoSidedIdeaGenerator 
-            icpScripts={scripts}
-            productContext={productContext}
-            onIdeaAdded={handleIdeaAdded}
-            onContentTypeSelect={onContentTypeSelect}
-            selectedClientId={selectedClientId}
-          />
+        <TabsContent value="generate" className="mt-6 flex-1">
+          <ScrollArea className="h-[calc(100vh-250px)]">
+            <TwoSidedIdeaGenerator 
+              icpScripts={scripts}
+              productContext={productContext}
+              onIdeaAdded={handleIdeaAdded}
+              onContentTypeSelect={onContentTypeSelect}
+              selectedClientId={selectedClientId}
+            />
+          </ScrollArea>
         </TabsContent>
       </Tabs>
     </div>
