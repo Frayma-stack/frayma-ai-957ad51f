@@ -8,7 +8,7 @@ import { GeneratedIdea } from '@/types/ideas';
 import TriggerInputSection from './TriggerInputSection';
 import ProductContextSection from './ProductContextSection';
 import GenerationControls from './GenerationControls';
-import IdeasViewer from './IdeasViewer';
+import GeneratedIdeasViewer from './GeneratedIdeasViewer';
 import { useProductLedIdeaGenerator } from './useProductLedIdeaGenerator';
 
 interface BaseIdeaGeneratorProps {
@@ -46,13 +46,14 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
 
   if (showIdeasViewer) {
     return (
-      <IdeasViewer
-        ideas={generatedIdeas}
-        onBack={handleBackToGeneration}
-        onGenerateNew={handleGenerateNewIdeas}
-        onIdeaAdded={onIdeaAdded}
+      <GeneratedIdeasViewer
+        generatedIdeas={generatedIdeas}
+        onBackToGeneration={handleBackToGeneration}
+        onSaveIdea={onIdeaAdded}
+        onGenerateNewIdeas={handleGenerateNewIdeas}
         onContentTypeSelect={onContentTypeSelect}
         selectedClientId={selectedClientId}
+        icpId={selectedICP?.id || ''}
       />
     );
   }
@@ -86,7 +87,6 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
           onProductInputsChange={setProductInputs}
           icpScripts={icpScripts}
           productContext={productContext}
-          selectedICP={selectedICP}
         />
       </div>
 
