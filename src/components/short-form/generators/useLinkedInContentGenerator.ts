@@ -86,10 +86,11 @@ export const useLinkedInContentGenerator = ({
       if (selectedIdea.cta) {
         content += `${selectedIdea.cta}\n\n`;
       } else {
-        content += `${contentGoal === 'book_call' ? 'Interested in discussing how this applies to your situation? DM me.' : 
-        contentGoal === 'learn_more' ? 'Want to dive deeper into this topic? Check out the link in comments.' : 
-        contentGoal === 'try_product' ? 'Ready to see this in action? Try our assessment tool (link in comments).' : 
-        'What's your experience with this challenge? Share your thoughts below.'}\n\n`;
+        const ctaText = contentGoal === 'book_call' ? 'Interested in discussing how this applies to your situation? DM me.' : 
+          contentGoal === 'learn_more' ? 'Want to dive deeper into this topic? Check out the link in comments.' : 
+          contentGoal === 'try_product' ? 'Ready to see this in action? Try our assessment tool (link in comments).' : 
+          'What\'s your experience with this challenge? Share your thoughts below.';
+        content += `${ctaText}\n\n`;
       }
     } else {
       // Original logic for non-idea based content
@@ -154,10 +155,11 @@ export const useLinkedInContentGenerator = ({
 
       content += `Want to learn how your team can achieve similar results?\n\n`;
 
-      content += `${contentGoal === 'book_call' ? 'DM me to set up a quick call.' : 
-      contentGoal === 'learn_more' ? 'Check out our latest guide (link in comments).' : 
-      contentGoal === 'try_product' ? 'Try our free assessment tool (link in comments).' : 
-      'Comment below with your biggest challenge in this area.'}\n\n`;
+      const ctaText = contentGoal === 'book_call' ? 'DM me to set up a quick call.' : 
+        contentGoal === 'learn_more' ? 'Check out our latest guide (link in comments).' : 
+        contentGoal === 'try_product' ? 'Try our free assessment tool (link in comments).' : 
+        'Comment below with your biggest challenge in this area.';
+      content += `${ctaText}\n\n`;
     }
 
     content += `#${script?.name.replace(/\s+/g, '') || 'Leadership'} #Leadership #Innovation`;
