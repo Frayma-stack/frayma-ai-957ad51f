@@ -1,12 +1,11 @@
 
 import { FC, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Save, Download, Copy } from 'lucide-react';
+import DraftEditorHeader from './DraftEditorHeader';
+import DraftMetaForm from './DraftMetaForm';
+import DraftContentEditor from './DraftContentEditor';
+import DraftInfoDisplay from './DraftInfoDisplay';
 
 interface Draft {
   id: string;
@@ -107,117 +106,36 @@ const DraftEditor: FC<DraftEditorProps> = ({ draft, onSave, onBack }) => {
     });
   };
 
-  const getContentTypeLabel = (type: string) => {
-    switch (type) {
-      case 'gtm-narrative': return 'GTM Narrative';
-      case 'sales-email': return 'Sales Email';
-      case 'linkedin-post': return 'LinkedIn Post';
-      case 'custom': return 'Custom Content';
-      default: return type;
-    }
-  };
-
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <Button variant="outline" onClick={onBack}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Drafts
-        </Button>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleCopyToClipboard}>
-            <Copy className="h-4 w-4 mr-2" />
-            Copy
-          </Button>
-          <Button variant="outline" onClick={handleDownload}>
-            <Download className="h-4 w-4 mr-2" />
-            Download
-          </Button>
-          <Button 
-            onClick={handleSave} 
-            disabled={!hasChanges}
-            className="bg-brand-primary hover:bg-brand-primary/90"
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Save Changes
-          </Button>
-        </div>
-      </div>
+      <DraftEditorHeader
+        hasChanges={hasChanges}
+        onBack={onBack}
+        onSave={handleSave}
+        onCopy={handleCopyToClipboard}
+        onDownload={handleDownload}
+      />
 
-      {/* Editor */}
       <Card className="w-full bg-white shadow-md">
         <CardHeader>
           <CardTitle className="text-brand-primary">Draft Editor</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Meta Information */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Title</label>
-              <Input
-                value={title}
-                onChange={(e) => handleTitleChange(e.target.value)}
-                placeholder="Draft title..."
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Content Type</label>
-              <Select value={contentType} onValueChange={handleContentTypeChange}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gtm-narrative">GTM Narrative</SelectItem>
-                  <SelectItem value="sales-email">Sales Email</SelectItem>
-                  <SelectItem value="linkedin-post">LinkedIn Post</SelectItem>
-                  <SelectItem value="custom">Custom Content</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <DraftMetaForm
+            title={title}
+            contentType={contentType}
+            status={status}
+            onTitleChange={handleTitleChange}
+            onContentTypeChange={handleContentTypeChange}
+            onStatusChange={handleStatusChange}
+          />
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Status</label>
-              <Select value={status} onValueChange={handleStatusChange}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="in-review">In Review</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <DraftContentEditor
+            content={content}
+            onContentChange={handleContentChange}
+          />
 
-          {/* Content Editor */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Content</label>
-            <Textarea
-              value={content}
-              onChange={(e) => handleContentChange(e.target.value)}
-              className="min-h-[500px] font-mono text-sm"
-              placeholder="Start writing your content here..."
-            />
-          </div>
-
-          {/* Draft Info */}
-          <div className="text-xs text-gray-500 border-t pt-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p>Created: {new Date(draft.createdAt).toLocaleString()}</p>
-                <p>Created by: {draft.createdBy}</p>
-              </div>
-              <div>
-                <p>Last updated: {new Date(draft.updatedAt).toLocaleString()}</p>
-                {draft.lastEditedBy && (
-                  <p>Last edited by: {draft.lastEditedBy}</p>
-                )}
-              </div>
-            </div>
-          </div>
+          <DraftInfoDisplay draft={draft} />
         </CardContent>
       </Card>
     </div>
