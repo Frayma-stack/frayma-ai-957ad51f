@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { systemPrompt, userPrompt } = await req.json();
+    const { systemPrompt, userPrompt, urls } = await req.json();
     
     const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
     
@@ -29,21 +29,94 @@ serve(async (req) => {
       );
     }
 
-    console.log('Making request to Perplexity API...');
-    console.log('System prompt length:', systemPrompt?.length || 0);
-    console.log('User prompt length:', userPrompt?.length || 0);
+    console.log('Starting content scraping and analysis process...');
     
-    // Enhanced parameters based on Perplexity's recommendations for URL analysis
+    // First, scrape the content from the URLs
+    let scrapedData;
+    if (urls && urls.length > 0) {
+      console.log('Scraping content from URLs:', urls);
+      
+      try {
+        const scrapeResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/scrape-content`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
+          },
+          body: JSON.stringify({ urls })
+        });
+        
+        if (!scrapeResponse.ok) {
+          throw new Error(`Scraping failed: ${scrapeResponse.status} ${scrapeResponse.statusText}`);
+        }
+        
+        scrapedData = await scrapeResponse.json();
+        console.log('Successfully scraped content from', scrapedData.scrapedContent?.length || 0, 'URLs');
+        
+      } catch (scrapeError) {
+        console.error('Content scraping failed:', scrapeError);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to scrape website content',
+            details: scrapeError.message,
+            suggestion: 'Please verify the URLs are accessible and try again.'
+          }), 
+          {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+    }
+
+    // Build the enhanced prompt with scraped content
+    let enhancedUserPrompt = userPrompt;
+    
+    if (scrapedData && scrapedData.scrapedContent) {
+      const contentSections = scrapedData.scrapedContent
+        .filter(item => item.content && item.content.trim().length > 0)
+        .map((item, index) => {
+          return `--- Content from ${item.url} ---\n${item.content}\n`;
+        })
+        .join('\n');
+      
+      if (contentSections) {
+        enhancedUserPrompt = `${userPrompt}\n\nBELOW IS THE ACTUAL CONTENT FROM THE PROVIDED WEBSITES. Please analyze this real content instead of searching online:\n\n${contentSections}`;
+      } else {
+        // If no content was successfully scraped, return an error
+        const errors = scrapedData.scrapedContent
+          .filter(item => item.error)
+          .map(item => `${item.url}: ${item.error}`)
+          .join(', ');
+        
+        return new Response(
+          JSON.stringify({ 
+            error: 'Could not extract content from the provided URLs',
+            details: `Scraping errors: ${errors}`,
+            suggestion: 'Please verify the URLs are publicly accessible and contain the expected content.'
+          }), 
+          {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+    }
+
+    console.log('Making request to Perplexity API with scraped content...');
+    console.log('Enhanced user prompt length:', enhancedUserPrompt?.length || 0);
+    
+    // Use a model that doesn't do online search since we're providing the content
     const requestBody = {
-      model: 'llama-3.1-sonar-large-128k-online',
+      model: 'llama-3.1-sonar-small-128k-online', // Keep online model but provide explicit content
       messages: [
         {
           role: 'system',
-          content: systemPrompt
+          content: systemPrompt + '\n\nIMPORTANT: The user will provide the actual website content below. Do NOT search online. Analyze ONLY the provided content and extract information from it. If information is not available in the provided content, leave those fields empty or state that the information is not available.'
         },
         {
           role: 'user',
-          content: userPrompt
+          content: enhancedUserPrompt
         }
       ],
       temperature: 0.1,
@@ -53,12 +126,12 @@ serve(async (req) => {
       return_related_questions: false,
       search_recency_filter: 'month',
       search_domain_filter: [],
-      return_citations: true,
+      return_citations: false, // Disable citations since we're providing content directly
       frequency_penalty: 1,
       presence_penalty: 0
     };
 
-    console.log('Request body:', JSON.stringify(requestBody, null, 2));
+    console.log('Request body prepared for Perplexity API');
     
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
@@ -71,7 +144,6 @@ serve(async (req) => {
     });
 
     console.log('Perplexity API response status:', response.status);
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -87,14 +159,14 @@ serve(async (req) => {
       } else if (response.status >= 500) {
         errorMessage = 'Analysis service temporarily unavailable. Please try again later.';
       } else if (response.status === 400) {
-        errorMessage = 'Invalid request format. The URLs may not be accessible or properly formatted.';
+        errorMessage = 'Invalid request format or content too large for processing.';
       }
       
       return new Response(
         JSON.stringify({ 
           error: errorMessage,
           details: `HTTP ${response.status}: ${errorText}`,
-          suggestion: 'Please verify that the provided URLs are publicly accessible and try again.'
+          suggestion: 'Please try again or contact support if the issue persists.'
         }), 
         {
           status: response.status,
@@ -104,7 +176,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log('Perplexity API success response:', JSON.stringify(data, null, 2));
+    console.log('Perplexity API success response received');
 
     // Enhanced response validation
     if (!data || !data.choices || !data.choices[0] || !data.choices[0].message) {
@@ -133,10 +205,10 @@ serve(async (req) => {
     
     if (error instanceof TypeError && error.message.includes('fetch')) {
       errorMessage = 'Network connection error';
-      suggestion = 'Unable to connect to the analysis service. This may be due to network restrictions, firewall blocking, or internet connectivity issues. Please check your connection and try again.';
+      suggestion = 'Unable to connect to the analysis service. Please check your connection and try again.';
     } else if (error.message.includes('timeout')) {
       errorMessage = 'Request timeout';
-      suggestion = 'The analysis service took too long to respond. Please try again with fewer URLs or check if the URLs are accessible.';
+      suggestion = 'The analysis request timed out. Please try again or contact support.';
     }
     
     return new Response(

@@ -14,7 +14,7 @@ export const useClientAnalysis = () => {
     companyName: string,
     onAnalysisComplete: (productContext: ProductContext) => void
   ) => {
-    console.log('Starting client analysis...', { companyLinks, companyName });
+    console.log('Starting client analysis with pre-fetching...', { companyLinks, companyName });
     
     setIsAnalyzing(true);
     
@@ -46,12 +46,15 @@ export const useClientAnalysis = () => {
       }
       
       const { systemPrompt, userPrompt } = buildClientAnalysisPrompt(validLinks, companyName);
-      console.log('Sending analysis request to Perplexity API...');
+      const urls = validLinks.map(link => link.url);
+      
+      console.log('Sending analysis request with pre-fetched content approach...');
       
       const { data, error } = await supabase.functions.invoke('analyze-profile', {
         body: { 
           systemPrompt, 
-          userPrompt
+          userPrompt,
+          urls // Pass URLs for content scraping
         }
       });
       
@@ -84,7 +87,7 @@ export const useClientAnalysis = () => {
         throw new Error('Invalid response format from analysis service');
       }
       
-      console.log('Raw content from analysis service:', content);
+      console.log('Raw content from analysis service (with pre-fetched data):', content);
       
       // Parse the analysis content
       let parsedData;
@@ -136,7 +139,7 @@ export const useClientAnalysis = () => {
         companyLinks: validLinks
       };
       
-      console.log('Generated product context from analysis:', productContext);
+      console.log('Generated product context from pre-fetched analysis:', productContext);
       
       // Call the callback with the generated product context
       onAnalysisComplete(productContext);
@@ -147,13 +150,12 @@ export const useClientAnalysis = () => {
       if (features.length > 0) extractedItems.push(`${features.length} features`);
       if (useCases.length > 0) extractedItems.push(`${useCases.length} use cases`);
       if (differentiators.length > 0) extractedItems.push(`${differentiators.length} differentiators`);
-      if (parsedData.sources && parsedData.sources.length > 0) extractedItems.push(`analysis from ${parsedData.sources.length} sources`);
       
       toast({
         title: "Analysis Complete!",
         description: extractedItems.length > 0 
-          ? `Successfully extracted ${extractedItems.join(', ')} from the company websites.`
-          : "Analysis completed. Product context has been populated with available information.",
+          ? `Successfully extracted ${extractedItems.join(', ')} from the actual website content.`
+          : "Analysis completed using real website content. Product context has been populated with available information.",
         duration: 5000
       });
       
@@ -162,7 +164,7 @@ export const useClientAnalysis = () => {
       
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred while analyzing the client.';
       
-      // Enhanced error messages based on Perplexity's suggestions
+      // Enhanced error messages
       let displayMessage = errorMessage;
       let duration = 8000;
       
@@ -174,8 +176,8 @@ export const useClientAnalysis = () => {
       } else if (errorMessage.includes('Network') || errorMessage.includes('connection')) {
         displayMessage = 'Network connection issue. Please check your internet connection and verify the URLs are accessible, then try again.';
         duration = 10000;
-      } else if (errorMessage.includes('cannot access') || errorMessage.includes('firewall') || errorMessage.includes('restricted')) {
-        displayMessage = 'The analysis service cannot access the provided URLs. This may be due to network restrictions, authentication requirements, or the URLs being behind a firewall. Please verify the URLs are publicly accessible.';
+      } else if (errorMessage.includes('scrape') || errorMessage.includes('extract content')) {
+        displayMessage = 'Could not access the website content. The URLs may be behind authentication, blocked by firewall, or temporarily unavailable. Please verify the URLs are publicly accessible.';
         duration = 12000;
       } else if (errorMessage.includes('timeout')) {
         displayMessage = 'The analysis request timed out. Please try again with fewer URLs or verify the URLs are responding quickly.';

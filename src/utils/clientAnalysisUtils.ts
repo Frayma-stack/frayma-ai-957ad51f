@@ -6,98 +6,88 @@ export const buildClientAnalysisPrompt = (companyLinks: CompanyLink[], companyNa
   
   const systemPrompt = `You are an expert AI research assistant specialized in company analysis and content synthesis.
 
-Given a set of URLs provided by the user that relate to a company—typically including the company's main website, LinkedIn page, About page, Services page, or other relevant pages—your task is to extract detailed company information and output it in a structured JSON format for direct use in a product.
+IMPORTANT: You will be provided with the actual website content from the company's URLs below. DO NOT attempt to search online or access any URLs. Analyze ONLY the content that is explicitly provided to you.
 
-Please analyze the content from the URLs and provide the following fields exactly as specified:
+Your task is to extract detailed company information from the provided website content and output it in a structured JSON format.
+
+Please analyze the provided content and extract the following fields exactly as specified:
 
 {
-  "company_description": "A concise description of the company.",
-  "category_point_of_view": "The company's Category Point of View summarized in exactly 3 sentences.",
-  "company_mission": "The company's Mission statement as explicitly stated by the company.",
-  "unique_insight": "A unique insight about the company in 3 to 4 sentences.",
+  "company_description": "A concise description of the company based on the provided content.",
+  "category_point_of_view": "The company's Category Point of View summarized in exactly 3 sentences from the provided content.",
+  "company_mission": "The company's Mission statement as explicitly stated in the provided content.",
+  "unique_insight": "A unique insight about the company in 3 to 4 sentences based on the provided content.",
   "features_services": [
     {
-      "feature_service_name": "Name of the feature or service",
+      "feature_service_name": "Name of the feature or service found in the content",
       "benefits": [
-        "Benefit 1",
-        "Benefit 2",
-        "Benefit 3",
-        "Benefit 4",
-        "Benefit 5 (optional)",
-        "Benefit 6 (optional)"
+        "Benefit 1 from the content",
+        "Benefit 2 from the content",
+        "Benefit 3 from the content",
+        "Benefit 4 from the content",
+        "Benefit 5 (optional) from the content",
+        "Benefit 6 (optional) from the content"
       ]
     }
   ],
   "use_cases": [
     {
-      "role_title_team": "Relevant role, title, or team for this use case",
-      "value_add_description": "Description of the value-add for this use case"
+      "role_title_team": "Relevant role, title, or team mentioned in the content",
+      "value_add_description": "Description of the value-add for this use case from the content"
     }
   ],
   "differentiators": [
     {
-      "title": "Differentiator title",
-      "description": "Succinct 2-3 sentence description of the differentiator"
+      "title": "Differentiator title from the content",
+      "description": "Succinct 2-3 sentence description of the differentiator from the content"
     }
   ],
   "sources": [
     "URL 1",
-    "URL 2",
+    "URL 2", 
     "URL 3",
     "URL 4",
     "...additional URLs as provided"
   ]
 }
 
-Additional instructions:
-- Use the URLs in the order provided by the user and list them in the "sources" array.
-- Cite sources by referencing their index in the "sources" array when extracting factual statements (this is for your internal tracking; do not output citations in the JSON fields).
-- Do not include any information beyond what is requested.
-- Ensure all text is concise, clear, and professional.
-- Return only the JSON object as your response, without any additional commentary or explanation.
+Critical instructions:
+- Extract information ONLY from the website content that will be provided below
+- Do NOT search online, access URLs, or use external knowledge
+- If specific information is not available in the provided content, leave those fields empty or state "Not available in provided content"
+- Use only factual information that appears in the provided website content
+- Do not invent or hallucinate any information not present in the content
+- Ensure all text is concise, clear, and directly extracted from the provided content
+- Return only the JSON object as your response, without any additional commentary or explanation
 
 Current Date: ${new Date().toISOString().split('T')[0]}`;
 
-  const userPrompt = `The URLs to analyze are:
+  const userPrompt = `Company Name: ${companyName}
+
+The following URLs will be analyzed and their content provided below:
 ${urls.map((url, index) => `- ${url}`).join('\n')}
 
-Company Name: ${companyName}
-
-Please extract the detailed company information from these URLs and return the structured JSON as specified.`;
+Please extract the detailed company information from the website content that will be provided and return the structured JSON as specified. Remember to analyze ONLY the actual content provided, not any external or additional information.`;
 
   return { systemPrompt, userPrompt };
 };
 
 export const parseClientAnalysisContent = (content: string) => {
-  console.log('Parsing client analysis content:', content);
+  console.log('Parsing client analysis content from pre-fetched data:', content);
   
-  // Enhanced error detection patterns based on Perplexity's suggestions
-  const accessErrorPatterns = [
-    "unable to access",
-    "cannot access", 
-    "can't access",
-    "don't have the ability to browse",
-    "cannot browse",
-    "don't have access to",
-    "I'm not able to browse",
-    "network error",
-    "connection refused",
-    "timeout",
-    "403 forbidden",
-    "401 unauthorized",
-    "blocked by firewall",
-    "restricted access",
-    "cannot fetch",
-    "failed to retrieve"
+  // Enhanced error detection patterns for content-based analysis
+  const contentIssuePatterns = [
+    "not available in provided content",
+    "no content was provided",
+    "content is empty",
+    "unable to find",
+    "information not found",
+    "not mentioned in the content",
+    "no specific information",
+    "content does not contain"
   ];
   
   const lowerContent = content.toLowerCase();
-  const hasAccessIssue = accessErrorPatterns.some(pattern => lowerContent.includes(pattern));
-  
-  if (hasAccessIssue) {
-    console.log('Detected access issue in response');
-    throw new Error('The analysis service reported that it cannot access the provided URLs. This may be due to network restrictions, firewall blocking, authentication requirements, or URL accessibility issues. Please verify the URLs are publicly accessible and try again, or consider providing the information manually.');
-  }
   
   // Try to extract JSON from the response using multiple strategies
   let jsonString = '';
@@ -107,7 +97,7 @@ export const parseClientAnalysisContent = (content: string) => {
   if (codeBlockMatch) {
     jsonString = codeBlockMatch[1];
   } else {
-    // Strategy 2: Look for standalone JSON object (most comprehensive)
+    // Strategy 2: Look for standalone JSON object
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       jsonString = jsonMatch[0];
@@ -117,12 +107,18 @@ export const parseClientAnalysisContent = (content: string) => {
   if (!jsonString) {
     console.error('No JSON found in response:', content);
     
-    // Check if response contains structured information but not in JSON format
-    if (content.includes('company') || content.includes('mission') || content.includes('feature')) {
-      throw new Error('The analysis service returned information but not in the expected JSON format. The URLs may have been analyzed but the response format was incorrect. Please try again or provide the information manually.');
+    // Check if response indicates content issues
+    const hasContentIssue = contentIssuePatterns.some(pattern => lowerContent.includes(pattern));
+    if (hasContentIssue) {
+      throw new Error('The analysis indicates that the website content could not be properly extracted or contains insufficient information for analysis. Please verify the URLs contain the expected company information and are publicly accessible.');
     }
     
-    throw new Error('The analysis service did not return the expected JSON format. This may indicate the URLs could not be properly analyzed or accessed. Please verify the URLs are valid and accessible, then try again.');
+    // Check if response contains structured information but not in JSON format
+    if (content.includes('company') || content.includes('mission') || content.includes('feature')) {
+      throw new Error('The analysis service returned information but not in the expected JSON format. This may indicate an issue with content processing. Please try again.');
+    }
+    
+    throw new Error('The analysis service did not return the expected JSON format. The website content may not have been properly processed or may be insufficient for analysis.');
   }
   
   // Clean and parse JSON with enhanced error handling
@@ -138,7 +134,7 @@ export const parseClientAnalysisContent = (content: string) => {
     
     const parsed = JSON.parse(cleanedJson);
     
-    // Enhanced validation based on the new structure
+    // Enhanced validation for content-based analysis
     const hasValidData = (
       parsed.company_description ||
       parsed.category_point_of_view ||
@@ -151,7 +147,7 @@ export const parseClientAnalysisContent = (content: string) => {
     
     if (!hasValidData) {
       console.warn('Parsed data appears to be empty or minimal:', parsed);
-      throw new Error('The analysis returned minimal information. The websites may not contain sufficient accessible content for analysis, or there may be network restrictions preventing proper access to the URLs.');
+      throw new Error('The analysis returned minimal information from the website content. The websites may not contain sufficient accessible content for meaningful analysis, or the content structure may not be suitable for automated extraction.');
     }
     
     // Transform the data to match our internal structure
@@ -185,9 +181,9 @@ export const parseClientAnalysisContent = (content: string) => {
     
     // Provide more specific error messages based on the error type
     if (parseError instanceof SyntaxError) {
-      throw new Error('The analysis service returned malformed data. This may be due to network issues or URL accessibility problems. Please verify the URLs are working and try again.');
+      throw new Error('The analysis service returned malformed data from the website content. This may be due to complex content structure or processing issues. Please verify the website content is standard HTML and try again.');
     }
     
-    throw new Error('Failed to parse the analysis response. The AI may have encountered issues accessing the provided URLs due to network restrictions, authentication requirements, or firewall blocking. Please verify the URLs are publicly accessible and try again.');
+    throw new Error('Failed to parse the analysis response from the website content. The content processing may have encountered issues with the website structure or format. Please verify the URLs contain standard, accessible content and try again.');
   }
 };
