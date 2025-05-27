@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users } from "lucide-react";
 import SavedIdeas from './SavedIdeas';
-import ProductLedIdeaGenerator from './ProductLedIdeaGenerator';
+import TwoSidedIdeaGenerator from './TwoSidedIdeaGenerator';
 import { GeneratedIdea } from '@/types/ideas';
 import { ICPStoryScript, ProductContext } from '@/types/storytelling';
 
@@ -94,7 +94,7 @@ const IdeasBank = ({
         </TabsContent>
         
         <TabsContent value="generate" className="mt-6">
-          <ProductLedIdeaGenerator 
+          <TwoSidedIdeaGenerator 
             icpScripts={scripts}
             productContext={productContext}
             onIdeaAdded={handleIdeaAdded}

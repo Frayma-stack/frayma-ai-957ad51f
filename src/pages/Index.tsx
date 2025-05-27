@@ -2,7 +2,8 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "@/components/NavBar";
-import Sidebar from "@/components/Sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 import MainContent from "@/components/MainContent";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -86,11 +87,9 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <NavBar />
-      
-      <div className="flex">
-        <Sidebar
+    <SidebarProvider>
+      <div className="min-h-screen bg-gray-50 flex w-full">
+        <AppSidebar
           ideas={ideas}
           selectedClientId={selectedClientId}
           clients={clients}
@@ -100,48 +99,55 @@ const Index = () => {
           onHomeSelected={handleHomeSelected}
         />
         
-        <main className="flex-1 p-8">
-          <div className="max-w-6xl mx-auto">
-            <MainContent
-              currentView={currentView}
-              selectedType={selectedType}
-              selectedArticleSubtype={selectedArticleSubtype}
-              selectedClientId={selectedClientId}
-              clients={clients}
-              authors={authors}
-              ideas={ideas}
-              icpScripts={icpScripts}
-              successStories={successStories}
-              productContexts={productContexts}
-              onContentTypeSelect={handleContentTypeSelect}
-              onArticleSubtypeSelect={handleArticleSubtypeSelect}
-              onBack={handleBack}
-              onClientAdded={handleClientAdded}
-              onClientUpdated={handleClientUpdated}
-              onClientDeleted={handleClientDeleted}
-              onClientSelected={handleClientSelected}
-              onViewClientAssets={handleViewClientAssets}
-              onAuthorAdded={handleAuthorAdded}
-              onAuthorUpdated={handleAuthorUpdated}
-              onAuthorDeleted={handleAuthorDeleted}
-              onIdeaAdded={handleIdeaAdded}
-              onIdeaUpdated={handleIdeaUpdated}
-              onIdeaDeleted={handleIdeaDeleted}
-              onICPScriptAdded={handleICPScriptAdded}
-              onICPScriptUpdated={handleICPScriptUpdated}
-              onICPScriptDeleted={handleICPScriptDeleted}
-              onSuccessStoryAdded={handleSuccessStoryAdded}
-              onSuccessStoryUpdated={handleSuccessStoryUpdated}
-              onSuccessStoryDeleted={handleSuccessStoryDeleted}
-              onProductContextAdded={handleProductContextAdded}
-              onProductContextUpdated={handleProductContextUpdated}
-              onProductContextDeleted={handleProductContextDeleted}
-              onIdeaContentTypeSelect={handleIdeaContentTypeSelect}
-            />
+        <SidebarInset>
+          <NavBar />
+          <div className="p-4">
+            <SidebarTrigger className="mb-4" />
           </div>
-        </main>
+          
+          <main className="flex-1 p-8">
+            <div className="max-w-6xl mx-auto">
+              <MainContent
+                currentView={currentView}
+                selectedType={selectedType}
+                selectedArticleSubtype={selectedArticleSubtype}
+                selectedClientId={selectedClientId}
+                clients={clients}
+                authors={authors}
+                ideas={ideas}
+                icpScripts={icpScripts}
+                successStories={successStories}
+                productContexts={productContexts}
+                onContentTypeSelect={handleContentTypeSelect}
+                onArticleSubtypeSelect={handleArticleSubtypeSelect}
+                onBack={handleBack}
+                onClientAdded={handleClientAdded}
+                onClientUpdated={handleClientUpdated}
+                onClientDeleted={handleClientDeleted}
+                onClientSelected={handleClientSelected}
+                onViewClientAssets={handleViewClientAssets}
+                onAuthorAdded={handleAuthorAdded}
+                onAuthorUpdated={handleAuthorUpdated}
+                onAuthorDeleted={handleAuthorDeleted}
+                onIdeaAdded={handleIdeaAdded}
+                onIdeaUpdated={handleIdeaUpdated}
+                onIdeaDeleted={handleIdeaDeleted}
+                onICPScriptAdded={handleICPScriptAdded}
+                onICPScriptUpdated={handleICPScriptUpdated}
+                onICPScriptDeleted={handleICPScriptDeleted}
+                onSuccessStoryAdded={handleSuccessStoryAdded}
+                onSuccessStoryUpdated={handleSuccessStoryUpdated}
+                onSuccessStoryDeleted={handleSuccessStoryDeleted}
+                onProductContextAdded={handleProductContextAdded}
+                onProductContextUpdated={handleProductContextUpdated}
+                onProductContextDeleted={handleProductContextDeleted}
+                onIdeaContentTypeSelect={handleIdeaContentTypeSelect}
+              />
+            </div>
+          </main>
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
