@@ -204,7 +204,7 @@ Key takeaways:
 
 ${selectedIdea?.productTieIn || '[How this relates to your solution]'}
 
-${selectedIdea?.cta || `What's your experience with [relevant topic]? ${goalText === 'book_call' ? 'Drop me a DM if you'd like to discuss.' : 'Share your thoughts below.'}`}
+${selectedIdea?.cta || `What's your experience with [relevant topic]? ${goalText === 'book_call' ? 'Drop me a DM if you\'d like to discuss.' : 'Share your thoughts below.'}`}
 
 #[RelevantHashtag] #[IndustryHashtag] #[SolutionHashtag]`;
   };
