@@ -1,14 +1,13 @@
 
 import { FC, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, Save, RefreshCw } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { GeneratedIdea, IdeaScore } from '@/types/ideas';
-import IdeaContentActions from '../IdeaContentActions';
+import { parseIdeas, IdeaWithScore, ParsedIdea } from './utils/IdeaParsingUtils';
+import IdeaCard from './components/IdeaCard';
+import EmptyIdeasState from './components/EmptyIdeasState';
+import GenerateNewIdeasCTA from './components/GenerateNewIdeasCTA';
 
 interface GeneratedIdeasViewerProps {
   generatedIdeas: string[];
@@ -20,26 +19,6 @@ interface GeneratedIdeasViewerProps {
   icpId: string;
 }
 
-interface ParsedIdea {
-  title: string;
-  narrative: string;
-  productTieIn: string;
-  cta: string;
-  originalContent: string;
-}
-
-interface IdeaWithScore extends ParsedIdea {
-  score: IdeaScore | null;
-  tempId: string;
-}
-
-const SCORE_OPTIONS: IdeaScore[] = [
-  { value: 0, label: "0 - Won't propel business" },
-  { value: 1, label: "1 - Somewhat useful" },
-  { value: 2, label: "2 - Very promising" },
-  { value: 3, label: "3 - Can't auto-craft without it" }
-];
-
 const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
   generatedIdeas,
   onBackToGeneration,
@@ -50,88 +29,6 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
   icpId
 }) => {
   const { toast } = useToast();
-
-  // Improved parsing logic to properly extract all sections
-  const parseIdeas = (ideas: string[]): IdeaWithScore[] => {
-    console.log('Raw generated ideas:', ideas);
-    
-    return ideas
-      .filter(idea => {
-        const trimmed = idea.trim();
-        // More lenient filtering - just check for substantial content
-        return trimmed && trimmed.length > 50;
-      })
-      .map((idea, index) => {
-        console.log(`Parsing idea ${index + 1}:`, idea);
-        
-        // Split by double line breaks first to get potential idea blocks
-        const blocks = idea.split(/\n\s*\n/).filter(block => block.trim());
-        
-        // Try to find the main idea block that contains all sections
-        let mainBlock = idea;
-        for (const block of blocks) {
-          if (block.toLowerCase().includes('title') && 
-              (block.toLowerCase().includes('narrative') || 
-               block.toLowerCase().includes('product tie-in') || 
-               block.toLowerCase().includes('cta'))) {
-            mainBlock = block;
-            break;
-          }
-        }
-        
-        console.log(`Main block for idea ${index + 1}:`, mainBlock);
-        
-        // Extract sections using more flexible regex patterns
-        const extractSection = (text: string, sectionName: string): string => {
-          // Try multiple patterns for section extraction
-          const patterns = [
-            new RegExp(`${sectionName}[\\s\\-–:]+(.+?)(?=\\n(?:Title|Narrative|Product Tie-in|CTA)[\\s\\-–:]|$)`, 'is'),
-            new RegExp(`${sectionName}[\\s\\-–:]+(.+?)(?=\\n\\w+[\\s\\-–:]|$)`, 'is'),
-            new RegExp(`${sectionName}[\\s\\-–:]+([\\s\\S]+?)(?=\\n(?:Title|Narrative|Product Tie-in|CTA)|$)`, 'i')
-          ];
-          
-          for (const pattern of patterns) {
-            const match = text.match(pattern);
-            if (match && match[1]) {
-              const extracted = match[1].trim();
-              console.log(`Extracted ${sectionName}:`, extracted);
-              return extracted;
-            }
-          }
-          
-          console.log(`No match found for ${sectionName}`);
-          return '';
-        };
-        
-        const title = extractSection(mainBlock, 'Title') || 
-                     extractSection(mainBlock, 'TITLE') || 
-                     `Untitled Idea ${index + 1}`;
-        
-        const narrative = extractSection(mainBlock, 'Narrative') || 
-                         extractSection(mainBlock, 'NARRATIVE') || '';
-        
-        const productTieIn = extractSection(mainBlock, 'Product Tie-in') || 
-                            extractSection(mainBlock, 'Product Tie-In') || 
-                            extractSection(mainBlock, 'PRODUCT TIE-IN') || '';
-        
-        const cta = extractSection(mainBlock, 'CTA') || 
-                   extractSection(mainBlock, 'Call to Action') || '';
-
-        const parsedIdea = {
-          title,
-          narrative,
-          productTieIn,
-          cta,
-          originalContent: idea,
-          score: null,
-          tempId: `temp-${index}-${Date.now()}`
-        };
-        
-        console.log(`Parsed idea ${index + 1}:`, parsedIdea);
-        return parsedIdea;
-      });
-  };
-
   const [ideasWithScores, setIdeasWithScores] = useState<IdeaWithScore[]>(
     parseIdeas(generatedIdeas)
   );
@@ -207,135 +104,26 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
       </div>
 
       {ideasWithScores.length === 0 ? (
-        <Card className="p-8 text-center">
-          <p className="text-gray-500 mb-4">No valid ideas were found in the generated content.</p>
-          <Button onClick={onGenerateNewIdeas} className="bg-blue-500 hover:bg-blue-600 text-white">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Generate New Ideas
-          </Button>
-        </Card>
+        <EmptyIdeasState onGenerateNewIdeas={onGenerateNewIdeas} />
       ) : (
         <>
           <div className="max-h-[700px] overflow-y-auto space-y-6 pr-2">
             {ideasWithScores.map((ideaData, index) => (
-              <Card key={ideaData.tempId} className="border-l-4 border-l-blue-500 shadow-sm">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg flex items-center justify-between">
-                    <span>Idea {index + 1}</span>
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center space-x-2">
-                        <Label className="text-sm">Score:</Label>
-                        <Select 
-                          value={ideaData.score?.value.toString() || ''} 
-                          onValueChange={(value) => {
-                            const score = SCORE_OPTIONS.find(s => s.value.toString() === value);
-                            if (score) updateIdeaScore(index, score);
-                          }}
-                        >
-                          <SelectTrigger className="w-[200px]">
-                            <SelectValue placeholder="Select score" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {SCORE_OPTIONS.map(option => (
-                              <SelectItem key={option.value} value={option.value.toString()}>
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <IdeaContentActions
-                        idea={{
-                          id: ideaData.tempId,
-                          title: ideaData.title,
-                          narrative: ideaData.narrative,
-                          productTieIn: ideaData.productTieIn,
-                          cta: ideaData.cta,
-                          createdAt: new Date().toISOString(),
-                          score: ideaData.score,
-                          source: { type: 'manual', content: ideaData.originalContent },
-                          icpId: icpId,
-                          narrativeAnchor: 'belief',
-                          narrativeItemId: '',
-                          productFeatures: [],
-                          clientId: selectedClientId,
-                        }}
-                        onContentTypeSelect={handleContentTypeSelect}
-                      />
-                      <Button
-                        onClick={() => handleSaveIdea(index)}
-                        disabled={!ideaData.score}
-                        className="bg-green-500 hover:bg-green-600 text-white"
-                        size="sm"
-                      >
-                        <Save className="h-4 w-4 mr-1" />
-                        Save
-                      </Button>
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-blue-600">Title</Label>
-                      <Textarea
-                        value={ideaData.title}
-                        onChange={(e) => updateIdeaField(index, 'title', e.target.value)}
-                        className="min-h-[60px] font-medium border-blue-200 focus:border-blue-400"
-                        placeholder="Enter a compelling title..."
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-green-600">Narrative</Label>
-                      <Textarea
-                        value={ideaData.narrative}
-                        onChange={(e) => updateIdeaField(index, 'narrative', e.target.value)}
-                        className="min-h-[100px] border-green-200 focus:border-green-400"
-                        placeholder="Describe the narrative tension or belief this idea challenges..."
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-purple-600">Product Tie-In</Label>
-                      <Textarea
-                        value={ideaData.productTieIn}
-                        onChange={(e) => updateIdeaField(index, 'productTieIn', e.target.value)}
-                        className="min-h-[100px] border-purple-200 focus:border-purple-400"
-                        placeholder="How does this naturally surface your product's unique value..."
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-orange-600">Call to Action</Label>
-                      <Textarea
-                        value={ideaData.cta}
-                        onChange={(e) => updateIdeaField(index, 'cta', e.target.value)}
-                        className="min-h-[60px] border-orange-200 focus:border-orange-400"
-                        placeholder="What specific action should readers take..."
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <IdeaCard
+                key={ideaData.tempId}
+                ideaData={ideaData}
+                index={index}
+                icpId={icpId}
+                selectedClientId={selectedClientId}
+                onFieldUpdate={(field, value) => updateIdeaField(index, field, value)}
+                onScoreUpdate={(score) => updateIdeaScore(index, score)}
+                onSave={() => handleSaveIdea(index)}
+                onContentTypeSelect={handleContentTypeSelect}
+              />
             ))}
           </div>
 
-          {/* Generate New Ideas CTA at the bottom */}
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-dashed border-blue-300">
-            <CardContent className="p-8 text-center">
-              <h4 className="text-lg font-semibold text-gray-800 mb-2">Need More Ideas?</h4>
-              <p className="text-gray-600 mb-4">Generate a fresh batch of Product-Led Storytelling ideas with different angles and perspectives.</p>
-              <Button 
-                onClick={onGenerateNewIdeas}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
-                size="lg"
-              >
-                <RefreshCw className="h-5 w-5 mr-2" />
-                Generate New Ideas
-              </Button>
-            </CardContent>
-          </Card>
+          <GenerateNewIdeasCTA onGenerateNewIdeas={onGenerateNewIdeas} />
         </>
       )}
     </div>
