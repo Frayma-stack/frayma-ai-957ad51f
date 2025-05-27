@@ -13,6 +13,7 @@ interface ProductLedIdeaGeneratorProps {
   icpScripts: ICPStoryScript[];
   productContext: ProductContext | null;
   onIdeaAdded: (idea: GeneratedIdea) => void;
+  onContentTypeSelect: (ideaId: string, contentType: string) => void;
   selectedClientId?: string;
 }
 
@@ -20,6 +21,7 @@ const ProductLedIdeaGenerator: FC<ProductLedIdeaGeneratorProps> = ({
   icpScripts,
   productContext,
   onIdeaAdded,
+  onContentTypeSelect,
   selectedClientId
 }) => {
   const {
@@ -43,6 +45,7 @@ const ProductLedIdeaGenerator: FC<ProductLedIdeaGeneratorProps> = ({
         onBackToGeneration={handleBackToGeneration}
         onSaveIdea={onIdeaAdded}
         onGenerateNewIdeas={handleGenerateNewIdeas}
+        onContentTypeSelect={onContentTypeSelect}
         selectedClientId={selectedClientId}
         icpId={productInputs.targetICP}
       />

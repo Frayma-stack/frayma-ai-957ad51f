@@ -42,6 +42,7 @@ interface MainContentProps {
   onProductContextAdded: (context: ProductContext) => void;
   onProductContextUpdated: (context: ProductContext) => void;
   onProductContextDeleted: (contextId: string) => void;
+  onIdeaContentTypeSelect: (ideaId: string, contentType: string) => void;
 }
 
 const MainContent: FC<MainContentProps> = ({
@@ -78,6 +79,7 @@ const MainContent: FC<MainContentProps> = ({
   onProductContextAdded,
   onProductContextUpdated,
   onProductContextDeleted,
+  onIdeaContentTypeSelect,
 }) => {
   const {
     getFilteredAuthors,
@@ -148,6 +150,7 @@ const MainContent: FC<MainContentProps> = ({
       onProductContextUpdated={onProductContextUpdated}
       onProductContextDeleted={onProductContextDeleted}
       handleProductContextCreatedOrUpdated={handleProductContextCreatedOrUpdated}
+      onIdeaContentTypeSelect={onIdeaContentTypeSelect}
     />
   );
 };

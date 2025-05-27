@@ -33,6 +33,7 @@ import { Plus, Search, SortDesc, Trash2, Edit } from 'lucide-react';
 import { ICPStoryScript } from '@/types/storytelling';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
+import IdeaContentActions from './IdeaContentActions';
 
 interface SavedIdeasProps {
   ideas: GeneratedIdea[];
@@ -40,6 +41,7 @@ interface SavedIdeasProps {
   onIdeaUpdated: (idea: GeneratedIdea) => void;
   onIdeaDeleted: (ideaId: string) => void;
   onAddManualIdea: (idea: GeneratedIdea) => void;
+  onContentTypeSelect: (ideaId: string, contentType: string) => void;
 }
 
 const SCORE_OPTIONS: IdeaScore[] = [
@@ -54,7 +56,8 @@ const SavedIdeas = ({
   scripts,
   onIdeaUpdated,
   onIdeaDeleted,
-  onAddManualIdea
+  onAddManualIdea,
+  onContentTypeSelect
 }: SavedIdeasProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<IdeasSortOrder>('score-desc');
@@ -339,30 +342,35 @@ const SavedIdeas = ({
                   </div>
                 )}
               </CardContent>
-              <CardFooter className="border-t pt-3 flex justify-end">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mr-2"
-                  onClick={() => {
-                    // Edit idea functionality would be added here
-                    toast.info("Edit feature coming soon");
-                  }}
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-                <Button 
-                  variant="destructive" 
-                  size="sm"
-                  onClick={() => {
-                    onIdeaDeleted(idea.id);
-                    toast.success("Idea deleted successfully");
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Delete
-                </Button>
+              <CardFooter className="border-t pt-3 flex justify-between">
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      // Edit idea functionality would be added here
+                      toast.info("Edit feature coming soon");
+                    }}
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => {
+                      onIdeaDeleted(idea.id);
+                      toast.success("Idea deleted successfully");
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+                <IdeaContentActions
+                  idea={idea}
+                  onContentTypeSelect={onContentTypeSelect}
+                />
               </CardFooter>
             </Card>
           ))}

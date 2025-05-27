@@ -8,12 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/components/ui/use-toast";
 import { ArrowLeft, Save, RefreshCw } from 'lucide-react';
 import { GeneratedIdea, IdeaScore } from '@/types/ideas';
+import IdeaContentActions from '../IdeaContentActions';
 
 interface GeneratedIdeasViewerProps {
   generatedIdeas: string[];
   onBackToGeneration: () => void;
   onSaveIdea: (idea: GeneratedIdea) => void;
   onGenerateNewIdeas: () => void;
+  onContentTypeSelect: (ideaId: string, contentType: string) => void;
   selectedClientId?: string;
   icpId: string;
 }
@@ -28,6 +30,7 @@ interface ParsedIdea {
 
 interface IdeaWithScore extends ParsedIdea {
   score: IdeaScore | null;
+  tempId: string;
 }
 
 const SCORE_OPTIONS: IdeaScore[] = [
@@ -42,13 +45,14 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
   onBackToGeneration,
   onSaveIdea,
   onGenerateNewIdeas,
+  onContentTypeSelect,
   selectedClientId,
   icpId
 }) => {
   const { toast } = useToast();
 
   // Parse and filter ideas to exclude description/intro text
-  const parseIdeas = (ideas: string[]): ParsedIdea[] => {
+  const parseIdeas = (ideas: string[]): IdeaWithScore[] => {
     return ideas
       .filter(idea => {
         const trimmed = idea.trim();
@@ -61,7 +65,7 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
                trimmed.toLowerCase().includes('title') &&
                trimmed.length > 50; // Ensure it's substantial content
       })
-      .map(idea => {
+      .map((idea, index) => {
         const lines = idea.split('\n').filter(line => line.trim());
         
         // Extract sections using regex patterns
@@ -75,13 +79,15 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
           narrative: narrativeMatch?.replace(/^narrative[\s\-–:]+/i, '').trim() || '',
           productTieIn: tieInMatch?.replace(/^product tie-in[\s\-–:]+/i, '').trim() || '',
           cta: ctaMatch?.replace(/^cta[\s\-–:]+/i, '').trim() || '',
-          originalContent: idea
+          originalContent: idea,
+          score: null,
+          tempId: `temp-${index}-${Date.now()}`
         };
       });
   };
 
   const [ideasWithScores, setIdeasWithScores] = useState<IdeaWithScore[]>(
-    parseIdeas(generatedIdeas).map(idea => ({ ...idea, score: null }))
+    parseIdeas(generatedIdeas)
   );
 
   const updateIdeaField = (index: number, field: keyof ParsedIdea, value: string) => {
@@ -135,6 +141,11 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
     });
   };
 
+  const handleContentTypeSelect = (tempId: string, contentType: string) => {
+    // For generated ideas, we'll pass the tempId and let the parent handle navigation
+    onContentTypeSelect(tempId, contentType);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -161,7 +172,7 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
         <>
           <div className="max-h-[700px] overflow-y-auto space-y-6 pr-2">
             {ideasWithScores.map((ideaData, index) => (
-              <Card key={index} className="border-l-4 border-l-blue-500 shadow-sm">
+              <Card key={ideaData.tempId} className="border-l-4 border-l-blue-500 shadow-sm">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg flex items-center justify-between">
                     <span>Idea {index + 1}</span>
@@ -187,6 +198,24 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
                           </SelectContent>
                         </Select>
                       </div>
+                      <IdeaContentActions
+                        idea={{
+                          id: ideaData.tempId,
+                          title: ideaData.title,
+                          narrative: ideaData.narrative,
+                          productTieIn: ideaData.productTieIn,
+                          cta: ideaData.cta,
+                          createdAt: new Date().toISOString(),
+                          score: ideaData.score,
+                          source: { type: 'manual', content: ideaData.originalContent },
+                          icpId: icpId,
+                          narrativeAnchor: 'belief',
+                          narrativeItemId: '',
+                          productFeatures: [],
+                          clientId: selectedClientId,
+                        }}
+                        onContentTypeSelect={handleContentTypeSelect}
+                      />
                       <Button
                         onClick={() => handleSaveIdea(index)}
                         disabled={!ideaData.score}
