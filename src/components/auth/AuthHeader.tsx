@@ -10,7 +10,7 @@ const AuthHeader: FC = () => {
         className="h-12 w-12 mx-auto mb-4" 
       />
       <h1 className="text-2xl font-sora font-bold text-brand-primary">Welcome to Frayma AI</h1>
-      <p className="text-gray-600 text-sm opacity-70 mt-2">Frame thoughts in sharp POVs. Auto-craft resonant GTM assets with narratives that win you buyers.</p>
+      <p className="text-gray-600 text-sm opacity-70 mt-2">Frame your thoughts into sharp POVs. Auto-craft resonant GTM assets with narratives that win you buyers.</p>
     </div>
   );
 };

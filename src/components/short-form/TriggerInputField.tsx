@@ -33,6 +33,14 @@ const TriggerInputField: FC<TriggerInputFieldProps> = ({
     ? ideas.filter(idea => idea.clientId === selectedClientId)
     : ideas;
 
+  // Debug logging
+  console.log('TriggerInputField Debug:', {
+    totalIdeas: ideas.length,
+    selectedClientId,
+    filteredIdeas: filteredIdeas.length,
+    ideas: ideas.map(idea => ({ id: idea.id, title: idea.title, clientId: idea.clientId }))
+  });
+
   const handleIdeaSelection = async (ideaId: string) => {
     if (!ideaId) {
       onIdeaSelect?.(null);
@@ -67,13 +75,13 @@ const TriggerInputField: FC<TriggerInputFieldProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Saved Ideas Dropdown */}
-        {filteredIdeas.length > 0 && (
-          <div>
-            <Label className="flex items-center space-x-2">
-              <Sparkles className="h-4 w-4" />
-              <span>Use Saved Idea as Trigger</span>
-            </Label>
+        {/* Always show the dropdown section for debugging */}
+        <div>
+          <Label className="flex items-center space-x-2">
+            <Sparkles className="h-4 w-4" />
+            <span>Use Saved Idea as Trigger</span>
+          </Label>
+          {filteredIdeas.length > 0 ? (
             <Select value={selectedIdeaId || ""} onValueChange={handleIdeaSelection}>
               <SelectTrigger className="mt-2">
                 <SelectValue placeholder="Select a saved idea to use as trigger..." />
@@ -87,8 +95,17 @@ const TriggerInputField: FC<TriggerInputFieldProps> = ({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        )}
+          ) : (
+            <div className="mt-2 p-3 bg-gray-50 border border-gray-200 rounded-md">
+              <p className="text-sm text-gray-600">
+                {ideas.length === 0 
+                  ? "No saved ideas available. Create some ideas first to use them as triggers."
+                  : `No ideas found for the selected client. Total ideas: ${ideas.length}, Selected client: ${selectedClientId || 'All'}`
+                }
+              </p>
+            </div>
+          )}
+        </div>
 
         {selectedIdea && (
           <div className="bg-blue-50 rounded-md p-3 border border-blue-200">
