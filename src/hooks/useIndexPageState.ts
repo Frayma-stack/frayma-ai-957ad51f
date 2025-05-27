@@ -2,17 +2,17 @@
 import { useState } from 'react';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 
+export type ViewType = 'home' | 'ideas' | 'clients' | 'authors' | 'icp-scripts' | 'success-stories';
+
 export const useIndexPageState = () => {
   const [selectedContentType, setSelectedContentType] = useState<ContentType | null>(null);
   const [selectedArticleSubtype, setSelectedArticleSubtype] = useState<ArticleSubType | null>(null);
-  const [selectedAssetType, setSelectedAssetType] = useState<string>('');
+  const [selectedAssetType, setSelectedAssetType] = useState<string | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const [currentView, setCurrentView] = useState<'home' | 'asset' | 'ideas'>('home');
+  const [currentView, setCurrentView] = useState<ViewType>('home');
 
   const handleContentTypeSelect = (type: ContentType) => {
     setSelectedContentType(type);
-    setSelectedArticleSubtype(null);
-    setCurrentView('home');
   };
 
   const handleArticleSubtypeSelect = (subtype: ArticleSubType) => {
@@ -21,7 +21,7 @@ export const useIndexPageState = () => {
 
   const handleAssetTypeChange = (type: string) => {
     setSelectedAssetType(type);
-    setCurrentView('asset');
+    setCurrentView(type as ViewType);
   };
 
   const handleClientSelected = (clientId: string | null) => {
@@ -30,13 +30,14 @@ export const useIndexPageState = () => {
 
   const handleIdeasBankSelected = () => {
     setCurrentView('ideas');
+    setSelectedContentType(null);
+    setSelectedArticleSubtype(null);
   };
 
   const handleHomeSelected = () => {
     setCurrentView('home');
     setSelectedContentType(null);
     setSelectedArticleSubtype(null);
-    setSelectedAssetType('');
   };
 
   const handleBack = () => {
@@ -46,13 +47,12 @@ export const useIndexPageState = () => {
       setSelectedContentType(null);
     } else {
       setCurrentView('home');
-      setSelectedAssetType('');
     }
   };
 
   const handleIdeaContentTypeSelect = (ideaId: string, contentType: string) => {
-    console.log('Content type selected for idea:', ideaId, contentType);
-    // This could navigate to a content creation flow in the future
+    console.log('Idea content type selected:', ideaId, contentType);
+    // Implementation depends on your specific requirements
   };
 
   return {

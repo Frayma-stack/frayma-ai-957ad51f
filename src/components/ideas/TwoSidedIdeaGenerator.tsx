@@ -61,7 +61,13 @@ const TwoSidedIdeaGenerator: FC<TwoSidedIdeaGeneratorProps> = ({
       productTieIn: manualProductTieIn.trim() || undefined,
       cta: manualCTA.trim() || undefined,
       clientId: selectedClientId,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      score: 0,
+      source: 'manual',
+      icpId: null,
+      narrativeAnchor: null,
+      triggers: [],
+      searchQueries: []
     };
 
     onIdeaAdded(newIdea);
@@ -83,8 +89,16 @@ const TwoSidedIdeaGenerator: FC<TwoSidedIdeaGeneratorProps> = ({
       id: crypto.randomUUID(),
       title,
       narrative,
+      productTieIn: undefined,
+      cta: undefined,
       clientId: selectedClientId,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      score: 0,
+      source: 'ai_generated',
+      icpId: selectedICPScript?.id || null,
+      narrativeAnchor: null,
+      triggers: [],
+      searchQueries: []
     };
 
     onIdeaAdded(newIdea);
@@ -141,7 +155,7 @@ const TwoSidedIdeaGenerator: FC<TwoSidedIdeaGeneratorProps> = ({
                       <SelectItem value="">No specific ICP</SelectItem>
                       {icpScripts.map((script) => (
                         <SelectItem key={script.id} value={script.id}>
-                          {script.title}
+                          {script.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
