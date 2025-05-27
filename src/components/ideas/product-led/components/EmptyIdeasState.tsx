@@ -13,9 +13,9 @@ const EmptyIdeasState: FC<EmptyIdeasStateProps> = ({ onGenerateNewIdeas }) => {
     <Card className="p-8 text-center">
       <CardContent>
         <p className="text-gray-500 mb-4">No valid ideas were found in the generated content.</p>
-        <Button onClick={onGenerateNewIdeas} className="bg-blue-500 hover:bg-blue-600 text-white">
+        <Button onClick={onGenerateNewIdeas} className="bg-brand-primary hover:bg-brand-primary/90 text-white">
           <RefreshCw className="h-4 w-4 mr-2" />
-          Generate New Ideas
+          Mint Fresh Ideas
         </Button>
       </CardContent>
     </Card>

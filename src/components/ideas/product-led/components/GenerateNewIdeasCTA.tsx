@@ -16,11 +16,11 @@ const GenerateNewIdeasCTA: FC<GenerateNewIdeasCTAProps> = ({ onGenerateNewIdeas 
         <p className="text-gray-600 mb-4">Generate a fresh batch of Product-Led Storytelling ideas with different angles and perspectives.</p>
         <Button 
           onClick={onGenerateNewIdeas}
-          className="bg-blue-500 hover:bg-blue-600 text-white"
+          className="bg-brand-primary hover:bg-brand-primary/90 text-white"
           size="lg"
         >
           <RefreshCw className="h-5 w-5 mr-2" />
-          Generate New Ideas
+          Mint Fresh Ideas
         </Button>
       </CardContent>
     </Card>

@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import { ICPStoryScript, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
@@ -57,7 +56,7 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
 
   const renderHeader = () => (
     <div className="text-center py-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border">
-      <Lightbulb className="mx-auto h-12 w-12 text-blue-500 mb-3" />
+      <Lightbulb className="mx-auto h-12 w-12 text-brand-primary mb-3" />
       <h2 className="text-2xl font-bold text-gray-800 mb-2">Frame Thoughts Into Powerful Ideas</h2>
       <p className="text-gray-600 max-w-2xl mx-auto">
         Transform your insights into compelling content ideas for auto-crafting GTM assets that resonate and propel you and your business forward.
@@ -71,17 +70,17 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
         onClick={handleGenerateIdeas}
         disabled={isGenerating}
         size="lg"
-        className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3"
+        className="bg-brand-primary hover:bg-brand-primary/90 text-white px-8 py-3"
       >
         {isGenerating ? (
           <>
             <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2" />
-            Generating Ideas...
+            Minting Ideas...
           </>
         ) : (
           <>
             <Lightbulb className="h-5 w-5 mr-2" />
-            Generate Product-Led Ideas
+            Mint Fresh Ideas
           </>
         )}
       </Button>

@@ -1,3 +1,4 @@
+
 export interface ICPStoryScriptItem {
   id: string;
   content: string;
@@ -176,4 +177,19 @@ export interface ContentGenerationOptions {
   successStoryId?: string;
   authorTone?: string;
   authorExperience?: string;
+}
+
+// New interface for Draft management
+export interface Draft {
+  id: string;
+  title: string;
+  contentType: 'gtm-narrative' | 'sales-email' | 'linkedin-post' | 'custom';
+  content: string;
+  status: 'draft' | 'in-review' | 'completed';
+  clientId: string;
+  authorId?: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  lastEditedBy?: string;
 }

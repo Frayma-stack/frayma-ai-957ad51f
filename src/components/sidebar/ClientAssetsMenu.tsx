@@ -1,7 +1,7 @@
 
 import { FC } from 'react';
 import { Button } from "@/components/ui/button";
-import { User, Target, Trophy, Package, Lightbulb } from 'lucide-react';
+import { User, Target, Trophy, Package, Lightbulb, FileText } from 'lucide-react';
 import { Client } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 
@@ -55,6 +55,15 @@ const ClientAssetsMenu: FC<ClientAssetsMenuProps> = ({
       >
         <Package className="h-3 w-3 mr-2 text-brand-primary" />
         Product Context
+      </Button>
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="w-full justify-start text-xs font-normal py-1 h-auto"
+        onClick={() => onAssetClick(client.id, 'drafts')}
+      >
+        <FileText className="h-3 w-3 mr-2 text-brand-primary" />
+        Drafts
       </Button>
       <Button 
         variant="ghost" 

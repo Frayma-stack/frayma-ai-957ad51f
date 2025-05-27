@@ -121,14 +121,14 @@ const ClientManager: FC<ClientManagerProps> = ({
       <Card className="bg-white shadow-md">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle className="text-story-blue">
+            <CardTitle className="text-brand-primary">
               <div className="flex items-center">
                 <Users className="h-5 w-5 mr-2" />
                 Client Manager
               </div>
             </CardTitle>
             <Button 
-              className="bg-story-blue hover:bg-story-light-blue" 
+              className="bg-brand-primary hover:bg-brand-primary/90" 
               onClick={() => handleOpenDialog()}
             >
               <Plus className="h-4 w-4 mr-2" /> Add Client
@@ -140,7 +140,7 @@ const ClientManager: FC<ClientManagerProps> = ({
             <Button 
               variant={selectedClientId === null ? "default" : "outline"} 
               onClick={() => handleSelectClient(null)}
-              className={selectedClientId === null ? "bg-story-blue hover:bg-story-light-blue" : ""}
+              className={selectedClientId === null ? "bg-brand-primary hover:bg-brand-primary/90" : ""}
             >
               All Clients
             </Button>
@@ -149,7 +149,7 @@ const ClientManager: FC<ClientManagerProps> = ({
                 key={client.id} 
                 variant={selectedClientId === client.id ? "default" : "outline"}
                 onClick={() => handleSelectClient(client.id)}
-                className={selectedClientId === client.id ? "bg-story-blue hover:bg-story-light-blue" : ""}
+                className={selectedClientId === client.id ? "bg-brand-primary hover:bg-brand-primary/90" : ""}
               >
                 {client.name}
               </Button>
@@ -240,6 +240,15 @@ const ClientManager: FC<ClientManagerProps> = ({
                         >
                           <Package className="h-3.5 w-3.5 mr-1" />
                           Product Context
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex items-center"
+                          onClick={() => handleViewClientAssets(client.id, 'drafts')}
+                        >
+                          <FileText className="h-3.5 w-3.5 mr-1" />
+                          Drafts
                         </Button>
                       </div>
                     </div>
