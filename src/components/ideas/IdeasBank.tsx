@@ -77,7 +77,7 @@ const IdeasBank = ({
             <p className="text-center">
               {activeTab === 'saved' ? 
                 'Turn one of your saved ideas into a resonant GTM narrative piece or post' : 
-                'Generate Product-Led Storytelling ideas that subtly weave in product value through compelling narratives'}
+                'Generate new content ideas for your marketing campaigns'}
             </p>
           </div>
         </div>
