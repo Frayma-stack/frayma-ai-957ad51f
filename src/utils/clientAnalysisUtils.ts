@@ -38,7 +38,7 @@ MANDATORY REQUIREMENTS:
 - EXTRACT ONLY FACTUAL CONTENT FROM THE ACTUAL WEBSITES
 - DO NOT RETURN TEMPLATE TEXT OR PLACEHOLDER EXAMPLES
 - DO NOT USE GENERIC DESCRIPTIONS OR ASSUMED INFORMATION
-- IF YOU CANNOT ACCESS A URL, STATE THAT EXPLICITLY
+- IF YOU CANNOT ACCESS A URL, RETURN A JSON WITH "cannotAccess": true AND EXPLAIN WHY
 
 EXTRACT FROM THE ACTUAL WEBSITE CONTENT:
 
@@ -50,7 +50,7 @@ EXTRACT FROM THE ACTUAL WEBSITE CONTENT:
 6. USE CASES: Actual use cases they describe on their website
 7. DIFFERENTIATORS: How they differentiate from competitors (their claims)
 
-RETURN ONLY THIS JSON STRUCTURE WITH REAL DATA:
+IF YOU CAN ACCESS THE URLS, RETURN THIS JSON STRUCTURE WITH REAL DATA:
 
 {
   "companySummary": "Actual summary text from their website",
@@ -79,26 +79,45 @@ RETURN ONLY THIS JSON STRUCTURE WITH REAL DATA:
   ]
 }
 
-ABSOLUTELY NO PLACEHOLDERS, TEMPLATES, OR GENERIC TEXT. ONLY REAL EXTRACTED DATA.`;
+IF YOU CANNOT ACCESS THE URLS, RETURN THIS JSON STRUCTURE:
+
+{
+  "cannotAccess": true,
+  "reason": "Explain why you cannot access the URLs (e.g., permission denied, server error, etc.)",
+  "suggestion": "Suggest what the user can do instead"
+}
+
+ABSOLUTELY NO PLACEHOLDERS, TEMPLATES, OR GENERIC TEXT. ONLY REAL EXTRACTED DATA OR CLEAR INDICATION OF ACCESS FAILURE.`;
 
   const systemPrompt = `You are a web research specialist with the ability to browse and analyze websites. Your task is to visit specific URLs and extract factual information from the actual website content.
 
 CRITICAL INSTRUCTIONS:
-- You MUST browse and read the content of the provided URLs
+- You MUST attempt to browse and read the content of the provided URLs
 - Extract ONLY real, factual information found on these websites
 - NEVER create fictional, template, or placeholder content
 - NEVER use generic examples or assumed information
-- If you cannot access a specific URL, explicitly state this
-- Return ONLY valid JSON with actual data from the websites
+- If you cannot access specific URLs, you must return a JSON response with "cannotAccess": true and explain the reason
+- Return ONLY valid JSON with actual data from the websites OR clear indication of access failure
 - Quote directly from website content when possible
 
-Your web browsing capability allows you to access and read website content in real-time. Use this capability to provide accurate, factual information extracted from the specific URLs provided.`;
+Your web browsing capability should allow you to access and read website content. If you encounter access restrictions or technical issues, clearly communicate this in your response.`;
 
   return { systemPrompt, userPrompt };
 };
 
 export const parseClientAnalysisContent = (content: string) => {
   console.log('Raw content to parse:', content);
+  
+  // Check if the AI explicitly stated it cannot access URLs
+  if (content.includes("unable to access") || 
+      content.includes("cannot access") || 
+      content.includes("I can't access") ||
+      content.includes("do not include browsing external websites") ||
+      content.includes("current capabilities do not include")) {
+    
+    console.log('AI indicated it cannot access URLs');
+    throw new Error('The AI service cannot access external websites for analysis. This is a limitation of the current analysis service. Please try entering the company information manually or use a different approach.');
+  }
   
   // Try to extract JSON from various formats
   let jsonString = '';
@@ -116,7 +135,7 @@ export const parseClientAnalysisContent = (content: string) => {
       console.log('Found standalone JSON:', jsonString);
     } else {
       console.error('No JSON found in content:', content);
-      throw new Error('Could not find JSON in the analysis response');
+      throw new Error('Could not find valid JSON in the analysis response. The service may have returned an unexpected format.');
     }
   }
   
@@ -126,8 +145,22 @@ export const parseClientAnalysisContent = (content: string) => {
   // Try to fix common JSON issues
   try {
     // First attempt: parse as-is
-    return JSON.parse(jsonString);
+    const parsed = JSON.parse(jsonString);
+    
+    // Check if this is a "cannot access" response
+    if (parsed.cannotAccess === true) {
+      const reason = parsed.reason || 'Unknown access restriction';
+      const suggestion = parsed.suggestion || 'Please try entering the information manually';
+      throw new Error(`Website analysis failed: ${reason}. ${suggestion}`);
+    }
+    
+    return parsed;
   } catch (firstError) {
+    // If it's already a cannot access error, re-throw it
+    if (firstError.message.includes('Website analysis failed')) {
+      throw firstError;
+    }
+    
     console.log('First parse attempt failed:', firstError.message);
     
     // Clean up common JSON issues
@@ -143,7 +176,16 @@ export const parseClientAnalysisContent = (content: string) => {
     try {
       // Second attempt: use cleaned JSON
       console.log('Attempting to parse cleaned JSON:', cleanedJson);
-      return JSON.parse(cleanedJson);
+      const parsed = JSON.parse(cleanedJson);
+      
+      // Check if this is a "cannot access" response
+      if (parsed.cannotAccess === true) {
+        const reason = parsed.reason || 'Unknown access restriction';
+        const suggestion = parsed.suggestion || 'Please try entering the information manually';
+        throw new Error(`Website analysis failed: ${reason}. ${suggestion}`);
+      }
+      
+      return parsed;
     } catch (secondError) {
       console.log('Second parse attempt failed:', secondError.message);
       
@@ -154,7 +196,16 @@ export const parseClientAnalysisContent = (content: string) => {
         if (bracketStart !== -1 && bracketEnd !== -1 && bracketEnd > bracketStart) {
           const extractedJson = cleanedJson.substring(bracketStart, bracketEnd + 1);
           console.log('Attempting to parse extracted JSON:', extractedJson);
-          return JSON.parse(extractedJson);
+          const parsed = JSON.parse(extractedJson);
+          
+          // Check if this is a "cannot access" response
+          if (parsed.cannotAccess === true) {
+            const reason = parsed.reason || 'Unknown access restriction';
+            const suggestion = parsed.suggestion || 'Please try entering the information manually';
+            throw new Error(`Website analysis failed: ${reason}. ${suggestion}`);
+          }
+          
+          return parsed;
         }
         throw new Error('Could not extract valid JSON object');
       } catch (thirdError) {
@@ -164,16 +215,7 @@ export const parseClientAnalysisContent = (content: string) => {
         console.error('Cleaned JSON:', cleanedJson);
         console.error('Final error:', thirdError.message);
         
-        // Return a default structure to prevent complete failure
-        return {
-          companySummary: 'Analysis failed - please try again',
-          categoryPOV: '',
-          companyMission: '',
-          uniqueInsight: '',
-          features: [],
-          useCases: [],
-          differentiators: []
-        };
+        throw new Error('The analysis service returned an invalid response format. This may be due to the AI model returning incomplete or malformed data. Please try again or enter the information manually.');
       }
     }
   }

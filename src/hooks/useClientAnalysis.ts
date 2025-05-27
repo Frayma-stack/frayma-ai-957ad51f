@@ -36,7 +36,7 @@ export const useClientAnalysis = () => {
         body: { 
           systemPrompt, 
           userPrompt,
-          model: 'gpt-4o-mini' // Ensure we're using a working model
+          model: 'llama-3.1-sonar-large-128k-online'
         }
       });
       
@@ -55,7 +55,7 @@ export const useClientAnalysis = () => {
       
       console.log('Analysis service response:', data);
       
-      // Handle both direct content and OpenAI API response format
+      // Handle both direct content and Perplexity API response format
       let content = '';
       if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
         content = data.choices[0].message.content;
@@ -75,14 +75,23 @@ export const useClientAnalysis = () => {
         parsedData = parseClientAnalysisContent(content);
         console.log('Parsed data:', parsedData);
       } catch (parseError) {
-        console.error('JSON parsing error:', parseError);
-        console.error('Failed to parse content:', content);
+        console.error('Analysis parsing error:', parseError);
         
-        toast({
-          title: "Analysis Response Error",
-          description: "The analysis service returned invalid data. This may be due to the AI model returning incomplete information. Please try again.",
-          variant: "destructive"
-        });
+        // Check if this is a specific "cannot access" error
+        if (parseError.message.includes('cannot access external websites') || 
+            parseError.message.includes('Website analysis failed')) {
+          toast({
+            title: "Analysis Service Limitation",
+            description: parseError.message,
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Analysis Response Error", 
+            description: "The analysis service returned invalid data. Please try again or enter the information manually.",
+            variant: "destructive"
+          });
+        }
         return;
       }
       
@@ -90,7 +99,7 @@ export const useClientAnalysis = () => {
       if (!parsedData.companySummary && !parsedData.features?.length && !parsedData.useCases?.length) {
         toast({
           title: "Analysis Incomplete",
-          description: "The analysis service couldn't extract meaningful information from the provided URLs. Please verify the URLs are accessible and try again.",
+          description: "The analysis service couldn't extract meaningful information from the provided URLs. Please verify the URLs are accessible and try again, or enter the information manually.",
           variant: "destructive"
         });
         return;
