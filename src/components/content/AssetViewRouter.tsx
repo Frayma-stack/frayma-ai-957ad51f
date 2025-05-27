@@ -10,25 +10,19 @@ import { Client, Author, ICPStoryScript, CustomerSuccessStory, ProductContext } 
 import { GeneratedIdea } from '@/types/ideas';
 
 interface AssetViewRouterProps {
-  currentView: string;
+  selectedAssetType: string;
   selectedClientId: string | null;
   clients: Client[];
-  filteredAuthors: Author[];
-  filteredICPScripts: ICPStoryScript[];
-  filteredSuccessStories: CustomerSuccessStory[];
-  currentProductContext: ProductContext | null;
-  ideas: GeneratedIdea[];
+  authors: Author[];
+  icpScripts: ICPStoryScript[];
+  successStories: CustomerSuccessStory[];
+  productContexts: ProductContext[];
   onClientAdded: (client: Client) => void;
   onClientUpdated: (client: Client) => void;
   onClientDeleted: (clientId: string) => void;
-  onClientSelected: (clientId: string | null) => void;
-  onViewClientAssets: (clientId: string, assetType: string) => void;
   onAuthorAdded: (author: Author) => void;
   onAuthorUpdated: (author: Author) => void;
   onAuthorDeleted: (authorId: string) => void;
-  onIdeaAdded: (idea: GeneratedIdea) => void;
-  onIdeaUpdated: (idea: GeneratedIdea) => void;
-  onIdeaDeleted: (ideaId: string) => void;
   onICPScriptAdded: (script: ICPStoryScript) => void;
   onICPScriptUpdated: (script: ICPStoryScript) => void;
   onICPScriptDeleted: (scriptId: string) => void;
@@ -39,29 +33,22 @@ interface AssetViewRouterProps {
   onProductContextUpdated: (context: ProductContext) => void;
   onProductContextDeleted: (contextId: string) => void;
   handleProductContextCreatedOrUpdated: (productContext: ProductContext) => void;
-  onIdeaContentTypeSelect: (ideaId: string, contentType: string) => void;
 }
 
 const AssetViewRouter: FC<AssetViewRouterProps> = ({
-  currentView,
+  selectedAssetType,
   selectedClientId,
   clients,
-  filteredAuthors,
-  filteredICPScripts,
-  filteredSuccessStories,
-  currentProductContext,
-  ideas,
+  authors,
+  icpScripts,
+  successStories,
+  productContexts,
   onClientAdded,
   onClientUpdated,
   onClientDeleted,
-  onClientSelected,
-  onViewClientAssets,
   onAuthorAdded,
   onAuthorUpdated,
   onAuthorDeleted,
-  onIdeaAdded,
-  onIdeaUpdated,
-  onIdeaDeleted,
   onICPScriptAdded,
   onICPScriptUpdated,
   onICPScriptDeleted,
@@ -70,9 +57,25 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
   onSuccessStoryDeleted,
   onProductContextAdded,
   handleProductContextCreatedOrUpdated,
-  onIdeaContentTypeSelect,
 }) => {
-  if (currentView === 'clients') {
+  // Filter data based on selected client
+  const filteredAuthors = selectedClientId 
+    ? authors.filter(author => author.clientId === selectedClientId)
+    : authors;
+  
+  const filteredICPScripts = selectedClientId 
+    ? icpScripts.filter(script => script.clientId === selectedClientId)
+    : icpScripts;
+  
+  const filteredSuccessStories = selectedClientId 
+    ? successStories.filter(story => story.clientId === selectedClientId)
+    : successStories;
+
+  const currentProductContext = selectedClientId 
+    ? productContexts.find(context => context.clientId === selectedClientId) || null
+    : null;
+
+  if (selectedAssetType === 'clients') {
     return (
       <ClientManager
         clients={clients}
@@ -80,14 +83,14 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
         onClientAdded={onClientAdded}
         onClientUpdated={onClientUpdated}
         onClientDeleted={onClientDeleted}
-        onClientSelected={onClientSelected}
-        onViewClientAssets={onViewClientAssets}
+        onClientSelected={() => {}}
+        onViewClientAssets={() => {}}
         onProductContextAdded={onProductContextAdded}
       />
     );
   }
 
-  if (currentView === 'authors') {
+  if (selectedAssetType === 'authors') {
     return (
       <AuthorManager
         authors={filteredAuthors}
@@ -98,22 +101,7 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
     );
   }
 
-  if (currentView === 'ideas') {
-    return (
-      <IdeasBank
-        scripts={filteredICPScripts}
-        productContext={currentProductContext}
-        ideas={ideas}
-        onIdeaAdded={onIdeaAdded}
-        onIdeaUpdated={onIdeaUpdated}
-        onIdeaDeleted={onIdeaDeleted}
-        selectedClientId={selectedClientId}
-        onContentTypeSelect={onIdeaContentTypeSelect}
-      />
-    );
-  }
-
-  if (currentView === 'icps') {
+  if (selectedAssetType === 'icps') {
     return (
       <ICPStoryScriptManager
         scripts={filteredICPScripts}
@@ -125,7 +113,7 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
     );
   }
 
-  if (currentView === 'successStories') {
+  if (selectedAssetType === 'successStories') {
     return (
       <CustomerSuccessManager
         successStories={filteredSuccessStories}
@@ -136,7 +124,7 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
     );
   }
 
-  if (currentView === 'productContext') {
+  if (selectedAssetType === 'productContext') {
     return (
       <ProductContextManager
         productContext={currentProductContext}
@@ -148,7 +136,7 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
   // Placeholder for other asset types
   return (
     <div className="text-center py-8">
-      <h2 className="text-2xl font-bold text-gray-700">{currentView}</h2>
+      <h2 className="text-2xl font-bold text-gray-700">{selectedAssetType}</h2>
       <p className="text-gray-500 mt-2">This section is coming soon</p>
     </div>
   );

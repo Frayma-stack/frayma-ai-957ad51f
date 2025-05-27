@@ -5,7 +5,13 @@ import {
   Author, 
   ICPStoryScript, 
   CustomerSuccessStory, 
-  ProductContext 
+  ProductContext,
+  CompanyLink,
+  AuthorExperience,
+  AuthorToneItem,
+  AuthorBelief,
+  AuthorSocialLink,
+  ICPStoryScriptItem
 } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 
@@ -18,7 +24,14 @@ export class SupabaseDataService {
       .order('created_at', { ascending: false });
     
     if (error) throw error;
-    return data || [];
+    
+    return (data || []).map(client => ({
+      id: client.id,
+      name: client.name,
+      description: client.description,
+      companyLinks: Array.isArray(client.company_links) ? client.company_links as CompanyLink[] : [],
+      createdAt: client.created_at
+    }));
   }
 
   async createClient(client: Omit<Client, 'id' | 'createdAt'>): Promise<Client> {
@@ -38,7 +51,7 @@ export class SupabaseDataService {
       id: data.id,
       name: data.name,
       description: data.description,
-      companyLinks: data.company_links,
+      companyLinks: Array.isArray(data.company_links) ? data.company_links as CompanyLink[] : [],
       createdAt: data.created_at
     };
   }
@@ -61,7 +74,7 @@ export class SupabaseDataService {
       id: data.id,
       name: data.name,
       description: data.description,
-      companyLinks: data.company_links,
+      companyLinks: Array.isArray(data.company_links) ? data.company_links as CompanyLink[] : [],
       createdAt: data.created_at
     };
   }
@@ -90,10 +103,10 @@ export class SupabaseDataService {
       role: author.role,
       organization: author.organization,
       backstory: author.backstory,
-      experiences: author.experiences || [],
-      tones: author.tones || [],
-      beliefs: author.beliefs || [],
-      socialLinks: author.social_links || [],
+      experiences: Array.isArray(author.experiences) ? author.experiences as AuthorExperience[] : [],
+      tones: Array.isArray(author.tones) ? author.tones as AuthorToneItem[] : [],
+      beliefs: Array.isArray(author.beliefs) ? author.beliefs as AuthorBelief[] : [],
+      socialLinks: Array.isArray(author.social_links) ? author.social_links as AuthorSocialLink[] : [],
       clientId: author.client_id
     }));
   }
@@ -123,10 +136,10 @@ export class SupabaseDataService {
       role: data.role,
       organization: data.organization,
       backstory: data.backstory,
-      experiences: data.experiences || [],
-      tones: data.tones || [],
-      beliefs: data.beliefs || [],
-      socialLinks: data.social_links || [],
+      experiences: Array.isArray(data.experiences) ? data.experiences as AuthorExperience[] : [],
+      tones: Array.isArray(data.tones) ? data.tones as AuthorToneItem[] : [],
+      beliefs: Array.isArray(data.beliefs) ? data.beliefs as AuthorBelief[] : [],
+      socialLinks: Array.isArray(data.social_links) ? data.social_links as AuthorSocialLink[] : [],
       clientId: data.client_id
     };
   }
@@ -157,10 +170,10 @@ export class SupabaseDataService {
       role: data.role,
       organization: data.organization,
       backstory: data.backstory,
-      experiences: data.experiences || [],
-      tones: data.tones || [],
-      beliefs: data.beliefs || [],
-      socialLinks: data.social_links || [],
+      experiences: Array.isArray(data.experiences) ? data.experiences as AuthorExperience[] : [],
+      tones: Array.isArray(data.tones) ? data.tones as AuthorToneItem[] : [],
+      beliefs: Array.isArray(data.beliefs) ? data.beliefs as AuthorBelief[] : [],
+      socialLinks: Array.isArray(data.social_links) ? data.social_links as AuthorSocialLink[] : [],
       clientId: data.client_id
     };
   }
@@ -187,10 +200,10 @@ export class SupabaseDataService {
       id: script.id,
       name: script.name,
       demographics: script.demographics,
-      coreBeliefs: script.core_beliefs || [],
-      internalPains: script.internal_pains || [],
-      externalStruggles: script.external_struggles || [],
-      desiredTransformations: script.desired_transformations || [],
+      coreBeliefs: Array.isArray(script.core_beliefs) ? script.core_beliefs as ICPStoryScriptItem[] : [],
+      internalPains: Array.isArray(script.internal_pains) ? script.internal_pains as ICPStoryScriptItem[] : [],
+      externalStruggles: Array.isArray(script.external_struggles) ? script.external_struggles as ICPStoryScriptItem[] : [],
+      desiredTransformations: Array.isArray(script.desired_transformations) ? script.desired_transformations as ICPStoryScriptItem[] : [],
       clientId: script.client_id
     }));
   }
@@ -216,10 +229,10 @@ export class SupabaseDataService {
       id: data.id,
       name: data.name,
       demographics: data.demographics,
-      coreBeliefs: data.core_beliefs || [],
-      internalPains: data.internal_pains || [],
-      externalStruggles: data.external_struggles || [],
-      desiredTransformations: data.desired_transformations || [],
+      coreBeliefs: Array.isArray(data.core_beliefs) ? data.core_beliefs as ICPStoryScriptItem[] : [],
+      internalPains: Array.isArray(data.internal_pains) ? data.internal_pains as ICPStoryScriptItem[] : [],
+      externalStruggles: Array.isArray(data.external_struggles) ? data.external_struggles as ICPStoryScriptItem[] : [],
+      desiredTransformations: Array.isArray(data.desired_transformations) ? data.desired_transformations as ICPStoryScriptItem[] : [],
       clientId: data.client_id
     };
   }
@@ -246,10 +259,10 @@ export class SupabaseDataService {
       id: data.id,
       name: data.name,
       demographics: data.demographics,
-      coreBeliefs: data.core_beliefs || [],
-      internalPains: data.internal_pains || [],
-      externalStruggles: data.external_struggles || [],
-      desiredTransformations: data.desired_transformations || [],
+      coreBeliefs: Array.isArray(data.core_beliefs) ? data.core_beliefs as ICPStoryScriptItem[] : [],
+      internalPains: Array.isArray(data.internal_pains) ? data.internal_pains as ICPStoryScriptItem[] : [],
+      externalStruggles: Array.isArray(data.external_struggles) ? data.external_struggles as ICPStoryScriptItem[] : [],
+      desiredTransformations: Array.isArray(data.desired_transformations) ? data.desired_transformations as ICPStoryScriptItem[] : [],
       clientId: data.client_id
     };
   }
@@ -278,8 +291,8 @@ export class SupabaseDataService {
       url: story.url,
       beforeSummary: story.before_summary,
       afterSummary: story.after_summary,
-      quotes: story.quotes || [],
-      features: story.features || [],
+      quotes: Array.isArray(story.quotes) ? story.quotes as any[] : [],
+      features: Array.isArray(story.features) ? story.features as any[] : [],
       clientId: story.client_id,
       createdAt: story.created_at
     }));
@@ -308,8 +321,8 @@ export class SupabaseDataService {
       url: data.url,
       beforeSummary: data.before_summary,
       afterSummary: data.after_summary,
-      quotes: data.quotes || [],
-      features: data.features || [],
+      quotes: Array.isArray(data.quotes) ? data.quotes as any[] : [],
+      features: Array.isArray(data.features) ? data.features as any[] : [],
       clientId: data.client_id,
       createdAt: data.created_at
     };
@@ -339,8 +352,8 @@ export class SupabaseDataService {
       url: data.url,
       beforeSummary: data.before_summary,
       afterSummary: data.after_summary,
-      quotes: data.quotes || [],
-      features: data.features || [],
+      quotes: Array.isArray(data.quotes) ? data.quotes as any[] : [],
+      features: Array.isArray(data.features) ? data.features as any[] : [],
       clientId: data.client_id,
       createdAt: data.created_at
     };
@@ -366,13 +379,13 @@ export class SupabaseDataService {
     
     return (data || []).map(context => ({
       id: context.id,
-      features: context.features || [],
-      useCases: context.use_cases || [],
-      differentiators: context.differentiators || [],
+      features: Array.isArray(context.features) ? context.features as any[] : [],
+      useCases: Array.isArray(context.use_cases) ? context.use_cases as any[] : [],
+      differentiators: Array.isArray(context.differentiators) ? context.differentiators as any[] : [],
       categoryPOV: context.category_pov,
       companyMission: context.company_mission,
       uniqueInsight: context.unique_insight,
-      companyLinks: context.company_links || [],
+      companyLinks: Array.isArray(context.company_links) ? context.company_links as CompanyLink[] : [],
       clientId: context.client_id
     }));
   }
@@ -397,13 +410,13 @@ export class SupabaseDataService {
     
     return {
       id: data.id,
-      features: data.features || [],
-      useCases: data.use_cases || [],
-      differentiators: data.differentiators || [],
+      features: Array.isArray(data.features) ? data.features as any[] : [],
+      useCases: Array.isArray(data.use_cases) ? data.use_cases as any[] : [],
+      differentiators: Array.isArray(data.differentiators) ? data.differentiators as any[] : [],
       categoryPOV: data.category_pov,
       companyMission: data.company_mission,
       uniqueInsight: data.unique_insight,
-      companyLinks: data.company_links || [],
+      companyLinks: Array.isArray(data.company_links) ? data.company_links as CompanyLink[] : [],
       clientId: data.client_id
     };
   }
@@ -429,13 +442,13 @@ export class SupabaseDataService {
     
     return {
       id: data.id,
-      features: data.features || [],
-      useCases: data.use_cases || [],
-      differentiators: data.differentiators || [],
+      features: Array.isArray(data.features) ? data.features as any[] : [],
+      useCases: Array.isArray(data.use_cases) ? data.use_cases as any[] : [],
+      differentiators: Array.isArray(data.differentiators) ? data.differentiators as any[] : [],
       categoryPOV: data.category_pov,
       companyMission: data.company_mission,
       uniqueInsight: data.unique_insight,
-      companyLinks: data.company_links || [],
+      companyLinks: Array.isArray(data.company_links) ? data.company_links as CompanyLink[] : [],
       clientId: data.client_id
     };
   }
@@ -465,8 +478,8 @@ export class SupabaseDataService {
       productTieIn: idea.product_tie_in || '',
       cta: idea.cta || '',
       createdAt: idea.created_at,
-      score: idea.score ? { value: idea.score, label: `${idea.score}` } : null,
-      source: { type: 'database', content: 'Stored in database' },
+      score: idea.score ? { value: idea.score as 0 | 1 | 2 | 3, label: `${idea.score}` } : null,
+      source: { type: 'text' as const, content: 'Stored in database' },
       clientId: idea.client_id,
       // Default values for required fields
       icpId: '',
@@ -499,8 +512,8 @@ export class SupabaseDataService {
       productTieIn: data.product_tie_in || '',
       cta: data.cta || '',
       createdAt: data.created_at,
-      score: data.score ? { value: data.score, label: `${data.score}` } : null,
-      source: { type: 'database', content: 'Stored in database' },
+      score: data.score ? { value: data.score as 0 | 1 | 2 | 3, label: `${data.score}` } : null,
+      source: { type: 'text' as const, content: 'Stored in database' },
       clientId: data.client_id,
       icpId: '',
       narrativeAnchor: 'belief' as const,
@@ -533,8 +546,8 @@ export class SupabaseDataService {
       productTieIn: data.product_tie_in || '',
       cta: data.cta || '',
       createdAt: data.created_at,
-      score: data.score ? { value: data.score, label: `${data.score}` } : null,
-      source: { type: 'database', content: 'Stored in database' },
+      score: data.score ? { value: data.score as 0 | 1 | 2 | 3, label: `${data.score}` } : null,
+      source: { type: 'text' as const, content: 'Stored in database' },
       clientId: data.client_id,
       icpId: idea.icpId,
       narrativeAnchor: idea.narrativeAnchor,
