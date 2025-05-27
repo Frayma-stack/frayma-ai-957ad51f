@@ -1,6 +1,8 @@
 
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Users } from "lucide-react";
 import SavedIdeas from './SavedIdeas';
 import ProductLedIdeaGenerator from './ProductLedIdeaGenerator';
 import { GeneratedIdea } from '@/types/ideas';
@@ -27,12 +29,41 @@ const IdeasBank = ({
 }: IdeasBankProps) => {
   const [activeTab, setActiveTab] = useState<string>('saved');
 
+  // Filter ideas to only show those for the selected client
+  const filteredIdeas = selectedClientId 
+    ? ideas.filter(idea => idea.clientId === selectedClientId)
+    : [];
+
+  // Enhanced idea handler to ensure client association
+  const handleIdeaAdded = (idea: GeneratedIdea) => {
+    const ideaWithClient = {
+      ...idea,
+      clientId: selectedClientId
+    };
+    onIdeaAdded(ideaWithClient);
+  };
+
+  // Don't show if no client is selected
+  if (!selectedClientId) {
+    return (
+      <Card className="w-full bg-white shadow-md">
+        <CardContent className="p-8 text-center">
+          <Users className="mx-auto h-12 w-12 opacity-30 mb-4 text-gray-400" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Select a Client</h3>
+          <p className="text-gray-500">
+            Please select a client from the sidebar to view and manage their Ideas Bank.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="w-full">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="saved">
-            Saved Ideas
+            Saved Ideas ({filteredIdeas.length})
           </TabsTrigger>
           <TabsTrigger value="generate">
             Mint New Ideas
@@ -51,11 +82,11 @@ const IdeasBank = ({
         
         <TabsContent value="saved" className="mt-6">
           <SavedIdeas 
-            ideas={ideas} 
+            ideas={filteredIdeas} 
             scripts={scripts}
             onIdeaUpdated={onIdeaUpdated}
             onIdeaDeleted={onIdeaDeleted}
-            onAddManualIdea={onIdeaAdded}
+            onAddManualIdea={handleIdeaAdded}
           />
         </TabsContent>
         
@@ -63,7 +94,7 @@ const IdeasBank = ({
           <ProductLedIdeaGenerator 
             icpScripts={scripts}
             productContext={productContext}
-            onIdeaAdded={onIdeaAdded}
+            onIdeaAdded={handleIdeaAdded}
             selectedClientId={selectedClientId}
           />
         </TabsContent>

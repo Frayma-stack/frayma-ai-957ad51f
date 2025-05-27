@@ -117,6 +117,7 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
         onScriptAdded={onICPScriptAdded}
         onScriptUpdated={onICPScriptUpdated}
         onScriptDeleted={onICPScriptDeleted}
+        selectedClientId={selectedClientId}
       />
     );
   }

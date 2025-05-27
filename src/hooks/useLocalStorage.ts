@@ -25,22 +25,54 @@ export const useLocalStorage = () => {
 
     const savedIdeas = localStorage.getItem('ideas');
     if (savedIdeas) {
-      setIdeas(JSON.parse(savedIdeas));
+      const parsedIdeas = JSON.parse(savedIdeas) as GeneratedIdea[];
+      // Ensure all ideas have a clientId (migrate old data)
+      const migratedIdeas = parsedIdeas.map(idea => ({
+        ...idea,
+        clientId: idea.clientId || null
+      }));
+      setIdeas(migratedIdeas);
+      // Save migrated data back
+      localStorage.setItem('ideas', JSON.stringify(migratedIdeas));
     }
 
     const savedICPScripts = localStorage.getItem('icpScripts');
     if (savedICPScripts) {
-      setICPScripts(JSON.parse(savedICPScripts));
+      const parsedScripts = JSON.parse(savedICPScripts) as ICPStoryScript[];
+      // Ensure all scripts have a clientId (migrate old data)
+      const migratedScripts = parsedScripts.map(script => ({
+        ...script,
+        clientId: script.clientId || null
+      }));
+      setICPScripts(migratedScripts);
+      // Save migrated data back
+      localStorage.setItem('icpScripts', JSON.stringify(migratedScripts));
     }
 
     const savedSuccessStories = localStorage.getItem('successStories');
     if (savedSuccessStories) {
-      setSuccessStories(JSON.parse(savedSuccessStories));
+      const parsedStories = JSON.parse(savedSuccessStories) as CustomerSuccessStory[];
+      // Ensure all stories have a clientId (migrate old data)
+      const migratedStories = parsedStories.map(story => ({
+        ...story,
+        clientId: story.clientId || null
+      }));
+      setSuccessStories(migratedStories);
+      // Save migrated data back
+      localStorage.setItem('successStories', JSON.stringify(migratedStories));
     }
 
     const savedProductContexts = localStorage.getItem('productContexts');
     if (savedProductContexts) {
-      setProductContexts(JSON.parse(savedProductContexts));
+      const parsedContexts = JSON.parse(savedProductContexts) as ProductContext[];
+      // Ensure all contexts have a clientId (migrate old data)
+      const migratedContexts = parsedContexts.map(context => ({
+        ...context,
+        clientId: context.clientId || null
+      }));
+      setProductContexts(migratedContexts);
+      // Save migrated data back
+      localStorage.setItem('productContexts', JSON.stringify(migratedContexts));
     }
   }, []);
 

@@ -1,7 +1,6 @@
 
 import { FC } from 'react';
 import { 
-  BookOpen, 
   Lightbulb, 
   Users, 
   User, 
@@ -11,7 +10,8 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronRight,
-  Home
+  Home,
+  Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from 'react';
@@ -35,7 +35,6 @@ const Sidebar: FC<SidebarProps> = ({
   onIdeasBankSelected,
   onHomeSelected
 }) => {
-  const [assetsExpanded, setAssetsExpanded] = useState(true);
   const [clientsExpanded, setClientsExpanded] = useState(true);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   
@@ -57,6 +56,10 @@ const Sidebar: FC<SidebarProps> = ({
     onClientSelected(clientId);
     onAssetTypeChange(assetType);
   };
+
+  const filteredIdeas = selectedClientId 
+    ? ideas.filter(idea => idea.clientId === selectedClientId)
+    : [];
 
   return (
     <div className="w-64 bg-white border-r border-gray-200 min-h-screen p-4 flex flex-col">
@@ -101,176 +104,154 @@ const Sidebar: FC<SidebarProps> = ({
         </Button>
       </div>
       
-      <div className="space-y-1 mb-6">
-        <h3 className="text-sm font-medium text-gray-500 mb-2">Ideas Bank</h3>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="w-full justify-start text-sm font-normal"
-          onClick={onIdeasBankSelected}
-        >
-          <Lightbulb className="h-4 w-4 mr-2 text-brand-primary" />
-          Saved Ideas
-          <span className="ml-auto bg-gray-100 text-xs rounded-full px-2 py-0.5">
-            {ideas.length}
-          </span>
-        </Button>
-      </div>
+      {/* Client-specific Ideas Bank */}
+      {selectedClientId && (
+        <div className="space-y-1 mb-6">
+          <h3 className="text-sm font-medium text-gray-500 mb-2">Ideas Bank</h3>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="w-full justify-start text-sm font-normal"
+            onClick={onIdeasBankSelected}
+          >
+            <Lightbulb className="h-4 w-4 mr-2 text-brand-primary" />
+            Saved Ideas
+            <span className="ml-auto bg-gray-100 text-xs rounded-full px-2 py-0.5">
+              {filteredIdeas.length}
+            </span>
+          </Button>
+        </div>
+      )}
       
       <div className="space-y-1 flex-1">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium text-gray-500">Clients & Assets</h3>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-6 w-6" 
-            onClick={() => setClientsExpanded(!clientsExpanded)}
-          >
-            {clientsExpanded ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </Button>
+          <h3 className="text-sm font-medium text-gray-500">Clients</h3>
+          <div className="flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-6 w-6" 
+              onClick={() => onAssetTypeChange('clients')}
+              title="Add Client"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-6 w-6" 
+              onClick={() => setClientsExpanded(!clientsExpanded)}
+            >
+              {clientsExpanded ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </div>
         
         {clientsExpanded && (
           <div className="space-y-1">
-            {/* Clients Management */}
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="w-full justify-start text-sm font-normal"
-              onClick={() => onAssetTypeChange('clients')}
-            >
-              <Users className="h-4 w-4 mr-2 text-brand-primary" />
-              Manage Clients
-            </Button>
-
-            {/* Individual Clients with their assets */}
-            {clients.map(client => (
-              <div key={client.id} className="space-y-1">
+            {clients.length === 0 ? (
+              <div className="text-center py-4 text-gray-400">
+                <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-xs">No clients added yet</p>
                 <Button 
-                  variant="ghost" 
+                  variant="outline" 
                   size="sm" 
-                  className="w-full justify-start text-sm font-normal pl-2"
-                  onClick={() => toggleClientExpansion(client.id)}
+                  className="mt-2 text-xs"
+                  onClick={() => onAssetTypeChange('clients')}
                 >
-                  <ChevronRight 
-                    className={`h-3 w-3 mr-1 text-gray-400 transition-transform ${
-                      expandedClients.has(client.id) ? 'rotate-90' : ''
-                    }`} 
-                  />
-                  <Users className="h-3 w-3 mr-2 text-brand-primary" />
-                  <span className="truncate">{client.name}</span>
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add Client
                 </Button>
-                
-                {expandedClients.has(client.id) && (
-                  <div className="ml-6 space-y-1 border-l border-gray-200 pl-2">
+              </div>
+            ) : (
+              <>
+                {/* Individual Clients with their assets */}
+                {clients.map(client => (
+                  <div key={client.id} className="space-y-1">
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="w-full justify-start text-xs font-normal py-1 h-auto"
-                      onClick={() => handleClientAssetClick(client.id, 'authors')}
+                      className={`w-full justify-start text-sm font-normal pl-2 ${
+                        selectedClientId === client.id ? 'bg-brand-primary/10 text-brand-primary' : ''
+                      }`}
+                      onClick={() => toggleClientExpansion(client.id)}
                     >
-                      <User className="h-3 w-3 mr-2 text-brand-primary" />
-                      Authors
+                      <ChevronRight 
+                        className={`h-3 w-3 mr-1 text-gray-400 transition-transform ${
+                          expandedClients.has(client.id) ? 'rotate-90' : ''
+                        }`} 
+                      />
+                      <Users className="h-3 w-3 mr-2 text-brand-primary" />
+                      <span className="truncate">{client.name}</span>
                     </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="w-full justify-start text-xs font-normal py-1 h-auto"
-                      onClick={() => handleClientAssetClick(client.id, 'icps')}
-                    >
-                      <Target className="h-3 w-3 mr-2 text-brand-primary" />
-                      ICPs
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="w-full justify-start text-xs font-normal py-1 h-auto"
-                      onClick={() => handleClientAssetClick(client.id, 'successStories')}
-                    >
-                      <Trophy className="h-3 w-3 mr-2 text-brand-primary" />
-                      Success Stories
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="w-full justify-start text-xs font-normal py-1 h-auto"
-                      onClick={() => handleClientAssetClick(client.id, 'productContext')}
-                    >
-                      <Package className="h-3 w-3 mr-2 text-brand-primary" />
-                      Product Context
-                    </Button>
+                    
+                    {expandedClients.has(client.id) && (
+                      <div className="ml-6 space-y-1 border-l border-gray-200 pl-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start text-xs font-normal py-1 h-auto"
+                          onClick={() => handleClientAssetClick(client.id, 'authors')}
+                        >
+                          <User className="h-3 w-3 mr-2 text-brand-primary" />
+                          Authors
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start text-xs font-normal py-1 h-auto"
+                          onClick={() => handleClientAssetClick(client.id, 'icps')}
+                        >
+                          <Target className="h-3 w-3 mr-2 text-brand-primary" />
+                          ICPs
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start text-xs font-normal py-1 h-auto"
+                          onClick={() => handleClientAssetClick(client.id, 'successStories')}
+                        >
+                          <Trophy className="h-3 w-3 mr-2 text-brand-primary" />
+                          Success Stories
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start text-xs font-normal py-1 h-auto"
+                          onClick={() => handleClientAssetClick(client.id, 'productContext')}
+                        >
+                          <Package className="h-3 w-3 mr-2 text-brand-primary" />
+                          Product Context
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start text-xs font-normal py-1 h-auto"
+                          onClick={() => handleClientAssetClick(client.id, 'ideas')}
+                        >
+                          <Lightbulb className="h-3 w-3 mr-2 text-brand-primary" />
+                          Ideas Bank
+                          {(() => {
+                            const clientIdeas = ideas.filter(idea => idea.clientId === client.id);
+                            return clientIdeas.length > 0 ? (
+                              <span className="ml-auto bg-gray-100 text-xs rounded-full px-1.5 py-0.5">
+                                {clientIdeas.length}
+                              </span>
+                            ) : null;
+                          })()}
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
-
-            {/* Global Assets Section */}
-            <div className="pt-2 border-t border-gray-200 mt-4">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-xs font-medium text-gray-400">Global Assets</h4>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-5 w-5" 
-                  onClick={() => setAssetsExpanded(!assetsExpanded)}
-                >
-                  {assetsExpanded ? (
-                    <ChevronUp className="h-3 w-3" />
-                  ) : (
-                    <ChevronDown className="h-3 w-3" />
-                  )}
-                </Button>
-              </div>
-              
-              {assetsExpanded && (
-                <div className="space-y-1">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="w-full justify-start text-xs font-normal"
-                    onClick={() => onAssetTypeChange('authors')}
-                  >
-                    <User className="h-3 w-3 mr-2 text-gray-400" />
-                    All Authors
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="w-full justify-start text-xs font-normal"
-                    onClick={() => onAssetTypeChange('icps')}
-                  >
-                    <Target className="h-3 w-3 mr-2 text-gray-400" />
-                    All ICPs
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="w-full justify-start text-xs font-normal"
-                    onClick={() => onAssetTypeChange('successStories')}
-                  >
-                    <Trophy className="h-3 w-3 mr-2 text-gray-400" />
-                    All Success Stories
-                  </Button>
-                </div>
-              )}
-            </div>
+                ))}
+              </>
+            )}
           </div>
         )}
-      </div>
-      
-      <div className="mt-auto pt-4 border-t border-gray-200">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full justify-center text-brand-primary border-brand-primary hover:bg-brand-primary/10"
-        >
-          <BookOpen className="h-4 w-4 mr-2" />
-          Documentation
-        </Button>
       </div>
     </div>
   );

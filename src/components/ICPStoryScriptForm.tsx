@@ -11,6 +11,7 @@ import { Plus, Trash } from 'lucide-react';
 interface ICPStoryScriptFormProps {
   onSave: (script: ICPStoryScript) => void;
   initialScript?: ICPStoryScript;
+  selectedClientId?: string;
 }
 
 const createEmptyItem = (): ICPStoryScriptItem => ({
@@ -18,7 +19,11 @@ const createEmptyItem = (): ICPStoryScriptItem => ({
   content: ''
 });
 
-const ICPStoryScriptForm: FC<ICPStoryScriptFormProps> = ({ onSave, initialScript }) => {
+const ICPStoryScriptForm: FC<ICPStoryScriptFormProps> = ({ 
+  onSave, 
+  initialScript, 
+  selectedClientId 
+}) => {
   const { toast } = useToast();
   const [script, setScript] = useState<ICPStoryScript>(
     initialScript || {
@@ -28,7 +33,8 @@ const ICPStoryScriptForm: FC<ICPStoryScriptFormProps> = ({ onSave, initialScript
       coreBeliefs: [createEmptyItem()],
       internalPains: [createEmptyItem()],
       externalStruggles: [createEmptyItem()],
-      desiredTransformations: [createEmptyItem()]
+      desiredTransformations: [createEmptyItem()],
+      clientId: selectedClientId // Associate with the selected client
     }
   );
 
@@ -86,6 +92,7 @@ const ICPStoryScriptForm: FC<ICPStoryScriptFormProps> = ({ onSave, initialScript
     // Clean up empty items
     const cleanedScript = {
       ...script,
+      clientId: selectedClientId || script.clientId, // Ensure clientId is set
       coreBeliefs: script.coreBeliefs.filter(item => item.content.trim() !== ''),
       internalPains: script.internalPains.filter(item => item.content.trim() !== ''),
       externalStruggles: script.externalStruggles.filter(item => item.content.trim() !== ''),

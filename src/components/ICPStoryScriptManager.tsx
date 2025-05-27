@@ -13,13 +13,15 @@ interface ICPStoryScriptManagerProps {
   onScriptAdded: (script: ICPStoryScript) => void;
   onScriptUpdated: (script: ICPStoryScript) => void;
   onScriptDeleted: (scriptId: string) => void;
+  selectedClientId?: string;
 }
 
 const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({ 
   scripts, 
   onScriptAdded, 
   onScriptUpdated, 
-  onScriptDeleted 
+  onScriptDeleted,
+  selectedClientId
 }) => {
   const { toast } = useToast();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -28,8 +30,6 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
 
   // Get current client info if we're in a client-specific view
   const getClientInfo = () => {
-    const selectedClientId = scripts[0]?.clientId;
-    
     if (selectedClientId) {
       const savedClients = localStorage.getItem('clients');
       if (savedClients) {
@@ -43,16 +43,26 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
   const clientInfo = getClientInfo();
 
   const handleAddScript = (script: ICPStoryScript) => {
-    onScriptAdded(script);
+    // Ensure the script is associated with the selected client
+    const scriptWithClient = {
+      ...script,
+      clientId: selectedClientId
+    };
+    onScriptAdded(scriptWithClient);
     setIsAddDialogOpen(false);
     toast({
       title: "ICP StoryScript created",
-      description: `"${script.name}" has been added successfully.`
+      description: `"${script.name}" has been added successfully${clientInfo ? ` for ${clientInfo.name}` : ''}.`
     });
   };
 
   const handleEditScript = (script: ICPStoryScript) => {
-    onScriptUpdated(script);
+    // Ensure the script maintains its client association
+    const scriptWithClient = {
+      ...script,
+      clientId: script.clientId || selectedClientId
+    };
+    onScriptUpdated(scriptWithClient);
     setIsEditDialogOpen(false);
     setSelectedScript(null);
     toast({
@@ -84,17 +94,32 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
       .join(', ');
   };
 
+  // Don't show the component if no client is selected
+  if (!selectedClientId) {
+    return (
+      <Card className="w-full bg-white shadow-md">
+        <CardContent className="p-8 text-center">
+          <Users className="mx-auto h-12 w-12 opacity-30 mb-4 text-gray-400" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Select a Client</h3>
+          <p className="text-gray-500">
+            Please select a client from the sidebar to view and manage their ICP StoryScripts.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="w-full bg-white shadow-md">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-story-blue">Your ICP StoryScripts</CardTitle>
+          <CardTitle className="text-story-blue">ICP StoryScripts</CardTitle>
           <CardDescription>
             Define your target audience personas
             {clientInfo && (
               <span className="ml-2 bg-story-blue/10 px-2 py-0.5 rounded-full text-xs text-story-blue">
                 <Users className="inline h-3 w-3 mr-1" />
-                For client: {clientInfo.name}
+                For: {clientInfo.name}
               </span>
             )}
           </CardDescription>
@@ -110,9 +135,17 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
               <DialogTitle>Create a new ICP StoryScript</DialogTitle>
               <DialogDescription>
                 Define who you're writing for, their pains, struggles, and desired transformations.
+                {clientInfo && (
+                  <span className="block mt-1 text-story-blue font-medium">
+                    Creating for: {clientInfo.name}
+                  </span>
+                )}
               </DialogDescription>
             </DialogHeader>
-            <ICPStoryScriptForm onSave={handleAddScript} />
+            <ICPStoryScriptForm 
+              onSave={handleAddScript} 
+              selectedClientId={selectedClientId}
+            />
           </DialogContent>
         </Dialog>
       </CardHeader>
@@ -191,7 +224,8 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
             {selectedScript && (
               <ICPStoryScriptForm 
                 onSave={handleEditScript} 
-                initialScript={selectedScript} 
+                initialScript={selectedScript}
+                selectedClientId={selectedClientId}
               />
             )}
           </DialogContent>
