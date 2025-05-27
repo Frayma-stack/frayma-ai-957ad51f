@@ -1,5 +1,5 @@
 
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 import ContentTypeSelector from '@/components/ContentTypeSelector';
 import ArticleTypeSelector from '@/components/ArticleTypeSelector';
@@ -23,6 +23,7 @@ interface HomeViewRouterProps {
   onArticleSubtypeSelect: (subtype: ArticleSubType) => void;
   onBack: () => void;
   onSuccessStoryAdded: (story: CustomerSuccessStory) => void;
+  onNavigateToIdeasBank?: () => void;
 }
 
 const HomeViewRouter: FC<HomeViewRouterProps> = ({
@@ -38,8 +39,24 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
   onArticleSubtypeSelect,
   onBack,
   onSuccessStoryAdded,
+  onNavigateToIdeasBank,
 }) => {
   const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(null);
+
+  // Listen for the custom event to navigate to ideas bank
+  useEffect(() => {
+    const handleNavigateToIdeasBank = () => {
+      if (onNavigateToIdeasBank) {
+        onNavigateToIdeasBank();
+      }
+    };
+
+    window.addEventListener('navigate-to-ideas-bank', handleNavigateToIdeasBank);
+    
+    return () => {
+      window.removeEventListener('navigate-to-ideas-bank', handleNavigateToIdeasBank);
+    };
+  }, [onNavigateToIdeasBank]);
 
   if (selectedType === 'article' && !selectedArticleSubtype) {
     return (

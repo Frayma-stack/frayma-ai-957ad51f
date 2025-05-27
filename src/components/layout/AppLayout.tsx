@@ -82,6 +82,11 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
     props.onClientSelected(clientId);
   };
 
+  // Handler for navigating to ideas bank from home
+  const handleNavigateToIdeasBank = () => {
+    props.onIdeasBankSelected();
+  };
+
   if (props.dataLoading) {
     return <LoadingState />;
   }
@@ -154,6 +159,7 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
               onProductContextUpdated={props.onProductContextUpdated}
               onProductContextDeleted={props.onProductContextDeleted}
               onIdeaContentTypeSelect={props.onIdeaContentTypeSelect}
+              onNavigateToIdeasBank={handleNavigateToIdeasBank}
             />
           </div>
         </main>

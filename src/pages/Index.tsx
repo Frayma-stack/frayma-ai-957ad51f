@@ -8,6 +8,8 @@ import { useIndexPageState } from '@/hooks/useIndexPageState';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
+import { OnboardingProvider } from '@/components/onboarding/OnboardingProvider';
+import OnboardingOverlay from '@/components/onboarding/OnboardingOverlay';
 
 const Index = () => {
   const { user, loading: authLoading } = useAuth();
@@ -99,52 +101,61 @@ const Index = () => {
   }
 
   return (
-    <AppLayout
-      user={{ email: user.email || '' }}
-      dataLoading={dataLoading}
-      currentView={currentView}
-      selectedContentType={selectedContentType}
-      selectedArticleSubtype={selectedArticleSubtype}
-      selectedAssetType={selectedAssetType}
-      selectedClientId={selectedClientId}
-      clients={clients}
-      authors={authors}
-      ideas={ideas}
-      icpScripts={icpScripts}
-      successStories={successStories}
-      productContexts={productContexts}
-      getFilteredAuthors={getFilteredAuthors}
-      getFilteredICPScripts={getFilteredICPScripts}
-      getFilteredSuccessStories={getFilteredSuccessStories}
-      getCurrentProductContext={getCurrentProductContext}
-      handleProductContextCreatedOrUpdated={handleProductContextCreatedOrUpdated}
-      onAssetTypeChange={handleAssetTypeChange}
-      onClientSelected={handleClientSelected}
-      onIdeasBankSelected={handleIdeasBankSelected}
-      onHomeSelected={handleHomeSelected}
-      onContentTypeSelect={handleContentTypeSelect}
-      onArticleSubtypeSelect={handleArticleSubtypeSelect}
-      onBack={handleBack}
-      onClientAdded={handleClientAdded}
-      onClientUpdated={handleClientUpdated}
-      onClientDeleted={handleClientDeleted}
-      onAuthorAdded={handleAuthorAdded}
-      onAuthorUpdated={handleAuthorUpdated}
-      onAuthorDeleted={handleAuthorDeleted}
-      onIdeaAdded={handleIdeaAdded}
-      onIdeaUpdated={handleIdeaUpdated}
-      onIdeaDeleted={handleIdeaDeleted}
-      onICPScriptAdded={handleICPScriptAdded}
-      onICPScriptUpdated={handleICPScriptUpdated}
-      onICPScriptDeleted={handleICPScriptDeleted}
-      onSuccessStoryAdded={handleSuccessStoryAdded}
-      onSuccessStoryUpdated={handleSuccessStoryUpdated}
-      onSuccessStoryDeleted={handleSuccessStoryDeleted}
-      onProductContextAdded={handleProductContextAdded}
-      onProductContextUpdated={handleProductContextUpdated}
-      onProductContextDeleted={handleProductContextDeleted}
-      onIdeaContentTypeSelect={handleIdeaContentTypeSelect}
-    />
+    <OnboardingProvider>
+      <AppLayout
+        user={{ email: user.email || '' }}
+        dataLoading={dataLoading}
+        currentView={currentView}
+        selectedContentType={selectedContentType}
+        selectedArticleSubtype={selectedArticleSubtype}
+        selectedAssetType={selectedAssetType}
+        selectedClientId={selectedClientId}
+        clients={clients}
+        authors={authors}
+        ideas={ideas}
+        icpScripts={icpScripts}
+        successStories={successStories}
+        productContexts={productContexts}
+        getFilteredAuthors={getFilteredAuthors}
+        getFilteredICPScripts={getFilteredICPScripts}
+        getFilteredSuccessStories={getFilteredSuccessStories}
+        getCurrentProductContext={getCurrentProductContext}
+        handleProductContextCreatedOrUpdated={handleProductContextCreatedOrUpdated}
+        onAssetTypeChange={handleAssetTypeChange}
+        onClientSelected={handleClientSelected}
+        onIdeasBankSelected={handleIdeasBankSelected}
+        onHomeSelected={handleHomeSelected}
+        onContentTypeSelect={handleContentTypeSelect}
+        onArticleSubtypeSelect={handleArticleSubtypeSelect}
+        onBack={handleBack}
+        onClientAdded={handleClientAdded}
+        onClientUpdated={handleClientUpdated}
+        onClientDeleted={handleClientDeleted}
+        onAuthorAdded={handleAuthorAdded}
+        onAuthorUpdated={handleAuthorUpdated}
+        onAuthorDeleted={handleAuthorDeleted}
+        onIdeaAdded={handleIdeaAdded}
+        onIdeaUpdated={handleIdeaUpdated}
+        onIdeaDeleted={handleIdeaDeleted}
+        onICPScriptAdded={handleICPScriptAdded}
+        onICPScriptUpdated={handleICPScriptUpdated}
+        onICPScriptDeleted={handleICPScriptDeleted}
+        onSuccessStoryAdded={handleSuccessStoryAdded}
+        onSuccessStoryUpdated={handleSuccessStoryUpdated}
+        onSuccessStoryDeleted={handleSuccessStoryDeleted}
+        onProductContextAdded={handleProductContextAdded}
+        onProductContextUpdated={handleProductContextUpdated}
+        onProductContextDeleted={handleProductContextDeleted}
+        onIdeaContentTypeSelect={handleIdeaContentTypeSelect}
+      />
+      
+      <OnboardingOverlay
+        onAuthorAdded={handleAuthorAdded}
+        onClientAdded={handleClientAdded}
+        onICPScriptAdded={handleICPScriptAdded}
+        onNavigateToIdeasBank={handleIdeasBankSelected}
+      />
+    </OnboardingProvider>
   );
 };
 
