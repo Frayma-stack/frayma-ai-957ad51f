@@ -58,16 +58,16 @@ const TwoSidedIdeaGenerator: FC<TwoSidedIdeaGeneratorProps> = ({
       id: crypto.randomUUID(),
       title: manualTitle.trim(),
       narrative: manualNarrative.trim(),
-      productTieIn: manualProductTieIn.trim() || undefined,
-      cta: manualCTA.trim() || undefined,
+      productTieIn: manualProductTieIn.trim() || '',
+      cta: manualCTA.trim() || '',
       clientId: selectedClientId,
       createdAt: new Date().toISOString(),
-      score: 0,
-      source: 'manual',
-      icpId: null,
-      narrativeAnchor: null,
-      triggers: [],
-      searchQueries: []
+      score: { value: 0, label: '0' },
+      source: { type: 'manual', content: 'Manual entry' },
+      icpId: '',
+      narrativeAnchor: 'belief',
+      narrativeItemId: '',
+      productFeatures: []
     };
 
     onIdeaAdded(newIdea);
@@ -89,16 +89,16 @@ const TwoSidedIdeaGenerator: FC<TwoSidedIdeaGeneratorProps> = ({
       id: crypto.randomUUID(),
       title,
       narrative,
-      productTieIn: undefined,
-      cta: undefined,
+      productTieIn: '',
+      cta: '',
       clientId: selectedClientId,
       createdAt: new Date().toISOString(),
-      score: 0,
-      source: 'ai_generated',
-      icpId: selectedICPScript?.id || null,
-      narrativeAnchor: null,
-      triggers: [],
-      searchQueries: []
+      score: { value: 0, label: '0' },
+      source: { type: 'text', content: 'AI generated' },
+      icpId: selectedICPScript?.id || '',
+      narrativeAnchor: 'belief',
+      narrativeItemId: '',
+      productFeatures: []
     };
 
     onIdeaAdded(newIdea);

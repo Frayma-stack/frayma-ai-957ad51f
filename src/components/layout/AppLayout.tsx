@@ -74,6 +74,14 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
     }
   }, [props.selectedContentType, props.currentView, sidebarCollapsed]);
 
+  // Handler for viewing client assets (placeholder implementation)
+  const handleViewClientAssets = (clientId: string, assetType: string) => {
+    console.log('View client assets:', clientId, assetType);
+    // This could navigate to a specific client assets view
+    props.onAssetTypeChange(assetType);
+    props.onClientSelected(clientId);
+  };
+
   if (props.dataLoading) {
     return <LoadingState />;
   }
@@ -111,7 +119,42 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
           </div>
           
           <div className="flex-1 overflow-auto">
-            <MainContent {...props} />
+            <MainContent 
+              currentView={props.currentView}
+              selectedType={props.selectedContentType}
+              selectedArticleSubtype={props.selectedArticleSubtype}
+              selectedClientId={props.selectedClientId}
+              clients={props.clients}
+              authors={props.authors}
+              ideas={props.ideas}
+              icpScripts={props.icpScripts}
+              successStories={props.successStories}
+              productContexts={props.productContexts}
+              onContentTypeSelect={props.onContentTypeSelect}
+              onArticleSubtypeSelect={props.onArticleSubtypeSelect}
+              onBack={props.onBack}
+              onClientAdded={props.onClientAdded}
+              onClientUpdated={props.onClientUpdated}
+              onClientDeleted={props.onClientDeleted}
+              onClientSelected={props.onClientSelected}
+              onViewClientAssets={handleViewClientAssets}
+              onAuthorAdded={props.onAuthorAdded}
+              onAuthorUpdated={props.onAuthorUpdated}
+              onAuthorDeleted={props.onAuthorDeleted}
+              onIdeaAdded={props.onIdeaAdded}
+              onIdeaUpdated={props.onIdeaUpdated}
+              onIdeaDeleted={props.onIdeaDeleted}
+              onICPScriptAdded={props.onICPScriptAdded}
+              onICPScriptUpdated={props.onICPScriptUpdated}
+              onICPScriptDeleted={props.onICPScriptDeleted}
+              onSuccessStoryAdded={props.onSuccessStoryAdded}
+              onSuccessStoryUpdated={props.onSuccessStoryUpdated}
+              onSuccessStoryDeleted={props.onSuccessStoryDeleted}
+              onProductContextAdded={props.onProductContextAdded}
+              onProductContextUpdated={props.onProductContextUpdated}
+              onProductContextDeleted={props.onProductContextDeleted}
+              onIdeaContentTypeSelect={props.onIdeaContentTypeSelect}
+            />
           </div>
         </main>
       </div>
