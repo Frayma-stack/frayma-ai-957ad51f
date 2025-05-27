@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { ICPStoryScript, CustomerSuccessStory } from '@/types/storytelling';
@@ -43,7 +42,8 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
   } = useGTMNarrativeData();
 
   // Enhanced handler for when an idea is selected
-  const handleIdeaSelection = (idea: GeneratedIdea | null) => {
+  const handleIdeaSelection = (ideaId: string) => {
+    const idea = ideas.find(i => i.id === ideaId);
     if (idea) {
       const ideaTrigger = generateContentTrigger(idea);
       handleInputChange('selectedIdeaId', idea.id);
