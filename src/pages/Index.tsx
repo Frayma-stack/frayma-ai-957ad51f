@@ -100,7 +100,7 @@ const Index = () => {
 
   return (
     <AppLayout
-      user={user}
+      user={{ email: user.email || '' }}
       dataLoading={dataLoading}
       currentView={currentView}
       selectedContentType={selectedContentType}
