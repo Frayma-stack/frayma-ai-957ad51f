@@ -53,9 +53,9 @@ const ProductLedIdeaGenerator: FC<ProductLedIdeaGeneratorProps> = ({
     <div className="space-y-8">
       <div className="text-center py-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border">
         <Lightbulb className="mx-auto h-12 w-12 text-blue-500 mb-3" />
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Product-Led Storytelling Ideas</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Frame Thoughts Into Powerful Ideas</h2>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Generate compelling content ideas that subtly weave in your product's unique value through narrative-driven storytelling.
+          Transform your insights into compelling content ideas for auto-crafting GTM assets that resonate and propel you and your business forward.
         </p>
       </div>
 
@@ -68,7 +68,6 @@ const ProductLedIdeaGenerator: FC<ProductLedIdeaGeneratorProps> = ({
         icpScripts={icpScripts}
         productContext={productContext}
         productInputs={productInputs}
-        selectedICP={selectedICP}
         onProductInputsChange={setProductInputs}
       />
 
