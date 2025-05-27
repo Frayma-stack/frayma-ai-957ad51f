@@ -21,7 +21,7 @@ export const convertToCompanyLinks = (data: Json | null): CompanyLink[] => {
     item !== null && 
     typeof (item as any).type === 'string' && 
     typeof (item as any).url === 'string'
-  ) as CompanyLink[];
+  ).map(item => item as CompanyLink);
 };
 
 export const convertToAuthorExperiences = (data: Json | null): AuthorExperience[] => {
@@ -32,7 +32,7 @@ export const convertToAuthorExperiences = (data: Json | null): AuthorExperience[
     typeof (item as any).id === 'string' && 
     typeof (item as any).title === 'string' && 
     typeof (item as any).description === 'string'
-  ) as AuthorExperience[];
+  ).map(item => item as AuthorExperience);
 };
 
 export const convertToAuthorTones = (data: Json | null): AuthorToneItem[] => {
@@ -43,7 +43,7 @@ export const convertToAuthorTones = (data: Json | null): AuthorToneItem[] => {
     typeof (item as any).id === 'string' && 
     typeof (item as any).tone === 'string' && 
     typeof (item as any).description === 'string'
-  ) as AuthorToneItem[];
+  ).map(item => item as AuthorToneItem);
 };
 
 export const convertToAuthorBeliefs = (data: Json | null): AuthorBelief[] => {
@@ -54,7 +54,7 @@ export const convertToAuthorBeliefs = (data: Json | null): AuthorBelief[] => {
     typeof (item as any).id === 'string' && 
     typeof (item as any).belief === 'string' && 
     typeof (item as any).description === 'string'
-  ) as AuthorBelief[];
+  ).map(item => item as AuthorBelief);
 };
 
 export const convertToAuthorSocialLinks = (data: Json | null): AuthorSocialLink[] => {
@@ -65,7 +65,7 @@ export const convertToAuthorSocialLinks = (data: Json | null): AuthorSocialLink[
     typeof (item as any).id === 'string' && 
     typeof (item as any).type === 'string' && 
     typeof (item as any).url === 'string'
-  ) as AuthorSocialLink[];
+  ).map(item => item as AuthorSocialLink);
 };
 
 export const convertToICPStoryScriptItems = (data: Json | null): ICPStoryScriptItem[] => {
@@ -75,7 +75,7 @@ export const convertToICPStoryScriptItems = (data: Json | null): ICPStoryScriptI
     item !== null && 
     typeof (item as any).id === 'string' && 
     typeof (item as any).content === 'string'
-  ) as ICPStoryScriptItem[];
+  ).map(item => item as ICPStoryScriptItem);
 };
 
 export const convertToProductFeatures = (data: Json | null): ProductFeature[] => {
@@ -85,7 +85,7 @@ export const convertToProductFeatures = (data: Json | null): ProductFeature[] =>
     item !== null && 
     typeof (item as any).id === 'string' && 
     typeof (item as any).name === 'string'
-  ) as ProductFeature[];
+  ).map(item => item as ProductFeature);
 };
 
 export const convertToProductUseCases = (data: Json | null): ProductUseCase[] => {
@@ -95,7 +95,7 @@ export const convertToProductUseCases = (data: Json | null): ProductUseCase[] =>
     item !== null && 
     typeof (item as any).id === 'string' && 
     typeof (item as any).useCase === 'string'
-  ) as ProductUseCase[];
+  ).map(item => item as ProductUseCase);
 };
 
 export const convertToProductDifferentiators = (data: Json | null): ProductDifferentiator[] => {
@@ -105,7 +105,7 @@ export const convertToProductDifferentiators = (data: Json | null): ProductDiffe
     item !== null && 
     typeof (item as any).id === 'string' && 
     typeof (item as any).name === 'string'
-  ) as ProductDifferentiator[];
+  ).map(item => item as ProductDifferentiator);
 };
 
 // Convert from our types to Json for Supabase

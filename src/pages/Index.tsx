@@ -226,7 +226,7 @@ const Index = () => {
               onSuccessStoryAdded={handleSuccessStoryAdded}
               onSuccessStoryUpdated={handleSuccessStoryUpdated}
               onSuccessStoryDeleted={handleSuccessStoryDeleted}
-              onProductContextCreatedOrUpdated={handleProductContextCreatedOrUpdated}
+              handleProductContextCreatedOrUpdated={handleProductContextCreatedOrUpdated}
             />
           ) : (
             <HomeViewRouter
