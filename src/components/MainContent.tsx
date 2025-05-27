@@ -122,6 +122,7 @@ const MainContent: FC<MainContentProps> = ({
   return (
     <AssetViewRouter
       currentView={currentView}
+      selectedAssetType={currentView}
       selectedClientId={selectedClientId}
       clients={clients}
       filteredAuthors={getFilteredAuthors()}

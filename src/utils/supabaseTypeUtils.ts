@@ -19,9 +19,9 @@ export const convertToCompanyLinks = (data: Json | null): CompanyLink[] => {
   return data.filter((item): item is CompanyLink => 
     typeof item === 'object' && 
     item !== null && 
-    'type' in item && 
-    'url' in item
-  );
+    typeof (item as any).type === 'string' && 
+    typeof (item as any).url === 'string'
+  ) as CompanyLink[];
 };
 
 export const convertToAuthorExperiences = (data: Json | null): AuthorExperience[] => {
@@ -29,10 +29,10 @@ export const convertToAuthorExperiences = (data: Json | null): AuthorExperience[
   return data.filter((item): item is AuthorExperience => 
     typeof item === 'object' && 
     item !== null && 
-    'id' in item && 
-    'title' in item && 
-    'description' in item
-  );
+    typeof (item as any).id === 'string' && 
+    typeof (item as any).title === 'string' && 
+    typeof (item as any).description === 'string'
+  ) as AuthorExperience[];
 };
 
 export const convertToAuthorTones = (data: Json | null): AuthorToneItem[] => {
@@ -40,10 +40,10 @@ export const convertToAuthorTones = (data: Json | null): AuthorToneItem[] => {
   return data.filter((item): item is AuthorToneItem => 
     typeof item === 'object' && 
     item !== null && 
-    'id' in item && 
-    'tone' in item && 
-    'description' in item
-  );
+    typeof (item as any).id === 'string' && 
+    typeof (item as any).tone === 'string' && 
+    typeof (item as any).description === 'string'
+  ) as AuthorToneItem[];
 };
 
 export const convertToAuthorBeliefs = (data: Json | null): AuthorBelief[] => {
@@ -51,10 +51,10 @@ export const convertToAuthorBeliefs = (data: Json | null): AuthorBelief[] => {
   return data.filter((item): item is AuthorBelief => 
     typeof item === 'object' && 
     item !== null && 
-    'id' in item && 
-    'belief' in item && 
-    'description' in item
-  );
+    typeof (item as any).id === 'string' && 
+    typeof (item as any).belief === 'string' && 
+    typeof (item as any).description === 'string'
+  ) as AuthorBelief[];
 };
 
 export const convertToAuthorSocialLinks = (data: Json | null): AuthorSocialLink[] => {
@@ -62,10 +62,10 @@ export const convertToAuthorSocialLinks = (data: Json | null): AuthorSocialLink[
   return data.filter((item): item is AuthorSocialLink => 
     typeof item === 'object' && 
     item !== null && 
-    'id' in item && 
-    'type' in item && 
-    'url' in item
-  );
+    typeof (item as any).id === 'string' && 
+    typeof (item as any).type === 'string' && 
+    typeof (item as any).url === 'string'
+  ) as AuthorSocialLink[];
 };
 
 export const convertToICPStoryScriptItems = (data: Json | null): ICPStoryScriptItem[] => {
@@ -73,9 +73,9 @@ export const convertToICPStoryScriptItems = (data: Json | null): ICPStoryScriptI
   return data.filter((item): item is ICPStoryScriptItem => 
     typeof item === 'object' && 
     item !== null && 
-    'id' in item && 
-    'content' in item
-  );
+    typeof (item as any).id === 'string' && 
+    typeof (item as any).content === 'string'
+  ) as ICPStoryScriptItem[];
 };
 
 export const convertToProductFeatures = (data: Json | null): ProductFeature[] => {
@@ -83,9 +83,9 @@ export const convertToProductFeatures = (data: Json | null): ProductFeature[] =>
   return data.filter((item): item is ProductFeature => 
     typeof item === 'object' && 
     item !== null && 
-    'id' in item && 
-    'name' in item
-  );
+    typeof (item as any).id === 'string' && 
+    typeof (item as any).name === 'string'
+  ) as ProductFeature[];
 };
 
 export const convertToProductUseCases = (data: Json | null): ProductUseCase[] => {
@@ -93,9 +93,9 @@ export const convertToProductUseCases = (data: Json | null): ProductUseCase[] =>
   return data.filter((item): item is ProductUseCase => 
     typeof item === 'object' && 
     item !== null && 
-    'id' in item && 
-    'useCase' in item
-  );
+    typeof (item as any).id === 'string' && 
+    typeof (item as any).useCase === 'string'
+  ) as ProductUseCase[];
 };
 
 export const convertToProductDifferentiators = (data: Json | null): ProductDifferentiator[] => {
@@ -103,44 +103,44 @@ export const convertToProductDifferentiators = (data: Json | null): ProductDiffe
   return data.filter((item): item is ProductDifferentiator => 
     typeof item === 'object' && 
     item !== null && 
-    'id' in item && 
-    'name' in item
-  );
+    typeof (item as any).id === 'string' && 
+    typeof (item as any).name === 'string'
+  ) as ProductDifferentiator[];
 };
 
 // Convert from our types to Json for Supabase
 export const convertFromCompanyLinks = (links: CompanyLink[]): Json => {
-  return links as Json;
+  return links as unknown as Json;
 };
 
 export const convertFromAuthorExperiences = (experiences: AuthorExperience[]): Json => {
-  return experiences as Json;
+  return experiences as unknown as Json;
 };
 
 export const convertFromAuthorTones = (tones: AuthorToneItem[]): Json => {
-  return tones as Json;
+  return tones as unknown as Json;
 };
 
 export const convertFromAuthorBeliefs = (beliefs: AuthorBelief[]): Json => {
-  return beliefs as Json;
+  return beliefs as unknown as Json;
 };
 
 export const convertFromAuthorSocialLinks = (links: AuthorSocialLink[]): Json => {
-  return links as Json;
+  return links as unknown as Json;
 };
 
 export const convertFromICPStoryScriptItems = (items: ICPStoryScriptItem[]): Json => {
-  return items as Json;
+  return items as unknown as Json;
 };
 
 export const convertFromProductFeatures = (features: ProductFeature[]): Json => {
-  return features as Json;
+  return features as unknown as Json;
 };
 
 export const convertFromProductUseCases = (useCases: ProductUseCase[]): Json => {
-  return useCases as Json;
+  return useCases as unknown as Json;
 };
 
 export const convertFromProductDifferentiators = (differentiators: ProductDifferentiator[]): Json => {
-  return differentiators as Json;
+  return differentiators as unknown as Json;
 };
