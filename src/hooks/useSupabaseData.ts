@@ -14,6 +14,8 @@ export const useSupabaseData = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
 
+  console.log('🔄 Supabase Data Hook - User:', user?.email);
+
   // Initialize all data hooks
   const clientData = useClientData();
   const authorData = useAuthorData();
@@ -24,8 +26,12 @@ export const useSupabaseData = () => {
 
   // Load all data when user is available
   const loadAllData = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('❌ No user - skipping data load');
+      return;
+    }
     
+    console.log('📊 Loading all data for user:', user.email);
     setLoading(true);
     try {
       await Promise.all([
@@ -36,8 +42,9 @@ export const useSupabaseData = () => {
         successStoryData.loadSuccessStories(),
         productContextData.loadProductContexts()
       ]);
+      console.log('✅ All data loaded successfully');
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error('❌ Error loading data:', error);
       toast.error('Failed to load data from database');
     } finally {
       setLoading(false);
@@ -47,8 +54,10 @@ export const useSupabaseData = () => {
   // Load data when user changes
   useEffect(() => {
     if (user) {
+      console.log('👤 User authenticated - loading data');
       loadAllData();
     } else {
+      console.log('🚪 User logged out - clearing data');
       // Clear data when user logs out
       clientData.setClients([]);
       authorData.setAuthors([]);
@@ -61,6 +70,7 @@ export const useSupabaseData = () => {
 
   // Enhanced client handlers that can handle product context
   const handleClientAdded = async (client: Client, productContext?: ProductContext) => {
+    console.log('➕ Adding client:', client.name, productContext ? 'with product context' : 'without product context');
     return clientData.handleClientAdded(
       client, 
       productContext, 
@@ -69,6 +79,7 @@ export const useSupabaseData = () => {
   };
 
   const handleClientUpdated = async (updatedClient: Client, productContext?: ProductContext) => {
+    console.log('✏️ Updating client:', updatedClient.name, productContext ? 'with product context' : 'without product context');
     return clientData.handleClientUpdated(
       updatedClient,
       productContext,
@@ -77,6 +88,15 @@ export const useSupabaseData = () => {
       productContextData.productContexts
     );
   };
+
+  console.log('📊 Current data counts:', {
+    clients: clientData.clients.length,
+    authors: authorData.authors.length,
+    ideas: ideaData.ideas.length,
+    icpScripts: icpScriptData.icpScripts.length,
+    successStories: successStoryData.successStories.length,
+    productContexts: productContextData.productContexts.length
+  });
 
   return {
     // Data

@@ -109,7 +109,7 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
             <div className="flex items-center space-x-4">
               <SidebarTrigger />
               <h2 className="text-lg font-medium text-gray-900">
-                {props.currentView === 'home' && 'Content Creator'}
+                {props.currentView === 'home' && 'Your Dashboard'}
                 {props.currentView === 'ideas' && 'Ideas Bank'}
                 {props.currentView === 'clients' && 'Client Manager'}
                 {props.currentView === 'authors' && 'Author Manager'}

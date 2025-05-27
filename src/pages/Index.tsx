@@ -15,10 +15,15 @@ const Index = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
+  console.log('🏠 Index Page - Auth Status:', { user: user?.email, authLoading });
+
   // Redirect to auth page if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
+      console.log('🔄 Redirecting to auth - no user authenticated');
       navigate('/auth');
+    } else if (user) {
+      console.log('✅ User authenticated:', user.email);
     }
   }, [user, authLoading, navigate]);
 
@@ -86,8 +91,26 @@ const Index = () => {
     onProductContextUpdated: handleProductContextUpdated,
   });
 
+  console.log('🎯 Index Page State Summary:', {
+    hasUser: !!user,
+    authLoading,
+    dataLoading,
+    currentView,
+    selectedClientId,
+    selectedContentType,
+    dataCount: {
+      clients: clients.length,
+      authors: authors.length,
+      ideas: ideas.length,
+      icpScripts: icpScripts.length,
+      successStories: successStories.length,
+      productContexts: productContexts.length
+    }
+  });
+
   // Show loading while checking authentication
   if (authLoading) {
+    console.log('⏳ Showing auth loading state');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
@@ -97,8 +120,11 @@ const Index = () => {
 
   // Don't render anything if not authenticated (will redirect)
   if (!user) {
+    console.log('❌ No user - returning null (will redirect)');
     return null;
   }
+
+  console.log('✨ Rendering main application for user:', user.email);
 
   return (
     <OnboardingProvider>
