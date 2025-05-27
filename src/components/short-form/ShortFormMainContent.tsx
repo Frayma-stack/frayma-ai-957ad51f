@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
+import TriggerInputField from './TriggerInputField';
 import ICPAuthorSelectors from './ICPAuthorSelectors';
 import NarrativeAnchorSelector from './NarrativeAnchorSelector';
 import ContentOptionsSection from './ContentOptionsSection';
@@ -17,6 +18,8 @@ interface ShortFormMainContentProps {
   authors: Author[];
   successStories: CustomerSuccessStory[];
   selectedIdea: GeneratedIdea | null;
+  ideas: GeneratedIdea[];
+  selectedClientId?: string;
   // State props
   selectedICP: string;
   selectedAuthor: string;
@@ -28,6 +31,7 @@ interface ShortFormMainContentProps {
   wordCount: number;
   emailCount: number;
   additionalContext: string;
+  triggerInput: string;
   availableAnchors: {value: string, label: string}[];
   isGenerating: boolean;
   isFormValid: boolean;
@@ -43,6 +47,7 @@ interface ShortFormMainContentProps {
   onWordCountChange: (count: number) => void;
   onEmailCountChange: (count: number) => void;
   onAdditionalContextChange: (context: string) => void;
+  onTriggerInputChange: (trigger: string) => void;
   onGenerateContent: () => void;
 }
 
@@ -52,6 +57,8 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
   authors,
   successStories,
   selectedIdea,
+  ideas,
+  selectedClientId,
   selectedICP,
   selectedAuthor,
   selectedAuthorTone,
@@ -62,6 +69,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
   wordCount,
   emailCount,
   additionalContext,
+  triggerInput,
   availableAnchors,
   isGenerating,
   isFormValid,
@@ -76,6 +84,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
   onWordCountChange,
   onEmailCountChange,
   onAdditionalContextChange,
+  onTriggerInputChange,
   onGenerateContent
 }) => {
   const {
@@ -88,6 +97,13 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
 
   return (
     <CardContent className="space-y-6">
+      <TriggerInputField
+        triggerInput={triggerInput}
+        onTriggerInputChange={onTriggerInputChange}
+        ideas={ideas}
+        selectedClientId={selectedClientId}
+      />
+      
       <ICPAuthorSelectors
         selectedICP={selectedICP}
         selectedAuthor={selectedAuthor}
@@ -102,7 +118,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
         onAuthorExperienceChange={onAuthorExperienceChange}
       />
       
-      {!selectedIdea && (
+      {!triggerInput && !selectedIdea && (
         <NarrativeAnchorSelector
           selectedICP={selectedICP}
           scripts={scripts}

@@ -36,6 +36,7 @@ export const useShortFormContentCreator = ({
     emailCount,
     availableAnchors,
     selectedIdeaId,
+    triggerInput,
     toast,
     getSelectedIdea,
     setSelectedICP,
@@ -50,7 +51,8 @@ export const useShortFormContentCreator = ({
     setSelectedSuccessStory,
     setWordCount,
     setEmailCount,
-    setSelectedIdeaId
+    setSelectedIdeaId,
+    setTriggerInput
   } = useShortFormState({ scripts, authors, successStories, ideas });
 
   const {
@@ -74,7 +76,8 @@ export const useShortFormContentCreator = ({
     contentGoal,
     wordCount,
     emailCount,
-    additionalContext
+    additionalContext,
+    triggerInput
   });
 
   const getContentTypeLabel = () => {
@@ -87,6 +90,11 @@ export const useShortFormContentCreator = ({
   };
 
   const isFormValid = (): boolean => {
+    // If we have a trigger input, we need at least an author
+    if (triggerInput.trim()) {
+      return Boolean(selectedAuthor);
+    }
+    
     // If an idea is selected, we don't need ICP and narrative selections
     if (getSelectedIdea()) {
       return Boolean(selectedAuthor);
@@ -105,7 +113,13 @@ export const useShortFormContentCreator = ({
   const generateContent = () => {
     if (!isFormValid()) {
       const selectedIdea = getSelectedIdea();
-      if (selectedIdea) {
+      if (triggerInput.trim()) {
+        toast({
+          title: "Missing information",
+          description: "Please select an author to generate content using your trigger.",
+          variant: "destructive"
+        });
+      } else if (selectedIdea) {
         toast({
           title: "Missing information",
           description: "Please select an author to generate content using your saved idea.",
@@ -138,11 +152,11 @@ export const useShortFormContentCreator = ({
       let content = "";
       
       if (contentType === 'email') {
-        content = generateEmailContent(script, author, successStory, selectedIdea);
+        content = generateEmailContent(script, author, successStory, selectedIdea, triggerInput);
       } else if (contentType === 'linkedin') {
-        content = generateLinkedInContent(script, author, successStory, selectedIdea);
+        content = generateLinkedInContent(script, author, successStory, selectedIdea, triggerInput);
       } else if (contentType === 'custom') {
-        content = generateCustomContent(script, author, successStory, selectedIdea);
+        content = generateCustomContent(script, author, successStory, selectedIdea, triggerInput);
       }
       
       setGeneratedContent(content);
@@ -172,6 +186,7 @@ export const useShortFormContentCreator = ({
     emailCount,
     availableAnchors,
     selectedIdeaId,
+    triggerInput,
     getSelectedIdea,
     
     // Actions
@@ -187,6 +202,7 @@ export const useShortFormContentCreator = ({
     setWordCount,
     setEmailCount,
     setSelectedIdeaId,
+    setTriggerInput,
     
     // Computed
     getContentTypeLabel,

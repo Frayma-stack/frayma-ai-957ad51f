@@ -8,6 +8,7 @@ interface UseLinkedInContentGeneratorProps {
   selectedAuthorExperience: string;
   additionalContext: string;
   contentGoal: ContentGoal;
+  triggerInput: string;
   getAuthorTones: () => any[];
   getAuthorExperiences: () => any[];
   getSelectedNarrativeContents: () => string[];
@@ -18,6 +19,7 @@ export const useLinkedInContentGenerator = ({
   selectedAuthorExperience,
   additionalContext,
   contentGoal,
+  triggerInput,
   getAuthorTones,
   getAuthorExperiences,
   getSelectedNarrativeContents
@@ -26,13 +28,18 @@ export const useLinkedInContentGenerator = ({
     script: ICPStoryScript | undefined, 
     author: Author, 
     successStory?: CustomerSuccessStory | undefined, 
-    selectedIdea?: GeneratedIdea | null
+    selectedIdea?: GeneratedIdea | null,
+    customTrigger?: string
   ) => {
     let content = "";
     
-    if (selectedIdea) {
-      // Enhanced content generation based on saved idea
-      content = `# ${selectedIdea.title}\n\n`;
+    // Use custom trigger if provided, otherwise use saved idea or narrative content
+    const trigger = customTrigger || triggerInput;
+    
+    if (trigger || selectedIdea) {
+      // Enhanced content generation based on trigger or saved idea
+      const title = selectedIdea?.title || "An important insight worth sharing";
+      content = `# ${title}\n\n`;
       
       // Add author context if available
       if (selectedAuthorTone || selectedAuthorExperience) {
@@ -55,7 +62,10 @@ export const useLinkedInContentGenerator = ({
         content += "I want to share an important insight.\n\n";
       }
       
-      if (selectedIdea.narrative) {
+      // Use trigger input or idea narrative
+      if (trigger) {
+        content += `${trigger}\n\n`;
+      } else if (selectedIdea?.narrative) {
         content += `${selectedIdea.narrative}\n\n`;
       }
       
@@ -64,7 +74,8 @@ export const useLinkedInContentGenerator = ({
         content += `For ${script.name} professionals, this insight is particularly relevant because it addresses a common challenge in our industry.\n\n`;
       }
       
-      if (selectedIdea.productTieIn) {
+      // Add product tie-in if from saved idea
+      if (selectedIdea?.productTieIn) {
         content += `Here's what I've learned: ${selectedIdea.productTieIn}\n\n`;
       }
       
@@ -79,11 +90,12 @@ export const useLinkedInContentGenerator = ({
       }
       
       content += `Key takeaways:\n`;
-      content += `• Focus on [key insight from the idea]\n`;
+      content += `• Focus on [key insight from the content]\n`;
       content += `• Implement [strategic approach]\n`;
       content += `• Measure [important metric]\n\n`;
       
-      if (selectedIdea.cta) {
+      // Add CTA based on saved idea or content goal
+      if (selectedIdea?.cta) {
         content += `${selectedIdea.cta}\n\n`;
       } else {
         const ctaText = contentGoal === 'book_call' ? 'Interested in discussing how this applies to your situation? DM me.' : 

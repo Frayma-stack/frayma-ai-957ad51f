@@ -47,6 +47,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     emailCount,
     availableAnchors,
     selectedIdeaId,
+    triggerInput,
     getSelectedIdea,
     
     // Actions
@@ -62,6 +63,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     setWordCount,
     setEmailCount,
     setSelectedIdeaId,
+    setTriggerInput,
     
     // Computed
     getContentTypeLabel,
@@ -76,7 +78,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   });
 
   // Protect against accidental page reloads when form has content
-  const hasFormContent = Boolean(selectedICP || selectedAuthor || additionalContext || generatedContent);
+  const hasFormContent = Boolean(selectedICP || selectedAuthor || additionalContext || generatedContent || triggerInput);
   usePageReloadProtection({
     enabled: hasFormContent,
     message: "You have unsaved content in your form. Are you sure you want to leave this page?"
@@ -91,8 +93,8 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Idea Selector */}
-      {filteredIdeas.length > 0 && (
+      {/* Idea Selector - only show if we have ideas and no trigger input */}
+      {filteredIdeas.length > 0 && !triggerInput && (
         <IdeaSelector
           ideas={filteredIdeas}
           selectedIdeaId={selectedIdeaId}
@@ -114,6 +116,8 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
           authors={authors}
           successStories={successStories}
           selectedIdea={selectedIdea}
+          ideas={filteredIdeas}
+          selectedClientId={selectedClientId}
           selectedICP={selectedICP}
           selectedAuthor={selectedAuthor}
           selectedAuthorTone={selectedAuthorTone}
@@ -124,6 +128,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
           wordCount={wordCount}
           emailCount={emailCount}
           additionalContext={additionalContext}
+          triggerInput={triggerInput}
           availableAnchors={availableAnchors}
           isGenerating={isGenerating}
           isFormValid={isFormValid()}
@@ -138,6 +143,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
           onWordCountChange={setWordCount}
           onEmailCountChange={setEmailCount}
           onAdditionalContextChange={setAdditionalContext}
+          onTriggerInputChange={setTriggerInput}
           onGenerateContent={generateContent}
         />
         

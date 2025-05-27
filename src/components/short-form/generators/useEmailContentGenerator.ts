@@ -9,6 +9,7 @@ interface UseEmailContentGeneratorProps {
   additionalContext: string;
   emailCount: number;
   contentGoal: ContentGoal;
+  triggerInput: string;
   getAuthorTones: () => any[];
   getAuthorExperiences: () => any[];
   getSelectedNarrativeContents: () => string[];
@@ -20,6 +21,7 @@ export const useEmailContentGenerator = ({
   additionalContext,
   emailCount,
   contentGoal,
+  triggerInput,
   getAuthorTones,
   getAuthorExperiences,
   getSelectedNarrativeContents
@@ -28,13 +30,18 @@ export const useEmailContentGenerator = ({
     script: ICPStoryScript | undefined, 
     author: Author, 
     successStory?: CustomerSuccessStory | undefined, 
-    selectedIdea?: GeneratedIdea | null
+    selectedIdea?: GeneratedIdea | null,
+    customTrigger?: string
   ) => {
     let content = "";
     
-    if (selectedIdea) {
-      // Enhanced email generation based on saved idea
-      content = `Subject: ${selectedIdea.title}\n\n`;
+    // Use custom trigger if provided, otherwise use saved idea or narrative content
+    const trigger = customTrigger || triggerInput;
+    
+    if (trigger || selectedIdea) {
+      // Enhanced email generation based on trigger or saved idea
+      const subject = selectedIdea?.title || "Insight worth sharing";
+      content = `Subject: ${subject}\n\n`;
       content += `Hi {{First Name}},\n\n`;
       
       // Add personalized opening based on author context
@@ -51,7 +58,10 @@ export const useEmailContentGenerator = ({
         content += "and wanted to share an insight that might be valuable for you.\n\n";
       }
       
-      if (selectedIdea.narrative) {
+      // Use trigger input or idea narrative
+      if (trigger) {
+        content += `${trigger}\n\n`;
+      } else if (selectedIdea?.narrative) {
         content += `${selectedIdea.narrative}\n\n`;
       }
       
@@ -60,7 +70,8 @@ export const useEmailContentGenerator = ({
         content += `I know that as a ${script.name} professional, you're likely dealing with similar challenges.\n\n`;
       }
       
-      if (selectedIdea.productTieIn) {
+      // Add product tie-in if from saved idea
+      if (selectedIdea?.productTieIn) {
         content += `Here's what I've discovered: ${selectedIdea.productTieIn}\n\n`;
       }
       
@@ -72,7 +83,8 @@ export const useEmailContentGenerator = ({
         }
       }
       
-      if (selectedIdea.cta) {
+      // Add CTA based on saved idea or content goal
+      if (selectedIdea?.cta) {
         content += `${selectedIdea.cta}\n\n`;
       } else {
         content += `${contentGoal === 'book_call' ? 'Would you be interested in a brief call to discuss how this might apply to your situation?' : 

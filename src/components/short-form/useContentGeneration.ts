@@ -23,6 +23,7 @@ interface UseContentGenerationProps {
   wordCount: number;
   emailCount: number;
   additionalContext: string;
+  triggerInput: string;
 }
 
 export const useContentGeneration = ({
@@ -39,7 +40,8 @@ export const useContentGeneration = ({
   contentGoal,
   wordCount,
   emailCount,
-  additionalContext
+  additionalContext,
+  triggerInput
 }: UseContentGenerationProps) => {
   const {
     getSelectedICPScript,
@@ -69,6 +71,7 @@ export const useContentGeneration = ({
     additionalContext,
     emailCount,
     contentGoal,
+    triggerInput,
     getAuthorTones,
     getAuthorExperiences,
     getSelectedNarrativeContents
@@ -79,6 +82,7 @@ export const useContentGeneration = ({
     selectedAuthorExperience,
     additionalContext,
     contentGoal,
+    triggerInput,
     getAuthorTones,
     getAuthorExperiences,
     getSelectedNarrativeContents
@@ -89,6 +93,7 @@ export const useContentGeneration = ({
     selectedAuthorExperience,
     additionalContext,
     contentGoal,
+    triggerInput,
     getAuthorTones,
     getAuthorExperiences,
     getSelectedNarrativeContents

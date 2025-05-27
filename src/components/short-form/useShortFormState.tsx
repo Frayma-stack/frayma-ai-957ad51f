@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { 
@@ -44,7 +43,8 @@ export const useShortFormState = ({
       selectedSuccessStory: "none",
       wordCount: 300,
       emailCount: 3,
-      selectedIdeaId: null as string | null
+      selectedIdeaId: null as string | null,
+      triggerInput: ""
     }
   });
 
@@ -63,6 +63,7 @@ export const useShortFormState = ({
   const [emailCount, setEmailCount] = useState<number>(persistedValues.emailCount);
   const [availableAnchors, setAvailableAnchors] = useState<{value: string, label: string}[]>([]);
   const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(persistedValues.selectedIdeaId);
+  const [triggerInput, setTriggerInput] = useState<string>(persistedValues.triggerInput);
   
   const { toast } = useToast();
 
@@ -79,6 +80,7 @@ export const useShortFormState = ({
       setWordCount(persistedValues.wordCount);
       setEmailCount(persistedValues.emailCount);
       setSelectedIdeaId(persistedValues.selectedIdeaId);
+      setTriggerInput(persistedValues.triggerInput);
     }
   }, [isPersistenceLoaded, persistedValues]);
 
@@ -261,6 +263,11 @@ export const useShortFormState = ({
     updatePersistedValue('selectedIdeaId', value);
   };
 
+  const setTriggerInputWithPersistence = (value: string) => {
+    setTriggerInput(value);
+    updatePersistedValue('triggerInput', value);
+  };
+
   return {
     selectedICP,
     selectedAuthor,
@@ -277,6 +284,7 @@ export const useShortFormState = ({
     emailCount,
     availableAnchors,
     selectedIdeaId,
+    triggerInput,
     toast,
     getSelectedIdea,
     setSelectedICP: setSelectedICPWithPersistence,
@@ -292,6 +300,7 @@ export const useShortFormState = ({
     setWordCount: setWordCountWithPersistence,
     setEmailCount: setEmailCountWithPersistence,
     setSelectedIdeaId: setSelectedIdeaIdWithPersistence,
+    setTriggerInput: setTriggerInputWithPersistence,
     clearPersistedData
   };
 };

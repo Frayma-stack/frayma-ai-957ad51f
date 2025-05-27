@@ -8,6 +8,7 @@ interface UseCustomContentGeneratorProps {
   selectedAuthorExperience: string;
   additionalContext: string;
   contentGoal: ContentGoal;
+  triggerInput: string;
   getAuthorTones: () => any[];
   getAuthorExperiences: () => any[];
   getSelectedNarrativeContents: () => string[];
@@ -18,6 +19,7 @@ export const useCustomContentGenerator = ({
   selectedAuthorExperience,
   additionalContext,
   contentGoal,
+  triggerInput,
   getAuthorTones,
   getAuthorExperiences,
   getSelectedNarrativeContents
@@ -26,89 +28,95 @@ export const useCustomContentGenerator = ({
     script: ICPStoryScript | undefined, 
     author: Author, 
     successStory?: CustomerSuccessStory | undefined, 
-    selectedIdea?: GeneratedIdea | null
+    selectedIdea?: GeneratedIdea | null,
+    customTrigger?: string
   ) => {
     let content = "";
     
-    if (selectedIdea) {
-      // Enhanced custom content generation based on saved idea
-      content = `# ${selectedIdea.title}\n\n`;
-      content += `By ${author.name}, ${author.role}${author.organization ? ` at ${author.organization}` : ''}\n\n`;
+    // Use custom trigger if provided, otherwise use saved idea or narrative content
+    const trigger = customTrigger || triggerInput;
+    
+    if (trigger || selectedIdea) {
+      // Enhanced content generation based on trigger or saved idea
+      const title = selectedIdea?.title || "Custom Content";
+      content = `# ${title}\n\n`;
       
-      // Add author context section
+      // Add author introduction
+      content += `By ${author.name}`;
+      if (author.role || author.organization) {
+        content += ` - ${author.role || ''}${author.role && author.organization ? ', ' : ''}${author.organization || ''}`;
+      }
+      content += `\n\n`;
+      
+      // Add author context if available
       if (selectedAuthorTone || selectedAuthorExperience) {
-        content += `*Author's perspective: `;
+        content += "From my perspective ";
         
         if (selectedAuthorExperience) {
           const experience = getAuthorExperiences().find(exp => exp.id === selectedAuthorExperience);
           if (experience) {
-            content += `Drawing from ${experience.title}`;
+            content += `as someone with ${experience.title}, `;
           }
-        }
-        
-        if (selectedAuthorTone && selectedAuthorExperience) {
-          content += ", ";
         }
         
         if (selectedAuthorTone) {
           const tone = getAuthorTones().find(t => t.id === selectedAuthorTone);
           if (tone) {
-            content += `with a ${tone.tone} approach`;
+            content += `and with a ${tone.tone} approach to communication, `;
           }
         }
         
-        content += `.*\n\n`;
+        content += "I want to share some important insights.\n\n";
       }
       
-      if (selectedIdea.narrative) {
+      // Use trigger input or idea narrative
+      if (trigger) {
+        content += `## The Core Insight\n\n${trigger}\n\n`;
+      } else if (selectedIdea?.narrative) {
         content += `## The Core Insight\n\n${selectedIdea.narrative}\n\n`;
       }
       
-      // Add ICP-specific analysis
+      // Add strategic context
       if (script) {
         content += `## Why This Matters for ${script.name} Professionals\n\n`;
-        content += `This insight is particularly relevant for ${script.name} teams because it addresses fundamental challenges in how we approach [relevant area].\n\n`;
+        content += `This insight is particularly relevant for our community because it addresses fundamental challenges we face in driving meaningful outcomes.\n\n`;
       }
       
-      if (selectedIdea.productTieIn) {
-        content += `## Strategic Implications\n\n${selectedIdea.productTieIn}\n\n`;
+      // Add product tie-in if from saved idea
+      if (selectedIdea?.productTieIn) {
+        content += `## What I've Learned\n\n${selectedIdea.productTieIn}\n\n`;
       }
       
+      // Add success story context
       if (successStory) {
-        content += `## Customer Spotlight: ${successStory.title}\n\n`;
-        content += `### The Challenge\n${successStory.beforeSummary}\n\n`;
-        content += `### The Transformation\n${successStory.afterSummary}\n\n`;
+        content += `## Real-World Application\n\n`;
+        content += `Consider the case of ${successStory.title}:\n\n`;
+        content += `**Before:** ${successStory.beforeSummary}\n\n`;
+        content += `**After:** ${successStory.afterSummary}\n\n`;
         
         if (successStory.quotes.length > 0) {
-          content += `### Client Testimonial\n\n`;
-          content += `> "${successStory.quotes[0].quote}"\n>\n> — ${successStory.quotes[0].author}, ${successStory.quotes[0].title}\n\n`;
-        }
-        
-        if (successStory.features.length > 0) {
-          content += `### Key Solutions Implemented\n\n`;
-          successStory.features.forEach((feature, index) => {
-            content += `${index + 1}. **${feature.name}**: ${feature.description}\n`;
-          });
-          content += `\n`;
+          content += `**Their Perspective:**\n`;
+          content += `"${successStory.quotes[0].quote}"\n`;
+          content += `— ${successStory.quotes[0].author}, ${successStory.quotes[0].title}\n\n`;
         }
       }
       
-      content += `## Actionable Steps\n\n`;
-      content += `Based on this insight, here are three immediate actions you can take:\n\n`;
-      content += `1. **Assessment**: Evaluate your current approach against this framework\n`;
-      content += `2. **Implementation**: Begin with [specific first step based on the idea]\n`;
-      content += `3. **Measurement**: Track [relevant metrics] to quantify impact\n\n`;
+      // Add actionable insights
+      content += `## Key Takeaways\n\n`;
+      content += `1. **Focus:** Start with understanding the core challenge\n`;
+      content += `2. **Approach:** Implement systematic changes\n`;
+      content += `3. **Measure:** Track meaningful progress indicators\n\n`;
       
+      // Add CTA based on saved idea or content goal
       content += `## Next Steps\n\n`;
-      
-      if (selectedIdea.cta) {
-        content += `${selectedIdea.cta}\n\n`;
+      if (selectedIdea?.cta) {
+        content += `${selectedIdea.cta}`;
       } else {
-        content += `${contentGoal === 'book_call' ? 'Ready to explore how this insight applies to your specific situation? Let\'s schedule a consultation to discuss your unique challenges and opportunities.' : 
-        contentGoal === 'learn_more' ? 'Want to dive deeper into this framework? Download our comprehensive implementation guide.' : 
-        contentGoal === 'try_product' ? 'See this approach in action. Start with our assessment tool to understand your current position.' : 
-        contentGoal === 'visit_article' ? 'For additional insights and case studies, explore our related resources.' :
-        'We\'d love to hear about your experience implementing these strategies. Connect with us to share your story.'}\n\n`;
+        const ctaText = contentGoal === 'book_call' ? 'If you\'d like to discuss how this applies to your specific situation, I\'d be happy to schedule a conversation.' : 
+          contentGoal === 'learn_more' ? 'For more detailed insights on this topic, I\'ve prepared additional resources.' : 
+          contentGoal === 'try_product' ? 'To see these principles in action, I can walk you through a practical demonstration.' : 
+          'I\'m curious about your experience with these challenges. What has worked best in your context?';
+        content += ctaText;
       }
     } else {
       // Generate content using the original logic
