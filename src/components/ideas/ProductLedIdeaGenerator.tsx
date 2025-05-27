@@ -2,7 +2,7 @@
 import { FC } from 'react';
 import { ICPStoryScript, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
-import BaseIdeaGenerator from './product-led/BaseIdeaGenerator';
+import IdeaGenerator from './IdeaGenerator';
 
 interface ProductLedIdeaGeneratorProps {
   icpScripts: ICPStoryScript[];
@@ -13,7 +13,7 @@ interface ProductLedIdeaGeneratorProps {
 }
 
 const ProductLedIdeaGenerator: FC<ProductLedIdeaGeneratorProps> = (props) => {
-  return <BaseIdeaGenerator {...props} layout="vertical" />;
+  return <IdeaGenerator {...props} layout="vertical" />;
 };
 
 export default ProductLedIdeaGenerator;

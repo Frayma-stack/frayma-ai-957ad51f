@@ -2,18 +2,22 @@
 import { FC } from 'react';
 import { ICPStoryScript, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
-import IdeaGenerator from './IdeaGenerator';
+import BaseIdeaGenerator from './product-led/BaseIdeaGenerator';
 
-interface TwoSidedIdeaGeneratorProps {
+interface IdeaGeneratorProps {
   icpScripts: ICPStoryScript[];
   productContext: ProductContext | null;
   onIdeaAdded: (idea: GeneratedIdea) => void;
   onContentTypeSelect: (ideaId: string, contentType: string) => void;
   selectedClientId?: string;
+  layout?: 'vertical' | 'horizontal';
 }
 
-const TwoSidedIdeaGenerator: FC<TwoSidedIdeaGeneratorProps> = (props) => {
-  return <IdeaGenerator {...props} layout="horizontal" />;
+const IdeaGenerator: FC<IdeaGeneratorProps> = ({
+  layout = 'vertical',
+  ...props
+}) => {
+  return <BaseIdeaGenerator {...props} layout={layout} />;
 };
 
-export default TwoSidedIdeaGenerator;
+export default IdeaGenerator;
