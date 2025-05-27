@@ -32,6 +32,7 @@ interface ShortFormMainContentProps {
   emailCount: number;
   additionalContext: string;
   triggerInput: string;
+  selectedIdeaId: string | null;
   availableAnchors: {value: string, label: string}[];
   isGenerating: boolean;
   isFormValid: boolean;
@@ -48,6 +49,7 @@ interface ShortFormMainContentProps {
   onEmailCountChange: (count: number) => void;
   onAdditionalContextChange: (context: string) => void;
   onTriggerInputChange: (trigger: string) => void;
+  onIdeaSelect: (ideaId: string | null) => void;
   onGenerateContent: () => void;
 }
 
@@ -70,6 +72,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
   emailCount,
   additionalContext,
   triggerInput,
+  selectedIdeaId,
   availableAnchors,
   isGenerating,
   isFormValid,
@@ -85,6 +88,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
   onEmailCountChange,
   onAdditionalContextChange,
   onTriggerInputChange,
+  onIdeaSelect,
   onGenerateContent
 }) => {
   const {
@@ -102,6 +106,8 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
         onTriggerInputChange={onTriggerInputChange}
         ideas={ideas}
         selectedClientId={selectedClientId}
+        selectedIdeaId={selectedIdeaId}
+        onIdeaSelect={onIdeaSelect}
       />
       
       <ICPAuthorSelectors

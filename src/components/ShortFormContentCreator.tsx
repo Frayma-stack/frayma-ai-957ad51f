@@ -3,7 +3,6 @@ import { FC } from 'react';
 import { Card } from "@/components/ui/card";
 import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
-import IdeaSelector from './IdeaSelector';
 import ShortFormHeader from './short-form/ShortFormHeader';
 import ShortFormMainContent from './short-form/ShortFormMainContent';
 import ContentGenerationDisplay from './short-form/ContentGenerationDisplay';
@@ -93,16 +92,6 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Idea Selector - only show if we have ideas and no trigger input */}
-      {filteredIdeas.length > 0 && !triggerInput && (
-        <IdeaSelector
-          ideas={filteredIdeas}
-          selectedIdeaId={selectedIdeaId}
-          onIdeaSelect={setSelectedIdeaId}
-          selectedClientId={selectedClientId}
-        />
-      )}
-
       <Card className="w-full bg-white shadow-md">
         <ShortFormHeader
           contentType={contentType}
@@ -129,6 +118,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
           emailCount={emailCount}
           additionalContext={additionalContext}
           triggerInput={triggerInput}
+          selectedIdeaId={selectedIdeaId}
           availableAnchors={availableAnchors}
           isGenerating={isGenerating}
           isFormValid={isFormValid()}
@@ -144,6 +134,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
           onEmailCountChange={setEmailCount}
           onAdditionalContextChange={setAdditionalContext}
           onTriggerInputChange={setTriggerInput}
+          onIdeaSelect={setSelectedIdeaId}
           onGenerateContent={generateContent}
         />
         

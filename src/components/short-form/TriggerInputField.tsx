@@ -1,5 +1,5 @@
 
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -14,16 +14,18 @@ interface TriggerInputFieldProps {
   onTriggerInputChange: (input: string) => void;
   ideas?: GeneratedIdea[];
   selectedClientId?: string;
+  selectedIdeaId?: string | null;
+  onIdeaSelect?: (ideaId: string | null) => void;
 }
 
 const TriggerInputField: FC<TriggerInputFieldProps> = ({
   triggerInput,
   onTriggerInputChange,
   ideas = [],
-  selectedClientId
+  selectedClientId,
+  selectedIdeaId,
+  onIdeaSelect
 }) => {
-  const [selectedIdeaId, setSelectedIdeaId] = useState<string>('');
-  const [isProcessingIdea, setIsProcessingIdea] = useState(false);
   const { summarizeIdeaForContent } = useIdeaSummarization();
 
   // Filter ideas by selected client
@@ -33,15 +35,14 @@ const TriggerInputField: FC<TriggerInputFieldProps> = ({
 
   const handleIdeaSelection = async (ideaId: string) => {
     if (!ideaId) {
-      setSelectedIdeaId('');
+      onIdeaSelect?.(null);
       return;
     }
 
     const selectedIdea = filteredIdeas.find(idea => idea.id === ideaId);
     if (!selectedIdea) return;
 
-    setSelectedIdeaId(ideaId);
-    setIsProcessingIdea(true);
+    onIdeaSelect?.(ideaId);
 
     try {
       const summary = await summarizeIdeaForContent(selectedIdea);
@@ -50,10 +51,12 @@ const TriggerInputField: FC<TriggerInputFieldProps> = ({
     } catch (error) {
       console.error('Error processing idea:', error);
       toast.error('Failed to process idea. Please try again.');
-    } finally {
-      setIsProcessingIdea(false);
     }
   };
+
+  const selectedIdea = selectedIdeaId 
+    ? filteredIdeas.find(idea => idea.id === selectedIdeaId)
+    : null;
 
   return (
     <Card>
@@ -71,7 +74,7 @@ const TriggerInputField: FC<TriggerInputFieldProps> = ({
               <Sparkles className="h-4 w-4" />
               <span>Use Saved Idea as Trigger</span>
             </Label>
-            <Select value={selectedIdeaId} onValueChange={handleIdeaSelection} disabled={isProcessingIdea}>
+            <Select value={selectedIdeaId || ""} onValueChange={handleIdeaSelection}>
               <SelectTrigger className="mt-2">
                 <SelectValue placeholder="Select a saved idea to use as trigger..." />
               </SelectTrigger>
@@ -84,11 +87,14 @@ const TriggerInputField: FC<TriggerInputFieldProps> = ({
                 ))}
               </SelectContent>
             </Select>
-            {isProcessingIdea && (
-              <p className="text-sm text-gray-500 mt-1">
-                Processing idea and generating summary...
-              </p>
-            )}
+          </div>
+        )}
+
+        {selectedIdea && (
+          <div className="bg-blue-50 rounded-md p-3 border border-blue-200">
+            <h4 className="text-xs font-medium text-blue-700 mb-1">Selected Idea:</h4>
+            <p className="text-sm text-blue-800 font-medium">{selectedIdea.title}</p>
+            <p className="text-xs text-blue-600 mt-1">{selectedIdea.narrative}</p>
           </div>
         )}
 
@@ -102,7 +108,6 @@ const TriggerInputField: FC<TriggerInputFieldProps> = ({
             value={triggerInput}
             onChange={(e) => onTriggerInputChange(e.target.value)}
             className="min-h-[120px] mt-2"
-            disabled={isProcessingIdea}
           />
           {selectedIdeaId && (
             <p className="text-sm text-gray-500 mt-1">
