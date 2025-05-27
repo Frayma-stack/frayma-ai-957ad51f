@@ -31,24 +31,56 @@ export const useCustomContentGenerator = ({
     let content = "";
     
     if (selectedIdea) {
-      // Generate content based on the selected idea
+      // Enhanced custom content generation based on saved idea
       content = `# ${selectedIdea.title}\n\n`;
       content += `By ${author.name}, ${author.role}${author.organization ? ` at ${author.organization}` : ''}\n\n`;
       
+      // Add author context section
+      if (selectedAuthorTone || selectedAuthorExperience) {
+        content += `*Author's perspective: `;
+        
+        if (selectedAuthorExperience) {
+          const experience = getAuthorExperiences().find(exp => exp.id === selectedAuthorExperience);
+          if (experience) {
+            content += `Drawing from ${experience.title}`;
+          }
+        }
+        
+        if (selectedAuthorTone && selectedAuthorExperience) {
+          content += ", ";
+        }
+        
+        if (selectedAuthorTone) {
+          const tone = getAuthorTones().find(t => t.id === selectedAuthorTone);
+          if (tone) {
+            content += `with a ${tone.tone} approach`;
+          }
+        }
+        
+        content += `.*\n\n`;
+      }
+      
       if (selectedIdea.narrative) {
-        content += `## Overview\n\n${selectedIdea.narrative}\n\n`;
+        content += `## The Core Insight\n\n${selectedIdea.narrative}\n\n`;
+      }
+      
+      // Add ICP-specific analysis
+      if (script) {
+        content += `## Why This Matters for ${script.name} Professionals\n\n`;
+        content += `This insight is particularly relevant for ${script.name} teams because it addresses fundamental challenges in how we approach [relevant area].\n\n`;
       }
       
       if (selectedIdea.productTieIn) {
-        content += `## Solution Approach\n\n${selectedIdea.productTieIn}\n\n`;
+        content += `## Strategic Implications\n\n${selectedIdea.productTieIn}\n\n`;
       }
       
       if (successStory) {
         content += `## Customer Spotlight: ${successStory.title}\n\n`;
-        content += `### Before\n${successStory.beforeSummary}\n\n`;
-        content += `### After\n${successStory.afterSummary}\n\n`;
+        content += `### The Challenge\n${successStory.beforeSummary}\n\n`;
+        content += `### The Transformation\n${successStory.afterSummary}\n\n`;
         
         if (successStory.quotes.length > 0) {
+          content += `### Client Testimonial\n\n`;
           content += `> "${successStory.quotes[0].quote}"\n>\n> — ${successStory.quotes[0].author}, ${successStory.quotes[0].title}\n\n`;
         }
         
@@ -61,12 +93,22 @@ export const useCustomContentGenerator = ({
         }
       }
       
+      content += `## Actionable Steps\n\n`;
+      content += `Based on this insight, here are three immediate actions you can take:\n\n`;
+      content += `1. **Assessment**: Evaluate your current approach against this framework\n`;
+      content += `2. **Implementation**: Begin with [specific first step based on the idea]\n`;
+      content += `3. **Measurement**: Track [relevant metrics] to quantify impact\n\n`;
+      
       content += `## Next Steps\n\n`;
       
       if (selectedIdea.cta) {
         content += `${selectedIdea.cta}\n\n`;
       } else {
-        content += `Ready to explore how this approach can work for your organization? Let's connect to discuss your specific situation.\n\n`;
+        content += `${contentGoal === 'book_call' ? 'Ready to explore how this insight applies to your specific situation? Let\'s schedule a consultation to discuss your unique challenges and opportunities.' : 
+        contentGoal === 'learn_more' ? 'Want to dive deeper into this framework? Download our comprehensive implementation guide.' : 
+        contentGoal === 'try_product' ? 'See this approach in action. Start with our assessment tool to understand your current position.' : 
+        contentGoal === 'visit_article' ? 'For additional insights and case studies, explore our related resources.' :
+        'We\'d love to hear about your experience implementing these strategies. Connect with us to share your story.'}\n\n`;
       }
     } else {
       // Generate content using the original logic

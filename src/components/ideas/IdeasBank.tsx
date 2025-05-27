@@ -94,6 +94,7 @@ const IdeasBank = ({
               onIdeaAdded={handleIdeaAdded}
               onContentTypeSelect={onContentTypeSelect}
               selectedClientId={selectedClientId}
+              ideas={filteredIdeas}
             />
           </ScrollArea>
         </TabsContent>

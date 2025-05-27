@@ -33,29 +33,55 @@ export const useEmailContentGenerator = ({
     let content = "";
     
     if (selectedIdea) {
-      // Generate content based on the selected idea
+      // Enhanced email generation based on saved idea
       content = `Subject: ${selectedIdea.title}\n\n`;
       content += `Hi {{First Name}},\n\n`;
+      
+      // Add personalized opening based on author context
+      if (selectedAuthorTone || selectedAuthorExperience) {
+        content += "I was reflecting on ";
+        
+        if (selectedAuthorExperience) {
+          const experience = getAuthorExperiences().find(exp => exp.id === selectedAuthorExperience);
+          if (experience) {
+            content += `my experience in ${experience.title} `;
+          }
+        }
+        
+        content += "and wanted to share an insight that might be valuable for you.\n\n";
+      }
       
       if (selectedIdea.narrative) {
         content += `${selectedIdea.narrative}\n\n`;
       }
       
+      // Add ICP-specific context
+      if (script) {
+        content += `I know that as a ${script.name} professional, you're likely dealing with similar challenges.\n\n`;
+      }
+      
       if (selectedIdea.productTieIn) {
-        content += `${selectedIdea.productTieIn}\n\n`;
+        content += `Here's what I've discovered: ${selectedIdea.productTieIn}\n\n`;
       }
       
       if (successStory) {
-        content += `We've helped companies like ${successStory.title} achieve similar results. ${successStory.afterSummary}\n\n`;
+        content += `We've helped companies like ${successStory.title} navigate this exact situation. ${successStory.afterSummary}\n\n`;
+        
+        if (successStory.quotes.length > 0) {
+          content += `As their ${successStory.quotes[0].title} put it: "${successStory.quotes[0].quote}"\n\n`;
+        }
       }
       
       if (selectedIdea.cta) {
         content += `${selectedIdea.cta}\n\n`;
       } else {
-        content += `Would you be interested in learning more about how this could work for your team?\n\n`;
+        content += `${contentGoal === 'book_call' ? 'Would you be interested in a brief call to discuss how this might apply to your situation?' : 
+        contentGoal === 'learn_more' ? 'I\'d be happy to share more details about how this approach works.' : 
+        contentGoal === 'try_product' ? 'Would you like to see how this works in practice? I can show you a quick demo.' :
+        'I\'d love to hear your thoughts on this approach.'}\n\n`;
       }
     } else {
-      // Generate content using the original logic
+      // Original logic for non-idea based content
       const narrativeContent = getSelectedNarrativeContents();
       
       content = `Subject: Quick question about ${script?.name || 'your'} challenges\n\n`;

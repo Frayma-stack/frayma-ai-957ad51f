@@ -84,12 +84,17 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
 
   const selectedIdea = getSelectedIdea();
 
+  // Filter ideas by selected client
+  const filteredIdeas = selectedClientId 
+    ? ideas.filter(idea => idea.clientId === selectedClientId)
+    : ideas;
+
   return (
     <div className="space-y-4">
       {/* Idea Selector */}
-      {ideas.length > 0 && (
+      {filteredIdeas.length > 0 && (
         <IdeaSelector
-          ideas={ideas}
+          ideas={filteredIdeas}
           selectedIdeaId={selectedIdeaId}
           onIdeaSelect={setSelectedIdeaId}
           selectedClientId={selectedClientId}

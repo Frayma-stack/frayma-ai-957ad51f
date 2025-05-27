@@ -31,15 +31,41 @@ export const useLinkedInContentGenerator = ({
     let content = "";
     
     if (selectedIdea) {
-      // Generate content based on the selected idea
+      // Enhanced content generation based on saved idea
       content = `# ${selectedIdea.title}\n\n`;
+      
+      // Add author context if available
+      if (selectedAuthorTone || selectedAuthorExperience) {
+        content += "As someone ";
+        
+        if (selectedAuthorExperience) {
+          const experience = getAuthorExperiences().find(exp => exp.id === selectedAuthorExperience);
+          if (experience) {
+            content += `with ${experience.title}, `;
+          }
+        }
+        
+        if (selectedAuthorTone) {
+          const tone = getAuthorTones().find(t => t.id === selectedAuthorTone);
+          if (tone) {
+            content += `who approaches these topics in a ${tone.tone} way, `;
+          }
+        }
+        
+        content += "I want to share an important insight.\n\n";
+      }
       
       if (selectedIdea.narrative) {
         content += `${selectedIdea.narrative}\n\n`;
       }
       
+      // Add strategic insights based on ICP context
+      if (script) {
+        content += `For ${script.name} professionals, this insight is particularly relevant because it addresses a common challenge in our industry.\n\n`;
+      }
+      
       if (selectedIdea.productTieIn) {
-        content += `${selectedIdea.productTieIn}\n\n`;
+        content += `Here's what I've learned: ${selectedIdea.productTieIn}\n\n`;
       }
       
       if (successStory) {
@@ -52,13 +78,21 @@ export const useLinkedInContentGenerator = ({
         }
       }
       
+      content += `Key takeaways:\n`;
+      content += `• Focus on [key insight from the idea]\n`;
+      content += `• Implement [strategic approach]\n`;
+      content += `• Measure [important metric]\n\n`;
+      
       if (selectedIdea.cta) {
         content += `${selectedIdea.cta}\n\n`;
       } else {
-        content += `What's your take on this? Share your thoughts in the comments.\n\n`;
+        content += `${contentGoal === 'book_call' ? 'Interested in discussing how this applies to your situation? DM me.' : 
+        contentGoal === 'learn_more' ? 'Want to dive deeper into this topic? Check out the link in comments.' : 
+        contentGoal === 'try_product' ? 'Ready to see this in action? Try our assessment tool (link in comments).' : 
+        'What's your experience with this challenge? Share your thoughts below.'}\n\n`;
       }
     } else {
-      // Generate content using the original logic
+      // Original logic for non-idea based content
       const narrativeContent = getSelectedNarrativeContents();
       
       content = `# The ${script?.name || 'Industry'} Challenge No One's Talking About\n\n`;

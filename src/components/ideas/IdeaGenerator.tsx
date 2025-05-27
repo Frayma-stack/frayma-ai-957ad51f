@@ -11,13 +11,21 @@ interface IdeaGeneratorProps {
   onContentTypeSelect: (ideaId: string, contentType: string) => void;
   selectedClientId?: string;
   layout?: 'vertical' | 'horizontal';
+  ideas?: GeneratedIdea[];
 }
 
 const IdeaGenerator: FC<IdeaGeneratorProps> = ({
   layout = 'vertical',
+  ideas = [],
   ...props
 }) => {
-  return <BaseIdeaGenerator {...props} layout={layout} />;
+  return (
+    <BaseIdeaGenerator 
+      {...props} 
+      layout={layout} 
+      ideas={ideas}
+    />
+  );
 };
 
 export default IdeaGenerator;
