@@ -77,14 +77,25 @@ export const useClientAnalysis = () => {
       } catch (parseError) {
         console.error('Analysis parsing error:', parseError);
         
-        // Check if this is a specific "cannot access" error
-        if (parseError.message.includes('cannot access external websites') || 
-            parseError.message.includes('Website analysis failed')) {
+        // Enhanced error handling with more specific guidance
+        const errorMessage = parseError.message;
+        
+        if (errorMessage.includes('Website analysis failed') || 
+            errorMessage.includes('cannot access external websites') ||
+            errorMessage.includes('authentication') ||
+            errorMessage.includes('not publicly available')) {
+          
+          // Show a more helpful toast with suggestions
           toast({
-            title: "Analysis Service Limitation",
-            description: parseError.message,
-            variant: "destructive"
+            title: "Website Access Restricted",
+            description: "The AI couldn't access some URLs due to access restrictions. Try public URLs or enter information manually.",
+            variant: "destructive",
+            duration: 8000
           });
+          
+          // Log the detailed error for the user's reference
+          console.warn('Detailed access error:', errorMessage);
+          
         } else {
           toast({
             title: "Analysis Response Error", 
@@ -161,9 +172,19 @@ export const useClientAnalysis = () => {
       
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred while analyzing the client.';
       
+      // Provide more helpful error messages based on the type of error
+      let displayMessage = errorMessage;
+      if (errorMessage.includes('Rate limit')) {
+        displayMessage = 'Analysis service is temporarily overloaded. Please try again in a few minutes.';
+      } else if (errorMessage.includes('Authentication failed')) {
+        displayMessage = 'There was an authentication issue with the analysis service. Please try again.';
+      } else if (errorMessage.includes('Network')) {
+        displayMessage = 'Network connection issue. Please check your connection and try again.';
+      }
+      
       toast({
         title: "Analysis Failed",
-        description: errorMessage,
+        description: displayMessage,
         variant: "destructive"
       });
     } finally {

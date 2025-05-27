@@ -151,7 +151,19 @@ export const parseClientAnalysisContent = (content: string) => {
     if (parsed.cannotAccess === true) {
       const reason = parsed.reason || 'Unknown access restriction';
       const suggestion = parsed.suggestion || 'Please try entering the information manually';
-      throw new Error(`Website analysis failed: ${reason}. ${suggestion}`);
+      
+      // Provide more specific guidance based on the reason
+      let enhancedMessage = `Website analysis failed: ${reason}`;
+      
+      if (reason.includes('authentication') || reason.includes('not publicly available')) {
+        enhancedMessage += '\n\nThis commonly happens with:\n• LinkedIn company pages (require login)\n• Private company websites\n• Sites with access restrictions\n\nSuggestions:\n• Try alternative public URLs (blog posts, press releases, public pages)\n• Search for the company on public directories or news sites\n• Enter the company information manually using the form fields';
+      } else if (reason.includes('server error') || reason.includes('timeout')) {
+        enhancedMessage += '\n\nThis appears to be a temporary issue. You can:\n• Try again in a few moments\n• Check if the URLs are working in your browser\n• Enter the information manually if the issue persists';
+      }
+      
+      enhancedMessage += `\n\nOriginal suggestion: ${suggestion}`;
+      
+      throw new Error(enhancedMessage);
     }
     
     return parsed;
@@ -182,7 +194,16 @@ export const parseClientAnalysisContent = (content: string) => {
       if (parsed.cannotAccess === true) {
         const reason = parsed.reason || 'Unknown access restriction';
         const suggestion = parsed.suggestion || 'Please try entering the information manually';
-        throw new Error(`Website analysis failed: ${reason}. ${suggestion}`);
+        
+        let enhancedMessage = `Website analysis failed: ${reason}`;
+        
+        if (reason.includes('authentication') || reason.includes('not publicly available')) {
+          enhancedMessage += '\n\nThis commonly happens with:\n• LinkedIn company pages (require login)\n• Private company websites\n• Sites with access restrictions\n\nSuggestions:\n• Try alternative public URLs (blog posts, press releases, public pages)\n• Search for the company on public directories or news sites\n• Enter the company information manually using the form fields';
+        }
+        
+        enhancedMessage += `\n\nOriginal suggestion: ${suggestion}`;
+        
+        throw new Error(enhancedMessage);
       }
       
       return parsed;
@@ -202,7 +223,16 @@ export const parseClientAnalysisContent = (content: string) => {
           if (parsed.cannotAccess === true) {
             const reason = parsed.reason || 'Unknown access restriction';
             const suggestion = parsed.suggestion || 'Please try entering the information manually';
-            throw new Error(`Website analysis failed: ${reason}. ${suggestion}`);
+            
+            let enhancedMessage = `Website analysis failed: ${reason}`;
+            
+            if (reason.includes('authentication') || reason.includes('not publicly available')) {
+              enhancedMessage += '\n\nThis commonly happens with:\n• LinkedIn company pages (require login)\n• Private company websites\n• Sites with access restrictions\n\nSuggestions:\n• Try alternative public URLs (blog posts, press releases, public pages)\n• Search for the company on public directories or news sites\n• Enter the company information manually using the form fields';
+            }
+            
+            enhancedMessage += `\n\nOriginal suggestion: ${suggestion}`;
+            
+            throw new Error(enhancedMessage);
           }
           
           return parsed;
