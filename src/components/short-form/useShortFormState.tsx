@@ -8,6 +8,7 @@ import {
   NarrativeSelection
 } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
+import { useFormPersistence } from '@/hooks/useFormPersistence';
 
 type NarrativeAnchor = 'belief' | 'pain' | 'struggle' | 'transformation';
 type ContentGoal = 'book_call' | 'learn_more' | 'try_product' | 'reply' | 'visit_article';
@@ -25,23 +26,61 @@ export const useShortFormState = ({
   successStories,
   ideas
 }: UseShortFormStateProps) => {
-  const [selectedICP, setSelectedICP] = useState<string>("");
-  const [selectedAuthor, setSelectedAuthor] = useState<string>("");
-  const [selectedAuthorTone, setSelectedAuthorTone] = useState<string>("");
-  const [selectedAuthorExperience, setSelectedAuthorExperience] = useState<string>("");
+  // Use form persistence for the main form state
+  const {
+    values: persistedValues,
+    updateValue: updatePersistedValue,
+    clearPersistedData,
+    isLoaded: isPersistenceLoaded
+  } = useFormPersistence({
+    key: 'short_form_content',
+    defaultValues: {
+      selectedICP: "",
+      selectedAuthor: "",
+      selectedAuthorTone: "",
+      selectedAuthorExperience: "",
+      contentGoal: "learn_more" as ContentGoal,
+      additionalContext: "",
+      selectedSuccessStory: "none",
+      wordCount: 300,
+      emailCount: 3,
+      selectedIdeaId: null as string | null
+    }
+  });
+
+  const [selectedICP, setSelectedICP] = useState<string>(persistedValues.selectedICP);
+  const [selectedAuthor, setSelectedAuthor] = useState<string>(persistedValues.selectedAuthor);
+  const [selectedAuthorTone, setSelectedAuthorTone] = useState<string>(persistedValues.selectedAuthorTone);
+  const [selectedAuthorExperience, setSelectedAuthorExperience] = useState<string>(persistedValues.selectedAuthorExperience);
   const [narrativeSelections, setNarrativeSelections] = useState<NarrativeSelection[]>([]);
-  const [contentGoal, setContentGoal] = useState<ContentGoal>("learn_more");
+  const [contentGoal, setContentGoal] = useState<ContentGoal>(persistedValues.contentGoal);
   const [generatedContent, setGeneratedContent] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [clientName, setClientName] = useState<string | null>(null);
-  const [additionalContext, setAdditionalContext] = useState<string>("");
-  const [selectedSuccessStory, setSelectedSuccessStory] = useState<string>("none");
-  const [wordCount, setWordCount] = useState<number>(300);
-  const [emailCount, setEmailCount] = useState<number>(3);
+  const [additionalContext, setAdditionalContext] = useState<string>(persistedValues.additionalContext);
+  const [selectedSuccessStory, setSelectedSuccessStory] = useState<string>(persistedValues.selectedSuccessStory);
+  const [wordCount, setWordCount] = useState<number>(persistedValues.wordCount);
+  const [emailCount, setEmailCount] = useState<number>(persistedValues.emailCount);
   const [availableAnchors, setAvailableAnchors] = useState<{value: string, label: string}[]>([]);
-  const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(null);
+  const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(persistedValues.selectedIdeaId);
   
   const { toast } = useToast();
+
+  // Update local state when persisted values load
+  useEffect(() => {
+    if (isPersistenceLoaded) {
+      setSelectedICP(persistedValues.selectedICP);
+      setSelectedAuthor(persistedValues.selectedAuthor);
+      setSelectedAuthorTone(persistedValues.selectedAuthorTone);
+      setSelectedAuthorExperience(persistedValues.selectedAuthorExperience);
+      setContentGoal(persistedValues.contentGoal);
+      setAdditionalContext(persistedValues.additionalContext);
+      setSelectedSuccessStory(persistedValues.selectedSuccessStory);
+      setWordCount(persistedValues.wordCount);
+      setEmailCount(persistedValues.emailCount);
+      setSelectedIdeaId(persistedValues.selectedIdeaId);
+    }
+  }, [isPersistenceLoaded, persistedValues]);
 
   // Get the selected idea
   const getSelectedIdea = () => {
@@ -77,22 +116,28 @@ export const useShortFormState = ({
     const selectedIdea = getSelectedIdea();
     if (selectedIdea) {
       const ideaSummary = generateIdeaSummary(selectedIdea);
-      setAdditionalContext(`Based on saved idea: ${ideaSummary}`);
+      const newContext = `Based on saved idea: ${ideaSummary}`;
+      setAdditionalContext(newContext);
+      updatePersistedValue('additionalContext', newContext);
       
       // Pre-populate CTA if available
       if (selectedIdea.cta) {
         const ctaLower = selectedIdea.cta.toLowerCase();
+        let newGoal: ContentGoal = 'learn_more';
         if (ctaLower.includes('call') || ctaLower.includes('meeting') || ctaLower.includes('demo')) {
-          setContentGoal('book_call');
+          newGoal = 'book_call';
         } else if (ctaLower.includes('learn') || ctaLower.includes('discover') || ctaLower.includes('find out')) {
-          setContentGoal('learn_more');
+          newGoal = 'learn_more';
         } else if (ctaLower.includes('try') || ctaLower.includes('start') || ctaLower.includes('free')) {
-          setContentGoal('try_product');
+          newGoal = 'try_product';
         }
+        setContentGoal(newGoal);
+        updatePersistedValue('contentGoal', newGoal);
       }
     } else {
       if (additionalContext.startsWith('Based on saved idea:')) {
         setAdditionalContext('');
+        updatePersistedValue('additionalContext', '');
       }
     }
   }, [selectedIdeaId]);
@@ -161,7 +206,60 @@ export const useShortFormState = ({
   useEffect(() => {
     setSelectedAuthorTone("");
     setSelectedAuthorExperience("");
+    updatePersistedValue('selectedAuthorTone', "");
+    updatePersistedValue('selectedAuthorExperience', "");
   }, [selectedAuthor]);
+
+  // Custom setters that also update persistence
+  const setSelectedICPWithPersistence = (value: string) => {
+    setSelectedICP(value);
+    updatePersistedValue('selectedICP', value);
+  };
+
+  const setSelectedAuthorWithPersistence = (value: string) => {
+    setSelectedAuthor(value);
+    updatePersistedValue('selectedAuthor', value);
+  };
+
+  const setSelectedAuthorToneWithPersistence = (value: string) => {
+    setSelectedAuthorTone(value);
+    updatePersistedValue('selectedAuthorTone', value);
+  };
+
+  const setSelectedAuthorExperienceWithPersistence = (value: string) => {
+    setSelectedAuthorExperience(value);
+    updatePersistedValue('selectedAuthorExperience', value);
+  };
+
+  const setContentGoalWithPersistence = (value: ContentGoal) => {
+    setContentGoal(value);
+    updatePersistedValue('contentGoal', value);
+  };
+
+  const setAdditionalContextWithPersistence = (value: string) => {
+    setAdditionalContext(value);
+    updatePersistedValue('additionalContext', value);
+  };
+
+  const setSelectedSuccessStoryWithPersistence = (value: string) => {
+    setSelectedSuccessStory(value);
+    updatePersistedValue('selectedSuccessStory', value);
+  };
+
+  const setWordCountWithPersistence = (value: number) => {
+    setWordCount(value);
+    updatePersistedValue('wordCount', value);
+  };
+
+  const setEmailCountWithPersistence = (value: number) => {
+    setEmailCount(value);
+    updatePersistedValue('emailCount', value);
+  };
+
+  const setSelectedIdeaIdWithPersistence = (value: string | null) => {
+    setSelectedIdeaId(value);
+    updatePersistedValue('selectedIdeaId', value);
+  };
 
   return {
     selectedICP,
@@ -181,18 +279,19 @@ export const useShortFormState = ({
     selectedIdeaId,
     toast,
     getSelectedIdea,
-    setSelectedICP,
-    setSelectedAuthor,
-    setSelectedAuthorTone,
-    setSelectedAuthorExperience,
+    setSelectedICP: setSelectedICPWithPersistence,
+    setSelectedAuthor: setSelectedAuthorWithPersistence,
+    setSelectedAuthorTone: setSelectedAuthorToneWithPersistence,
+    setSelectedAuthorExperience: setSelectedAuthorExperienceWithPersistence,
     setNarrativeSelections,
-    setContentGoal,
+    setContentGoal: setContentGoalWithPersistence,
     setGeneratedContent,
     setIsGenerating,
-    setAdditionalContext,
-    setSelectedSuccessStory,
-    setWordCount,
-    setEmailCount,
-    setSelectedIdeaId
+    setAdditionalContext: setAdditionalContextWithPersistence,
+    setSelectedSuccessStory: setSelectedSuccessStoryWithPersistence,
+    setWordCount: setWordCountWithPersistence,
+    setEmailCount: setEmailCountWithPersistence,
+    setSelectedIdeaId: setSelectedIdeaIdWithPersistence,
+    clearPersistedData
   };
 };

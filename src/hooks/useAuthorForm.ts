@@ -9,12 +9,32 @@ import { useAuthorBeliefs } from './useAuthorBeliefs';
 import { useAuthorSocialLinks } from './useAuthorSocialLinks';
 import { useAuthorAnalysisHandler } from './useAuthorAnalysisHandler';
 import { useAuthorValidation } from './useAuthorValidation';
+import { useFormPersistence } from './useFormPersistence';
 
 export const useAuthorForm = (initialAuthor?: Author | null) => {
   const author = createInitialAuthor(initialAuthor);
   
+  // Use form persistence for the basic info
+  const {
+    values: persistedBasicInfo,
+    updateValue: updatePersistedValue,
+    clearPersistedData,
+    isLoaded: isPersistenceLoaded
+  } = useFormPersistence({
+    key: initialAuthor ? `author_edit_${initialAuthor.id}` : 'author_new',
+    defaultValues: {
+      name: author.name,
+      bio: author.bio,
+      company: author.company,
+      title: author.title,
+      email: author.email
+    }
+  });
+
   // Initialize all hooks with the initial author data
-  const { basicInfo, handleInputChange } = useAuthorBasicInfo(author);
+  const { basicInfo, handleInputChange } = useAuthorBasicInfo(
+    isPersistenceLoaded ? { ...author, ...persistedBasicInfo } : author
+  );
 
   const {
     experiences,
@@ -76,6 +96,17 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
     });
   }, [basicInfo, experiences, tones, beliefs, socialLinks]);
 
+  // Update persistence when basic info changes
+  useEffect(() => {
+    if (isPersistenceLoaded) {
+      updatePersistedValue('name', basicInfo.name);
+      updatePersistedValue('bio', basicInfo.bio);
+      updatePersistedValue('company', basicInfo.company);
+      updatePersistedValue('title', basicInfo.title);
+      updatePersistedValue('email', basicInfo.email);
+    }
+  }, [basicInfo, updatePersistedValue, isPersistenceLoaded]);
+
   // Handle analysis integration
   const { handleAuthorAnalysisResult } = useAuthorAnalysisHandler(
     handleInputChange,
@@ -88,6 +119,8 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
   const { validateAndCleanAuthor } = useAuthorValidation();
 
   const validateAndCleanCurrentAuthor = () => {
+    // Clear persisted data when form is submitted successfully
+    clearPersistedData();
     return validateAndCleanAuthor(currentAuthor);
   };
 
@@ -107,6 +140,7 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
     addSocialLink,
     removeSocialLink,
     handleAuthorAnalysisResult,
-    validateAndCleanAuthor: validateAndCleanCurrentAuthor
+    validateAndCleanAuthor: validateAndCleanCurrentAuthor,
+    clearPersistedData
   };
 };

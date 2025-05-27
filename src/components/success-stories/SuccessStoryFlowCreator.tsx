@@ -8,6 +8,7 @@ import SuccessStoryProgressIndicator from './SuccessStoryProgressIndicator';
 import SuccessStoryFlowNavigation from './SuccessStoryFlowNavigation';
 import { useSuccessStoryFlowData } from './useSuccessStoryFlowData';
 import { useSuccessStoryFlowState } from './useSuccessStoryFlowState';
+import { usePageReloadProtection } from '@/hooks/usePageReloadProtection';
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface SuccessStoryFlowCreatorProps {
@@ -54,6 +55,17 @@ const SuccessStoryFlowCreator: FC<SuccessStoryFlowCreatorProps> = ({
     onStoryCreated,
     formData,
     resetForm
+  });
+
+  // Protect against accidental page reloads when form has content
+  const hasFormContent = Object.values(formData).some(value => 
+    typeof value === 'string' ? value.trim() !== '' : 
+    Array.isArray(value) ? value.length > 0 : false
+  );
+
+  usePageReloadProtection({
+    enabled: hasFormContent,
+    message: "You have unsaved progress in your success story. Are you sure you want to leave this page?"
   });
 
   console.log('SuccessStoryFlowCreator state:', { currentStep, isGenerating });

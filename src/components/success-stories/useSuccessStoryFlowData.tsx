@@ -1,5 +1,6 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useFormPersistence } from '@/hooks/useFormPersistence';
 
 export interface SuccessStoryFlowData {
   // Step 1: Story Brief (Strategic Inputs)
@@ -68,79 +69,100 @@ export interface SuccessStoryFlowData {
   productDifferentiator: string;
 }
 
+const defaultFormData: SuccessStoryFlowData = {
+  // Step 1
+  customerName: '',
+  profiledCustomerName: '',
+  profiledCustomerUrl: '',
+  mainProblem: '',
+  significantTransformation: '',
+  additionalOutcome01: '',
+  additionalOutcome02: '',
+  additionalOutcome03: '',
+  targetIcp01: '',
+  targetIcp02: '',
+  coreMessage: '',
+
+  // Step 2
+  customerIndustry: '',
+  customerCompanySize: '',
+  championRole01: '',
+  customerQuote01: '',
+  championRole02: '',
+  customerQuote02: '',
+  championRole03: '',
+  customerQuote03: '',
+  painPointFraming: '',
+
+  // Step 3
+  priorTools: '',
+  triggerForChange: '',
+  keyDecisionFactors: '',
+  implementationTimeline: '',
+  feature01: '',
+  feature01Description: '',
+  feature01Visuals: [],
+  feature02: '',
+  feature02Description: '',
+  feature02Visuals: [],
+  feature03: '',
+  feature03Description: '',
+  feature03Visuals: [],
+  useCase01: '',
+  useCase01Description: '',
+  useCase01Visuals: [],
+  useCase02: '',
+  useCase02Description: '',
+  useCase02Visuals: [],
+
+  // Step 4
+  beforeAfterMetrics: '',
+  unexpectedWin01: '',
+  unexpectedWin02: '',
+  unexpectedWin03: '',
+  endorsementQuote01: '',
+  endorsementQuote02: '',
+  endorsementQuote03: '',
+  ctaToReader: '',
+  finalNudgingMessage: '',
+
+  // Step 5
+  selectedAuthor: '',
+  writingTone: '',
+  credibility01: '',
+  credibility02: '',
+  credibility03: '',
+  narrativePov: '',
+  productDifferentiator: ''
+};
+
 export const useSuccessStoryFlowData = () => {
-  const [formData, setFormData] = useState<SuccessStoryFlowData>({
-    // Step 1
-    customerName: '',
-    profiledCustomerName: '',
-    profiledCustomerUrl: '',
-    mainProblem: '',
-    significantTransformation: '',
-    additionalOutcome01: '',
-    additionalOutcome02: '',
-    additionalOutcome03: '',
-    targetIcp01: '',
-    targetIcp02: '',
-    coreMessage: '',
-
-    // Step 2
-    customerIndustry: '',
-    customerCompanySize: '',
-    championRole01: '',
-    customerQuote01: '',
-    championRole02: '',
-    customerQuote02: '',
-    championRole03: '',
-    customerQuote03: '',
-    painPointFraming: '',
-
-    // Step 3
-    priorTools: '',
-    triggerForChange: '',
-    keyDecisionFactors: '',
-    implementationTimeline: '',
-    feature01: '',
-    feature01Description: '',
-    feature01Visuals: [],
-    feature02: '',
-    feature02Description: '',
-    feature02Visuals: [],
-    feature03: '',
-    feature03Description: '',
-    feature03Visuals: [],
-    useCase01: '',
-    useCase01Description: '',
-    useCase01Visuals: [],
-    useCase02: '',
-    useCase02Description: '',
-    useCase02Visuals: [],
-
-    // Step 4
-    beforeAfterMetrics: '',
-    unexpectedWin01: '',
-    unexpectedWin02: '',
-    unexpectedWin03: '',
-    endorsementQuote01: '',
-    endorsementQuote02: '',
-    endorsementQuote03: '',
-    ctaToReader: '',
-    finalNudgingMessage: '',
-
-    // Step 5
-    selectedAuthor: '',
-    writingTone: '',
-    credibility01: '',
-    credibility02: '',
-    credibility03: '',
-    narrativePov: '',
-    productDifferentiator: ''
+  const {
+    values: persistedFormData,
+    updateValue: updatePersistedValue,
+    updateValues: updatePersistedValues,
+    clearPersistedData,
+    isLoaded: isPersistenceLoaded
+  } = useFormPersistence({
+    key: 'success_story_flow',
+    defaultValues: defaultFormData
   });
+
+  const [formData, setFormData] = useState<SuccessStoryFlowData>(defaultFormData);
+
+  // Update local state when persisted values load
+  useEffect(() => {
+    if (isPersistenceLoaded) {
+      setFormData(persistedFormData);
+    }
+  }, [isPersistenceLoaded, persistedFormData]);
 
   const handleInputChange = (field: keyof SuccessStoryFlowData, value: string | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+    updatePersistedValue(field, value);
   };
 
   const canProceedFromStep = (step: number): boolean => {
@@ -161,63 +183,8 @@ export const useSuccessStoryFlowData = () => {
   };
 
   const resetForm = () => {
-    setFormData({
-      customerName: '',
-      profiledCustomerName: '',
-      profiledCustomerUrl: '',
-      mainProblem: '',
-      significantTransformation: '',
-      additionalOutcome01: '',
-      additionalOutcome02: '',
-      additionalOutcome03: '',
-      targetIcp01: '',
-      targetIcp02: '',
-      coreMessage: '',
-      customerIndustry: '',
-      customerCompanySize: '',
-      championRole01: '',
-      customerQuote01: '',
-      championRole02: '',
-      customerQuote02: '',
-      championRole03: '',
-      customerQuote03: '',
-      painPointFraming: '',
-      priorTools: '',
-      triggerForChange: '',
-      keyDecisionFactors: '',
-      implementationTimeline: '',
-      feature01: '',
-      feature01Description: '',
-      feature01Visuals: [],
-      feature02: '',
-      feature02Description: '',
-      feature02Visuals: [],
-      feature03: '',
-      feature03Description: '',
-      feature03Visuals: [],
-      useCase01: '',
-      useCase01Description: '',
-      useCase01Visuals: [],
-      useCase02: '',
-      useCase02Description: '',
-      useCase02Visuals: [],
-      beforeAfterMetrics: '',
-      unexpectedWin01: '',
-      unexpectedWin02: '',
-      unexpectedWin03: '',
-      endorsementQuote01: '',
-      endorsementQuote02: '',
-      endorsementQuote03: '',
-      ctaToReader: '',
-      finalNudgingMessage: '',
-      selectedAuthor: '',
-      writingTone: '',
-      credibility01: '',
-      credibility02: '',
-      credibility03: '',
-      narrativePov: '',
-      productDifferentiator: ''
-    });
+    setFormData(defaultFormData);
+    clearPersistedData();
   };
 
   return {

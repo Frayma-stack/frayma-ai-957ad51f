@@ -8,6 +8,7 @@ import ShortFormHeader from './short-form/ShortFormHeader';
 import ShortFormMainContent from './short-form/ShortFormMainContent';
 import ContentGenerationDisplay from './short-form/ContentGenerationDisplay';
 import { useShortFormContentCreator } from './short-form/useShortFormContentCreator';
+import { usePageReloadProtection } from '@/hooks/usePageReloadProtection';
 import { ContentType } from './short-form/types';
 
 interface ShortFormContentCreatorProps {
@@ -72,6 +73,13 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     authors,
     successStories,
     ideas
+  });
+
+  // Protect against accidental page reloads when form has content
+  const hasFormContent = selectedICP || selectedAuthor || additionalContext || generatedContent;
+  usePageReloadProtection({
+    enabled: hasFormContent,
+    message: "You have unsaved content in your form. Are you sure you want to leave this page?"
   });
 
   const selectedIdea = getSelectedIdea();
