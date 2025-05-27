@@ -61,6 +61,13 @@ const Index = () => {
     }
   }, [user, loading, navigate]);
 
+  // Handler for idea content type selection
+  const handleIdeaContentTypeSelect = (ideaId: string, contentType: string) => {
+    console.log('Idea content type selected:', { ideaId, contentType });
+    // TODO: Navigate to appropriate content creation flow based on contentType
+    // This could trigger navigation to GTM narrative creator, email composer, etc.
+  };
+
   // Show loading spinner while checking authentication
   if (loading) {
     return (
@@ -129,6 +136,7 @@ const Index = () => {
               onProductContextAdded={handleProductContextAdded}
               onProductContextUpdated={handleProductContextUpdated}
               onProductContextDeleted={handleProductContextDeleted}
+              onIdeaContentTypeSelect={handleIdeaContentTypeSelect}
             />
           </div>
         </main>

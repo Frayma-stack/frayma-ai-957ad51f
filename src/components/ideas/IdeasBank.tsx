@@ -16,6 +16,7 @@ interface IdeasBankProps {
   onIdeaUpdated: (idea: GeneratedIdea) => void;
   onIdeaDeleted: (ideaId: string) => void;
   selectedClientId?: string;
+  onContentTypeSelect: (ideaId: string, contentType: string) => void;
 }
 
 const IdeasBank = ({
@@ -25,7 +26,8 @@ const IdeasBank = ({
   onIdeaAdded,
   onIdeaUpdated,
   onIdeaDeleted,
-  selectedClientId
+  selectedClientId,
+  onContentTypeSelect
 }: IdeasBankProps) => {
   const [activeTab, setActiveTab] = useState<string>('saved');
 
@@ -87,6 +89,7 @@ const IdeasBank = ({
             onIdeaUpdated={onIdeaUpdated}
             onIdeaDeleted={onIdeaDeleted}
             onAddManualIdea={handleIdeaAdded}
+            onContentTypeSelect={onContentTypeSelect}
           />
         </TabsContent>
         
@@ -95,6 +98,7 @@ const IdeasBank = ({
             icpScripts={scripts}
             productContext={productContext}
             onIdeaAdded={handleIdeaAdded}
+            onContentTypeSelect={onContentTypeSelect}
             selectedClientId={selectedClientId}
           />
         </TabsContent>

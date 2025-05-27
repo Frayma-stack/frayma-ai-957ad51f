@@ -39,6 +39,7 @@ interface AssetViewRouterProps {
   onProductContextUpdated: (context: ProductContext) => void;
   onProductContextDeleted: (contextId: string) => void;
   handleProductContextCreatedOrUpdated: (productContext: ProductContext) => void;
+  onIdeaContentTypeSelect: (ideaId: string, contentType: string) => void;
 }
 
 const AssetViewRouter: FC<AssetViewRouterProps> = ({
@@ -69,6 +70,7 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
   onSuccessStoryDeleted,
   onProductContextAdded,
   handleProductContextCreatedOrUpdated,
+  onIdeaContentTypeSelect,
 }) => {
   if (currentView === 'clients') {
     return (
@@ -106,6 +108,7 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
         onIdeaUpdated={onIdeaUpdated}
         onIdeaDeleted={onIdeaDeleted}
         selectedClientId={selectedClientId}
+        onContentTypeSelect={onIdeaContentTypeSelect}
       />
     );
   }
