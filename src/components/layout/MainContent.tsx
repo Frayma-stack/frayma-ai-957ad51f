@@ -3,13 +3,9 @@ import { FC } from 'react';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 import { Client, Author, ICPStoryScript, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
-import HomeViewRouter from '@/components/content/HomeViewRouter';
-import ClientManager from '@/components/ClientManager';
-import AuthorManager from '@/components/AuthorManager';
-import ICPStoryScriptManager from '@/components/ICPStoryScriptManager';
-import CustomerSuccessManager from '@/components/CustomerSuccessManager';
-import IdeasBank from '@/components/ideas/IdeasBank';
 import { ViewType } from '@/components/layout/AppLayout';
+import { useMainContentFiltering } from '@/hooks/useMainContentFiltering';
+import MainContentViewRouter from './MainContentViewRouter';
 
 interface MainContentProps {
   currentView: ViewType;
@@ -86,125 +82,55 @@ const MainContent: FC<MainContentProps> = ({
   onIdeaContentTypeSelect,
   onNavigateToIdeasBank,
 }) => {
-  // Filter data based on selected client
-  const getFilteredAuthors = () => {
-    return selectedClientId 
-      ? authors.filter(author => author.clientId === selectedClientId)
-      : authors;
-  };
+  const {
+    filteredAuthors,
+    filteredICPScripts,
+    filteredSuccessStories,
+    currentProductContext,
+  } = useMainContentFiltering({
+    selectedClientId,
+    authors,
+    icpScripts,
+    successStories,
+    productContexts,
+  });
 
-  const getFilteredICPScripts = () => {
-    return selectedClientId 
-      ? icpScripts.filter(script => script.clientId === selectedClientId)
-      : icpScripts;
-  };
-
-  const getFilteredSuccessStories = () => {
-    return selectedClientId 
-      ? successStories.filter(story => story.clientId === selectedClientId)
-      : successStories;
-  };
-
-  const getCurrentProductContext = () => {
-    return selectedClientId 
-      ? productContexts.find(context => context.clientId === selectedClientId) || null
-      : null;
-  };
-
-  if (currentView === 'clients') {
-    return (
-      <div className="p-6">
-        <ClientManager
-          clients={clients}
-          selectedClientId={selectedClientId}
-          onClientAdded={onClientAdded}
-          onClientUpdated={onClientUpdated}
-          onClientDeleted={onClientDeleted}
-          onClientSelected={onClientSelected}
-          onViewClientAssets={onViewClientAssets}
-          onProductContextAdded={onProductContextAdded}
-        />
-      </div>
-    );
-  }
-
-  if (currentView === 'authors') {
-    return (
-      <div className="p-6">
-        <AuthorManager
-          authors={getFilteredAuthors()}
-          onAuthorAdded={onAuthorAdded}
-          onAuthorUpdated={onAuthorUpdated}
-          onAuthorDeleted={onAuthorDeleted}
-        />
-      </div>
-    );
-  }
-
-  if (currentView === 'icp-scripts') {
-    return (
-      <div className="p-6">
-        <ICPStoryScriptManager
-          scripts={getFilteredICPScripts()}
-          onScriptAdded={onICPScriptAdded}
-          onScriptUpdated={onICPScriptUpdated}
-          onScriptDeleted={onICPScriptDeleted}
-          selectedClientId={selectedClientId}
-        />
-      </div>
-    );
-  }
-
-  if (currentView === 'success-stories') {
-    return (
-      <div className="p-6">
-        <CustomerSuccessManager
-          successStories={getFilteredSuccessStories()}
-          onStoryAdded={onSuccessStoryAdded}
-          onStoryUpdated={onSuccessStoryUpdated}
-          onStoryDeleted={onSuccessStoryDeleted}
-          selectedClientId={selectedClientId}
-        />
-      </div>
-    );
-  }
-
-  if (currentView === 'ideas') {
-    return (
-      <div className="p-6">
-        <IdeasBank
-          scripts={getFilteredICPScripts()}
-          productContext={getCurrentProductContext()}
-          ideas={ideas}
-          onIdeaAdded={onIdeaAdded}
-          onIdeaUpdated={onIdeaUpdated}
-          onIdeaDeleted={onIdeaDeleted}
-          selectedClientId={selectedClientId}
-          onContentTypeSelect={onIdeaContentTypeSelect}
-        />
-      </div>
-    );
-  }
-
-  // Home view
   return (
-    <div className="p-6">
-      <HomeViewRouter
-        selectedType={selectedType}
-        selectedArticleSubtype={selectedArticleSubtype}
-        filteredICPScripts={getFilteredICPScripts()}
-        filteredSuccessStories={getFilteredSuccessStories()}
-        filteredAuthors={getFilteredAuthors()}
-        currentProductContext={getCurrentProductContext()}
-        ideas={ideas}
-        selectedClientId={selectedClientId}
-        onContentTypeSelect={onContentTypeSelect}
-        onArticleSubtypeSelect={onArticleSubtypeSelect}
-        onBack={onBack}
-        onSuccessStoryAdded={onSuccessStoryAdded}
-        onNavigateToIdeasBank={onNavigateToIdeasBank}
-      />
-    </div>
+    <MainContentViewRouter
+      currentView={currentView}
+      selectedType={selectedType}
+      selectedArticleSubtype={selectedArticleSubtype}
+      selectedClientId={selectedClientId}
+      clients={clients}
+      filteredAuthors={filteredAuthors}
+      filteredICPScripts={filteredICPScripts}
+      filteredSuccessStories={filteredSuccessStories}
+      currentProductContext={currentProductContext}
+      ideas={ideas}
+      onContentTypeSelect={onContentTypeSelect}
+      onArticleSubtypeSelect={onArticleSubtypeSelect}
+      onBack={onBack}
+      onClientAdded={onClientAdded}
+      onClientUpdated={onClientUpdated}
+      onClientDeleted={onClientDeleted}
+      onClientSelected={onClientSelected}
+      onViewClientAssets={onViewClientAssets}
+      onAuthorAdded={onAuthorAdded}
+      onAuthorUpdated={onAuthorUpdated}
+      onAuthorDeleted={onAuthorDeleted}
+      onIdeaAdded={onIdeaAdded}
+      onIdeaUpdated={onIdeaUpdated}
+      onIdeaDeleted={onIdeaDeleted}
+      onICPScriptAdded={onICPScriptAdded}
+      onICPScriptUpdated={onICPScriptUpdated}
+      onICPScriptDeleted={onICPScriptDeleted}
+      onSuccessStoryAdded={onSuccessStoryAdded}
+      onSuccessStoryUpdated={onSuccessStoryUpdated}
+      onSuccessStoryDeleted={onSuccessStoryDeleted}
+      onProductContextAdded={onProductContextAdded}
+      onIdeaContentTypeSelect={onIdeaContentTypeSelect}
+      onNavigateToIdeasBank={onNavigateToIdeasBank}
+    />
   );
 };
 
