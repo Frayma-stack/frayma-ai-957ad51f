@@ -24,10 +24,10 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
     key: initialAuthor ? `author_edit_${initialAuthor.id}` : 'author_new',
     defaultValues: {
       name: author.name,
-      bio: author.bio,
-      company: author.company,
-      title: author.title,
-      email: author.email
+      bio: author.bio || '',
+      company: author.company || '',
+      title: author.title || '',
+      email: author.email || ''
     }
   });
 
@@ -100,10 +100,10 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
   useEffect(() => {
     if (isPersistenceLoaded) {
       updatePersistedValue('name', basicInfo.name);
-      updatePersistedValue('bio', basicInfo.bio);
-      updatePersistedValue('company', basicInfo.company);
-      updatePersistedValue('title', basicInfo.title);
-      updatePersistedValue('email', basicInfo.email);
+      updatePersistedValue('bio', basicInfo.bio || '');
+      updatePersistedValue('company', basicInfo.company || '');
+      updatePersistedValue('title', basicInfo.title || '');
+      updatePersistedValue('email', basicInfo.email || '');
     }
   }, [basicInfo, updatePersistedValue, isPersistenceLoaded]);
 

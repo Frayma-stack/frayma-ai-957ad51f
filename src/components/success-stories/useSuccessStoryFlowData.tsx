@@ -143,7 +143,7 @@ export const useSuccessStoryFlowData = () => {
     updateValues: updatePersistedValues,
     clearPersistedData,
     isLoaded: isPersistenceLoaded
-  } = useFormPersistence({
+  } = useFormPersistence<SuccessStoryFlowData>({
     key: 'success_story_flow',
     defaultValues: defaultFormData
   });
@@ -153,7 +153,7 @@ export const useSuccessStoryFlowData = () => {
   // Update local state when persisted values load
   useEffect(() => {
     if (isPersistenceLoaded) {
-      setFormData(persistedFormData);
+      setFormData({ ...defaultFormData, ...persistedFormData });
     }
   }, [isPersistenceLoaded, persistedFormData]);
 

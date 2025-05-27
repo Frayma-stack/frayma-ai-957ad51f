@@ -1,4 +1,3 @@
-
 export interface ICPStoryScriptItem {
   id: string;
   content: string;
@@ -97,6 +96,10 @@ export interface AuthorSocialLink {
 export interface Author {
   id: string;
   name: string;
+  bio?: string; // Added optional bio field
+  company?: string; // Added optional company field
+  title?: string; // Added optional title field
+  email?: string; // Added optional email field
   role: string;
   organization: string;
   backstory: string;

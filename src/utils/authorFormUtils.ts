@@ -36,6 +36,10 @@ export const createInitialAuthor = (initialAuthor?: Author | null): Author => {
   return initialAuthor || {
     id: crypto.randomUUID(),
     name: '',
+    bio: '',
+    company: '',
+    title: '',
+    email: '',
     role: '',
     organization: '',
     backstory: '',

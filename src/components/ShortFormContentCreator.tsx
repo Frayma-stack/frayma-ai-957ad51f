@@ -76,7 +76,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   });
 
   // Protect against accidental page reloads when form has content
-  const hasFormContent = selectedICP || selectedAuthor || additionalContext || generatedContent;
+  const hasFormContent = Boolean(selectedICP || selectedAuthor || additionalContext || generatedContent);
   usePageReloadProtection({
     enabled: hasFormContent,
     message: "You have unsaved content in your form. Are you sure you want to leave this page?"

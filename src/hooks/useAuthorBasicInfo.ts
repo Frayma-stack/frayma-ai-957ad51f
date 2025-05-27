@@ -6,6 +6,10 @@ export const useAuthorBasicInfo = (initialAuthor: Author) => {
   const [basicInfo, setBasicInfo] = useState({
     id: initialAuthor.id,
     name: initialAuthor.name,
+    bio: initialAuthor.bio || '',
+    company: initialAuthor.company || '',
+    title: initialAuthor.title || '',
+    email: initialAuthor.email || '',
     role: initialAuthor.role,
     organization: initialAuthor.organization,
     backstory: initialAuthor.backstory
