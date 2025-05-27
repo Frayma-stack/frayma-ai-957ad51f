@@ -1,23 +1,14 @@
 
 import { FC } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  FileText, 
-  Mail
-} from "lucide-react";
+import { FileText, Mail, ArrowLeft } from "lucide-react";
 import { ArticleSubType } from './ContentTypeSelector';
 import { GeneratedIdea } from '@/types/ideas';
 import IdeaSelector from './IdeaSelector';
 
 interface ArticleTypeSelectorProps {
-  onSelect: (type: ArticleSubType) => void;
+  onSelect: (subtype: ArticleSubType) => void;
   onBack: () => void;
   ideas?: GeneratedIdea[];
   selectedClientId?: string | null;
@@ -45,43 +36,49 @@ const ArticleTypeSelector: FC<ArticleTypeSelectorProps> = ({
         />
       )}
 
-      <Card className="w-full bg-white shadow-md">
+      <Card className="w-full bg-white shadow-md border border-gray-100">
         <CardHeader>
-          <CardTitle className="text-story-blue">Choose Your GTM Narrative Piece Type</CardTitle>
-          <CardDescription className="opacity-60">Select the type of narrative you want to create</CardDescription>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-brand-primary font-sora text-2xl">Choose Article Type</CardTitle>
+              <CardDescription className="opacity-60">
+                {selectedIdeaId ? 'Creating article based on your selected idea' : 'What type of GTM narrative piece would you like to create?'}
+              </CardDescription>
+            </div>
+            <Button variant="outline" onClick={onBack} className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Button 
               variant="outline" 
-              className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-story-blue transition-all"
-              onClick={() => onSelect('newsletter')}
+              className="h-auto p-8 flex flex-col items-center gap-4 hover:bg-slate-50 hover:border-brand-primary transition-all card-hover"
+              onClick={() => onSelect('thought_leadership')}
             >
-              <Mail className="h-8 w-8 text-story-blue" />
-              <span className="text-lg font-medium">First-Person Narrative Newsletter</span>
-              <span className="text-sm text-gray-500 text-center opacity-70">
-                Create an engaging newsletter<br/>
-                in first-person voice
-              </span>
+              <FileText className="h-12 w-12 text-brand-primary" />
+              <div className="text-center">
+                <span className="text-xl font-medium font-sora block mb-2">Thought Leadership</span>
+                <span className="text-sm text-gray-500 opacity-70">
+                  Create authoritative content that positions you as an industry expert with unique insights and perspectives
+                </span>
+              </div>
             </Button>
             
             <Button 
               variant="outline" 
-              className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-story-blue transition-all"
-              onClick={() => onSelect('thought_leadership')}
+              className="h-auto p-8 flex flex-col items-center gap-4 hover:bg-slate-50 hover:border-brand-primary transition-all card-hover"
+              onClick={() => onSelect('newsletter')}
             >
-              <FileText className="h-8 w-8 text-story-blue" />
-              <span className="text-lg font-medium">GTM Thought Leadership Article</span>
-              <span className="text-sm text-gray-500 text-center opacity-70">
-                Establish authority with insightful<br/>
-                industry perspectives
-              </span>
-            </Button>
-          </div>
-          
-          <div className="flex justify-center mt-4">
-            <Button onClick={onBack} variant="outline">
-              Back to Content Types
+              <Mail className="h-12 w-12 text-brand-primary" />
+              <div className="text-center">
+                <span className="text-xl font-medium font-sora block mb-2">Newsletter</span>
+                <span className="text-sm text-gray-500 opacity-70">
+                  Craft engaging newsletter content that nurtures relationships and drives consistent engagement
+                </span>
+              </div>
             </Button>
           </div>
         </CardContent>

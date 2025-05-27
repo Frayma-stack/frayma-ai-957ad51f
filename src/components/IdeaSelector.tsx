@@ -1,5 +1,5 @@
 
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import {
   Select,
   SelectContent,
@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Lightbulb, X } from "lucide-react";
 import { GeneratedIdea } from '@/types/ideas';
+import { useIdeaSummary } from '@/hooks/useIdeaSummary';
 
 interface IdeaSelectorProps {
   ideas: GeneratedIdea[];
@@ -25,6 +26,8 @@ const IdeaSelector: FC<IdeaSelectorProps> = ({
   onIdeaSelect,
   selectedClientId
 }) => {
+  const { generateIdeaSummary } = useIdeaSummary();
+  
   // Filter ideas for the selected client
   const filteredIdeas = selectedClientId 
     ? ideas.filter(idea => idea.clientId === selectedClientId)
@@ -33,31 +36,6 @@ const IdeaSelector: FC<IdeaSelectorProps> = ({
   const selectedIdea = selectedIdeaId 
     ? filteredIdeas.find(idea => idea.id === selectedIdeaId)
     : null;
-
-  // Generate a summary of the selected idea
-  const generateIdeaSummary = (idea: GeneratedIdea): string => {
-    const parts = [];
-    
-    if (idea.title) {
-      parts.push(`Focusing on "${idea.title}"`);
-    }
-    
-    if (idea.narrative) {
-      const narrativeSnippet = idea.narrative.length > 100 
-        ? idea.narrative.substring(0, 100) + "..."
-        : idea.narrative;
-      parts.push(`The core narrative centers around ${narrativeSnippet.toLowerCase()}`);
-    }
-    
-    if (idea.productTieIn) {
-      const productSnippet = idea.productTieIn.length > 80
-        ? idea.productTieIn.substring(0, 80) + "..."
-        : idea.productTieIn;
-      parts.push(`This connects to the product through ${productSnippet.toLowerCase()}`);
-    }
-
-    return parts.join('. ') + '.';
-  };
 
   if (filteredIdeas.length === 0) {
     return null;
@@ -106,11 +84,6 @@ const IdeaSelector: FC<IdeaSelectorProps> = ({
               <p className="text-sm text-gray-700 leading-relaxed">
                 {generateIdeaSummary(selectedIdea)}
               </p>
-              {selectedIdea.cta && (
-                <p className="text-xs text-gray-500 mt-2">
-                  <strong>Suggested CTA:</strong> {selectedIdea.cta}
-                </p>
-              )}
             </div>
           )}
         </div>

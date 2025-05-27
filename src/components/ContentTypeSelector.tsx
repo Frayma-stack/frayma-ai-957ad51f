@@ -1,5 +1,5 @@
 
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { 
   Card, 
   CardContent, 
@@ -59,7 +59,9 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
       <Card className="w-full bg-white shadow-md border border-gray-100">
         <CardHeader>
           <CardTitle className="text-brand-primary font-sora text-2xl">What would you like to create?</CardTitle>
-          <CardDescription className="opacity-60">Select a content type to begin crafting your message</CardDescription>
+          <CardDescription className="opacity-60">
+            {selectedIdeaId ? 'Creating content based on your selected idea' : 'Select a content type to begin crafting your message'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

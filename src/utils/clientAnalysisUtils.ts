@@ -130,12 +130,15 @@ export const parseClientAnalysisContent = (content: string) => {
   } catch (firstError) {
     console.log('First parse attempt failed:', firstError.message);
     
-    // Declare cleanedJson in the correct scope
+    // Clean up common JSON issues
     let cleanedJson = jsonString
       .replace(/,\s*}/g, '}')        // Remove trailing commas before }
       .replace(/,\s*]/g, ']')        // Remove trailing commas before ]
       .replace(/([{,]\s*)(\w+):/g, '$1"$2":')  // Add quotes around unquoted keys
-      .replace(/:\s*'([^']*)'/g, ': "$1"');    // Replace single quotes with double quotes
+      .replace(/:\s*'([^']*)'/g, ': "$1"')     // Replace single quotes with double quotes
+      .replace(/'/g, '"')                      // Replace remaining single quotes
+      .replace(/\n/g, ' ')                     // Remove newlines
+      .replace(/\s+/g, ' ');                   // Normalize whitespace
     
     try {
       // Second attempt: use cleaned JSON
@@ -145,17 +148,20 @@ export const parseClientAnalysisContent = (content: string) => {
       console.log('Second parse attempt failed:', secondError.message);
       
       try {
-        // Third attempt: try to extract just the core object
-        const objectMatch = cleanedJson.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/);
-        if (objectMatch) {
-          console.log('Attempting to parse extracted object:', objectMatch[0]);
-          return JSON.parse(objectMatch[0]);
+        // Third attempt: try to extract just the core object content
+        const bracketStart = cleanedJson.indexOf('{');
+        const bracketEnd = cleanedJson.lastIndexOf('}');
+        if (bracketStart !== -1 && bracketEnd !== -1 && bracketEnd > bracketStart) {
+          const extractedJson = cleanedJson.substring(bracketStart, bracketEnd + 1);
+          console.log('Attempting to parse extracted JSON:', extractedJson);
+          return JSON.parse(extractedJson);
         }
         throw new Error('Could not extract valid JSON object');
       } catch (thirdError) {
         console.error('All JSON parsing attempts failed');
         console.error('Original content:', content);
         console.error('Extracted JSON string:', jsonString);
+        console.error('Cleaned JSON:', cleanedJson);
         console.error('Final error:', thirdError.message);
         
         // Return a default structure to prevent complete failure

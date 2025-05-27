@@ -33,7 +33,11 @@ export const useClientAnalysis = () => {
       console.log('Sending prompts to analysis service:', { systemPrompt, userPrompt });
       
       const { data, error } = await supabase.functions.invoke('analyze-profile', {
-        body: { systemPrompt, userPrompt }
+        body: { 
+          systemPrompt, 
+          userPrompt,
+          model: 'gpt-4o-mini' // Ensure we're using a working model
+        }
       });
       
       if (error) {
@@ -51,12 +55,19 @@ export const useClientAnalysis = () => {
       
       console.log('Analysis service response:', data);
       
-      if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+      // Handle both direct content and OpenAI API response format
+      let content = '';
+      if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+        content = data.choices[0].message.content;
+      } else if (typeof data === 'string') {
+        content = data;
+      } else if (data.content) {
+        content = data.content;
+      } else {
         console.error('Invalid response structure:', data);
         throw new Error('Invalid response format from analysis service');
       }
       
-      const content = data.choices[0].message.content;
       console.log('Raw content from analysis service:', content);
       
       let parsedData;
