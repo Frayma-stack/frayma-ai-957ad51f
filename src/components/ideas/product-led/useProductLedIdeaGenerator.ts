@@ -182,6 +182,14 @@ Avoid fluff. Think like a narrative strategist guiding a category-defining found
     setShowIdeasViewer(false);
   };
 
+  const handleGenerateNewIdeas = async () => {
+    setShowIdeasViewer(false);
+    // Small delay to show transition
+    setTimeout(() => {
+      handleGenerateIdeas();
+    }, 100);
+  };
+
   return {
     triggerInput,
     setTriggerInput,
@@ -193,6 +201,7 @@ Avoid fluff. Think like a narrative strategist guiding a category-defining found
     selectedICP,
     handleGenerateIdeas,
     handleBackToGeneration,
+    handleGenerateNewIdeas,
     validateInputs
   };
 };
