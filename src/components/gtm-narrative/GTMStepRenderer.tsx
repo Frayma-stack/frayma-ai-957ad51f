@@ -77,7 +77,6 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
         onBack={onBackToOutline}
         isGenerating={isGenerating}
         canContinue={Boolean(config.content)}
-        selectedIdea={selectedIdea}
       />
     );
   }
@@ -98,7 +97,6 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
           }}
           successStories={successStories}
           ideas={ideas}
-          selectedIdea={selectedIdea}
           onDataChange={onDataChange}
         />
       );
