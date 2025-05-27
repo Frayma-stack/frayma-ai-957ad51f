@@ -1,3 +1,4 @@
+
 import { useShortFormState } from './useShortFormState';
 import { useContentGeneration } from './useContentGeneration';
 import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
@@ -85,10 +86,10 @@ export const useShortFormContentCreator = ({
     }
   };
 
-  const isFormValid = () => {
+  const isFormValid = (): boolean => {
     // If an idea is selected, we don't need ICP and narrative selections
     if (getSelectedIdea()) {
-      return selectedAuthor;
+      return Boolean(selectedAuthor);
     }
     
     // Otherwise, we need the full form
