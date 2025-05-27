@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, FileText, Mail } from "lucide-react";
 import { GeneratedIdea } from '@/types/ideas';
 
-export type ArticleSubType = 'thought-leadership' | 'newsletter';
+export type ArticleSubType = 'thought_leadership' | 'newsletter';
 
 interface ArticleTypeSelectorProps {
   onSelect: (subtype: ArticleSubType) => void;
@@ -26,7 +26,7 @@ const ArticleTypeSelector: FC<ArticleTypeSelectorProps> = ({
 }) => {
   const articleTypes = [
     {
-      type: 'thought-leadership' as ArticleSubType,
+      type: 'thought_leadership' as ArticleSubType,
       title: 'Thought Leadership',
       description: 'In-depth articles that establish\nexpertise and industry authority',
       icon: FileText,

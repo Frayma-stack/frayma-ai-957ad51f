@@ -7,7 +7,7 @@ import HomeViewRouter from '@/components/content/HomeViewRouter';
 import ClientManager from '@/components/ClientManager';
 import AuthorManager from '@/components/AuthorManager';
 import ICPStoryScriptManager from '@/components/ICPStoryScriptManager';
-import SuccessStoryManager from '@/components/SuccessStoryManager';
+import CustomerSuccessManager from '@/components/CustomerSuccessManager';
 import IdeasBank from '@/components/ideas/IdeasBank';
 import { ViewType } from '@/components/layout/AppLayout';
 
@@ -136,7 +136,6 @@ const MainContent: FC<MainContentProps> = ({
           onAuthorAdded={onAuthorAdded}
           onAuthorUpdated={onAuthorUpdated}
           onAuthorDeleted={onAuthorDeleted}
-          selectedClientId={selectedClientId}
         />
       </div>
     );
@@ -159,7 +158,7 @@ const MainContent: FC<MainContentProps> = ({
   if (currentView === 'success-stories') {
     return (
       <div className="p-6">
-        <SuccessStoryManager
+        <CustomerSuccessManager
           stories={getFilteredSuccessStories()}
           onStoryAdded={onSuccessStoryAdded}
           onStoryUpdated={onSuccessStoryUpdated}
