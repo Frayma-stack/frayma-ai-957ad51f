@@ -46,7 +46,25 @@ export const useIndexPageState = () => {
   const handleAssetTypeChange = (type: string) => {
     console.log('🎯 Asset type changed:', type);
     setSelectedAssetType(type);
-    setCurrentView('home');
+    
+    // Map asset types to views
+    const assetTypeToViewMap: Record<string, ViewType> = {
+      'clients': 'clients',
+      'authors': 'authors',
+      'icp-scripts': 'icp-scripts',
+      'success-stories': 'success-stories',
+      'ideas': 'ideas'
+    };
+    
+    const newView = assetTypeToViewMap[type] || 'home';
+    console.log('🎯 Switching to view:', newView);
+    setCurrentView(newView);
+    
+    // Clear content type selection when switching to asset management
+    if (newView !== 'home') {
+      setSelectedContentType(null);
+      setSelectedArticleSubtype(null);
+    }
   };
 
   const handleClientSelected = (clientId: string | null) => {
@@ -62,6 +80,7 @@ export const useIndexPageState = () => {
     setCurrentView('ideas');
     setSelectedContentType(null);
     setSelectedArticleSubtype(null);
+    setSelectedAssetType('ideas');
   };
 
   const handleHomeSelected = () => {
@@ -69,6 +88,7 @@ export const useIndexPageState = () => {
     setCurrentView('home');
     setSelectedContentType(null);
     setSelectedArticleSubtype(null);
+    setSelectedAssetType(null);
   };
 
   const handleBack = () => {
@@ -79,6 +99,7 @@ export const useIndexPageState = () => {
       setSelectedContentType(null);
     } else {
       setCurrentView('home');
+      setSelectedAssetType(null);
     }
   };
 

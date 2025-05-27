@@ -18,6 +18,7 @@ interface ClientSectionProps {
   selectedClientId: string | null;
   onAssetTypeChange: (type: string) => void;
   onClientAssetClick: (clientId: string, assetType: string) => void;
+  onAddClientClick?: () => void; // Add this prop
 }
 
 const ClientSection: FC<ClientSectionProps> = ({
@@ -26,6 +27,7 @@ const ClientSection: FC<ClientSectionProps> = ({
   selectedClientId,
   onAssetTypeChange,
   onClientAssetClick,
+  onAddClientClick,
 }) => {
   const [clientsExpanded, setClientsExpanded] = useState(true);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
@@ -40,6 +42,16 @@ const ClientSection: FC<ClientSectionProps> = ({
     setExpandedClients(newExpanded);
   };
 
+  const handleAddClientClick = () => {
+    console.log('🔘 ClientSection: Add Client button clicked');
+    if (onAddClientClick) {
+      onAddClientClick();
+    } else {
+      // Fallback to asset type change
+      onAssetTypeChange('clients');
+    }
+  };
+
   return (
     <div className="space-y-1 flex-1">
       <div className="flex items-center justify-between mb-2">
@@ -49,7 +61,7 @@ const ClientSection: FC<ClientSectionProps> = ({
             variant="ghost" 
             size="icon" 
             className="h-6 w-6" 
-            onClick={() => onAssetTypeChange('clients')}
+            onClick={handleAddClientClick}
             title="Add Client"
           >
             <Plus className="h-4 w-4" />
@@ -79,7 +91,7 @@ const ClientSection: FC<ClientSectionProps> = ({
                 variant="outline" 
                 size="sm" 
                 className="mt-2 text-xs"
-                onClick={() => onAssetTypeChange('clients')}
+                onClick={handleAddClientClick}
               >
                 <Plus className="h-3 w-3 mr-1" />
                 Add Client

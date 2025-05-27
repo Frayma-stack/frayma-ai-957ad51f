@@ -1,90 +1,92 @@
 
-import { FC } from 'react';
-import { 
-  Lightbulb, 
-  Users, 
-  Home
-} from "lucide-react";
-import { 
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
+import { FC, useState } from 'react';
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { Home, Lightbulb, User, Target, Trophy, Package } from 'lucide-react';
+import { Client } from '@/types/storytelling';
+import { GeneratedIdea } from '@/types/ideas';
 import ClientSection from './sidebar/ClientSection';
 
 interface AppSidebarProps {
-  ideas: any[];
+  ideas: GeneratedIdea[];
   selectedClientId: string | null;
-  clients: any[];
+  clients: Client[];
   onAssetTypeChange: (type: string) => void;
   onClientSelected: (clientId: string | null) => void;
   onIdeasBankSelected: () => void;
-  onHomeSelected?: () => void;
+  onHomeSelected: () => void;
 }
 
-export const AppSidebar: FC<AppSidebarProps> = ({ 
-  ideas, 
-  selectedClientId, 
-  clients, 
-  onAssetTypeChange, 
+const AppSidebar: FC<AppSidebarProps> = ({
+  ideas,
+  selectedClientId,
+  clients,
+  onAssetTypeChange,
   onClientSelected,
   onIdeasBankSelected,
-  onHomeSelected
+  onHomeSelected,
 }) => {
-  const clientInfo = selectedClientId 
-    ? clients.find(client => client.id === selectedClientId)
-    : null;
+  console.log('🎯 AppSidebar: Rendering with props:', {
+    ideasCount: ideas.length,
+    selectedClientId,
+    clientsCount: clients.length
+  });
 
   const handleClientAssetClick = (clientId: string, assetType: string) => {
+    console.log('🎯 AppSidebar: Client asset clicked:', { clientId, assetType });
     onClientSelected(clientId);
     onAssetTypeChange(assetType);
   };
 
-  const filteredIdeas = selectedClientId 
-    ? ideas.filter(idea => idea.clientId === selectedClientId)
-    : [];
+  const handleAddClientClick = () => {
+    console.log('🔘 AppSidebar: Add Client clicked - navigating to clients view');
+    onAssetTypeChange('clients');
+  };
+
+  const assetButtons = [
+    { 
+      id: 'authors', 
+      label: 'Authors', 
+      icon: User, 
+      onClick: () => {
+        console.log('🔘 AppSidebar: Authors clicked');
+        onAssetTypeChange('authors');
+      }
+    },
+    { 
+      id: 'icp-scripts', 
+      label: 'ICP Scripts', 
+      icon: Target, 
+      onClick: () => {
+        console.log('🔘 AppSidebar: ICP Scripts clicked');
+        onAssetTypeChange('icp-scripts');
+      }
+    },
+    { 
+      id: 'success-stories', 
+      label: 'Success Stories', 
+      icon: Trophy, 
+      onClick: () => {
+        console.log('🔘 AppSidebar: Success Stories clicked');
+        onAssetTypeChange('success-stories');
+      }
+    },
+    { 
+      id: 'product-context', 
+      label: 'Product Context', 
+      icon: Package, 
+      onClick: () => {
+        console.log('🔘 AppSidebar: Product Context clicked');
+        onAssetTypeChange('product-context');
+      }
+    }
+  ];
 
   return (
     <Sidebar>
-      <SidebarHeader className="p-4">
-        <div className="flex items-center">
-          <img 
-            src="/lovable-uploads/c03df3aa-a5a4-4db8-8a06-910f2452d629.png" 
-            alt="Frayma AI Logo" 
-            className="h-8 w-8 mr-2" 
-          />
-          <div>
-            <h1 className="text-xl font-sora font-semibold text-brand-primary">Frayma AI</h1>
-            <p className="text-xs text-gray-600 leading-tight">Frame POVs. Auto-craft resonant, compelling GTM narratives. Win your market.</p>
-          </div>
-        </div>
-      </SidebarHeader>
-      
-      <SidebarContent className="p-4">
-        {selectedClientId && (
-          <div className="mb-4 py-2 px-3 bg-brand-primary/10 rounded-md">
-            <div className="flex items-center">
-              <Users className="h-4 w-4 text-brand-primary mr-2" />
-              <span className="text-sm font-medium text-brand-primary">{clientInfo?.name}</span>
-            </div>
-            <Button 
-              variant="link" 
-              size="sm" 
-              className="text-xs text-brand-primary p-0 h-auto mt-1"
-              onClick={() => onClientSelected(null)}
-            >
-              Clear Selection
-            </Button>
-          </div>
-        )}
-
+      <SidebarContent>
         <SidebarGroup>
+          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -93,36 +95,47 @@ export const AppSidebar: FC<AppSidebarProps> = ({
                   <span>Home</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={onIdeasBankSelected}>
+                  <Lightbulb className="h-4 w-4" />
+                  <span>Ideas Bank</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        
-        {selectedClientId && (
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton onClick={onIdeasBankSelected}>
-                    <Lightbulb className="h-4 w-4" />
-                    <span>Saved Ideas</span>
-                    <span className="ml-auto bg-gray-100 text-xs rounded-full px-2 py-0.5">
-                      {filteredIdeas.length}
-                    </span>
+
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <ClientSection
+              clients={clients}
+              ideas={ideas}
+              selectedClientId={selectedClientId}
+              onAssetTypeChange={onAssetTypeChange}
+              onClientAssetClick={handleClientAssetClick}
+              onAddClientClick={handleAddClientClick}
+            />
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Assets</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {assetButtons.map((button) => (
+                <SidebarMenuItem key={button.id}>
+                  <SidebarMenuButton onClick={button.onClick}>
+                    <button.icon className="h-4 w-4" />
+                    <span>{button.label}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-        
-        <ClientSection
-          clients={clients}
-          ideas={ideas}
-          selectedClientId={selectedClientId}
-          onAssetTypeChange={onAssetTypeChange}
-          onClientAssetClick={handleClientAssetClick}
-        />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );
 };
+
+export default AppSidebar;

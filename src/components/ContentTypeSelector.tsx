@@ -1,3 +1,4 @@
+
 import { FC } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +30,12 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
   selectedIdeaId, 
   onIdeaSelect 
 }) => {
+  console.log('🎨 ContentTypeSelector: Rendering with:', {
+    ideasCount: ideas.length,
+    selectedClientId,
+    selectedIdeaId
+  });
+
   const contentTypes = [
     {
       type: 'article' as ContentType,
@@ -84,13 +91,26 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
     ? ideas.filter(idea => idea.clientId === selectedClientId)
     : [];
 
+  console.log('🎨 ContentTypeSelector: Filtered ideas count:', filteredIdeas.length);
+
   const handleContentTypeSelect = (type: ContentType) => {
+    console.log('🎨 ContentTypeSelector: Content type selected:', type);
+    
     if (type === 'mint-ideas') {
+      console.log('🎨 ContentTypeSelector: Dispatching navigate-to-ideas-bank event');
       // Navigate to ideas bank for minting new ideas
       window.dispatchEvent(new CustomEvent('navigate-to-ideas-bank'));
       return;
     }
+    
     onSelect(type);
+  };
+
+  const handleIdeaSelect = (ideaId: string) => {
+    console.log('🎨 ContentTypeSelector: Idea selected:', ideaId);
+    if (onIdeaSelect) {
+      onIdeaSelect(ideaId);
+    }
   };
 
   return (
@@ -145,7 +165,7 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
                     ? 'border-story-blue bg-story-blue/5' 
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
-                onClick={() => onIdeaSelect?.(idea.id)}
+                onClick={() => handleIdeaSelect(idea.id)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">

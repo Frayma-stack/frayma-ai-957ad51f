@@ -60,6 +60,9 @@ interface AppLayoutProps {
 const AppLayout: FC<AppLayoutProps> = (props) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  console.log('🏗️ AppLayout: Rendering with current view:', props.currentView);
+  console.log('🏗️ AppLayout: Selected asset type:', props.selectedAssetType);
+
   // Auto-collapse sidebar when user starts doing meaningful actions
   useEffect(() => {
     const shouldCollapse = 
@@ -70,20 +73,27 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
       props.currentView === 'success-stories';
 
     if (shouldCollapse && !sidebarCollapsed) {
+      console.log('🏗️ AppLayout: Auto-collapsing sidebar');
       setSidebarCollapsed(true);
     }
   }, [props.selectedContentType, props.currentView, sidebarCollapsed]);
 
-  // Handler for viewing client assets (placeholder implementation)
+  // Handler for asset type changes - this should trigger view changes
+  const handleAssetTypeChange = (type: string) => {
+    console.log('🏗️ AppLayout: Asset type changed:', type);
+    props.onAssetTypeChange(type);
+  };
+
+  // Handler for viewing client assets
   const handleViewClientAssets = (clientId: string, assetType: string) => {
-    console.log('View client assets:', clientId, assetType);
-    // This could navigate to a specific client assets view
+    console.log('🏗️ AppLayout: View client assets:', { clientId, assetType });
     props.onAssetTypeChange(assetType);
     props.onClientSelected(clientId);
   };
 
   // Handler for navigating to ideas bank from home
   const handleNavigateToIdeasBank = () => {
+    console.log('🏗️ AppLayout: Navigate to ideas bank');
     props.onIdeasBankSelected();
   };
 
@@ -98,7 +108,7 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
           ideas={props.ideas}
           selectedClientId={props.selectedClientId}
           clients={props.clients}
-          onAssetTypeChange={props.onAssetTypeChange}
+          onAssetTypeChange={handleAssetTypeChange}
           onClientSelected={props.onClientSelected}
           onIdeasBankSelected={props.onIdeasBankSelected}
           onHomeSelected={props.onHomeSelected}
