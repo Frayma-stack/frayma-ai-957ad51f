@@ -6,6 +6,7 @@ import IdeasBank from '@/components/ideas/IdeasBank';
 import ICPStoryScriptManager from '@/components/ICPStoryScriptManager';
 import CustomerSuccessManager from '@/components/CustomerSuccessManager';
 import ProductContextManager from '@/components/ProductContextManager';
+import DraftsManager from '@/components/drafts/DraftsManager';
 import { Client, Author, ICPStoryScript, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 
@@ -138,6 +139,12 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
         productContext={currentProductContext}
         onProductContextUpdated={handleProductContextCreatedOrUpdated}
       />
+    );
+  }
+
+  if (selectedAssetType === 'drafts') {
+    return (
+      <DraftsManager selectedClientId={selectedClientId} />
     );
   }
 

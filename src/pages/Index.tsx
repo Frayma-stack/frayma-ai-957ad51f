@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
@@ -137,6 +138,24 @@ const Index = () => {
     // This could navigate to a content creation flow in the future
   };
 
+  // Enhanced client update handler to ensure product context is properly saved
+  const handleEnhancedClientUpdated = (client: any, productContext?: any) => {
+    console.log('Enhanced client update handler called:', { client, productContext });
+    
+    // Update the client
+    handleClientUpdated(client);
+    
+    // If product context was provided, ensure it's saved
+    if (productContext) {
+      console.log('Saving product context from client update:', productContext);
+      handleProductContextCreatedOrUpdated(productContext);
+      
+      toast.success('Client and product context updated successfully');
+    } else {
+      toast.success('Client updated successfully');
+    }
+  };
+
   // Show loading while checking authentication
   if (authLoading) {
     return (
@@ -211,22 +230,33 @@ const Index = () => {
               selectedClientId={selectedClientId}
               clients={clients}
               authors={authors}
+              filteredAuthors={getFilteredAuthors()}
               icpScripts={icpScripts}
+              filteredICPScripts={getFilteredICPScripts()}
               successStories={successStories}
+              filteredSuccessStories={getFilteredSuccessStories()}
               productContexts={productContexts}
+              currentProductContext={getCurrentProductContext()}
+              ideas={ideas}
               onClientAdded={handleClientAdded}
-              onClientUpdated={handleClientUpdated}
+              onClientUpdated={handleEnhancedClientUpdated}
               onClientDeleted={handleClientDeleted}
               onAuthorAdded={handleAuthorAdded}
               onAuthorUpdated={handleAuthorUpdated}
               onAuthorDeleted={handleAuthorDeleted}
+              onIdeaAdded={handleIdeaAdded}
+              onIdeaUpdated={handleIdeaUpdated}
+              onIdeaDeleted={handleIdeaDeleted}
               onICPScriptAdded={handleICPScriptAdded}
               onICPScriptUpdated={handleICPScriptUpdated}
               onICPScriptDeleted={handleICPScriptDeleted}
               onSuccessStoryAdded={handleSuccessStoryAdded}
               onSuccessStoryUpdated={handleSuccessStoryUpdated}
               onSuccessStoryDeleted={handleSuccessStoryDeleted}
+              onProductContextAdded={handleProductContextAdded}
+              onProductContextUpdated={handleProductContextUpdated}
               handleProductContextCreatedOrUpdated={handleProductContextCreatedOrUpdated}
+              onIdeaContentTypeSelect={handleIdeaContentTypeSelect}
             />
           ) : (
             <HomeViewRouter

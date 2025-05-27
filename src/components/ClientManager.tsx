@@ -15,8 +15,8 @@ import EnhancedClientDialog from './EnhancedClientDialog';
 interface ClientManagerProps {
   clients: Client[];
   selectedClientId: string | null;
-  onClientAdded: (client: Client) => void;
-  onClientUpdated: (client: Client) => void;
+  onClientAdded: (client: Client, productContext?: ProductContext) => void;
+  onClientUpdated: (client: Client, productContext?: ProductContext) => void;
   onClientDeleted: (clientId: string) => void;
   onClientSelected: (clientId: string | null) => void;
   onViewClientAssets: (clientId: string, assetType: string) => void;
@@ -56,9 +56,9 @@ const ClientManager: FC<ClientManagerProps> = ({
     console.log('ClientManager: handleClientCreated called', { client, productContext });
     
     if (editingClient) {
-      onClientUpdated(client);
+      onClientUpdated(client, productContext);
     } else {
-      onClientAdded(client);
+      onClientAdded(client, productContext);
     }
     
     // Add the product context if it was created during analysis
