@@ -1,19 +1,22 @@
 
-import { FC } from 'react';
-import Sidebar from '@/components/Sidebar';
-import TopNavigation from './TopNavigation';
-import MainContentArea from './MainContentArea';
-import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
+import { FC, useState, useEffect } from 'react';
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from '@/components/AppSidebar';
+import MainContent from './MainContent';
+import LoadingState from './LoadingState';
 import { Client, Author, ICPStoryScript, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
+import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
+
+export type ViewType = 'home' | 'ideas' | 'clients' | 'authors' | 'icp-scripts' | 'success-stories';
 
 interface AppLayoutProps {
   user: { email: string };
   dataLoading: boolean;
-  currentView: 'home' | 'asset' | 'ideas';
+  currentView: ViewType;
   selectedContentType: ContentType | null;
   selectedArticleSubtype: ArticleSubType | null;
-  selectedAssetType: string;
+  selectedAssetType: string | null;
   selectedClientId: string | null;
   clients: Client[];
   authors: Author[];
@@ -33,8 +36,8 @@ interface AppLayoutProps {
   onContentTypeSelect: (type: ContentType) => void;
   onArticleSubtypeSelect: (subtype: ArticleSubType) => void;
   onBack: () => void;
-  onClientAdded: (client: Client) => void;
-  onClientUpdated: (client: Client) => void;
+  onClientAdded: (client: Client, productContext?: ProductContext) => void;
+  onClientUpdated: (client: Client, productContext?: ProductContext) => void;
   onClientDeleted: (clientId: string) => void;
   onAuthorAdded: (author: Author) => void;
   onAuthorUpdated: (author: Author) => void;
@@ -54,116 +57,65 @@ interface AppLayoutProps {
   onIdeaContentTypeSelect: (ideaId: string, contentType: string) => void;
 }
 
-const AppLayout: FC<AppLayoutProps> = ({
-  user,
-  dataLoading,
-  currentView,
-  selectedContentType,
-  selectedArticleSubtype,
-  selectedAssetType,
-  selectedClientId,
-  clients,
-  authors,
-  ideas,
-  icpScripts,
-  successStories,
-  productContexts,
-  getFilteredAuthors,
-  getFilteredICPScripts,
-  getFilteredSuccessStories,
-  getCurrentProductContext,
-  handleProductContextCreatedOrUpdated,
-  onAssetTypeChange,
-  onClientSelected,
-  onIdeasBankSelected,
-  onHomeSelected,
-  onContentTypeSelect,
-  onArticleSubtypeSelect,
-  onBack,
-  onClientAdded,
-  onClientUpdated,
-  onClientDeleted,
-  onAuthorAdded,
-  onAuthorUpdated,
-  onAuthorDeleted,
-  onIdeaAdded,
-  onIdeaUpdated,
-  onIdeaDeleted,
-  onICPScriptAdded,
-  onICPScriptUpdated,
-  onICPScriptDeleted,
-  onSuccessStoryAdded,
-  onSuccessStoryUpdated,
-  onSuccessStoryDeleted,
-  onProductContextAdded,
-  onProductContextUpdated,
-  onProductContextDeleted,
-  onIdeaContentTypeSelect,
-}) => {
-  return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar
-        ideas={ideas}
-        selectedClientId={selectedClientId}
-        clients={clients}
-        onAssetTypeChange={onAssetTypeChange}
-        onClientSelected={onClientSelected}
-        onIdeasBankSelected={onIdeasBankSelected}
-        onHomeSelected={onHomeSelected}
-      />
-      
-      <div className="flex-1 overflow-hidden">
-        <TopNavigation
-          currentView={currentView}
-          selectedAssetType={selectedAssetType}
-          userEmail={user.email}
-        />
+const AppLayout: FC<AppLayoutProps> = (props) => {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-        <main className="flex-1 overflow-auto p-6">
-          <MainContentArea
-            dataLoading={dataLoading}
-            currentView={currentView}
-            selectedContentType={selectedContentType}
-            selectedArticleSubtype={selectedArticleSubtype}
-            selectedAssetType={selectedAssetType}
-            selectedClientId={selectedClientId}
-            clients={clients}
-            authors={authors}
-            ideas={ideas}
-            icpScripts={icpScripts}
-            successStories={successStories}
-            productContexts={productContexts}
-            getFilteredAuthors={getFilteredAuthors}
-            getFilteredICPScripts={getFilteredICPScripts}
-            getFilteredSuccessStories={getFilteredSuccessStories}
-            getCurrentProductContext={getCurrentProductContext}
-            handleProductContextCreatedOrUpdated={handleProductContextCreatedOrUpdated}
-            onContentTypeSelect={onContentTypeSelect}
-            onArticleSubtypeSelect={onArticleSubtypeSelect}
-            onBack={onBack}
-            onClientAdded={onClientAdded}
-            onClientUpdated={onClientUpdated}
-            onClientDeleted={onClientDeleted}
-            onAuthorAdded={onAuthorAdded}
-            onAuthorUpdated={onAuthorUpdated}
-            onAuthorDeleted={onAuthorDeleted}
-            onIdeaAdded={onIdeaAdded}
-            onIdeaUpdated={onIdeaUpdated}
-            onIdeaDeleted={onIdeaDeleted}
-            onICPScriptAdded={onICPScriptAdded}
-            onICPScriptUpdated={onICPScriptUpdated}
-            onICPScriptDeleted={onICPScriptDeleted}
-            onSuccessStoryAdded={onSuccessStoryAdded}
-            onSuccessStoryUpdated={onSuccessStoryUpdated}
-            onSuccessStoryDeleted={onSuccessStoryDeleted}
-            onProductContextAdded={onProductContextAdded}
-            onProductContextUpdated={onProductContextUpdated}
-            onProductContextDeleted={onProductContextDeleted}
-            onIdeaContentTypeSelect={onIdeaContentTypeSelect}
-          />
+  // Auto-collapse sidebar when user starts doing meaningful actions
+  useEffect(() => {
+    const shouldCollapse = 
+      props.selectedContentType !== null ||
+      props.currentView === 'clients' ||
+      props.currentView === 'authors' ||
+      props.currentView === 'icp-scripts' ||
+      props.currentView === 'success-stories';
+
+    if (shouldCollapse && !sidebarCollapsed) {
+      setSidebarCollapsed(true);
+    }
+  }, [props.selectedContentType, props.currentView, sidebarCollapsed]);
+
+  if (props.dataLoading) {
+    return <LoadingState />;
+  }
+
+  return (
+    <SidebarProvider defaultOpen={!sidebarCollapsed}>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar
+          ideas={props.ideas}
+          selectedClientId={props.selectedClientId}
+          clients={props.clients}
+          onAssetTypeChange={props.onAssetTypeChange}
+          onClientSelected={props.onClientSelected}
+          onIdeasBankSelected={props.onIdeasBankSelected}
+          onHomeSelected={props.onHomeSelected}
+        />
+        
+        <main className="flex-1 flex flex-col">
+          <div className="border-b bg-white p-4 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <SidebarTrigger />
+              <h2 className="text-lg font-medium text-gray-900">
+                {props.currentView === 'home' && 'Content Creator'}
+                {props.currentView === 'ideas' && 'Ideas Bank'}
+                {props.currentView === 'clients' && 'Client Manager'}
+                {props.currentView === 'authors' && 'Author Manager'}
+                {props.currentView === 'icp-scripts' && 'ICP Scripts'}
+                {props.currentView === 'success-stories' && 'Success Stories'}
+              </h2>
+            </div>
+            
+            <div className="text-sm text-gray-500">
+              {props.user.email}
+            </div>
+          </div>
+          
+          <div className="flex-1 overflow-auto">
+            <MainContent {...props} />
+          </div>
         </main>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

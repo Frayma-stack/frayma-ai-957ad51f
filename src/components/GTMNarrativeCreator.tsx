@@ -1,3 +1,4 @@
+
 import { FC } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { ICPStoryScript, CustomerSuccessStory } from '@/types/storytelling';
@@ -11,7 +12,7 @@ import GTMStepRenderer from './gtm-narrative/GTMStepRenderer';
 import { useGTMNarrativeData } from './gtm-narrative/useGTMNarrativeData';
 import { useGTMNarrativeGeneration } from './gtm-narrative/useGTMNarrativeGeneration';
 import { useGTMNavigation } from './gtm-narrative/useGTMNavigation';
-import { useIdeaSummary } from '@/hooks/useIdeaSummary';
+import { useIdeaSummarization } from '@/hooks/useIdeaSummarization';
 
 interface GTMNarrativeCreatorProps {
   articleSubType: ArticleSubType;
@@ -32,7 +33,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
   selectedClientId,
   onBack
 }) => {
-  const { generateContentTrigger } = useIdeaSummary();
+  const { summarizeIdeaForContent } = useIdeaSummarization();
   
   const {
     formData,
@@ -42,16 +43,24 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
   } = useGTMNarrativeData();
 
   // Enhanced handler for when an idea is selected
-  const handleIdeaSelection = (ideaId: string) => {
+  const handleIdeaSelection = async (ideaId: string) => {
     const idea = ideas.find(i => i.id === ideaId);
     if (idea) {
-      const ideaTrigger = generateContentTrigger(idea);
-      handleInputChange('selectedIdeaId', idea.id);
-      handleInputChange('ideaTrigger', ideaTrigger);
-      
-      // Auto-populate other fields if the idea has them
-      if (idea.cta) {
-        handleInputChange('callToAction', idea.cta);
+      try {
+        const ideaTrigger = await summarizeIdeaForContent(idea);
+        handleInputChange('selectedIdeaId', idea.id);
+        handleInputChange('ideaTrigger', ideaTrigger);
+        
+        // Auto-populate other fields if the idea has them
+        if (idea.cta) {
+          handleInputChange('callToAction', idea.cta);
+        }
+      } catch (error) {
+        console.error('Error summarizing idea for GTM narrative:', error);
+        // Fallback to basic summary
+        const basicSummary = `Based on saved idea "${idea.title}": ${idea.narrative || 'Core concept to be expanded for content creation.'}`;
+        handleInputChange('selectedIdeaId', idea.id);
+        handleInputChange('ideaTrigger', basicSummary);
       }
     } else {
       handleInputChange('selectedIdeaId', '');

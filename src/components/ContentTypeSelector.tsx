@@ -1,30 +1,22 @@
 
-import { FC } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
+import { FC, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
   FileText, 
   Mail, 
-  MessageSquare, 
-  Settings, 
+  Linkedin, 
+  Edit3,
   Lightbulb,
-  Trophy
+  Sparkles
 } from "lucide-react";
 import { GeneratedIdea } from '@/types/ideas';
 import IdeaSelector from './IdeaSelector';
 
-export type ContentType = 'article' | 'email' | 'linkedin' | 'custom' | 'generate-ideas' | 'success-story';
-export type ArticleSubType = 'thought_leadership' | 'newsletter';
+export type ContentType = 'article' | 'email' | 'linkedin' | 'success-story' | 'custom';
 
 interface ContentTypeSelectorProps {
   onSelect: (type: ContentType) => void;
-  onSelectArticleSubtype?: (subtype: ArticleSubType) => void;
   ideas?: GeneratedIdea[];
   selectedClientId?: string | null;
   selectedIdeaId?: string | null;
@@ -33,124 +25,103 @@ interface ContentTypeSelectorProps {
 
 const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ 
   onSelect, 
-  onSelectArticleSubtype,
   ideas = [],
   selectedClientId,
   selectedIdeaId,
   onIdeaSelect
 }) => {
-  // Handler for selecting article type
-  const handleArticleSelection = () => {
-    onSelect('article');
+  const [localSelectedIdeaId, setLocalSelectedIdeaId] = useState<string | null>(selectedIdeaId || null);
+
+  const handleIdeaSelect = (ideaId: string | null) => {
+    setLocalSelectedIdeaId(ideaId);
+    onIdeaSelect?.(ideaId);
   };
 
+  const contentTypes = [
+    {
+      type: 'article' as ContentType,
+      title: 'GTM Narrative Piece',
+      description: 'Create compelling thought leadership content.\nBuild authority and drive engagement.\nTransform insights into market-moving narratives.',
+      icon: FileText,
+      color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
+      iconColor: 'text-blue-600'
+    },
+    {
+      type: 'email' as ContentType,
+      title: 'Sales Email',
+      description: 'Craft personalized outreach that converts.\nBreak through inbox noise.\nTurn prospects into conversations.',
+      icon: Mail,
+      color: 'bg-green-50 border-green-200 hover:bg-green-100',
+      iconColor: 'text-green-600'
+    },
+    {
+      type: 'linkedin' as ContentType,
+      title: 'LinkedIn Post',
+      description: 'Build your professional brand with impact.\nSpark meaningful discussions.\nAmplify your thought leadership.',
+      icon: Linkedin,
+      color: 'bg-purple-50 border-purple-200 hover:bg-purple-100',
+      iconColor: 'text-purple-600'
+    },
+    {
+      type: 'success-story' as ContentType,
+      title: 'Success Story',
+      description: 'Transform wins into compelling narratives.\nShowcase real customer value.\nBuild trust through authentic stories.',
+      icon: Sparkles,
+      color: 'bg-orange-50 border-orange-200 hover:bg-orange-100',
+      iconColor: 'text-orange-600'
+    },
+    {
+      type: 'custom' as ContentType,
+      title: 'Custom Content',
+      description: 'Create any content type you need.\nFlexible format for unique requirements.\nTailored to your specific goals.',
+      icon: Edit3,
+      color: 'bg-gray-50 border-gray-200 hover:bg-gray-100',
+      iconColor: 'text-gray-600'
+    }
+  ];
+
   return (
-    <div className="space-y-4">
-      {/* Idea Selector - only show if we have ideas and the callback function */}
-      {ideas.length > 0 && onIdeaSelect && (
+    <div className="space-y-6">
+      {/* Idea Selector - only show if we have ideas */}
+      {ideas.length > 0 && (
         <IdeaSelector
           ideas={ideas}
-          selectedIdeaId={selectedIdeaId || null}
-          onIdeaSelect={onIdeaSelect}
+          selectedIdeaId={localSelectedIdeaId}
+          onIdeaSelect={handleIdeaSelect}
           selectedClientId={selectedClientId}
         />
       )}
 
-      <Card className="w-full bg-white shadow-md border border-gray-100">
-        <CardHeader>
-          <CardTitle className="text-brand-primary font-sora text-2xl">What would you like to create?</CardTitle>
-          <CardDescription className="opacity-60">
-            {selectedIdeaId ? 'Creating content based on your selected idea' : 'Select a content type to begin crafting your message'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Button 
-              variant="outline" 
-              className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-brand-primary transition-all card-hover"
-              onClick={handleArticleSelection}
-            >
-              <FileText className="h-8 w-8 text-brand-primary" />
-              <span className="text-lg font-medium font-sora">GTM Narrative Piece</span>
-              <span className="text-sm text-gray-500 text-center opacity-70">
-                Create a full, structured<br/>
-                article with high resonance<br/>
-                and deep structure
-              </span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-brand-primary transition-all card-hover"
-              onClick={() => onSelect('success-story')}
-            >
-              <Trophy className="h-8 w-8 text-brand-primary" />
-              <span className="text-lg font-medium font-sora">Success Story</span>
-              <span className="text-sm text-gray-500 text-center opacity-70">
-                Auto-craft compelling<br/>
-                customer success stories<br/>
-                with structured narrative
-              </span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-brand-primary transition-all card-hover"
-              onClick={() => onSelect('email')}
-            >
-              <Mail className="h-8 w-8 text-brand-primary" />
-              <span className="text-lg font-medium font-sora">Sales Email</span>
-              <span className="text-sm text-gray-500 text-center opacity-70">
-                Craft a compelling sales<br/>
-                email using simplified<br/>
-                workflow
-              </span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-brand-primary transition-all card-hover"
-              onClick={() => onSelect('linkedin')}
-            >
-              <MessageSquare className="h-8 w-8 text-brand-primary" />
-              <span className="text-lg font-medium font-sora">LinkedIn Post</span>
-              <span className="text-sm text-gray-500 text-center opacity-70">
-                Create engaging social<br/>
-                media content for<br/>
-                professional audiences
-              </span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-brand-primary transition-all card-hover"
-              onClick={() => onSelect('custom')}
-            >
-              <Settings className="h-8 w-8 text-brand-primary" />
-              <span className="text-lg font-medium font-sora">Custom</span>
-              <span className="text-sm text-gray-500 text-center opacity-70">
-                Create a custom GTM<br/>
-                narrative piece in your<br/>
-                unique voice
-              </span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="h-auto p-6 flex flex-col items-center gap-2 hover:bg-slate-50 hover:border-brand-primary transition-all card-hover"
-              onClick={() => onSelect('generate-ideas')}
-            >
-              <Lightbulb className="h-8 w-8 text-brand-primary" />
-              <span className="text-lg font-medium font-sora">Mint New Narrative Ideas</span>
-              <span className="text-sm text-gray-500 text-center opacity-70">
-                Generate resonant,<br/>
-                compelling GTM<br/>
-                narrative ideas
-              </span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {contentTypes.map((content) => (
+          <Card 
+            key={content.type} 
+            className={`cursor-pointer transition-all duration-200 ${content.color} hover:shadow-md border-2`}
+            onClick={() => onSelect(content.type)}
+          >
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center space-x-3 text-lg">
+                <content.icon className={`h-6 w-6 ${content.iconColor}`} />
+                <span className="text-gray-800">{content.title}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+                {content.description}
+              </p>
+              <Button 
+                className="w-full mt-4 bg-story-blue hover:bg-story-light-blue text-white"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelect(content.type);
+                }}
+              >
+                Create {content.title}
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };
