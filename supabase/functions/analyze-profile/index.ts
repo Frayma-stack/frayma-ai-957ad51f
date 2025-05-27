@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { systemPrompt, userPrompt, urls } = await req.json();
+    const { systemPrompt, userPrompt } = await req.json();
     
     const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
     
@@ -29,12 +29,14 @@ serve(async (req) => {
       );
     }
 
-    console.log('Starting content scraping and analysis process...');
+    console.log('Starting author profile analysis with pre-fetched content...');
     
-    // First, scrape the content from the URLs
+    // Extract URLs from the user prompt to scrape content
+    const urlMatches = userPrompt.match(/https?:\/\/[^\s]+/g) || [];
     let scrapedData;
-    if (urls && urls.length > 0) {
-      console.log('Scraping content from URLs:', urls);
+    
+    if (urlMatches.length > 0) {
+      console.log('Scraping content from URLs:', urlMatches);
       
       try {
         const scrapeResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/scrape-content`, {
@@ -43,7 +45,7 @@ serve(async (req) => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
           },
-          body: JSON.stringify({ urls })
+          body: JSON.stringify({ urls: urlMatches })
         });
         
         if (!scrapeResponse.ok) {
@@ -81,7 +83,7 @@ serve(async (req) => {
         .join('\n');
       
       if (contentSections) {
-        enhancedUserPrompt = `${userPrompt}\n\nBELOW IS THE ACTUAL CONTENT FROM THE PROVIDED WEBSITES. Please analyze this real content instead of searching online:\n\n${contentSections}`;
+        enhancedUserPrompt = `${userPrompt}\n\nBELOW IS THE ACTUAL CONTENT FROM THE PROVIDED WEBSITES. Please analyze this real content to extract the author information:\n\n${contentSections}`;
       } else {
         // If no content was successfully scraped, return an error
         const errors = scrapedData.scrapedContent
@@ -106,9 +108,9 @@ serve(async (req) => {
     console.log('Making request to Perplexity API with scraped content...');
     console.log('Enhanced user prompt length:', enhancedUserPrompt?.length || 0);
     
-    // Use a model that doesn't do online search since we're providing the content
+    // Use a model that analyzes provided content
     const requestBody = {
-      model: 'llama-3.1-sonar-small-128k-online', // Keep online model but provide explicit content
+      model: 'llama-3.1-sonar-small-128k-online',
       messages: [
         {
           role: 'system',
@@ -126,7 +128,7 @@ serve(async (req) => {
       return_related_questions: false,
       search_recency_filter: 'month',
       search_domain_filter: [],
-      return_citations: false, // Disable citations since we're providing content directly
+      return_citations: false,
       frequency_penalty: 1,
       presence_penalty: 0
     };
@@ -138,7 +140,7 @@ serve(async (req) => {
       headers: {
         'Authorization': `Bearer ${perplexityApiKey}`,
         'Content-Type': 'application/json',
-        'User-Agent': 'Frayma-Client-Analysis/1.0'
+        'User-Agent': 'Frayma-Author-Analysis/1.0'
       },
       body: JSON.stringify(requestBody),
     });
