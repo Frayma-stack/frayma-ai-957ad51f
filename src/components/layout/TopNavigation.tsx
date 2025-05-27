@@ -31,7 +31,7 @@ const TopNavigation: FC<TopNavigationProps> = ({
   };
 
   const getTitle = () => {
-    if (currentView === 'home') return 'Dashboard';
+    if (currentView === 'home') return 'Your Dashboard';
     if (currentView === 'ideas') return 'Ideas Bank';
     return selectedAssetType.charAt(0).toUpperCase() + selectedAssetType.slice(1);
   };

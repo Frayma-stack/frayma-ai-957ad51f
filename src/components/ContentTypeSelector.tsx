@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -98,10 +97,11 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Choose Content Type
+          What Would You Auto-Craft?
         </h2>
-        <p className="text-gray-600">
-          Select the type of content you'd like to create
+        <p className="text-gray-500 max-w-2xl mx-auto leading-relaxed">
+          Select from below to start auto-crafting GTM assets<br />
+          with narratives that win you buyers.
         </p>
       </div>
 
