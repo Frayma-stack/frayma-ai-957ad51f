@@ -29,7 +29,23 @@ export const useClientAnalysis = () => {
         return;
       }
       
-      const { systemPrompt, userPrompt } = buildClientAnalysisPrompt(companyLinks, companyName);
+      // Validate URLs before sending
+      const validLinks = companyLinks.filter(link => {
+        const url = link.url.trim();
+        return url && (url.startsWith('http://') || url.startsWith('https://'));
+      });
+      
+      if (validLinks.length === 0) {
+        toast({
+          title: "Invalid URLs",
+          description: "Please provide valid HTTP/HTTPS URLs for analysis.",
+          variant: "destructive"
+        });
+        setIsAnalyzing(false);
+        return;
+      }
+      
+      const { systemPrompt, userPrompt } = buildClientAnalysisPrompt(validLinks, companyName);
       console.log('Sending analysis request to Perplexity API...');
       
       const { data, error } = await supabase.functions.invoke('analyze-profile', {
@@ -49,7 +65,8 @@ export const useClientAnalysis = () => {
       }
       
       if (data.error) {
-        throw new Error(data.error);
+        console.error('Analysis service error:', data.error, data.details);
+        throw new Error(data.error + (data.suggestion ? ` ${data.suggestion}` : ''));
       }
       
       console.log('Analysis service response:', data);
@@ -80,23 +97,23 @@ export const useClientAnalysis = () => {
           title: "Analysis Failed",
           description: parseError.message,
           variant: "destructive",
-          duration: 8000
+          duration: 10000
         });
         return;
       }
       
-      // Transform parsed data into ProductContext
+      // Transform parsed data into ProductContext with enhanced mapping
       const features: ProductFeature[] = (parsedData.features || []).map((feature: any) => ({
         id: crypto.randomUUID(),
         name: feature.name || '',
-        benefits: Array.isArray(feature.benefits) ? feature.benefits : [feature.benefits || ''].filter(Boolean),
+        benefits: Array.isArray(feature.benefits) ? feature.benefits.filter(Boolean) : [],
         media: []
       }));
       
       const useCases: ProductUseCase[] = (parsedData.useCases || []).map((useCase: any) => ({
         id: crypto.randomUUID(),
-        useCase: useCase.useCase || '',
-        userRole: useCase.userRole || '',
+        useCase: useCase.useCase || useCase.userRole || '',
+        userRole: useCase.userRole || useCase.useCase || '',
         description: useCase.description || '',
         media: []
       }));
@@ -116,7 +133,7 @@ export const useClientAnalysis = () => {
         categoryPOV: parsedData.categoryPOV || '',
         companyMission: parsedData.companyMission || '',
         uniqueInsight: parsedData.uniqueInsight || '',
-        companyLinks: companyLinks
+        companyLinks: validLinks
       };
       
       console.log('Generated product context from analysis:', productContext);
@@ -124,18 +141,20 @@ export const useClientAnalysis = () => {
       // Call the callback with the generated product context
       onAnalysisComplete(productContext);
       
-      // Show success message
+      // Show enhanced success message
       const extractedItems = [];
       if (parsedData.companySummary) extractedItems.push('company overview');
       if (features.length > 0) extractedItems.push(`${features.length} features`);
       if (useCases.length > 0) extractedItems.push(`${useCases.length} use cases`);
       if (differentiators.length > 0) extractedItems.push(`${differentiators.length} differentiators`);
+      if (parsedData.sources && parsedData.sources.length > 0) extractedItems.push(`analysis from ${parsedData.sources.length} sources`);
       
       toast({
         title: "Analysis Complete!",
         description: extractedItems.length > 0 
           ? `Successfully extracted ${extractedItems.join(', ')} from the company websites.`
           : "Analysis completed. Product context has been populated with available information.",
+        duration: 5000
       });
       
     } catch (error) {
@@ -143,20 +162,31 @@ export const useClientAnalysis = () => {
       
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred while analyzing the client.';
       
-      // Provide more helpful error messages
+      // Enhanced error messages based on Perplexity's suggestions
       let displayMessage = errorMessage;
+      let duration = 8000;
+      
       if (errorMessage.includes('Rate limit')) {
         displayMessage = 'Analysis service is temporarily overloaded. Please try again in a few minutes.';
+        duration = 10000;
       } else if (errorMessage.includes('Authentication failed')) {
-        displayMessage = 'There was an authentication issue with the analysis service. Please try again.';
-      } else if (errorMessage.includes('Network')) {
-        displayMessage = 'Network connection issue. Please check your connection and try again.';
+        displayMessage = 'There was an authentication issue with the analysis service. Please contact support.';
+      } else if (errorMessage.includes('Network') || errorMessage.includes('connection')) {
+        displayMessage = 'Network connection issue. Please check your internet connection and verify the URLs are accessible, then try again.';
+        duration = 10000;
+      } else if (errorMessage.includes('cannot access') || errorMessage.includes('firewall') || errorMessage.includes('restricted')) {
+        displayMessage = 'The analysis service cannot access the provided URLs. This may be due to network restrictions, authentication requirements, or the URLs being behind a firewall. Please verify the URLs are publicly accessible.';
+        duration = 12000;
+      } else if (errorMessage.includes('timeout')) {
+        displayMessage = 'The analysis request timed out. Please try again with fewer URLs or verify the URLs are responding quickly.';
+        duration = 10000;
       }
       
       toast({
         title: "Analysis Failed",
         description: displayMessage,
-        variant: "destructive"
+        variant: "destructive",
+        duration: duration
       });
     } finally {
       setIsAnalyzing(false);
