@@ -72,16 +72,6 @@ const IdeasBank = ({
           </TabsTrigger>
         </TabsList>
         
-        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 bg-story-sand/30 rounded-md text-sm text-gray-600">
-            <p className="text-center">
-              {activeTab === 'saved' ? 
-                'Turn one of your saved ideas into a resonant GTM narrative piece or post' : 
-                'Generate new content ideas for your marketing campaigns'}
-            </p>
-          </div>
-        </div>
-        
         <TabsContent value="saved" className="mt-6">
           <SavedIdeas 
             ideas={filteredIdeas} 
