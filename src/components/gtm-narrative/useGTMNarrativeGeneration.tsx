@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { useChatGPT } from '@/contexts/ChatGPTContext';
 import { ICPStoryScript, CustomerSuccessStory } from '@/types/storytelling';
-import { FormData, HeadlineOption, OutlineSection } from './useGTMNarrativeData';
+import { FormData, HeadlineOption, OutlineSection, NarrativeAnchor } from './useGTMNarrativeData';
 import { usePromptConfig } from './usePromptConfig';
 
 interface UseGTMNarrativeGenerationProps {
@@ -150,9 +150,9 @@ export const useGTMNarrativeGeneration = ({
       
       const outlineSections: OutlineSection[] = outlineData.sections.map((section: any, index: number) => ({
         id: `section_${index}`,
-        type: section.type,
+        type: section.type || 'H2' as 'H2' | 'H3' | 'H4',
         title: section.title,
-        phase: section.phase,
+        phase: section.phase || 'attract' as 'attract' | 'filter' | 'engage' | 'results',
         context: '',
         linkedAssetType: undefined,
         linkedAssetId: undefined

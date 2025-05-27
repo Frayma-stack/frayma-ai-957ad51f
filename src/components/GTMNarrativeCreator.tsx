@@ -12,6 +12,7 @@ import GTMStepRenderer from './gtm-narrative/GTMStepRenderer';
 import { useGTMNarrativeData } from './gtm-narrative/useGTMNarrativeData';
 import { useGTMNarrativeGeneration } from './gtm-narrative/useGTMNarrativeGeneration';
 import { useGTMNavigation } from './gtm-narrative/useGTMNavigation';
+import { useIdeaSummary } from '@/hooks/useIdeaSummary';
 
 interface GTMNarrativeCreatorProps {
   articleSubType: ArticleSubType;
@@ -32,12 +33,31 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
   selectedClientId,
   onBack
 }) => {
+  const { generateContentTrigger } = useIdeaSummary();
+  
   const {
     formData,
     handleInputChange,
     canProceedFromStep1,
     canProceedFromStep2
   } = useGTMNarrativeData();
+
+  // Enhanced handler for when an idea is selected
+  const handleIdeaSelection = (idea: GeneratedIdea | null) => {
+    if (idea) {
+      const ideaTrigger = generateContentTrigger(idea);
+      handleInputChange('selectedIdeaId', idea.id);
+      handleInputChange('ideaTrigger', ideaTrigger);
+      
+      // Auto-populate other fields if the idea has them
+      if (idea.cta) {
+        handleInputChange('callToAction', idea.cta);
+      }
+    } else {
+      handleInputChange('selectedIdeaId', '');
+      handleInputChange('ideaTrigger', '');
+    }
+  };
 
   const {
     isGenerating,
@@ -67,7 +87,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     generatePhaseContent
   });
 
-  const canProceedFromCurrentStep = () => {
+  const canProceedFromCurrentStep = (): boolean => {
     if (currentStep === 1) {
       return canProceedFromStep1();
     }
@@ -92,7 +112,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
         <IdeaSelector
           ideas={ideas}
           selectedIdeaId={selectedIdeaId || null}
-          onIdeaSelect={() => {}} // Read-only in this context since it's passed from parent
+          onIdeaSelect={handleIdeaSelection}
           selectedClientId={selectedClientId}
         />
       )}
