@@ -6,7 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { ICPStoryScript, ICPStoryScriptItem } from '@/types/storytelling';
-import { Plus, Trash } from 'lucide-react';
+import ICPFormSection from './icp-scripts/ICPFormSection';
+import ICPItemInputs from './icp-scripts/ICPItemInputs';
 
 interface ICPStoryScriptFormProps {
   onSave: (script: ICPStoryScript) => void;
@@ -34,7 +35,7 @@ const ICPStoryScriptForm: FC<ICPStoryScriptFormProps> = ({
       internalPains: [createEmptyItem()],
       externalStruggles: [createEmptyItem()],
       desiredTransformations: [createEmptyItem()],
-      clientId: selectedClientId // Associate with the selected client
+      clientId: selectedClientId
     }
   );
 
@@ -69,7 +70,6 @@ const ICPStoryScriptForm: FC<ICPStoryScriptFormProps> = ({
     category: 'coreBeliefs' | 'internalPains' | 'externalStruggles' | 'desiredTransformations',
     id: string
   ) => {
-    // Don't remove if it's the only item
     if (script[category].length <= 1) return;
     
     setScript(prev => ({
@@ -79,7 +79,6 @@ const ICPStoryScriptForm: FC<ICPStoryScriptFormProps> = ({
   };
 
   const handleSubmit = () => {
-    // Basic validation
     if (!script.name.trim()) {
       toast({
         title: "Missing information",
@@ -89,17 +88,16 @@ const ICPStoryScriptForm: FC<ICPStoryScriptFormProps> = ({
       return;
     }
 
-    // Clean up empty items
     const cleanedScript = {
       ...script,
-      clientId: selectedClientId || script.clientId, // Ensure clientId is set
+      clientId: selectedClientId || script.clientId,
       coreBeliefs: script.coreBeliefs.filter(item => item.content.trim() !== ''),
       internalPains: script.internalPains.filter(item => item.content.trim() !== ''),
       externalStruggles: script.externalStruggles.filter(item => item.content.trim() !== ''),
       desiredTransformations: script.desiredTransformations.filter(item => item.content.trim() !== '')
     };
 
-    // Ensure each category has at least one item (even if empty)
+    // Ensure each category has at least one item
     if (cleanedScript.coreBeliefs.length === 0) cleanedScript.coreBeliefs = [createEmptyItem()];
     if (cleanedScript.internalPains.length === 0) cleanedScript.internalPains = [createEmptyItem()];
     if (cleanedScript.externalStruggles.length === 0) cleanedScript.externalStruggles = [createEmptyItem()];
@@ -112,51 +110,6 @@ const ICPStoryScriptForm: FC<ICPStoryScriptFormProps> = ({
     });
   };
 
-  const renderItemInputs = (
-    category: 'coreBeliefs' | 'internalPains' | 'externalStruggles' | 'desiredTransformations',
-    title: string,
-    placeholder: string
-  ) => {
-    return (
-      <div className="space-y-2">
-        <div className="flex justify-between items-center">
-          <label className="text-sm font-medium">{title}</label>
-          <Button 
-            type="button"
-            variant="ghost" 
-            size="sm" 
-            onClick={() => addItem(category)}
-          >
-            <Plus className="h-4 w-4 mr-1" /> Add
-          </Button>
-        </div>
-        
-        {script[category].map((item, index) => (
-          <div key={item.id} className="flex gap-2 items-start">
-            <Textarea 
-              placeholder={`${placeholder} #${index + 1}`}
-              value={item.content}
-              onChange={(e) => handleItemChange(category, item.id, e.target.value)}
-              rows={2}
-              className="flex-1"
-            />
-            {script[category].length > 1 && (
-              <Button 
-                type="button"
-                variant="ghost" 
-                size="icon"
-                onClick={() => removeItem(category, item.id)}
-                className="mt-1"
-              >
-                <Trash className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  };
-
   return (
     <Card className="w-full bg-white shadow-md">
       <CardHeader>
@@ -164,9 +117,7 @@ const ICPStoryScriptForm: FC<ICPStoryScriptFormProps> = ({
         <CardDescription>Define WHO you're writing for, WHAT they're battling with, and WHY they'd choose your product</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* WHO section */}
-        <div className="space-y-4">
-          <h3 className="font-medium text-story-blue">WHO</h3>
+        <ICPFormSection title="WHO">
           <div className="space-y-2">
             <label className="text-sm font-medium">ICP Name/Role*</label>
             <Input 
@@ -185,21 +136,45 @@ const ICPStoryScriptForm: FC<ICPStoryScriptFormProps> = ({
             />
           </div>
           
-          {renderItemInputs('coreBeliefs', 'Core Beliefs', 'What belief do they hold?')}
-        </div>
+          <ICPItemInputs
+            items={script.coreBeliefs}
+            title="Core Beliefs"
+            placeholder="What belief do they hold?"
+            onItemChange={(id, content) => handleItemChange('coreBeliefs', id, content)}
+            onAddItem={() => addItem('coreBeliefs')}
+            onRemoveItem={(id) => removeItem('coreBeliefs', id)}
+          />
+        </ICPFormSection>
 
-        {/* WHAT section */}
-        <div className="space-y-4">
-          <h3 className="font-medium text-story-blue">WHAT</h3>
-          {renderItemInputs('internalPains', 'Internal Pains', 'What internal pain are they experiencing?')}
-          {renderItemInputs('externalStruggles', 'External Struggles', 'What external struggle are they facing?')}
-        </div>
+        <ICPFormSection title="WHAT">
+          <ICPItemInputs
+            items={script.internalPains}
+            title="Internal Pains"
+            placeholder="What internal pain are they experiencing?"
+            onItemChange={(id, content) => handleItemChange('internalPains', id, content)}
+            onAddItem={() => addItem('internalPains')}
+            onRemoveItem={(id) => removeItem('internalPains', id)}
+          />
+          <ICPItemInputs
+            items={script.externalStruggles}
+            title="External Struggles"
+            placeholder="What external struggle are they facing?"
+            onItemChange={(id, content) => handleItemChange('externalStruggles', id, content)}
+            onAddItem={() => addItem('externalStruggles')}
+            onRemoveItem={(id) => removeItem('externalStruggles', id)}
+          />
+        </ICPFormSection>
 
-        {/* WHY section */}
-        <div className="space-y-4">
-          <h3 className="font-medium text-story-blue">WHY</h3>
-          {renderItemInputs('desiredTransformations', 'Desired Transformations', 'What transformation are they seeking?')}
-        </div>
+        <ICPFormSection title="WHY">
+          <ICPItemInputs
+            items={script.desiredTransformations}
+            title="Desired Transformations"
+            placeholder="What transformation are they seeking?"
+            onItemChange={(id, content) => handleItemChange('desiredTransformations', id, content)}
+            onAddItem={() => addItem('desiredTransformations')}
+            onRemoveItem={(id) => removeItem('desiredTransformations', id)}
+          />
+        </ICPFormSection>
 
         <Button 
           className="w-full bg-story-blue hover:bg-story-light-blue mt-4"

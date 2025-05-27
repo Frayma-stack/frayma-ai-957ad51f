@@ -1,12 +1,12 @@
 
 import { FC, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, FileText, Pencil, Trash, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { ICPStoryScript, Client } from '@/types/storytelling';
-import ICPStoryScriptForm from './ICPStoryScriptForm';
 import { useToast } from '@/components/ui/use-toast';
+import ICPScriptCard from './icp-scripts/ICPScriptCard';
+import ICPScriptEmptyState from './icp-scripts/ICPScriptEmptyState';
+import ICPScriptDialogs from './icp-scripts/ICPScriptDialogs';
 
 interface ICPStoryScriptManagerProps {
   scripts: ICPStoryScript[];
@@ -28,7 +28,6 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedScript, setSelectedScript] = useState<ICPStoryScript | null>(null);
 
-  // Get current client info if we're in a client-specific view
   const getClientInfo = () => {
     if (selectedClientId) {
       const savedClients = localStorage.getItem('clients');
@@ -43,7 +42,6 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
   const clientInfo = getClientInfo();
 
   const handleAddScript = (script: ICPStoryScript) => {
-    // Ensure the script is associated with the selected client
     const scriptWithClient = {
       ...script,
       clientId: selectedClientId
@@ -57,7 +55,6 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
   };
 
   const handleEditScript = (script: ICPStoryScript) => {
-    // Ensure the script maintains its client association
     const scriptWithClient = {
       ...script,
       clientId: script.clientId || selectedClientId
@@ -86,15 +83,6 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
     setIsEditDialogOpen(true);
   };
 
-  // Helper function to join array of items into a string
-  const formatItemsList = (items: { id: string; content: string }[]): string => {
-    return items
-      .filter(item => item.content.trim() !== '')
-      .map(item => item.content)
-      .join(', ');
-  };
-
-  // Don't show the component if no client is selected
   if (!selectedClientId) {
     return (
       <Card className="w-full bg-white shadow-md">
@@ -124,112 +112,33 @@ const ICPStoryScriptManager: FC<ICPStoryScriptManagerProps> = ({
             )}
           </CardDescription>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-story-blue hover:bg-story-light-blue">
-              <Plus className="h-4 w-4 mr-2" /> Add New ICP
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Create a new ICP StoryScript</DialogTitle>
-              <DialogDescription>
-                Define who you're writing for, their pains, struggles, and desired transformations.
-                {clientInfo && (
-                  <span className="block mt-1 text-story-blue font-medium">
-                    Creating for: {clientInfo.name}
-                  </span>
-                )}
-              </DialogDescription>
-            </DialogHeader>
-            <ICPStoryScriptForm 
-              onSave={handleAddScript} 
-              selectedClientId={selectedClientId}
-            />
-          </DialogContent>
-        </Dialog>
+        <ICPScriptDialogs
+          isAddDialogOpen={isAddDialogOpen}
+          isEditDialogOpen={isEditDialogOpen}
+          selectedScript={selectedScript}
+          clientInfo={clientInfo}
+          selectedClientId={selectedClientId}
+          onAddDialogChange={setIsAddDialogOpen}
+          onEditDialogChange={setIsEditDialogOpen}
+          onAddScript={handleAddScript}
+          onEditScript={handleEditScript}
+        />
       </CardHeader>
       <CardContent>
         {scripts.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <FileText className="mx-auto h-12 w-12 opacity-30 mb-2" />
-            <p>No ICP StoryScripts yet</p>
-            <p className="text-sm mt-1">
-              {clientInfo 
-                ? `Create your first ICP StoryScript for ${clientInfo.name}` 
-                : 'Create your first ICP StoryScript to get started'}
-            </p>
-          </div>
+          <ICPScriptEmptyState clientInfo={clientInfo} />
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {scripts.map((script) => (
-              <Card key={script.id} className="overflow-hidden">
-                <CardHeader className="bg-gray-50 p-4">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-lg">{script.name}</CardTitle>
-                    <div className="flex gap-1">
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => openEditDialog(script)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => handleDeleteScript(script)}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="space-y-2 text-sm">
-                    {script.internalPains && script.internalPains.length > 0 && (
-                      <div>
-                        <span className="font-semibold">Internal Pains:</span>
-                        <p className="text-gray-700 line-clamp-2">{formatItemsList(script.internalPains)}</p>
-                      </div>
-                    )}
-                    {script.externalStruggles && script.externalStruggles.length > 0 && (
-                      <div>
-                        <span className="font-semibold">External Struggles:</span>
-                        <p className="text-gray-700 line-clamp-2">{formatItemsList(script.externalStruggles)}</p>
-                      </div>
-                    )}
-                    {script.desiredTransformations && script.desiredTransformations.length > 0 && (
-                      <div>
-                        <span className="font-semibold">Desired Transformations:</span>
-                        <p className="text-gray-700 line-clamp-2">{formatItemsList(script.desiredTransformations)}</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              <ICPScriptCard
+                key={script.id}
+                script={script}
+                onEdit={openEditDialog}
+                onDelete={handleDeleteScript}
+              />
             ))}
           </div>
         )}
-        
-        {/* Edit Dialog */}
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Edit ICP StoryScript</DialogTitle>
-              <DialogDescription>
-                Update the details for this ICP StoryScript.
-              </DialogDescription>
-            </DialogHeader>
-            {selectedScript && (
-              <ICPStoryScriptForm 
-                onSave={handleEditScript} 
-                initialScript={selectedScript}
-                selectedClientId={selectedClientId}
-              />
-            )}
-          </DialogContent>
-        </Dialog>
       </CardContent>
     </Card>
   );
