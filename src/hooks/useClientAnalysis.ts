@@ -30,13 +30,12 @@ export const useClientAnalysis = () => {
       }
       
       const { systemPrompt, userPrompt } = buildClientAnalysisPrompt(companyLinks, companyName);
-      console.log('Sending prompts to analysis service:', { systemPrompt, userPrompt });
+      console.log('Sending analysis request to Perplexity API...');
       
       const { data, error } = await supabase.functions.invoke('analyze-profile', {
         body: { 
           systemPrompt, 
-          userPrompt,
-          model: 'llama-3.1-sonar-large-128k-online'
+          userPrompt
         }
       });
       
@@ -55,7 +54,7 @@ export const useClientAnalysis = () => {
       
       console.log('Analysis service response:', data);
       
-      // Handle both direct content and Perplexity API response format
+      // Extract content from Perplexity API response
       let content = '';
       if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
         content = data.choices[0].message.content;
@@ -70,57 +69,27 @@ export const useClientAnalysis = () => {
       
       console.log('Raw content from analysis service:', content);
       
+      // Parse the analysis content
       let parsedData;
       try {
         parsedData = parseClientAnalysisContent(content);
-        console.log('Parsed data:', parsedData);
+        console.log('Successfully parsed analysis data:', parsedData);
       } catch (parseError) {
         console.error('Analysis parsing error:', parseError);
-        
-        // Enhanced error handling with more specific guidance
-        const errorMessage = parseError.message;
-        
-        if (errorMessage.includes('Website analysis failed') || 
-            errorMessage.includes('cannot access external websites') ||
-            errorMessage.includes('authentication') ||
-            errorMessage.includes('not publicly available')) {
-          
-          // Show a more helpful toast with suggestions
-          toast({
-            title: "Website Access Restricted",
-            description: "The AI couldn't access some URLs due to access restrictions. Try public URLs or enter information manually.",
-            variant: "destructive",
-            duration: 8000
-          });
-          
-          // Log the detailed error for the user's reference
-          console.warn('Detailed access error:', errorMessage);
-          
-        } else {
-          toast({
-            title: "Analysis Response Error", 
-            description: "The analysis service returned invalid data. Please try again or enter the information manually.",
-            variant: "destructive"
-          });
-        }
-        return;
-      }
-      
-      // Validate that we have meaningful data
-      if (!parsedData.companySummary && !parsedData.features?.length && !parsedData.useCases?.length) {
         toast({
-          title: "Analysis Incomplete",
-          description: "The analysis service couldn't extract meaningful information from the provided URLs. Please verify the URLs are accessible and try again, or enter the information manually.",
-          variant: "destructive"
+          title: "Analysis Failed",
+          description: parseError.message,
+          variant: "destructive",
+          duration: 8000
         });
         return;
       }
       
-      // Transform parsed data into ProductContext with proper structure
+      // Transform parsed data into ProductContext
       const features: ProductFeature[] = (parsedData.features || []).map((feature: any) => ({
         id: crypto.randomUUID(),
         name: feature.name || '',
-        benefits: Array.isArray(feature.benefits) ? feature.benefits : [],
+        benefits: Array.isArray(feature.benefits) ? feature.benefits : [feature.benefits || ''].filter(Boolean),
         media: []
       }));
       
@@ -155,16 +124,18 @@ export const useClientAnalysis = () => {
       // Call the callback with the generated product context
       onAnalysisComplete(productContext);
       
+      // Show success message
       const extractedItems = [];
+      if (parsedData.companySummary) extractedItems.push('company overview');
       if (features.length > 0) extractedItems.push(`${features.length} features`);
       if (useCases.length > 0) extractedItems.push(`${useCases.length} use cases`);
       if (differentiators.length > 0) extractedItems.push(`${differentiators.length} differentiators`);
       
       toast({
-        title: "Client analysis complete",
+        title: "Analysis Complete!",
         description: extractedItems.length > 0 
-          ? `Successfully extracted ${extractedItems.join(', ')}.`
-          : "Analysis completed. Please review and add more details as needed.",
+          ? `Successfully extracted ${extractedItems.join(', ')} from the company websites.`
+          : "Analysis completed. Product context has been populated with available information.",
       });
       
     } catch (error) {
@@ -172,7 +143,7 @@ export const useClientAnalysis = () => {
       
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred while analyzing the client.';
       
-      // Provide more helpful error messages based on the type of error
+      // Provide more helpful error messages
       let displayMessage = errorMessage;
       if (errorMessage.includes('Rate limit')) {
         displayMessage = 'Analysis service is temporarily overloaded. Please try again in a few minutes.';

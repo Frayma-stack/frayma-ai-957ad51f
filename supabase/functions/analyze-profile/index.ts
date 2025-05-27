@@ -32,6 +32,7 @@ serve(async (req) => {
     console.log('System prompt:', systemPrompt);
     console.log('User prompt:', userPrompt);
     
+    // Use optimized parameters for web browsing and analysis
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
       headers: {
@@ -50,14 +51,15 @@ serve(async (req) => {
             content: userPrompt
           }
         ],
-        temperature: 0.2,
+        temperature: 0.1,
         max_tokens: 4000,
+        top_p: 0.9,
         return_images: false,
         return_related_questions: false,
         search_recency_filter: 'month',
         search_domain_filter: [],
         return_citations: true,
-        frequency_penalty: 0,
+        frequency_penalty: 1,
         presence_penalty: 0
       }),
     });
