@@ -17,6 +17,7 @@ interface GTMStepRendererProps {
   scripts: ICPStoryScript[];
   successStories: CustomerSuccessStory[];
   ideas: GeneratedIdea[];
+  selectedIdea?: GeneratedIdea | null;
   articleSubType: ArticleSubType;
   isGenerating: boolean;
   onDataChange: (field: keyof FormData, value: any) => void;
@@ -32,6 +33,7 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
   scripts,
   successStories,
   ideas,
+  selectedIdea,
   articleSubType,
   isGenerating,
   onDataChange,
@@ -75,6 +77,7 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
         onBack={onBackToOutline}
         isGenerating={isGenerating}
         canContinue={Boolean(config.content)}
+        selectedIdea={selectedIdea}
       />
     );
   }
@@ -84,17 +87,18 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
       return (
         <StrategicAlignmentStep
           data={{
-            ideaTrigger: formData.ideaTrigger,
+            ideaTrigger: selectedIdea ? `${selectedIdea.title}: ${selectedIdea.narrative}` : formData.ideaTrigger,
             selectedIdeaId: formData.selectedIdeaId,
             mutualGoal: formData.mutualGoal,
             targetKeyword: formData.targetKeyword,
             contentCluster: formData.contentCluster,
             publishReason: formData.publishReason,
-            callToAction: formData.callToAction,
+            callToAction: selectedIdea?.cta || formData.callToAction,
             strategicSuccessStory: formData.strategicSuccessStory
           }}
           successStories={successStories}
           ideas={ideas}
+          selectedIdea={selectedIdea}
           onDataChange={onDataChange}
         />
       );

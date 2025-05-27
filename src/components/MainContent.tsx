@@ -111,6 +111,7 @@ const MainContent: FC<MainContentProps> = ({
         filteredAuthors={getFilteredAuthors()}
         currentProductContext={getCurrentProductContext()}
         ideas={ideas}
+        selectedClientId={selectedClientId}
         onContentTypeSelect={onContentTypeSelect}
         onArticleSubtypeSelect={onArticleSubtypeSelect}
         onBack={onBack}

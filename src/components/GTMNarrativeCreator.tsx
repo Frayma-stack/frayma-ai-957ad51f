@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ICPStoryScript, CustomerSuccessStory } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { ArticleSubType } from './ContentTypeSelector';
+import IdeaSelector from './IdeaSelector';
 import ProgressIndicator from './gtm-narrative/ProgressIndicator';
 import GTMNarrativeHeader from './gtm-narrative/GTMNarrativeHeader';
 import GTMNarrativeNavigation from './gtm-narrative/GTMNarrativeNavigation';
@@ -17,6 +18,8 @@ interface GTMNarrativeCreatorProps {
   scripts: ICPStoryScript[];
   successStories: CustomerSuccessStory[];
   ideas: GeneratedIdea[];
+  selectedIdeaId?: string | null;
+  selectedClientId?: string | null;
   onBack: () => void;
 }
 
@@ -25,6 +28,8 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
   scripts,
   successStories,
   ideas,
+  selectedIdeaId,
+  selectedClientId,
   onBack
 }) => {
   const {
@@ -72,45 +77,66 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     return true;
   };
 
-  return (
-    <Card className="w-full bg-white shadow-sm border-gray-200">
-      <GTMNarrativeHeader
-        articleSubType={articleSubType}
-        contentPhase={contentPhase}
-        onBack={onBack}
-      />
-      
-      <CardContent className="space-y-6">
-        {contentPhase === 'outline' && <ProgressIndicator currentStep={currentStep} />}
-        
-        <div className="min-h-[400px]">
-          <GTMStepRenderer
-            currentStep={currentStep}
-            contentPhase={contentPhase}
-            formData={formData}
-            scripts={scripts}
-            successStories={successStories}
-            ideas={ideas}
-            articleSubType={articleSubType}
-            isGenerating={isGenerating}
-            onDataChange={handleInputChange}
-            onContentPhaseNext={handleContentPhaseNext}
-            onBackToOutline={handleBackToOutline}
-            onRegenerate={generatePhaseContent}
-          />
-        </div>
+  // Get the selected idea
+  const getSelectedIdea = () => {
+    if (!selectedIdeaId) return null;
+    return ideas.find(idea => idea.id === selectedIdeaId) || null;
+  };
 
-        {contentPhase === 'outline' && (
-          <GTMNarrativeNavigation
-            currentStep={currentStep}
-            isGenerating={isGenerating}
-            onPrevious={handlePrevious}
-            onNext={handleNext}
-            canProceed={canProceedFromCurrentStep()}
-          />
-        )}
-      </CardContent>
-    </Card>
+  const selectedIdea = getSelectedIdea();
+
+  return (
+    <div className="space-y-4">
+      {/* Idea Selector - only show if we have ideas and are in outline phase */}
+      {ideas.length > 0 && contentPhase === 'outline' && (
+        <IdeaSelector
+          ideas={ideas}
+          selectedIdeaId={selectedIdeaId || null}
+          onIdeaSelect={() => {}} // Read-only in this context since it's passed from parent
+          selectedClientId={selectedClientId}
+        />
+      )}
+
+      <Card className="w-full bg-white shadow-sm border-gray-200">
+        <GTMNarrativeHeader
+          articleSubType={articleSubType}
+          contentPhase={contentPhase}
+          onBack={onBack}
+        />
+        
+        <CardContent className="space-y-6">
+          {contentPhase === 'outline' && <ProgressIndicator currentStep={currentStep} />}
+          
+          <div className="min-h-[400px]">
+            <GTMStepRenderer
+              currentStep={currentStep}
+              contentPhase={contentPhase}
+              formData={formData}
+              scripts={scripts}
+              successStories={successStories}
+              ideas={ideas}
+              selectedIdea={selectedIdea}
+              articleSubType={articleSubType}
+              isGenerating={isGenerating}
+              onDataChange={handleInputChange}
+              onContentPhaseNext={handleContentPhaseNext}
+              onBackToOutline={handleBackToOutline}
+              onRegenerate={generatePhaseContent}
+            />
+          </div>
+
+          {contentPhase === 'outline' && (
+            <GTMNarrativeNavigation
+              currentStep={currentStep}
+              isGenerating={isGenerating}
+              onPrevious={handlePrevious}
+              onNext={handleNext}
+              canProceed={canProceedFromCurrentStep()}
+            />
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

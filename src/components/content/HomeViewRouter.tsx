@@ -1,5 +1,5 @@
 
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 import ContentTypeSelector from '@/components/ContentTypeSelector';
 import ArticleTypeSelector from '@/components/ArticleTypeSelector';
@@ -18,6 +18,7 @@ interface HomeViewRouterProps {
   filteredAuthors: Author[];
   currentProductContext: ProductContext | null;
   ideas: GeneratedIdea[];
+  selectedClientId?: string | null;
   onContentTypeSelect: (type: ContentType) => void;
   onArticleSubtypeSelect: (subtype: ArticleSubType) => void;
   onBack: () => void;
@@ -32,17 +33,24 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
   filteredAuthors,
   currentProductContext,
   ideas,
+  selectedClientId,
   onContentTypeSelect,
   onArticleSubtypeSelect,
   onBack,
   onSuccessStoryAdded,
 }) => {
+  const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(null);
+
   if (selectedType === 'article' && !selectedArticleSubtype) {
     return (
       <ScrollArea className="h-[calc(100vh-200px)]">
         <ArticleTypeSelector 
           onSelect={onArticleSubtypeSelect}
           onBack={onBack}
+          ideas={ideas}
+          selectedClientId={selectedClientId}
+          selectedIdeaId={selectedIdeaId}
+          onIdeaSelect={setSelectedIdeaId}
         />
       </ScrollArea>
     );
@@ -56,6 +64,7 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
           scripts={filteredICPScripts}
           successStories={filteredSuccessStories}
           ideas={ideas}
+          selectedIdeaId={selectedIdeaId}
           onBack={onBack}
         />
       </ScrollArea>
@@ -83,6 +92,8 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
           scripts={filteredICPScripts}
           authors={filteredAuthors}
           successStories={filteredSuccessStories}
+          ideas={ideas}
+          selectedClientId={selectedClientId}
           onBack={onBack}
         />
       </ScrollArea>
@@ -97,6 +108,8 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
           scripts={filteredICPScripts}
           authors={filteredAuthors}
           successStories={filteredSuccessStories}
+          ideas={ideas}
+          selectedClientId={selectedClientId}
           onBack={onBack}
         />
       </ScrollArea>
@@ -111,6 +124,8 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
           scripts={filteredICPScripts}
           authors={filteredAuthors}
           successStories={filteredSuccessStories}
+          ideas={ideas}
+          selectedClientId={selectedClientId}
           onBack={onBack}
         />
       </ScrollArea>
@@ -121,6 +136,10 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
     <ScrollArea className="h-[calc(100vh-200px)]">
       <ContentTypeSelector 
         onSelect={onContentTypeSelect}
+        ideas={ideas}
+        selectedClientId={selectedClientId}
+        selectedIdeaId={selectedIdeaId}
+        onIdeaSelect={setSelectedIdeaId}
       />
     </ScrollArea>
   );
