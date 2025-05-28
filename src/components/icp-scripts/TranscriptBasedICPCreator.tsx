@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Upload, X, Loader2, Info } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { ICPStoryScript } from '@/types/storytelling';
 import { useChatGPT } from '@/contexts/ChatGPTContext';
@@ -212,105 +213,124 @@ ${combinedTranscripts}`;
   };
 
   return (
-    <Card className="w-full bg-white shadow-md">
-      <CardHeader>
-        <CardTitle className="text-story-blue">AI-Powered ICP Analysis</CardTitle>
-        <CardDescription>
-          Upload meeting transcripts to automatically extract ICP insights. Best results come from sales discovery, customer success, or churning customer conversations.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* File Upload Section */}
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Upload Meeting Transcripts (Max 3 files)</label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <div className="space-y-2">
-                <p className="text-sm text-gray-600">
-                  Upload text files containing meeting transcripts
-                </p>
-                <p className="text-xs text-gray-500">
-                  Best results: Sales discovery, customer success, or churning customer conversations
-                </p>
-                <input
-                  type="file"
-                  accept=".txt,.md"
-                  multiple
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  id="transcript-upload"
-                />
-                <label
-                  htmlFor="transcript-upload"
-                  className="inline-flex items-center px-4 py-2 bg-story-blue text-white rounded-md cursor-pointer hover:bg-story-light-blue"
-                >
-                  Choose Files
-                </label>
+    <TooltipProvider>
+      <Card className="w-full bg-white shadow-md">
+        <CardHeader>
+          <CardTitle className="text-story-blue">AI-Powered ICP Analysis</CardTitle>
+          <CardDescription>
+            Upload meeting transcripts to automatically extract ICP insights. Best results come from sales discovery, customer success, or churning customer conversations.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* File Upload Section */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium">Upload Meeting Transcripts (Max 3 files)</label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-sm">
+                    <div className="space-y-2">
+                      <p className="font-medium">Supported file types: .txt and .md files only</p>
+                      <div className="text-sm space-y-1">
+                        <p><strong>Method 1:</strong> Copy your call transcript to a text editor, save as .txt, and upload.</p>
+                        <p><strong>Method 2:</strong> Paste transcript in Google Docs, click File → Download → Plain text (.txt), and upload.</p>
+                        <p><strong>Method 3:</strong> Copy transcript to any text editor and save with .txt extension.</p>
+                      </div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">
+                    Upload .txt or .md files containing meeting transcripts
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Best results: Sales discovery, customer success, or churning customer conversations
+                  </p>
+                  <input
+                    type="file"
+                    accept=".txt,.md"
+                    multiple
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="transcript-upload"
+                  />
+                  <label
+                    htmlFor="transcript-upload"
+                    className="inline-flex items-center px-4 py-2 bg-story-blue text-white rounded-md cursor-pointer hover:bg-story-light-blue"
+                  >
+                    Choose Files (.txt or .md)
+                  </label>
+                </div>
               </div>
             </div>
+
+            {/* Uploaded Files List */}
+            {transcripts.length > 0 && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Uploaded Transcripts</label>
+                {transcripts.map(transcript => (
+                  <div key={transcript.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span className="text-sm text-gray-700">{transcript.name}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeTranscript(transcript.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Uploaded Files List */}
-          {transcripts.length > 0 && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Uploaded Transcripts</label>
-              {transcripts.map(transcript => (
-                <div key={transcript.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-700">{transcript.name}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeTranscript(transcript.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+          {/* ICP Name Input */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Target ICP Name *</label>
+            <Input 
+              placeholder="e.g., SaaS Founder, CTO, Marketing Director"
+              value={icpName}
+              onChange={(e) => setIcpName(e.target.value)}
+            />
+            <p className="text-xs text-gray-500">
+              Enter the name/role of the person you want to create the ICP StoryScript for
+            </p>
+          </div>
 
-        {/* ICP Name Input */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Target ICP Name *</label>
-          <Input 
-            placeholder="e.g., SaaS Founder, CTO, Marketing Director"
-            value={icpName}
-            onChange={(e) => setIcpName(e.target.value)}
-          />
-          <p className="text-xs text-gray-500">
-            Enter the name/role of the person you want to create the ICP StoryScript for
-          </p>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-3">
-          <Button
-            onClick={analyzeTranscripts}
-            disabled={isAnalyzing || transcripts.length === 0 || !icpName.trim()}
-            className="flex-1 bg-story-blue hover:bg-story-light-blue"
-          >
-            {isAnalyzing ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Analyzing Transcripts...
-              </>
-            ) : (
-              'Analyze & Create ICP StoryScript'
-            )}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={onCancel}
-            disabled={isAnalyzing}
-          >
-            Cancel
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <Button
+              onClick={analyzeTranscripts}
+              disabled={isAnalyzing || transcripts.length === 0 || !icpName.trim()}
+              className="flex-1 bg-story-blue hover:bg-story-light-blue"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Analyzing Transcripts...
+                </>
+              ) : (
+                'Analyze & Create ICP StoryScript'
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={onCancel}
+              disabled={isAnalyzing}
+            >
+              Cancel
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </TooltipProvider>
   );
 };
 

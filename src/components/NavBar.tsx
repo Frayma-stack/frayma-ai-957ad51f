@@ -22,15 +22,15 @@ const NavBar: FC = () => {
     <nav className="bg-brand-primary text-white py-4 px-6 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex flex-col">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <img 
               src="/lovable-uploads/c03df3aa-a5a4-4db8-8a06-910f2452d629.png" 
               alt="Frayma AI Logo" 
-              className="h-8 w-8" 
+              className="h-10 w-10" 
             />
-            <span className="text-xl font-sora font-semibold">Frayma AI</span>
+            <span className="text-2xl font-sora font-bold">Frayma AI</span>
           </div>
-          <p className="text-sm mt-1 opacity-90">
+          <p className="text-sm mt-2 opacity-90 max-w-2xl">
             Powered by the Product-Led Storytelling Approach, Its Execution Frameworks, and the 3Rs Formula.
           </p>
         </div>
