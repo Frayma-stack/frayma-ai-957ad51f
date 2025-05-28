@@ -6,7 +6,8 @@ import {
   ChevronUp,
   ChevronRight,
   Users,
-  Plus
+  Plus,
+  Settings
 } from 'lucide-react';
 import { Client } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
@@ -18,7 +19,8 @@ interface ClientSectionProps {
   selectedClientId: string | null;
   onAssetTypeChange: (type: string) => void;
   onClientAssetClick: (clientId: string, assetType: string) => void;
-  onAddClientClick?: () => void; // Add this prop
+  onAddClientClick?: () => void;
+  onClientSelected: (clientId: string | null) => void;
 }
 
 const ClientSection: FC<ClientSectionProps> = ({
@@ -28,6 +30,7 @@ const ClientSection: FC<ClientSectionProps> = ({
   onAssetTypeChange,
   onClientAssetClick,
   onAddClientClick,
+  onClientSelected,
 }) => {
   const [clientsExpanded, setClientsExpanded] = useState(true);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
@@ -42,14 +45,29 @@ const ClientSection: FC<ClientSectionProps> = ({
     setExpandedClients(newExpanded);
   };
 
+  const handleClientNameClick = (clientId: string) => {
+    console.log('🎯 ClientSection: Client name clicked, selecting client:', clientId);
+    onClientSelected(clientId);
+    // Auto-expand the client's assets when selected
+    if (!expandedClients.has(clientId)) {
+      toggleClientExpansion(clientId);
+    }
+  };
+
   const handleAddClientClick = () => {
-    console.log('🔘 ClientSection: Add Client button clicked');
+    console.log('🔘 ClientSection: Add Client button clicked - going directly to client creation');
     if (onAddClientClick) {
       onAddClientClick();
     } else {
       // Fallback to asset type change
       onAssetTypeChange('clients');
     }
+  };
+
+  const handleManageClient = (clientId: string) => {
+    console.log('⚙️ ClientSection: Manage client clicked:', clientId);
+    onClientSelected(clientId);
+    onAssetTypeChange('clients');
   };
 
   return (
@@ -62,7 +80,7 @@ const ClientSection: FC<ClientSectionProps> = ({
             size="icon" 
             className="h-6 w-6" 
             onClick={handleAddClientClick}
-            title="Add Client"
+            title="Add New Client"
           >
             <Plus className="h-4 w-4" />
           </Button>
@@ -101,22 +119,45 @@ const ClientSection: FC<ClientSectionProps> = ({
             <>
               {clients.map(client => (
                 <div key={client.id} className="space-y-1">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className={`w-full justify-start text-sm font-normal pl-2 ${
-                      selectedClientId === client.id ? 'bg-brand-primary/10 text-brand-primary' : ''
-                    }`}
-                    onClick={() => toggleClientExpansion(client.id)}
-                  >
-                    <ChevronRight 
-                      className={`h-3 w-3 mr-1 text-gray-400 transition-transform ${
-                        expandedClients.has(client.id) ? 'rotate-90' : ''
-                      }`} 
-                    />
-                    <Users className="h-3 w-3 mr-2 text-brand-primary" />
-                    <span className="truncate">{client.name}</span>
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`flex-1 justify-start text-sm font-normal pl-2 ${
+                        selectedClientId === client.id ? 'bg-brand-primary/10 text-brand-primary' : ''
+                      }`}
+                      onClick={() => handleClientNameClick(client.id)}
+                    >
+                      <Users className="h-3 w-3 mr-2 text-brand-primary" />
+                      <span className="truncate">{client.name}</span>
+                    </Button>
+                    
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 flex-shrink-0" 
+                      onClick={() => toggleClientExpansion(client.id)}
+                      title="Toggle Assets"
+                    >
+                      <ChevronRight 
+                        className={`h-3 w-3 text-gray-400 transition-transform ${
+                          expandedClients.has(client.id) ? 'rotate-90' : ''
+                        }`} 
+                      />
+                    </Button>
+
+                    {selectedClientId === client.id && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6 flex-shrink-0" 
+                        onClick={() => handleManageClient(client.id)}
+                        title="Manage Client"
+                      >
+                        <Settings className="h-3 w-3 text-gray-400" />
+                      </Button>
+                    )}
+                  </div>
                   
                   {expandedClients.has(client.id) && (
                     <ClientAssetsMenu

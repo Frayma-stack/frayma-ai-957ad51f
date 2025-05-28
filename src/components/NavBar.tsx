@@ -31,7 +31,7 @@ const NavBar: FC = () => {
             <span className="text-2xl font-sora font-bold">Frayma AI</span>
           </div>
           <p className="text-sm mt-2 opacity-90 max-w-2xl">
-            Powered by the Product-Led Storytelling Approach, Its Execution Frameworks, and the 3Rs Formula.
+            Frame POVs. Auto-craft resonant, compelling GTM narratives. Win your market.
           </p>
         </div>
         

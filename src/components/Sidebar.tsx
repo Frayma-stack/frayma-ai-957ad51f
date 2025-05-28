@@ -36,6 +36,11 @@ const Sidebar: FC<SidebarProps> = ({
     onAssetTypeChange(assetType);
   };
 
+  const handleAddClientClick = () => {
+    console.log('🔘 Sidebar: Add Client requested - switching to clients view');
+    onAssetTypeChange('clients');
+  };
+
   const filteredIdeas = selectedClientId 
     ? ideas.filter(idea => idea.clientId === selectedClientId)
     : [];
@@ -107,6 +112,8 @@ const Sidebar: FC<SidebarProps> = ({
         selectedClientId={selectedClientId}
         onAssetTypeChange={onAssetTypeChange}
         onClientAssetClick={handleClientAssetClick}
+        onAddClientClick={handleAddClientClick}
+        onClientSelected={onClientSelected}
       />
     </div>
   );

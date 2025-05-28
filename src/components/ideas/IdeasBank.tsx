@@ -39,11 +39,17 @@ const IdeasBank = ({
 
   // Enhanced idea handler to ensure client association
   const handleIdeaAdded = (idea: GeneratedIdea) => {
+    console.log('💡 IdeasBank: Adding idea with client association:', { ideaId: idea.id, selectedClientId });
     const ideaWithClient = {
       ...idea,
       clientId: selectedClientId
     };
     onIdeaAdded(ideaWithClient);
+  };
+
+  const handleAddManualIdea = () => {
+    console.log('💡 IdeasBank: Manual add idea triggered, switching to generate tab');
+    setActiveTab('generate');
   };
 
   // Don't show if no client is selected
@@ -80,7 +86,7 @@ const IdeasBank = ({
               scripts={scripts}
               onIdeaUpdated={onIdeaUpdated}
               onIdeaDeleted={onIdeaDeleted}
-              onAddManualIdea={handleIdeaAdded}
+              onAddManualIdea={handleAddManualIdea}
               onContentTypeSelect={onContentTypeSelect}
             />
           </ScrollArea>

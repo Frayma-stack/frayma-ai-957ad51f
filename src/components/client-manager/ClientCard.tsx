@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Client } from '@/types/storytelling';
-import { Edit, Trash, User, Target, Trophy, Package, Linkedin, Globe, FileText, ExternalLink } from 'lucide-react';
+import { Edit, Trash, User, Target, Trophy, Package, Linkedin, Globe, FileText, ExternalLink, Settings } from 'lucide-react';
 
 interface ClientCardProps {
   client: Client;
@@ -37,20 +37,28 @@ const ClientCard: FC<ClientCardProps> = ({
     }
   };
 
+  const isSelected = selectedClientId === client.id;
+
   return (
-    <Card className="bg-white shadow-sm">
+    <Card className={`bg-white shadow-sm transition-all ${isSelected ? 'ring-2 ring-brand-primary' : ''}`}>
       <CardHeader className="pb-2">
         <CardTitle className="flex justify-between text-base">
           <span>{client.name}</span>
           <div className="flex space-x-1">
-            <Button variant="ghost" size="icon" onClick={() => onEdit(client)}>
+            <Button variant="ghost" size="icon" onClick={() => onEdit(client)} title="Edit Client">
               <Edit className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => onDelete(client.id)}>
+            <Button variant="ghost" size="icon" onClick={() => onDelete(client.id)} title="Delete Client">
               <Trash className="h-4 w-4" />
             </Button>
           </div>
         </CardTitle>
+        {isSelected && (
+          <div className="flex items-center text-xs text-brand-primary">
+            <Settings className="h-3 w-3 mr-1" />
+            Currently Selected
+          </div>
+        )}
       </CardHeader>
       <CardContent className="text-sm pt-0">
         {client.description && (
@@ -97,7 +105,7 @@ const ClientCard: FC<ClientCardProps> = ({
               variant="outline" 
               size="sm" 
               className="flex items-center"
-              onClick={() => onViewClientAssets(client.id, 'icps')}
+              onClick={() => onViewClientAssets(client.id, 'icp-scripts')}
             >
               <Target className="h-3.5 w-3.5 mr-1" />
               ICPs
@@ -106,7 +114,7 @@ const ClientCard: FC<ClientCardProps> = ({
               variant="outline" 
               size="sm" 
               className="flex items-center"
-              onClick={() => onViewClientAssets(client.id, 'successStories')}
+              onClick={() => onViewClientAssets(client.id, 'success-stories')}
             >
               <Trophy className="h-3.5 w-3.5 mr-1" />
               Success Stories
@@ -115,7 +123,7 @@ const ClientCard: FC<ClientCardProps> = ({
               variant="outline" 
               size="sm" 
               className="flex items-center"
-              onClick={() => onViewClientAssets(client.id, 'productContext')}
+              onClick={() => onViewClientAssets(client.id, 'product-context')}
             >
               <Package className="h-3.5 w-3.5 mr-1" />
               Product Context
@@ -132,15 +140,26 @@ const ClientCard: FC<ClientCardProps> = ({
           </div>
         </div>
       </CardContent>
-      <CardFooter className="pt-0">
+      <CardFooter className="pt-0 flex gap-2">
         <Button 
-          variant="outline" 
+          variant={isSelected ? "default" : "outline"}
           size="sm" 
-          className="w-full"
+          className="flex-1"
           onClick={() => onSelect(client.id)}
+          disabled={isSelected}
         >
-          Select Client
+          {isSelected ? "Selected" : "Select Client"}
         </Button>
+        {isSelected && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => onEdit(client)}
+            title="Edit this client"
+          >
+            <Settings className="h-4 w-4" />
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
