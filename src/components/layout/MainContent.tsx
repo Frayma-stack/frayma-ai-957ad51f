@@ -138,6 +138,8 @@ const MainContent: FC<MainContentProps> = (props) => {
       onSuccessStoryUpdated={props.onSuccessStoryUpdated}
       onSuccessStoryDeleted={props.onSuccessStoryDeleted}
       onProductContextAdded={props.onProductContextAdded}
+      onProductContextUpdated={props.onProductContextUpdated}
+      onProductContextDeleted={props.onProductContextDeleted}
       onIdeaContentTypeSelect={props.onIdeaContentTypeSelect}
       onNavigateToIdeasBank={props.onNavigateToIdeasBank}
     />
