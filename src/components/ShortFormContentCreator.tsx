@@ -67,13 +67,24 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     // Computed
     getContentTypeLabel,
     isFormValid,
-    generateContent
+    generateContent,
+    
+    // Auto-save functionality
+    isSaving,
+    lastSaved,
+    showRestoreDialog,
+    setShowRestoreDialog,
+    availableDrafts,
+    handleRestoreDraft,
+    handleDeleteDraft,
+    clearCurrentDraft
   } = useShortFormContentCreator({
     contentType,
     scripts,
     authors,
     successStories,
-    ideas
+    ideas,
+    selectedClientId: selectedClientId || undefined
   });
 
   // Protect against accidental page reloads when form has content
@@ -137,13 +148,23 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
           onIdeaSelect={setSelectedIdeaId}
           onGenerateContent={generateContent}
         />
-        
-        <ContentGenerationDisplay
-          contentType={contentType}
-          generatedContent={generatedContent}
-          onContentChange={setGeneratedContent}
-        />
       </Card>
+        
+      <ContentGenerationDisplay
+        content={generatedContent}
+        onContentChange={setGeneratedContent}
+        contentType={contentType}
+        contentTypeLabel={getContentTypeLabel()}
+        isGenerating={isGenerating}
+        isSaving={isSaving}
+        lastSaved={lastSaved}
+        showRestoreDialog={showRestoreDialog}
+        availableDrafts={availableDrafts}
+        onSetShowRestoreDialog={setShowRestoreDialog}
+        onRestoreDraft={handleRestoreDraft}
+        onDeleteDraft={handleDeleteDraft}
+        onClearDraft={clearCurrentDraft}
+      />
     </div>
   );
 };

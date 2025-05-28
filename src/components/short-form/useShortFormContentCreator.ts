@@ -1,4 +1,3 @@
-
 import { useShortFormState } from './useShortFormState';
 import { useContentGeneration } from './useContentGeneration';
 import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
@@ -11,6 +10,7 @@ interface UseShortFormContentCreatorProps {
   authors: Author[];
   successStories: CustomerSuccessStory[];
   ideas: GeneratedIdea[];
+  selectedClientId?: string;
 }
 
 export const useShortFormContentCreator = ({
@@ -18,7 +18,8 @@ export const useShortFormContentCreator = ({
   scripts,
   authors,
   successStories,
-  ideas
+  ideas,
+  selectedClientId
 }: UseShortFormContentCreatorProps) => {
   const {
     selectedICP,
@@ -52,8 +53,24 @@ export const useShortFormContentCreator = ({
     setWordCount,
     setEmailCount,
     setSelectedIdeaId,
-    setTriggerInput
-  } = useShortFormState({ scripts, authors, successStories, ideas });
+    setTriggerInput,
+    // Auto-save functionality
+    isSaving,
+    lastSaved,
+    showRestoreDialog,
+    setShowRestoreDialog,
+    availableDrafts,
+    handleRestoreDraft,
+    handleDeleteDraft,
+    clearCurrentDraft
+  } = useShortFormState({ 
+    scripts, 
+    authors, 
+    successStories, 
+    ideas, 
+    contentType,
+    selectedClientId 
+  });
 
   const {
     getSelectedICPScript,
@@ -207,6 +224,16 @@ export const useShortFormContentCreator = ({
     // Computed
     getContentTypeLabel,
     isFormValid,
-    generateContent
+    generateContent,
+    
+    // Auto-save functionality
+    isSaving,
+    lastSaved,
+    showRestoreDialog,
+    setShowRestoreDialog,
+    availableDrafts,
+    handleRestoreDraft,
+    handleDeleteDraft,
+    clearCurrentDraft
   };
 };

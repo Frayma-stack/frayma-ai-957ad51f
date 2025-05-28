@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +10,7 @@ import DraftRestoreDialog from '@/components/auto-save/DraftRestoreDialog';
 interface ContentGenerationDisplayProps {
   content: string;
   onContentChange: (content: string) => void;
+  contentType: string;
   contentTypeLabel: string;
   isGenerating: boolean;
   isSaving?: boolean;
@@ -26,6 +26,7 @@ interface ContentGenerationDisplayProps {
 const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
   content,
   onContentChange,
+  contentType,
   contentTypeLabel,
   isGenerating,
   isSaving = false,
