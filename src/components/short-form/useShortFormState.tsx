@@ -12,6 +12,7 @@ import { useFormPersistedState } from '@/hooks/useFormPersistedState';
 import { useIdeaIntegration } from '@/hooks/useIdeaIntegration';
 import { useClientNameResolver } from '@/hooks/useClientNameResolver';
 import { useNarrativeAnchors } from '@/hooks/useNarrativeAnchors';
+import { useAutoSaveIntegration } from '@/hooks/useAutoSaveIntegration';
 
 type ContentGoal = 'book_call' | 'learn_more' | 'try_product' | 'reply' | 'visit_article';
 
@@ -20,13 +21,17 @@ interface UseShortFormStateProps {
   authors: Author[];
   successStories: CustomerSuccessStory[];
   ideas: GeneratedIdea[];
+  contentType: string;
+  selectedClientId?: string;
 }
 
 export const useShortFormState = ({
   scripts,
   authors,
   successStories,
-  ideas
+  ideas,
+  contentType,
+  selectedClientId
 }: UseShortFormStateProps) => {
   const { toast } = useToast();
   
@@ -45,7 +50,6 @@ export const useShortFormState = ({
   const [selectedAuthorExperience, setSelectedAuthorExperience] = useState<string>(persistedValues.selectedAuthorExperience);
   const [narrativeSelections, setNarrativeSelections] = useState<NarrativeSelection[]>([]);
   const [contentGoal, setContentGoal] = useState<ContentGoal>(persistedValues.contentGoal);
-  const [generatedContent, setGeneratedContent] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [additionalContext, setAdditionalContext] = useState<string>(persistedValues.additionalContext);
   const [selectedSuccessStory, setSelectedSuccessStory] = useState<string>(persistedValues.selectedSuccessStory);
@@ -53,6 +57,20 @@ export const useShortFormState = ({
   const [emailCount, setEmailCount] = useState<number>(persistedValues.emailCount);
   const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(persistedValues.selectedIdeaId);
   const [triggerInput, setTriggerInput] = useState<string>(persistedValues.triggerInput);
+
+  // Auto-save integration
+  const autoSaveIntegration = useAutoSaveIntegration({
+    contentType,
+    clientId: selectedClientId,
+    onDraftRestored: (title, content) => {
+      // When a draft is restored, we don't need to update form fields
+      // as the content is the generated output, not the form inputs
+      toast({
+        title: "Draft restored",
+        description: "Your previous content has been restored.",
+      });
+    }
+  });
 
   // Use client name resolver
   const { clientName } = useClientNameResolver({ scripts, authors, successStories });
@@ -163,7 +181,7 @@ export const useShortFormState = ({
     selectedAuthorExperience,
     narrativeSelections,
     contentGoal,
-    generatedContent,
+    generatedContent: autoSaveIntegration.content,
     isGenerating,
     clientName,
     additionalContext,
@@ -181,7 +199,7 @@ export const useShortFormState = ({
     setSelectedAuthorExperience: setSelectedAuthorExperienceWithPersistence,
     setNarrativeSelections,
     setContentGoal: setContentGoalWithPersistence,
-    setGeneratedContent,
+    setGeneratedContent: autoSaveIntegration.setContent,
     setIsGenerating,
     setAdditionalContext: setAdditionalContextWithPersistence,
     setSelectedSuccessStory: setSelectedSuccessStoryWithPersistence,
@@ -189,6 +207,15 @@ export const useShortFormState = ({
     setEmailCount: setEmailCountWithPersistence,
     setSelectedIdeaId: setSelectedIdeaIdWithPersistence,
     setTriggerInput: setTriggerInputWithPersistence,
-    clearPersistedData
+    clearPersistedData,
+    // Auto-save functionality
+    isSaving: autoSaveIntegration.isSaving,
+    lastSaved: autoSaveIntegration.lastSaved,
+    showRestoreDialog: autoSaveIntegration.showRestoreDialog,
+    setShowRestoreDialog: autoSaveIntegration.setShowRestoreDialog,
+    availableDrafts: autoSaveIntegration.availableDrafts,
+    handleRestoreDraft: autoSaveIntegration.handleRestoreDraft,
+    handleDeleteDraft: autoSaveIntegration.handleDeleteDraft,
+    clearCurrentDraft: autoSaveIntegration.clearCurrentDraft
   };
 };
