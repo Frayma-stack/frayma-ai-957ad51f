@@ -18,13 +18,18 @@ const ClientAssetsMenu: FC<ClientAssetsMenuProps> = ({
 }) => {
   const clientIdeas = ideas.filter(idea => idea.clientId === client.id);
 
+  const handleAssetClick = (assetType: string) => {
+    console.log('🎯 ClientAssetsMenu: Asset clicked:', { clientId: client.id, assetType });
+    onAssetClick(client.id, assetType);
+  };
+
   return (
     <div className="ml-6 space-y-1 border-l border-gray-200 pl-2">
       <Button 
         variant="ghost" 
         size="sm" 
         className="w-full justify-start text-xs font-normal py-1 h-auto"
-        onClick={() => onAssetClick(client.id, 'authors')}
+        onClick={() => handleAssetClick('authors')}
       >
         <User className="h-3 w-3 mr-2 text-brand-primary" />
         Authors
@@ -33,16 +38,16 @@ const ClientAssetsMenu: FC<ClientAssetsMenuProps> = ({
         variant="ghost" 
         size="sm" 
         className="w-full justify-start text-xs font-normal py-1 h-auto"
-        onClick={() => onAssetClick(client.id, 'icps')}
+        onClick={() => handleAssetClick('icp-scripts')}
       >
         <Target className="h-3 w-3 mr-2 text-brand-primary" />
-        ICPs
+        ICP Scripts
       </Button>
       <Button 
         variant="ghost" 
         size="sm" 
         className="w-full justify-start text-xs font-normal py-1 h-auto"
-        onClick={() => onAssetClick(client.id, 'successStories')}
+        onClick={() => handleAssetClick('success-stories')}
       >
         <Trophy className="h-3 w-3 mr-2 text-brand-primary" />
         Success Stories
@@ -51,7 +56,7 @@ const ClientAssetsMenu: FC<ClientAssetsMenuProps> = ({
         variant="ghost" 
         size="sm" 
         className="w-full justify-start text-xs font-normal py-1 h-auto"
-        onClick={() => onAssetClick(client.id, 'productContext')}
+        onClick={() => handleAssetClick('product-context')}
       >
         <Package className="h-3 w-3 mr-2 text-brand-primary" />
         Product Context
@@ -60,7 +65,7 @@ const ClientAssetsMenu: FC<ClientAssetsMenuProps> = ({
         variant="ghost" 
         size="sm" 
         className="w-full justify-start text-xs font-normal py-1 h-auto"
-        onClick={() => onAssetClick(client.id, 'drafts')}
+        onClick={() => handleAssetClick('drafts')}
       >
         <FileText className="h-3 w-3 mr-2 text-brand-primary" />
         Drafts
@@ -69,7 +74,7 @@ const ClientAssetsMenu: FC<ClientAssetsMenuProps> = ({
         variant="ghost" 
         size="sm" 
         className="w-full justify-start text-xs font-normal py-1 h-auto"
-        onClick={() => onAssetClick(client.id, 'ideas')}
+        onClick={() => handleAssetClick('ideas')}
       >
         <Lightbulb className="h-3 w-3 mr-2 text-brand-primary" />
         Ideas Bank

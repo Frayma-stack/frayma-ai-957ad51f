@@ -1,8 +1,7 @@
 
 import { FC, useState } from 'react';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { Home, Lightbulb, User, Target, Trophy, Package } from 'lucide-react';
+import { Home, Lightbulb } from 'lucide-react';
 import { Client } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import ClientSection from './sidebar/ClientSection';
@@ -43,48 +42,24 @@ const AppSidebar: FC<AppSidebarProps> = ({
     onAssetTypeChange('clients');
   };
 
-  const assetButtons = [
-    { 
-      id: 'authors', 
-      label: 'Authors', 
-      icon: User, 
-      onClick: () => {
-        console.log('🔘 AppSidebar: Authors clicked');
-        onAssetTypeChange('authors');
-      }
-    },
-    { 
-      id: 'icp-scripts', 
-      label: 'ICP Scripts', 
-      icon: Target, 
-      onClick: () => {
-        console.log('🔘 AppSidebar: ICP Scripts clicked');
-        onAssetTypeChange('icp-scripts');
-      }
-    },
-    { 
-      id: 'success-stories', 
-      label: 'Success Stories', 
-      icon: Trophy, 
-      onClick: () => {
-        console.log('🔘 AppSidebar: Success Stories clicked');
-        onAssetTypeChange('success-stories');
-      }
-    },
-    { 
-      id: 'product-context', 
-      label: 'Product Context', 
-      icon: Package, 
-      onClick: () => {
-        console.log('🔘 AppSidebar: Product Context clicked');
-        onAssetTypeChange('product-context');
-      }
-    }
-  ];
-
   return (
     <Sidebar>
       <SidebarContent>
+        {/* Logo and Branding Section */}
+        <div className="flex items-start mb-6 p-4">
+          <img 
+            src="/lovable-uploads/c03df3aa-a5a4-4db8-8a06-910f2452d629.png" 
+            alt="Frayma AI Logo" 
+            className="h-8 w-8 mr-3 mt-1" 
+          />
+          <div>
+            <h1 className="text-xl font-sora font-semibold text-brand-primary leading-tight">Frayma AI</h1>
+            <p className="text-xs text-gray-700 leading-tight mt-1 opacity-80">
+              Powered by the Product-Led Storytelling Approach & 3Rs Formula.
+            </p>
+          </div>
+        </div>
+
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -93,12 +68,6 @@ const AppSidebar: FC<AppSidebarProps> = ({
                 <SidebarMenuButton onClick={onHomeSelected}>
                   <Home className="h-4 w-4" />
                   <span>Home</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={onIdeasBankSelected}>
-                  <Lightbulb className="h-4 w-4" />
-                  <span>Ideas Bank</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -115,22 +84,6 @@ const AppSidebar: FC<AppSidebarProps> = ({
               onClientAssetClick={handleClientAssetClick}
               onAddClientClick={handleAddClientClick}
             />
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Assets</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {assetButtons.map((button) => (
-                <SidebarMenuItem key={button.id}>
-                  <SidebarMenuButton onClick={button.onClick}>
-                    <button.icon className="h-4 w-4" />
-                    <span>{button.label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

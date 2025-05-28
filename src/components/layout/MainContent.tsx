@@ -4,8 +4,9 @@ import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 import { Client, Author, ICPStoryScript, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { ViewType } from '@/components/layout/AppLayout';
-import { useMainContentFiltering } from '@/hooks/useMainContentFiltering';
 import MainContentViewRouter from './MainContentViewRouter';
+import ProductContextManager from '@/components/ProductContextManager';
+import DraftsManager from '@/components/drafts/DraftsManager';
 
 interface MainContentProps {
   currentView: ViewType;
@@ -42,94 +43,103 @@ interface MainContentProps {
   onProductContextUpdated: (context: ProductContext) => void;
   onProductContextDeleted: (contextId: string) => void;
   onIdeaContentTypeSelect: (ideaId: string, contentType: string) => void;
-  onNavigateToIdeasBank?: () => void;
+  onNavigateToIdeasBank: () => void;
 }
 
-const MainContent: FC<MainContentProps> = ({
-  currentView,
-  selectedType,
-  selectedArticleSubtype,
-  selectedClientId,
-  clients,
-  authors,
-  ideas,
-  icpScripts,
-  successStories,
-  productContexts,
-  onContentTypeSelect,
-  onArticleSubtypeSelect,
-  onBack,
-  onClientAdded,
-  onClientUpdated,
-  onClientDeleted,
-  onClientSelected,
-  onViewClientAssets,
-  onAuthorAdded,
-  onAuthorUpdated,
-  onAuthorDeleted,
-  onIdeaAdded,
-  onIdeaUpdated,
-  onIdeaDeleted,
-  onICPScriptAdded,
-  onICPScriptUpdated,
-  onICPScriptDeleted,
-  onSuccessStoryAdded,
-  onSuccessStoryUpdated,
-  onSuccessStoryDeleted,
-  onProductContextAdded,
-  onProductContextUpdated,
-  onProductContextDeleted,
-  onIdeaContentTypeSelect,
-  onNavigateToIdeasBank,
-}) => {
+const MainContent: FC<MainContentProps> = (props) => {
   const {
-    filteredAuthors,
-    filteredICPScripts,
-    filteredSuccessStories,
-    currentProductContext,
-  } = useMainContentFiltering({
     selectedClientId,
-    authors,
-    icpScripts,
-    successStories,
     productContexts,
-  });
+    onProductContextUpdated,
+  } = props;
+
+  // Get current product context for the selected client
+  const getCurrentProductContext = () => {
+    return selectedClientId 
+      ? productContexts.find(context => context.clientId === selectedClientId) || null
+      : null;
+  };
+
+  const getFilteredAuthors = () => {
+    return selectedClientId 
+      ? props.authors.filter(author => author.clientId === selectedClientId)
+      : props.authors;
+  };
+
+  const getFilteredICPScripts = () => {
+    return selectedClientId 
+      ? props.icpScripts.filter(script => script.clientId === selectedClientId)
+      : props.icpScripts;
+  };
+
+  const getFilteredSuccessStories = () => {
+    return selectedClientId 
+      ? props.successStories.filter(story => story.clientId === selectedClientId)
+      : props.successStories;
+  };
+
+  // Check if we're in a special client asset view that should show specific content
+  const isProductContextView = props.currentView === 'home' && selectedClientId && 
+    (typeof window !== 'undefined' && window.location.hash === '#product-context');
+  
+  const isDraftsView = props.currentView === 'home' && selectedClientId && 
+    (typeof window !== 'undefined' && window.location.hash === '#drafts');
+
+  // Handle special client asset views
+  if (isProductContextView) {
+    return (
+      <div className="p-6">
+        <ProductContextManager
+          productContext={getCurrentProductContext()}
+          onProductContextUpdated={onProductContextUpdated}
+        />
+      </div>
+    );
+  }
+
+  if (isDraftsView) {
+    return (
+      <div className="p-6">
+        <DraftsManager selectedClientId={selectedClientId} />
+      </div>
+    );
+  }
 
   return (
     <MainContentViewRouter
-      currentView={currentView}
-      selectedType={selectedType}
-      selectedArticleSubtype={selectedArticleSubtype}
+      currentView={props.currentView}
+      selectedType={props.selectedType}
+      selectedArticleSubtype={props.selectedArticleSubtype}
       selectedClientId={selectedClientId}
-      clients={clients}
-      filteredAuthors={filteredAuthors}
-      filteredICPScripts={filteredICPScripts}
-      filteredSuccessStories={filteredSuccessStories}
-      currentProductContext={currentProductContext}
-      ideas={ideas}
-      onContentTypeSelect={onContentTypeSelect}
-      onArticleSubtypeSelect={onArticleSubtypeSelect}
-      onBack={onBack}
-      onClientAdded={onClientAdded}
-      onClientUpdated={onClientUpdated}
-      onClientDeleted={onClientDeleted}
-      onClientSelected={onClientSelected}
-      onViewClientAssets={onViewClientAssets}
-      onAuthorAdded={onAuthorAdded}
-      onAuthorUpdated={onAuthorUpdated}
-      onAuthorDeleted={onAuthorDeleted}
-      onIdeaAdded={onIdeaAdded}
-      onIdeaUpdated={onIdeaUpdated}
-      onIdeaDeleted={onIdeaDeleted}
-      onICPScriptAdded={onICPScriptAdded}
-      onICPScriptUpdated={onICPScriptUpdated}
-      onICPScriptDeleted={onICPScriptDeleted}
-      onSuccessStoryAdded={onSuccessStoryAdded}
-      onSuccessStoryUpdated={onSuccessStoryUpdated}
-      onSuccessStoryDeleted={onSuccessStoryDeleted}
-      onProductContextAdded={onProductContextAdded}
-      onIdeaContentTypeSelect={onIdeaContentTypeSelect}
-      onNavigateToIdeasBank={onNavigateToIdeasBank}
+      clients={props.clients}
+      filteredAuthors={getFilteredAuthors()}
+      filteredICPScripts={getFilteredICPScripts()}
+      filteredSuccessStories={getFilteredSuccessStories()}
+      currentProductContext={getCurrentProductContext()}
+      ideas={props.ideas}
+      onContentTypeSelect={props.onContentTypeSelect}
+      onArticleSubtypeSelect={props.onArticleSubtypeSelect}
+      onBack={props.onBack}
+      onClientAdded={props.onClientAdded}
+      onClientUpdated={props.onClientUpdated}
+      onClientDeleted={props.onClientDeleted}
+      onClientSelected={props.onClientSelected}
+      onViewClientAssets={props.onViewClientAssets}
+      onAuthorAdded={props.onAuthorAdded}
+      onAuthorUpdated={props.onAuthorUpdated}
+      onAuthorDeleted={props.onAuthorDeleted}
+      onIdeaAdded={props.onIdeaAdded}
+      onIdeaUpdated={props.onIdeaUpdated}
+      onIdeaDeleted={props.onIdeaDeleted}
+      onICPScriptAdded={props.onICPScriptAdded}
+      onICPScriptUpdated={props.onICPScriptUpdated}
+      onICPScriptDeleted={props.onICPScriptDeleted}
+      onSuccessStoryAdded={props.onSuccessStoryAdded}
+      onSuccessStoryUpdated={props.onSuccessStoryUpdated}
+      onSuccessStoryDeleted={props.onSuccessStoryDeleted}
+      onProductContextAdded={props.onProductContextAdded}
+      onIdeaContentTypeSelect={props.onIdeaContentTypeSelect}
+      onNavigateToIdeasBank={props.onNavigateToIdeasBank}
     />
   );
 };

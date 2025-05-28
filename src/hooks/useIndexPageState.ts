@@ -47,12 +47,14 @@ export const useIndexPageState = () => {
     console.log('🎯 Asset type changed:', type);
     setSelectedAssetType(type);
     
-    // Map asset types to views
+    // Map asset types to views - fix the mapping for proper navigation
     const assetTypeToViewMap: Record<string, ViewType> = {
       'clients': 'clients',
       'authors': 'authors',
       'icp-scripts': 'icp-scripts',
       'success-stories': 'success-stories',
+      'product-context': 'home', // Show product context in home view for selected client
+      'drafts': 'home', // Show drafts in home view for selected client  
       'ideas': 'ideas'
     };
     
