@@ -1,10 +1,12 @@
 
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from 'lucide-react';
 import { ICPStoryScript, Client } from '@/types/storytelling';
 import ICPStoryScriptForm from '../ICPStoryScriptForm';
+import ICPCreationModeSelector from './ICPCreationModeSelector';
+import TranscriptBasedICPCreator from './TranscriptBasedICPCreator';
 
 interface ICPScriptDialogsProps {
   isAddDialogOpen: boolean;
@@ -29,18 +31,56 @@ const ICPScriptDialogs: FC<ICPScriptDialogsProps> = ({
   onAddScript,
   onEditScript,
 }) => {
-  return (
-    <>
-      {/* Add Dialog */}
-      <Dialog open={isAddDialogOpen} onOpenChange={onAddDialogChange}>
-        <DialogTrigger asChild>
-          <Button className="bg-story-blue hover:bg-story-light-blue">
-            <Plus className="h-4 w-4 mr-2" /> Add New ICP
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+  const [creationMode, setCreationMode] = useState<'selector' | 'manual' | 'ai'>('selector');
+
+  const handleAddDialogChange = (open: boolean) => {
+    onAddDialogChange(open);
+    if (!open) {
+      setCreationMode('selector');
+    }
+  };
+
+  const handleModeSelect = (mode: 'manual' | 'ai') => {
+    setCreationMode(mode);
+  };
+
+  const handleCancel = () => {
+    setCreationMode('selector');
+  };
+
+  const handleScriptSaved = (script: ICPStoryScript) => {
+    onAddScript(script);
+    setCreationMode('selector');
+  };
+
+  const renderAddDialogContent = () => {
+    if (creationMode === 'selector') {
+      return (
+        <>
           <DialogHeader>
             <DialogTitle>Create a new ICP StoryScript</DialogTitle>
+            <DialogDescription>
+              Choose how you'd like to create your new ICP StoryScript.
+              {clientInfo && (
+                <span className="block mt-1 text-story-blue font-medium">
+                  Creating for: {clientInfo.name}
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <ICPCreationModeSelector 
+            onModeSelect={handleModeSelect}
+            onCancel={() => handleAddDialogChange(false)}
+          />
+        </>
+      );
+    }
+
+    if (creationMode === 'manual') {
+      return (
+        <>
+          <DialogHeader>
+            <DialogTitle>Create ICP StoryScript - Manual Input</DialogTitle>
             <DialogDescription>
               Define who you're writing for, their pains, struggles, and desired transformations.
               {clientInfo && (
@@ -51,9 +91,50 @@ const ICPScriptDialogs: FC<ICPScriptDialogsProps> = ({
             </DialogDescription>
           </DialogHeader>
           <ICPStoryScriptForm 
-            onSave={onAddScript} 
+            onSave={handleScriptSaved} 
             selectedClientId={selectedClientId}
           />
+        </>
+      );
+    }
+
+    if (creationMode === 'ai') {
+      return (
+        <>
+          <DialogHeader>
+            <DialogTitle>Create ICP StoryScript - AI Analysis</DialogTitle>
+            <DialogDescription>
+              Upload meeting transcripts and let AI extract ICP insights automatically.
+              {clientInfo && (
+                <span className="block mt-1 text-story-blue font-medium">
+                  Creating for: {clientInfo.name}
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <TranscriptBasedICPCreator
+            onSave={handleScriptSaved}
+            onCancel={handleCancel}
+            selectedClientId={selectedClientId}
+          />
+        </>
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <>
+      {/* Add Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={handleAddDialogChange}>
+        <DialogTrigger asChild>
+          <Button className="bg-story-blue hover:bg-story-light-blue">
+            <Plus className="h-4 w-4 mr-2" /> Add New ICP
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {renderAddDialogContent()}
         </DialogContent>
       </Dialog>
 
