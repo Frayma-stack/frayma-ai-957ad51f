@@ -53,8 +53,8 @@ export const useIndexPageState = () => {
       'authors': 'authors',
       'icp-scripts': 'icp-scripts',
       'success-stories': 'success-stories',
-      'product-context': 'home', // Show product context in home view for selected client
-      'drafts': 'home', // Show drafts in home view for selected client  
+      'product-context': 'product-context',
+      'drafts': 'drafts',
       'ideas': 'ideas'
     };
     

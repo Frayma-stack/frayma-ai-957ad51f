@@ -10,6 +10,8 @@ import AuthorManager from '@/components/AuthorManager';
 import ICPStoryScriptManager from '@/components/ICPStoryScriptManager';
 import CustomerSuccessManager from '@/components/CustomerSuccessManager';
 import IdeasBank from '@/components/ideas/IdeasBank';
+import ProductContextManager from '@/components/ProductContextManager';
+import DraftsManager from '@/components/drafts/DraftsManager';
 
 interface MainContentViewRouterProps {
   currentView: ViewType;
@@ -43,6 +45,8 @@ interface MainContentViewRouterProps {
   onSuccessStoryUpdated: (story: CustomerSuccessStory) => void;
   onSuccessStoryDeleted: (storyId: string) => void;
   onProductContextAdded: (context: ProductContext) => void;
+  onProductContextUpdated: (context: ProductContext) => void;
+  onProductContextDeleted: (contextId: string) => void;
   onIdeaContentTypeSelect: (ideaId: string, contentType: string) => void;
   onNavigateToIdeasBank?: () => void;
 }
@@ -79,6 +83,8 @@ const MainContentViewRouter: FC<MainContentViewRouterProps> = ({
   onSuccessStoryUpdated,
   onSuccessStoryDeleted,
   onProductContextAdded,
+  onProductContextUpdated,
+  onProductContextDeleted,
   onIdeaContentTypeSelect,
   onNavigateToIdeasBank,
 }) => {
@@ -135,6 +141,25 @@ const MainContentViewRouter: FC<MainContentViewRouterProps> = ({
           onSuccessStoryUpdated={onSuccessStoryUpdated}
           onSuccessStoryDeleted={onSuccessStoryDeleted}
         />
+      </div>
+    );
+  }
+
+  if (currentView === 'product-context') {
+    return (
+      <div className="p-6">
+        <ProductContextManager
+          productContext={currentProductContext}
+          onProductContextUpdated={onProductContextUpdated}
+        />
+      </div>
+    );
+  }
+
+  if (currentView === 'drafts') {
+    return (
+      <div className="p-6">
+        <DraftsManager selectedClientId={selectedClientId} />
       </div>
     );
   }

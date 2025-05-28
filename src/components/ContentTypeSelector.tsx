@@ -119,7 +119,7 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           What Would You Auto-Craft?
         </h2>
-        <p className="text-gray-600 max-w-2xl mx-auto leading-relaxed font-medium">
+        <p className="text-gray-600 max-w-2xl mx-auto leading-relaxed font-medium opacity-60">
           Select from below to start auto-crafting GTM assets<br />
           with narratives that win you buyers.
         </p>
@@ -143,7 +143,7 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
               </div>
             </CardHeader>
             <CardContent className="pt-0">
-              <p className="text-sm text-gray-700 leading-relaxed font-medium">
+              <p className="text-sm text-gray-700 leading-relaxed font-medium opacity-50">
                 {contentType.description}
               </p>
             </CardContent>
@@ -173,7 +173,7 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
                       <h4 className="font-medium text-gray-900 mb-1">
                         {idea.title}
                       </h4>
-                      <p className="text-sm text-gray-700 line-clamp-2 font-medium">
+                      <p className="text-sm text-gray-700 line-clamp-2 font-medium opacity-60">
                         {idea.narrative}
                       </p>
                     </div>

@@ -8,7 +8,7 @@ import { Client, Author, ICPStoryScript, CustomerSuccessStory, ProductContext } 
 import { GeneratedIdea } from '@/types/ideas';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 
-export type ViewType = 'home' | 'ideas' | 'clients' | 'authors' | 'icp-scripts' | 'success-stories';
+export type ViewType = 'home' | 'ideas' | 'clients' | 'authors' | 'icp-scripts' | 'success-stories' | 'product-context' | 'drafts';
 
 interface AppLayoutProps {
   user: { email: string };
@@ -70,7 +70,9 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
       props.currentView === 'clients' ||
       props.currentView === 'authors' ||
       props.currentView === 'icp-scripts' ||
-      props.currentView === 'success-stories';
+      props.currentView === 'success-stories' ||
+      props.currentView === 'product-context' ||
+      props.currentView === 'drafts';
 
     if (shouldCollapse && !sidebarCollapsed) {
       console.log('🏗️ AppLayout: Auto-collapsing sidebar');
@@ -101,6 +103,20 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
     return <LoadingState />;
   }
 
+  const getViewTitle = () => {
+    switch (props.currentView) {
+      case 'home': return 'Your Dashboard';
+      case 'ideas': return 'Ideas Bank';
+      case 'clients': return 'Client Manager';
+      case 'authors': return 'Author Manager';
+      case 'icp-scripts': return 'ICP Scripts';
+      case 'success-stories': return 'Success Stories';
+      case 'product-context': return 'Product Context';
+      case 'drafts': return 'Drafts';
+      default: return 'Your Dashboard';
+    }
+  };
+
   return (
     <SidebarProvider defaultOpen={!sidebarCollapsed}>
       <div className="min-h-screen flex w-full">
@@ -119,12 +135,7 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
             <div className="flex items-center space-x-4">
               <SidebarTrigger />
               <h2 className="text-lg font-medium text-gray-900">
-                {props.currentView === 'home' && 'Your Dashboard'}
-                {props.currentView === 'ideas' && 'Ideas Bank'}
-                {props.currentView === 'clients' && 'Client Manager'}
-                {props.currentView === 'authors' && 'Author Manager'}
-                {props.currentView === 'icp-scripts' && 'ICP Scripts'}
-                {props.currentView === 'success-stories' && 'Success Stories'}
+                {getViewTitle()}
               </h2>
             </div>
             
