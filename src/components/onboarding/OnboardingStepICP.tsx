@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Users, Upload, Plus } from "lucide-react";
 import { ICPStoryScript } from '@/types/storytelling';
 import TranscriptBasedICPCreator from '@/components/icp-scripts/TranscriptBasedICPCreator';
-import ICPFormSection from '@/components/icp-scripts/ICPFormSection';
+import ICPCreationModeSelector from '@/components/icp-scripts/ICPCreationModeSelector';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface OnboardingStepICPProps {
@@ -22,6 +22,7 @@ const OnboardingStepICP: FC<OnboardingStepICPProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState('upload');
   const [hasCreatedICP, setHasCreatedICP] = useState(false);
+  const [showManualForm, setShowManualForm] = useState(false);
 
   const handleICPCreated = (script: ICPStoryScript) => {
     const scriptWithClient = {
@@ -37,6 +38,16 @@ const OnboardingStepICP: FC<OnboardingStepICPProps> = ({
       return;
     }
     onNext();
+  };
+
+  const handleManualModeSelect = (mode: 'manual' | 'ai') => {
+    if (mode === 'manual') {
+      setShowManualForm(true);
+    }
+  };
+
+  const handleManualCancel = () => {
+    setShowManualForm(false);
   };
 
   return (
@@ -72,7 +83,8 @@ const OnboardingStepICP: FC<OnboardingStepICPProps> = ({
                 </p>
               </div>
               <TranscriptBasedICPCreator 
-                onICPScriptCreated={handleICPCreated}
+                onSave={handleICPCreated}
+                onCancel={() => {}}
                 selectedClientId={clientId}
               />
             </div>
@@ -86,10 +98,23 @@ const OnboardingStepICP: FC<OnboardingStepICPProps> = ({
                   Manually enter your target audience information and insights.
                 </p>
               </div>
-              <ICPFormSection 
-                onICPScriptCreated={handleICPCreated}
-                selectedClientId={clientId}
-              />
+              {showManualForm ? (
+                <div className="text-center p-4 border border-gray-200 rounded-lg">
+                  <p className="text-gray-600">Manual ICP creation form will be implemented here.</p>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleManualCancel}
+                    className="mt-2"
+                  >
+                    Back to Mode Selection
+                  </Button>
+                </div>
+              ) : (
+                <ICPCreationModeSelector
+                  onModeSelect={handleManualModeSelect}
+                  onCancel={() => {}}
+                />
+              )}
             </div>
           </TabsContent>
         </Tabs>

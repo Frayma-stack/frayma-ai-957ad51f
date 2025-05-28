@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSupabaseData } from "@/hooks/useSupabaseData";
@@ -140,7 +141,6 @@ const Index = () => {
           onProductContextAdded={handleProductContextAdded}
           onProductContextUpdated={handleProductContextUpdated}
           onProductContextDeleted={handleProductContextDeleted}
-          onViewClientAssets={handleViewClientAssets}
           loading={loading}
         />
 

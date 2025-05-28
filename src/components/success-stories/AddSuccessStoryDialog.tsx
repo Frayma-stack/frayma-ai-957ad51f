@@ -29,6 +29,14 @@ interface Feature {
   id: string;
   name: string;
   description: string;
+  usageDescription?: string;
+}
+
+interface UseCase {
+  id: string;
+  name: string;
+  description: string;
+  beneficiaryDescription?: string;
 }
 
 const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({ 
@@ -43,6 +51,7 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
   const [afterSummary, setAfterSummary] = useState('');
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [features, setFeatures] = useState<Feature[]>([]);
+  const [useCases, setUseCases] = useState<UseCase[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -52,12 +61,16 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
     afterSummary: string;
     quotes: Quote[];
     features: Feature[];
+    useCases?: UseCase[];
   }) => {
     setTitle(data.title);
     setBeforeSummary(data.beforeSummary);
     setAfterSummary(data.afterSummary);
     setQuotes(data.quotes);
     setFeatures(data.features);
+    if (data.useCases) {
+      setUseCases(data.useCases);
+    }
   };
 
   const handleAddQuote = (newQuote: Omit<Quote, 'id'>) => {
@@ -74,6 +87,14 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
   
   const handleRemoveFeature = (id: string) => {
     setFeatures(features.filter(feature => feature.id !== id));
+  };
+
+  const handleAddUseCase = (newUseCase: Omit<UseCase, 'id'>) => {
+    setUseCases([...useCases, { ...newUseCase, id: crypto.randomUUID() }]);
+  };
+  
+  const handleRemoveUseCase = (id: string) => {
+    setUseCases(useCases.filter(useCase => useCase.id !== id));
   };
   
   const handleSubmit = async () => {
@@ -97,6 +118,7 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
         afterSummary,
         quotes,
         features,
+        useCases,
         clientId: selectedClientId,
         createdAt: new Date().toISOString(),
       };
@@ -111,6 +133,7 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
       setAfterSummary('');
       setQuotes([]);
       setFeatures([]);
+      setUseCases([]);
       
       toast({
         title: "Success Story Added",
@@ -159,11 +182,13 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
                   afterSummary={afterSummary}
                   quotes={quotes}
                   features={features}
+                  useCases={useCases}
                   onTitleChange={setTitle}
                   onBeforeSummaryChange={setBeforeSummary}
                   onAfterSummaryChange={setAfterSummary}
                   onRemoveQuote={handleRemoveQuote}
                   onRemoveFeature={handleRemoveFeature}
+                  onRemoveUseCase={handleRemoveUseCase}
                 />
               </div>
             </ScrollArea>
@@ -178,6 +203,7 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
                 afterSummary={afterSummary}
                 quotes={quotes}
                 features={features}
+                useCases={useCases}
                 onTitleChange={setTitle}
                 onUrlChange={setUrl}
                 onBeforeSummaryChange={setBeforeSummary}
@@ -186,6 +212,8 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
                 onRemoveQuote={handleRemoveQuote}
                 onAddFeature={handleAddFeature}
                 onRemoveFeature={handleRemoveFeature}
+                onAddUseCase={handleAddUseCase}
+                onRemoveUseCase={handleRemoveUseCase}
               />
             </ScrollArea>
           </TabsContent>
