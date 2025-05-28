@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import SummaryForm from './SummaryForm';
 import QuoteManager from './QuoteManager';
 import FeatureManager from './FeatureManager';
+import UseCaseManager from './UseCaseManager';
 
 interface Quote {
   id: string;
@@ -17,6 +18,14 @@ interface Feature {
   id: string;
   name: string;
   description: string;
+  usageDescription?: string;
+}
+
+interface UseCase {
+  id: string;
+  name: string;
+  description: string;
+  beneficiaryDescription?: string;
 }
 
 interface ManualEntryFormProps {
@@ -26,6 +35,7 @@ interface ManualEntryFormProps {
   afterSummary: string;
   quotes: Quote[];
   features: Feature[];
+  useCases: UseCase[];
   onTitleChange: (title: string) => void;
   onUrlChange: (url: string) => void;
   onBeforeSummaryChange: (summary: string) => void;
@@ -34,6 +44,8 @@ interface ManualEntryFormProps {
   onRemoveQuote: (id: string) => void;
   onAddFeature: (feature: Omit<Feature, 'id'>) => void;
   onRemoveFeature: (id: string) => void;
+  onAddUseCase: (useCase: Omit<UseCase, 'id'>) => void;
+  onRemoveUseCase: (id: string) => void;
 }
 
 const ManualEntryForm: FC<ManualEntryFormProps> = ({
@@ -43,6 +55,7 @@ const ManualEntryForm: FC<ManualEntryFormProps> = ({
   afterSummary,
   quotes,
   features,
+  useCases,
   onTitleChange,
   onUrlChange,
   onBeforeSummaryChange,
@@ -51,9 +64,11 @@ const ManualEntryForm: FC<ManualEntryFormProps> = ({
   onRemoveQuote,
   onAddFeature,
   onRemoveFeature,
+  onAddUseCase,
+  onRemoveUseCase,
 }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="manual-title" className="text-right">
           Title
@@ -88,16 +103,22 @@ const ManualEntryForm: FC<ManualEntryFormProps> = ({
         onAfterSummaryChange={onAfterSummaryChange}
       />
       
-      <QuoteManager
-        quotes={quotes}
-        onAddQuote={onAddQuote}
-        onRemoveQuote={onRemoveQuote}
-      />
-      
       <FeatureManager
         features={features}
         onAddFeature={onAddFeature}
         onRemoveFeature={onRemoveFeature}
+      />
+      
+      <UseCaseManager
+        useCases={useCases}
+        onAddUseCase={onAddUseCase}
+        onRemoveUseCase={onRemoveUseCase}
+      />
+      
+      <QuoteManager
+        quotes={quotes}
+        onAddQuote={onAddQuote}
+        onRemoveQuote={onRemoveQuote}
       />
     </div>
   );

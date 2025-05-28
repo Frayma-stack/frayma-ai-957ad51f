@@ -17,6 +17,14 @@ interface Feature {
   id: string;
   name: string;
   description: string;
+  usageDescription?: string;
+}
+
+interface UseCase {
+  id: string;
+  name: string;
+  description: string;
+  beneficiaryDescription?: string;
 }
 
 interface ExtractedContentDisplayProps {
@@ -25,11 +33,13 @@ interface ExtractedContentDisplayProps {
   afterSummary: string;
   quotes: Quote[];
   features: Feature[];
+  useCases: UseCase[];
   onTitleChange: (title: string) => void;
   onBeforeSummaryChange: (summary: string) => void;
   onAfterSummaryChange: (summary: string) => void;
   onRemoveQuote: (id: string) => void;
   onRemoveFeature: (id: string) => void;
+  onRemoveUseCase: (id: string) => void;
 }
 
 const ExtractedContentDisplay: FC<ExtractedContentDisplayProps> = ({
@@ -38,13 +48,15 @@ const ExtractedContentDisplay: FC<ExtractedContentDisplayProps> = ({
   afterSummary,
   quotes,
   features,
+  useCases,
   onTitleChange,
   onBeforeSummaryChange,
   onAfterSummaryChange,
   onRemoveQuote,
   onRemoveFeature,
+  onRemoveUseCase,
 }) => {
-  const hasContent = title || beforeSummary || afterSummary || quotes.length > 0 || features.length > 0;
+  const hasContent = title || beforeSummary || afterSummary || quotes.length > 0 || features.length > 0 || useCases.length > 0;
 
   if (!hasContent) {
     return null;
@@ -92,6 +104,56 @@ const ExtractedContentDisplay: FC<ExtractedContentDisplayProps> = ({
           </div>
         )}
 
+        {features.length > 0 && (
+          <div>
+            <Label>Extracted Features</Label>
+            <div className="space-y-2 mt-2">
+              {features.map((feature) => (
+                <div key={feature.id} className="border p-3 rounded-md">
+                  <p className="font-medium">{feature.name}</p>
+                  <p className="text-sm text-gray-600">{feature.description}</p>
+                  {feature.usageDescription && (
+                    <p className="text-xs text-blue-600 mt-1">Usage: {feature.usageDescription}</p>
+                  )}
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => onRemoveFeature(feature.id)}
+                    className="mt-2"
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {useCases.length > 0 && (
+          <div>
+            <Label>Extracted Use Cases</Label>
+            <div className="space-y-2 mt-2">
+              {useCases.map((useCase) => (
+                <div key={useCase.id} className="border p-3 rounded-md">
+                  <p className="font-medium">{useCase.name}</p>
+                  <p className="text-sm text-gray-600">{useCase.description}</p>
+                  {useCase.beneficiaryDescription && (
+                    <p className="text-xs text-green-600 mt-1">Helped: {useCase.beneficiaryDescription}</p>
+                  )}
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => onRemoveUseCase(useCase.id)}
+                    className="mt-2"
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {quotes.length > 0 && (
           <div>
             <Label>Extracted Quotes</Label>
@@ -104,28 +166,6 @@ const ExtractedContentDisplay: FC<ExtractedContentDisplayProps> = ({
                     variant="outline" 
                     size="sm" 
                     onClick={() => onRemoveQuote(quote.id)}
-                    className="mt-2"
-                  >
-                    Remove
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {features.length > 0 && (
-          <div>
-            <Label>Extracted Features</Label>
-            <div className="space-y-2 mt-2">
-              {features.map((feature) => (
-                <div key={feature.id} className="border p-3 rounded-md">
-                  <p className="font-medium">{feature.name}</p>
-                  <p className="text-sm text-gray-600">{feature.description}</p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => onRemoveFeature(feature.id)}
                     className="mt-2"
                   >
                     Remove

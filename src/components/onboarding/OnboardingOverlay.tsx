@@ -1,5 +1,5 @@
 
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -9,11 +9,12 @@ import OnboardingStepAuthor from './OnboardingStepAuthor';
 import OnboardingStepClient from './OnboardingStepClient';
 import OnboardingStepICP from './OnboardingStepICP';
 import OnboardingStepIdeas from './OnboardingStepIdeas';
+import { Author, Client, ProductContext, ICPStoryScript } from '@/types/storytelling';
 
 interface OnboardingOverlayProps {
-  onAuthorAdded: (author: any) => void;
-  onClientAdded: (client: any, productContext?: any) => void;
-  onICPScriptAdded: (script: any) => void;
+  onAuthorAdded: (author: Author) => void;
+  onClientAdded: (client: Client, productContext?: ProductContext) => void;
+  onICPScriptAdded: (script: ICPStoryScript) => void;
   onNavigateToIdeasBank: () => void;
 }
 
@@ -24,31 +25,43 @@ const OnboardingOverlay: FC<OnboardingOverlayProps> = ({
   onNavigateToIdeasBank,
 }) => {
   const { isOnboarding, currentStep, totalSteps, nextStep, skipOnboarding } = useOnboarding();
+  const [createdClientId, setCreatedClientId] = useState<string | null>(null);
 
   if (!isOnboarding) return null;
+
+  const handleClientAdded = (client: Client, productContext?: ProductContext) => {
+    setCreatedClientId(client.id);
+    onClientAdded(client, productContext);
+  };
 
   const steps = [
     {
       title: "Add Yourself as an Author",
-      description: "Let's start by setting up your author profile using your social links",
+      description: "Set up your author profile using your social links for authentic content creation",
       icon: User,
       component: <OnboardingStepAuthor onAuthorAdded={onAuthorAdded} onNext={nextStep} />
     },
     {
       title: "Add Your Business",
-      description: "Tell us about your company to generate relevant content",
+      description: "Tell us about your company or client to generate relevant content",
       icon: Building,
-      component: <OnboardingStepClient onClientAdded={onClientAdded} onNext={nextStep} />
+      component: <OnboardingStepClient onClientAdded={handleClientAdded} onNext={nextStep} />
     },
     {
       title: "Define Your Target Audience",
-      description: "Upload a meeting transcript to extract your ICP insights",
+      description: "Create your ICP (Ideal Customer Profile) through transcript analysis or manual entry",
       icon: Users,
-      component: <OnboardingStepICP onICPScriptAdded={onICPScriptAdded} onNext={nextStep} />
+      component: (
+        <OnboardingStepICP 
+          onICPScriptAdded={onICPScriptAdded} 
+          onNext={nextStep}
+          clientId={createdClientId || ''}
+        />
+      )
     },
     {
-      title: "Generate Your First Ideas",
-      description: "Now let's create some amazing content ideas for you",
+      title: "Start Creating Content",
+      description: "Everything is set up! Let's generate your first content ideas",
       icon: Lightbulb,
       component: <OnboardingStepIdeas onNavigateToIdeasBank={onNavigateToIdeasBank} />
     }
@@ -71,7 +84,7 @@ const OnboardingOverlay: FC<OnboardingOverlayProps> = ({
                   Welcome to Frayma AI!
                 </CardTitle>
                 <CardDescription>
-                  Let's get you set up in just a few steps
+                  Let's get you set up with everything you need to create amazing content
                 </CardDescription>
               </div>
             </div>

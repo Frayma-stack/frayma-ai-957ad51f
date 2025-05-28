@@ -20,15 +20,19 @@ export const useIndexPageState = () => {
 
   // Listen for navigation events from ContentTypeSelector
   useEffect(() => {
-    const handleNavigateToIdeasBank = () => {
+    const handleNavigateToIdeasBank = (event: CustomEvent) => {
       console.log('📥 Navigation event received: navigate-to-ideas-bank');
+      // If we have a clientId from the event, set it
+      if (event.detail?.clientId) {
+        setSelectedClientId(event.detail.clientId);
+      }
       handleIdeasBankSelected();
     };
 
-    window.addEventListener('navigate-to-ideas-bank', handleNavigateToIdeasBank);
+    window.addEventListener('navigate-to-ideas-bank', handleNavigateToIdeasBank as EventListener);
     
     return () => {
-      window.removeEventListener('navigate-to-ideas-bank', handleNavigateToIdeasBank);
+      window.removeEventListener('navigate-to-ideas-bank', handleNavigateToIdeasBank as EventListener);
     };
   }, []);
 
@@ -111,6 +115,13 @@ export const useIndexPageState = () => {
     handleContentTypeSelect(contentType as ContentType);
   };
 
+  // New method to handle onboarding completion with automatic client selection
+  const handleOnboardingComplete = (clientId: string) => {
+    console.log('🎯 Onboarding complete, auto-selecting client:', clientId);
+    setSelectedClientId(clientId);
+    handleIdeasBankSelected();
+  };
+
   return {
     selectedContentType,
     selectedArticleSubtype,
@@ -125,5 +136,6 @@ export const useIndexPageState = () => {
     handleHomeSelected,
     handleBack,
     handleIdeaContentTypeSelect,
+    handleOnboardingComplete,
   };
 };

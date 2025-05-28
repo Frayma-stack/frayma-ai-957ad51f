@@ -1,204 +1,111 @@
 
 import { FC, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Upload, FileText } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, Upload, Plus } from "lucide-react";
 import { ICPStoryScript } from '@/types/storytelling';
+import TranscriptBasedICPCreator from '@/components/icp-scripts/TranscriptBasedICPCreator';
+import ICPFormSection from '@/components/icp-scripts/ICPFormSection';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface OnboardingStepICPProps {
   onICPScriptAdded: (script: ICPStoryScript) => void;
   onNext: () => void;
+  clientId: string;
 }
 
 const OnboardingStepICP: FC<OnboardingStepICPProps> = ({
   onICPScriptAdded,
   onNext,
+  clientId,
 }) => {
-  const [transcript, setTranscript] = useState('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [hasAnalyzed, setHasAnalyzed] = useState(false);
+  const [activeTab, setActiveTab] = useState('upload');
+  const [hasCreatedICP, setHasCreatedICP] = useState(false);
 
-  const handleAnalyze = async () => {
-    if (!transcript.trim()) return;
-
-    setIsAnalyzing(true);
-    
-    // Simulate analysis (replace with actual API call)
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    const mockICPScript: ICPStoryScript = {
-      id: crypto.randomUUID(),
-      name: 'Target Customer (From Meeting)',
-      demographics: 'Small business owners in tech, 25-45 years old, $1M-$10M revenue',
-      coreBeliefs: [
-        {
-          id: crypto.randomUUID(),
-          content: 'Technology should simplify, not complicate business operations'
-        },
-        {
-          id: crypto.randomUUID(),
-          content: 'Quality over quantity in customer relationships'
-        },
-        {
-          id: crypto.randomUUID(),
-          content: 'Authenticity builds trust and long-term success'
-        }
-      ],
-      internalPains: [
-        {
-          id: crypto.randomUUID(),
-          content: 'Feeling overwhelmed by too many tools and platforms'
-        },
-        {
-          id: crypto.randomUUID(),
-          content: 'Struggling to maintain consistent brand voice across channels'
-        },
-        {
-          id: crypto.randomUUID(),
-          content: 'Imposter syndrome when creating thought leadership content'
-        }
-      ],
-      externalStruggles: [
-        {
-          id: crypto.randomUUID(),
-          content: 'Limited time to create quality content consistently'
-        },
-        {
-          id: crypto.randomUUID(),
-          content: 'Difficulty standing out in crowded market'
-        },
-        {
-          id: crypto.randomUUID(),
-          content: 'Keeping up with rapidly changing digital marketing trends'
-        }
-      ],
-      desiredTransformations: [
-        {
-          id: crypto.randomUUID(),
-          content: 'Becoming a recognized thought leader in their industry'
-        },
-        {
-          id: crypto.randomUUID(),
-          content: 'Streamlined content creation process that saves time'
-        },
-        {
-          id: crypto.randomUUID(),
-          content: 'Authentic brand voice that resonates with ideal customers'
-        }
-      ]
+  const handleICPCreated = (script: ICPStoryScript) => {
+    const scriptWithClient = {
+      ...script,
+      clientId: clientId
     };
-
-    onICPScriptAdded(mockICPScript);
-    setIsAnalyzing(false);
-    setHasAnalyzed(true);
+    onICPScriptAdded(scriptWithClient);
+    setHasCreatedICP(true);
   };
 
-  const handleSkip = () => {
+  const handleNext = () => {
+    if (!hasCreatedICP) {
+      return;
+    }
     onNext();
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target?.result as string;
-        setTranscript(content);
-      };
-      reader.readAsText(file);
-    }
-  };
-
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardContent className="p-6 space-y-4">
-          <div>
-            <Label>Meeting Transcript</Label>
-            <p className="text-sm text-gray-600 mb-3">
-              Upload or paste a meeting transcript with your target customer to extract their mindset, 
-              pain points, and desired outcomes. This creates a powerful ICP profile.
-            </p>
-            
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="file"
-                    accept=".txt,.doc,.docx"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <Button variant="outline" size="sm" asChild>
-                    <span>
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload File
-                    </span>
-                  </Button>
-                </label>
-                <span className="text-sm text-gray-500">or paste text below</span>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center space-x-2">
+          <Users className="h-5 w-5 text-story-blue" />
+          <CardTitle>Define Your Target Audience</CardTitle>
+        </div>
+        <CardDescription>
+          Create an ICP (Ideal Customer Profile) script to understand your audience's needs, pains, and desired transformations.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="upload" className="flex items-center space-x-2">
+              <Upload className="h-4 w-4" />
+              <span>Upload Transcript</span>
+            </TabsTrigger>
+            <TabsTrigger value="manual" className="flex items-center space-x-2">
+              <Plus className="h-4 w-4" />
+              <span>Manual Entry</span>
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="upload" className="mt-4">
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium mb-2">Auto-Extract from Meeting Transcript</h4>
+                <p className="text-sm text-gray-600 mb-4">
+                  Upload a customer interview or meeting transcript to automatically extract ICP insights.
+                </p>
               </div>
-              
-              <Textarea
-                placeholder="Paste your meeting transcript here... Include customer quotes, pain points they mentioned, goals they discussed, and any insights about their mindset."
-                value={transcript}
-                onChange={(e) => setTranscript(e.target.value)}
-                className="min-h-[200px]"
+              <TranscriptBasedICPCreator 
+                onICPScriptCreated={handleICPCreated}
+                selectedClientId={clientId}
               />
             </div>
-            
-            {transcript && (
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <FileText className="h-4 w-4" />
-                <span>{transcript.length} characters</span>
+          </TabsContent>
+          
+          <TabsContent value="manual" className="mt-4">
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium mb-2">Manual ICP Creation</h4>
+                <p className="text-sm text-gray-600 mb-4">
+                  Manually enter your target audience information and insights.
+                </p>
               </div>
-            )}
+              <ICPFormSection 
+                onICPScriptCreated={handleICPCreated}
+                selectedClientId={clientId}
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {hasCreatedICP && (
+          <div className="mt-6 pt-4 border-t">
+            <Button 
+              onClick={handleNext}
+              className="w-full bg-story-blue hover:bg-story-light-blue"
+            >
+              Continue to Ideas Generation
+            </Button>
           </div>
-        </CardContent>
-      </Card>
-
-      {hasAnalyzed && (
-        <Card className="border-green-200 bg-green-50">
-          <CardContent className="p-4">
-            <p className="text-green-800 font-medium">
-              🎯 Perfect! We've extracted key insights about your target customer including their core beliefs, 
-              internal struggles, and desired transformations. This ICP profile will help create content that truly resonates.
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="flex space-x-3">
-        <Button
-          onClick={handleAnalyze}
-          disabled={!transcript.trim() || isAnalyzing || hasAnalyzed}
-          className="flex-1 bg-story-blue hover:bg-story-light-blue"
-        >
-          {isAnalyzing ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Analyzing Transcript...
-            </>
-          ) : hasAnalyzed ? (
-            'Analysis Complete ✓'
-          ) : (
-            'Extract ICP Insights'
-          )}
-        </Button>
-        
-        {hasAnalyzed && (
-          <Button onClick={onNext} className="flex-1">
-            Continue
-          </Button>
         )}
-        
-        <Button variant="outline" onClick={handleSkip}>
-          Skip
-        </Button>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
