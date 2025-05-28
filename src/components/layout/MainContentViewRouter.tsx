@@ -1,205 +1,116 @@
 
 import { FC } from 'react';
-import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
-import { Client, Author, ICPStoryScript, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
-import { GeneratedIdea } from '@/types/ideas';
-import { ViewType } from '@/components/layout/AppLayout';
-import HomeViewRouter from '@/components/content/HomeViewRouter';
-import ClientManager from '@/components/ClientManager';
-import AuthorManager from '@/components/AuthorManager';
-import ICPStoryScriptManager from '@/components/ICPStoryScriptManager';
-import CustomerSuccessManager from '@/components/CustomerSuccessManager';
-import IdeasBank from '@/components/ideas/IdeasBank';
-import ProductContextManager from '@/components/ProductContextManager';
-import DraftsManager from '@/components/drafts/DraftsManager';
+import { MainContentViewRouterProps } from './types/MainContentViewRouterTypes';
+import ClientsView from './views/ClientsView';
+import AuthorsView from './views/AuthorsView';
+import ICPScriptsView from './views/ICPScriptsView';
+import SuccessStoriesView from './views/SuccessStoriesView';
+import ProductContextView from './views/ProductContextView';
+import DraftsView from './views/DraftsView';
+import IdeasView from './views/IdeasView';
+import HomeView from './views/HomeView';
 
-interface MainContentViewRouterProps {
-  currentView: ViewType;
-  selectedType: ContentType | null;
-  selectedArticleSubtype: ArticleSubType | null;
-  selectedClientId: string | null;
-  clients: Client[];
-  filteredAuthors: Author[];
-  filteredICPScripts: ICPStoryScript[];
-  filteredSuccessStories: CustomerSuccessStory[];
-  currentProductContext: ProductContext | null;
-  ideas: GeneratedIdea[];
-  onContentTypeSelect: (type: ContentType) => void;
-  onArticleSubtypeSelect: (subtype: ArticleSubType) => void;
-  onBack: () => void;
-  onClientAdded: (client: Client, productContext?: ProductContext) => void;
-  onClientUpdated: (client: Client, productContext?: ProductContext) => void;
-  onClientDeleted: (clientId: string) => void;
-  onClientSelected: (clientId: string | null) => void;
-  onViewClientAssets: (clientId: string, assetType: string) => void;
-  onAuthorAdded: (author: Author) => void;
-  onAuthorUpdated: (author: Author) => void;
-  onAuthorDeleted: (authorId: string) => void;
-  onIdeaAdded: (idea: GeneratedIdea) => void;
-  onIdeaUpdated: (idea: GeneratedIdea) => void;
-  onIdeaDeleted: (ideaId: string) => void;
-  onICPScriptAdded: (script: ICPStoryScript) => void;
-  onICPScriptUpdated: (script: ICPStoryScript) => void;
-  onICPScriptDeleted: (scriptId: string) => void;
-  onSuccessStoryAdded: (story: CustomerSuccessStory) => void;
-  onSuccessStoryUpdated: (story: CustomerSuccessStory) => void;
-  onSuccessStoryDeleted: (storyId: string) => void;
-  onProductContextAdded: (context: ProductContext) => void;
-  onProductContextUpdated: (context: ProductContext) => void;
-  onProductContextDeleted: (contextId: string) => void;
-  onIdeaContentTypeSelect: (ideaId: string, contentType: string) => void;
-  onNavigateToIdeasBank?: () => void;
-}
+const MainContentViewRouter: FC<MainContentViewRouterProps> = (props) => {
+  const { currentView } = props;
 
-const MainContentViewRouter: FC<MainContentViewRouterProps> = ({
-  currentView,
-  selectedType,
-  selectedArticleSubtype,
-  selectedClientId,
-  clients,
-  filteredAuthors,
-  filteredICPScripts,
-  filteredSuccessStories,
-  currentProductContext,
-  ideas,
-  onContentTypeSelect,
-  onArticleSubtypeSelect,
-  onBack,
-  onClientAdded,
-  onClientUpdated,
-  onClientDeleted,
-  onClientSelected,
-  onViewClientAssets,
-  onAuthorAdded,
-  onAuthorUpdated,
-  onAuthorDeleted,
-  onIdeaAdded,
-  onIdeaUpdated,
-  onIdeaDeleted,
-  onICPScriptAdded,
-  onICPScriptUpdated,
-  onICPScriptDeleted,
-  onSuccessStoryAdded,
-  onSuccessStoryUpdated,
-  onSuccessStoryDeleted,
-  onProductContextAdded,
-  onProductContextUpdated,
-  onProductContextDeleted,
-  onIdeaContentTypeSelect,
-  onNavigateToIdeasBank,
-}) => {
   if (currentView === 'clients') {
     return (
-      <div className="p-6">
-        <ClientManager
-          clients={clients}
-          selectedClientId={selectedClientId}
-          onClientAdded={onClientAdded}
-          onClientUpdated={onClientUpdated}
-          onClientDeleted={onClientDeleted}
-          onClientSelected={onClientSelected}
-          onViewClientAssets={onViewClientAssets}
-          onProductContextAdded={onProductContextAdded}
-        />
-      </div>
+      <ClientsView
+        clients={props.clients}
+        selectedClientId={props.selectedClientId}
+        onClientAdded={props.onClientAdded}
+        onClientUpdated={props.onClientUpdated}
+        onClientDeleted={props.onClientDeleted}
+        onClientSelected={props.onClientSelected}
+        onViewClientAssets={props.onViewClientAssets}
+        onProductContextAdded={props.onProductContextAdded}
+      />
     );
   }
 
   if (currentView === 'authors') {
     return (
-      <div className="p-6">
-        <AuthorManager
-          authors={filteredAuthors}
-          onAuthorAdded={onAuthorAdded}
-          onAuthorUpdated={onAuthorUpdated}
-          onAuthorDeleted={onAuthorDeleted}
-        />
-      </div>
+      <AuthorsView
+        filteredAuthors={props.filteredAuthors}
+        onAuthorAdded={props.onAuthorAdded}
+        onAuthorUpdated={props.onAuthorUpdated}
+        onAuthorDeleted={props.onAuthorDeleted}
+      />
     );
   }
 
   if (currentView === 'icp-scripts') {
     return (
-      <div className="p-6">
-        <ICPStoryScriptManager
-          scripts={filteredICPScripts}
-          onScriptAdded={onICPScriptAdded}
-          onScriptUpdated={onICPScriptUpdated}
-          onScriptDeleted={onICPScriptDeleted}
-          selectedClientId={selectedClientId}
-        />
-      </div>
+      <ICPScriptsView
+        filteredICPScripts={props.filteredICPScripts}
+        selectedClientId={props.selectedClientId}
+        onICPScriptAdded={props.onICPScriptAdded}
+        onICPScriptUpdated={props.onICPScriptUpdated}
+        onICPScriptDeleted={props.onICPScriptDeleted}
+      />
     );
   }
 
   if (currentView === 'success-stories') {
     return (
-      <div className="p-6">
-        <CustomerSuccessManager
-          successStories={filteredSuccessStories}
-          onSuccessStoryAdded={onSuccessStoryAdded}
-          onSuccessStoryUpdated={onSuccessStoryUpdated}
-          onSuccessStoryDeleted={onSuccessStoryDeleted}
-        />
-      </div>
+      <SuccessStoriesView
+        filteredSuccessStories={props.filteredSuccessStories}
+        onSuccessStoryAdded={props.onSuccessStoryAdded}
+        onSuccessStoryUpdated={props.onSuccessStoryUpdated}
+        onSuccessStoryDeleted={props.onSuccessStoryDeleted}
+      />
     );
   }
 
   if (currentView === 'product-context') {
     return (
-      <div className="p-6">
-        <ProductContextManager
-          productContext={currentProductContext}
-          onProductContextUpdated={onProductContextUpdated}
-        />
-      </div>
+      <ProductContextView
+        currentProductContext={props.currentProductContext}
+        onProductContextUpdated={props.onProductContextUpdated}
+      />
     );
   }
 
   if (currentView === 'drafts') {
     return (
-      <div className="p-6">
-        <DraftsManager selectedClientId={selectedClientId} />
-      </div>
+      <DraftsView
+        selectedClientId={props.selectedClientId}
+      />
     );
   }
 
   if (currentView === 'ideas') {
     return (
-      <div className="p-6">
-        <IdeasBank
-          scripts={filteredICPScripts}
-          productContext={currentProductContext}
-          ideas={ideas}
-          onIdeaAdded={onIdeaAdded}
-          onIdeaUpdated={onIdeaUpdated}
-          onIdeaDeleted={onIdeaDeleted}
-          selectedClientId={selectedClientId}
-          onContentTypeSelect={onIdeaContentTypeSelect}
-        />
-      </div>
+      <IdeasView
+        filteredICPScripts={props.filteredICPScripts}
+        currentProductContext={props.currentProductContext}
+        ideas={props.ideas}
+        selectedClientId={props.selectedClientId}
+        onIdeaAdded={props.onIdeaAdded}
+        onIdeaUpdated={props.onIdeaUpdated}
+        onIdeaDeleted={props.onIdeaDeleted}
+        onIdeaContentTypeSelect={props.onIdeaContentTypeSelect}
+      />
     );
   }
 
-  // Home view
+  // Home view (default)
   return (
-    <div className="p-6">
-      <HomeViewRouter
-        selectedType={selectedType}
-        selectedArticleSubtype={selectedArticleSubtype}
-        filteredICPScripts={filteredICPScripts}
-        filteredSuccessStories={filteredSuccessStories}
-        filteredAuthors={filteredAuthors}
-        currentProductContext={currentProductContext}
-        ideas={ideas}
-        selectedClientId={selectedClientId}
-        onContentTypeSelect={onContentTypeSelect}
-        onArticleSubtypeSelect={onArticleSubtypeSelect}
-        onBack={onBack}
-        onSuccessStoryAdded={onSuccessStoryAdded}
-        onNavigateToIdeasBank={onNavigateToIdeasBank}
-      />
-    </div>
+    <HomeView
+      selectedType={props.selectedType}
+      selectedArticleSubtype={props.selectedArticleSubtype}
+      filteredICPScripts={props.filteredICPScripts}
+      filteredSuccessStories={props.filteredSuccessStories}
+      filteredAuthors={props.filteredAuthors}
+      currentProductContext={props.currentProductContext}
+      ideas={props.ideas}
+      selectedClientId={props.selectedClientId}
+      onContentTypeSelect={props.onContentTypeSelect}
+      onArticleSubtypeSelect={props.onArticleSubtypeSelect}
+      onBack={props.onBack}
+      onSuccessStoryAdded={props.onSuccessStoryAdded}
+      onNavigateToIdeasBank={props.onNavigateToIdeasBank}
+    />
   );
 };
 
