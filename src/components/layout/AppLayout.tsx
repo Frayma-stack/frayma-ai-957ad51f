@@ -11,31 +11,26 @@ import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 export type ViewType = 'home' | 'ideas' | 'clients' | 'authors' | 'icp-scripts' | 'success-stories' | 'product-context' | 'drafts';
 
 interface AppLayoutProps {
-  user: { email: string };
-  dataLoading: boolean;
-  currentView: ViewType;
-  selectedContentType: ContentType | null;
-  selectedArticleSubtype: ArticleSubType | null;
-  selectedAssetType: string | null;
-  selectedClientId: string | null;
   clients: Client[];
   authors: Author[];
   ideas: GeneratedIdea[];
   icpScripts: ICPStoryScript[];
   successStories: CustomerSuccessStory[];
   productContexts: ProductContext[];
-  getFilteredAuthors: () => Author[];
-  getFilteredICPScripts: () => ICPStoryScript[];
-  getFilteredSuccessStories: () => CustomerSuccessStory[];
-  getCurrentProductContext: () => ProductContext | null;
-  handleProductContextCreatedOrUpdated: (productContext: ProductContext) => void;
+  selectedContentType: ContentType | null;
+  selectedArticleSubtype: ArticleSubType | null;
+  selectedAssetType: string | null;
+  selectedClientId: string | null;
+  currentView: ViewType;
+  loading: boolean;
+  onContentTypeSelect: (type: ContentType) => void;
+  onArticleSubtypeSelect: (subtype: ArticleSubType) => void;
   onAssetTypeChange: (type: string) => void;
   onClientSelected: (clientId: string | null) => void;
   onIdeasBankSelected: () => void;
   onHomeSelected: () => void;
-  onContentTypeSelect: (type: ContentType) => void;
-  onArticleSubtypeSelect: (subtype: ArticleSubType) => void;
   onBack: () => void;
+  onIdeaContentTypeSelect: (ideaId: string, contentType: string) => void;
   onClientAdded: (client: Client, productContext?: ProductContext) => void;
   onClientUpdated: (client: Client, productContext?: ProductContext) => void;
   onClientDeleted: (clientId: string) => void;
@@ -54,7 +49,6 @@ interface AppLayoutProps {
   onProductContextAdded: (context: ProductContext) => void;
   onProductContextUpdated: (context: ProductContext) => void;
   onProductContextDeleted: (contextId: string) => void;
-  onIdeaContentTypeSelect: (ideaId: string, contentType: string) => void;
 }
 
 const AppLayout: FC<AppLayoutProps> = (props) => {
@@ -99,7 +93,7 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
     props.onIdeasBankSelected();
   };
 
-  if (props.dataLoading) {
+  if (props.loading) {
     return <LoadingState />;
   }
 
@@ -116,6 +110,9 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
       default: return 'Your Dashboard';
     }
   };
+
+  // Mock user for display purposes - in a real app this would come from auth context
+  const mockUser = { email: 'user@example.com' };
 
   return (
     <SidebarProvider defaultOpen={!sidebarCollapsed}>
@@ -140,7 +137,7 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
             </div>
             
             <div className="text-sm text-gray-500">
-              {props.user.email}
+              {mockUser.email}
             </div>
           </div>
           

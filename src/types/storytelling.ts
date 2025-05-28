@@ -30,6 +30,13 @@ export interface CustomerSuccessStory {
     id: string;
     name: string;
     description: string;
+    usageDescription?: string;
+  }>;
+  useCases?: Array<{
+    id: string;
+    name: string;
+    description: string;
+    beneficiaryDescription?: string;
   }>;
   clientId?: string; // Optional client ID to associate with a client
   createdAt: string;
