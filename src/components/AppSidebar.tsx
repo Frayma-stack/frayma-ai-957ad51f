@@ -83,6 +83,7 @@ const AppSidebar: FC<AppSidebarProps> = ({
               onAssetTypeChange={onAssetTypeChange}
               onClientAssetClick={handleClientAssetClick}
               onAddClientClick={handleAddClientClick}
+              onClientSelected={onClientSelected}
             />
           </SidebarGroupContent>
         </SidebarGroup>
