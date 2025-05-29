@@ -1,3 +1,4 @@
+
 import { AuthorExperience, AuthorToneItem, AuthorBelief } from '@/types/storytelling';
 
 export const transformAnalysisResults = (parsedData: any) => {
@@ -42,22 +43,32 @@ export const transformAnalysisResults = (parsedData: any) => {
     });
   }
   
-  // Transform writing tones with better defaults
-  const tones: AuthorToneItem[] = (parsedData.writingTones || []).map((tone: any) => ({
-    id: crypto.randomUUID(),
-    tone: tone.toneTitle || tone.tone || 'Professional',
-    description: tone.toneSummary || tone.description || 'Communication style'
-  }));
+  // Transform writing tones - ensure we have exactly 4 meaningful tones
+  const tones: AuthorToneItem[] = [];
   
-  // Ensure we have at least 3 meaningful tones
+  // Add tones from parsed data first
+  if (parsedData.writingTones && Array.isArray(parsedData.writingTones)) {
+    parsedData.writingTones.forEach((tone: any) => {
+      if (tone.toneTitle && tone.toneSummary) {
+        tones.push({
+          id: crypto.randomUUID(),
+          tone: tone.toneTitle,
+          description: tone.toneSummary
+        });
+      }
+    });
+  }
+  
+  // Ensure we have exactly 4 tones with meaningful defaults
   const defaultTones = [
-    { tone: 'Professional', description: 'Clear and authoritative communication' },
-    { tone: 'Analytical', description: 'Data-driven and logical approach' },
-    { tone: 'Engaging', description: 'Compelling and accessible content' },
-    { tone: 'Authentic', description: 'Genuine and relatable voice' }
+    { tone: 'Professional', description: 'Clear and authoritative communication style with industry expertise' },
+    { tone: 'Analytical', description: 'Data-driven approach with logical problem-solving focus' },
+    { tone: 'Engaging', description: 'Accessible and compelling content that connects with audience' },
+    { tone: 'Authentic', description: 'Genuine voice that reflects personal experience and values' }
   ];
   
-  defaultTones.forEach((defaultTone, index) => {
+  // Fill in missing tones up to 4
+  defaultTones.forEach((defaultTone) => {
     if (tones.length < 4 && !tones.some(t => t.tone.toLowerCase().includes(defaultTone.tone.toLowerCase()))) {
       tones.push({
         id: crypto.randomUUID(),
@@ -65,23 +76,42 @@ export const transformAnalysisResults = (parsedData: any) => {
       });
     }
   });
-
-  // Transform product beliefs
-  const beliefs: AuthorBelief[] = (parsedData.productBeliefs || []).map((belief: any) => ({
-    id: crypto.randomUUID(),
-    belief: belief.beliefTitle || belief.belief || 'Product Excellence',
-    description: belief.beliefSummary || belief.description || 'Core product philosophy'
-  }));
   
-  // Ensure we have meaningful beliefs
+  // Ensure exactly 4 tones
+  while (tones.length < 4) {
+    tones.push({
+      id: crypto.randomUUID(),
+      tone: 'Strategic',
+      description: 'Forward-thinking approach with focus on long-term goals and outcomes'
+    });
+  }
+
+  // Transform product beliefs - ensure we have exactly 4 meaningful beliefs
+  const beliefs: AuthorBelief[] = [];
+  
+  // Add beliefs from parsed data first
+  if (parsedData.productBeliefs && Array.isArray(parsedData.productBeliefs)) {
+    parsedData.productBeliefs.forEach((belief: any) => {
+      if (belief.beliefTitle && belief.beliefSummary) {
+        beliefs.push({
+          id: crypto.randomUUID(),
+          belief: belief.beliefTitle,
+          description: belief.beliefSummary
+        });
+      }
+    });
+  }
+  
+  // Ensure we have exactly 4 beliefs with meaningful defaults
   const defaultBeliefs = [
-    { belief: 'User-Centric Design', description: 'Products should solve real user problems' },
-    { belief: 'Data-Driven Decisions', description: 'Insights should guide product strategy' },
-    { belief: 'Continuous Innovation', description: 'Always evolving to meet market needs' },
-    { belief: 'Quality over Speed', description: 'Sustainable excellence in execution' }
+    { belief: 'User-Centric Design', description: 'Products should solve real user problems with intuitive experiences' },
+    { belief: 'Data-Driven Decisions', description: 'Strategic choices backed by insights and measurable outcomes' },
+    { belief: 'Continuous Innovation', description: 'Always evolving to meet changing market needs and opportunities' },
+    { belief: 'Quality Excellence', description: 'Sustainable execution focused on long-term value creation' }
   ];
   
-  defaultBeliefs.forEach((defaultBelief, index) => {
+  // Fill in missing beliefs up to 4
+  defaultBeliefs.forEach((defaultBelief) => {
     if (beliefs.length < 4 && !beliefs.some(b => b.belief.toLowerCase().includes(defaultBelief.belief.toLowerCase()))) {
       beliefs.push({
         id: crypto.randomUUID(),
@@ -89,6 +119,15 @@ export const transformAnalysisResults = (parsedData: any) => {
       });
     }
   });
+  
+  // Ensure exactly 4 beliefs
+  while (beliefs.length < 4) {
+    beliefs.push({
+      id: crypto.randomUUID(),
+      belief: 'Customer Success',
+      description: 'Prioritizing customer outcomes and long-term relationship building'
+    });
+  }
   
   // Extract organization from experiences if not directly available
   let organization = parsedData.organization || '';
@@ -113,6 +152,6 @@ export const transformAnalysisResults = (parsedData: any) => {
     beliefs: beliefs.slice(0, 4) // Exactly 4 beliefs
   };
   
-  console.log('Transformed result:', result);
+  console.log('Transformed result with experiences:', result.experiences.length, 'tones:', result.tones.length, 'beliefs:', result.beliefs.length);
   return result;
 };
