@@ -2,6 +2,8 @@
 import { FC, useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import DraftEditor from './DraftEditor';
 import DraftsHeader from './DraftsHeader';
 import DraftsList from './DraftsList';
@@ -28,70 +30,113 @@ interface DraftsManagerProps {
 
 const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingDraft, setEditingDraft] = useState<Draft | null>(null);
 
-  // Mock data for now - in the future this would come from Supabase
+  // Load drafts from Supabase
   useEffect(() => {
-    setIsLoading(true);
-    // Simulate loading time
-    setTimeout(() => {
-      if (selectedClientId) {
-        // Mock some drafts for the selected client
-        setDrafts([
-          {
-            id: '1',
-            title: 'GTM Strategy Q1 2024',
-            contentType: 'gtm-narrative',
-            content: 'This is a draft of our go-to-market narrative focusing on enterprise customers...',
-            status: 'draft',
-            clientId: selectedClientId,
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
-            updatedAt: new Date(Date.now() - 3600000).toISOString(),
-            createdBy: 'John Doe',
-            lastEditedBy: 'Jane Smith'
-          },
-          {
-            id: '2',
-            title: 'Product Launch Email Campaign',
-            contentType: 'sales-email',
-            content: 'Subject: Introducing our latest innovation... Dear [Name], We are excited to announce...',
-            status: 'in-review',
-            clientId: selectedClientId,
-            createdAt: new Date(Date.now() - 172800000).toISOString(),
-            updatedAt: new Date(Date.now() - 7200000).toISOString(),
-            createdBy: 'Alice Johnson'
-          }
-        ]);
-      } else {
+    const loadDrafts = async () => {
+      if (!user || !selectedClientId) {
         setDrafts([]);
+        setIsLoading(false);
+        return;
       }
-      setIsLoading(false);
-    }, 500);
-  }, [selectedClientId]);
 
-  const handleCreateDraft = () => {
-    // Create a new draft
-    const newDraft: Draft = {
-      id: Date.now().toString(),
-      title: 'New Draft',
-      contentType: 'custom',
-      content: '',
-      status: 'draft',
-      clientId: selectedClientId || '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdBy: 'Current User'
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('drafts')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('client_id', selectedClientId)
+          .order('updated_at', { ascending: false });
+
+        if (error) throw error;
+
+        const transformedDrafts: Draft[] = (data || []).map(draft => ({
+          id: draft.id,
+          title: draft.title,
+          contentType: draft.content_type as Draft['contentType'],
+          content: draft.content,
+          status: draft.status as Draft['status'],
+          clientId: draft.client_id,
+          authorId: draft.author_id || undefined,
+          createdAt: draft.created_at,
+          updatedAt: draft.updated_at,
+          createdBy: draft.created_by,
+          lastEditedBy: draft.last_edited_by || undefined
+        }));
+
+        setDrafts(transformedDrafts);
+      } catch (error) {
+        console.error('Failed to load drafts:', error);
+        toast({
+          title: "Error Loading Drafts",
+          description: "Failed to load drafts from the database.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
     };
-    
-    setDrafts(prev => [newDraft, ...prev]);
-    setEditingDraft(newDraft);
-    
-    toast({
-      title: "Draft Created",
-      description: "New draft has been created and is ready for editing.",
-    });
+
+    loadDrafts();
+  }, [selectedClientId, user]);
+
+  const handleCreateDraft = async () => {
+    if (!user || !selectedClientId) return;
+
+    try {
+      const newDraftData = {
+        title: 'New Draft',
+        content_type: 'custom',
+        content: '',
+        status: 'draft',
+        client_id: selectedClientId,
+        user_id: user.id,
+        created_by: user.email || 'Unknown User',
+        last_edited_by: user.email || 'Unknown User'
+      };
+
+      const { data, error } = await supabase
+        .from('drafts')
+        .insert(newDraftData)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newDraft: Draft = {
+        id: data.id,
+        title: data.title,
+        contentType: data.content_type as Draft['contentType'],
+        content: data.content,
+        status: data.status as Draft['status'],
+        clientId: data.client_id,
+        authorId: data.author_id || undefined,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        createdBy: data.created_by,
+        lastEditedBy: data.last_edited_by || undefined
+      };
+
+      setDrafts(prev => [newDraft, ...prev]);
+      setEditingDraft(newDraft);
+
+      toast({
+        title: "Draft Created",
+        description: "New draft has been created and is ready for editing.",
+      });
+    } catch (error) {
+      console.error('Failed to create draft:', error);
+      toast({
+        title: "Error Creating Draft",
+        description: "Failed to create a new draft.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEditDraft = (draftId: string) => {
@@ -101,27 +146,69 @@ const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
     }
   };
 
-  const handleSaveDraft = (updatedDraft: Draft) => {
-    setDrafts(prev => prev.map(draft => 
-      draft.id === updatedDraft.id ? updatedDraft : draft
-    ));
-    
-    toast({
-      title: "Draft Updated",
-      description: "Your changes have been saved successfully.",
-    });
+  const handleSaveDraft = async (updatedDraft: Draft) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('drafts')
+        .update({
+          title: updatedDraft.title,
+          content: updatedDraft.content,
+          content_type: updatedDraft.contentType,
+          status: updatedDraft.status,
+          last_edited_by: user.email || 'Unknown User',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', updatedDraft.id);
+
+      if (error) throw error;
+
+      setDrafts(prev => prev.map(draft => 
+        draft.id === updatedDraft.id ? updatedDraft : draft
+      ));
+
+      toast({
+        title: "Draft Updated",
+        description: "Your changes have been saved successfully.",
+      });
+    } catch (error) {
+      console.error('Failed to save draft:', error);
+      toast({
+        title: "Error Saving Draft",
+        description: "Failed to save your changes.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleBackToList = () => {
     setEditingDraft(null);
   };
 
-  const handleDeleteDraft = (draftId: string) => {
-    if (confirm('Are you sure you want to delete this draft?')) {
+  const handleDeleteDraft = async (draftId: string) => {
+    if (!confirm('Are you sure you want to delete this draft?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('drafts')
+        .delete()
+        .eq('id', draftId);
+
+      if (error) throw error;
+
       setDrafts(prev => prev.filter(draft => draft.id !== draftId));
+      
       toast({
         title: "Draft Deleted",
         description: "The draft has been successfully deleted.",
+      });
+    } catch (error) {
+      console.error('Failed to delete draft:', error);
+      toast({
+        title: "Error Deleting Draft",
+        description: "Failed to delete the draft.",
+        variant: "destructive",
       });
     }
   };

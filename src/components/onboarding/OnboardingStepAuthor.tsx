@@ -50,8 +50,8 @@ const OnboardingStepAuthor: FC<OnboardingStepAuthorProps> = ({
         </CardHeader>
         <CardContent>
           <AuthorForm 
-            onAuthorAdded={handleAuthorCreated}
-            initialAuthor={createdAuthor}
+            onSave={handleAuthorCreated}
+            initialData={createdAuthor}
           />
         </CardContent>
       </Card>
@@ -140,7 +140,7 @@ const OnboardingStepAuthor: FC<OnboardingStepAuthorProps> = ({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <AuthorForm onAuthorAdded={handleAuthorCreated} />
+        <AuthorForm onSave={handleAuthorCreated} />
       </CardContent>
     </Card>
   );

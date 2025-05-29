@@ -37,15 +37,15 @@ const OnboardingStepIdeas: FC<OnboardingStepIdeasProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div className="bg-white/50 rounded-lg p-3">
               <div className="font-medium text-green-800 mb-1">Author Profile</div>
-              <div className="text-green-700">Your unique voice and expertise captured</div>
+              <div className="text-green-700">Your unique voice and expertise captured by Frayma AI</div>
             </div>
             <div className="bg-white/50 rounded-lg p-3">
               <div className="font-medium text-blue-800 mb-1">Business Context</div>
-              <div className="text-blue-700">Product features and market position analyzed</div>
+              <div className="text-blue-700">Product features and market position analyzed by Frayma AI</div>
             </div>
             <div className="bg-white/50 rounded-lg p-3">
               <div className="font-medium text-purple-800 mb-1">Target Audience</div>
-              <div className="text-purple-700">ICP insights and narrative anchors identified</div>
+              <div className="text-purple-700">ICP insights and narrative anchors identified by Frayma AI</div>
             </div>
           </div>
         </div>
@@ -65,7 +65,7 @@ const OnboardingStepIdeas: FC<OnboardingStepIdeasProps> = ({
             className="bg-story-blue hover:bg-story-light-blue text-white px-8 py-3 text-lg"
           >
             <Sparkles className="h-5 w-5 mr-2" />
-            Mint New Narrative Ideas
+            Generate Ideas with Frayma AI
             <ArrowRight className="h-5 w-5 ml-2" />
           </Button>
           

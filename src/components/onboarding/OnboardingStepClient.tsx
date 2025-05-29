@@ -19,6 +19,7 @@ const OnboardingStepClient: FC<OnboardingStepClientProps> = ({
   const [createdClient, setCreatedClient] = useState<Client | null>(null);
   const [createdProductContext, setCreatedProductContext] = useState<ProductContext | null>(null);
   const [showEditMode, setShowEditMode] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(true);
 
   const handleClientCreated = (client: Client, productContext?: ProductContext) => {
     console.log('🏢 Client created in onboarding:', client.name);
@@ -26,6 +27,7 @@ const OnboardingStepClient: FC<OnboardingStepClientProps> = ({
     setCreatedProductContext(productContext || null);
     setHasCreatedClient(true);
     setShowEditMode(false);
+    setDialogOpen(false);
     onClientAdded(client, productContext);
   };
 
@@ -36,6 +38,7 @@ const OnboardingStepClient: FC<OnboardingStepClientProps> = ({
 
   const handleEditClient = () => {
     setShowEditMode(true);
+    setDialogOpen(true);
   };
 
   if (showEditMode) {
@@ -52,8 +55,11 @@ const OnboardingStepClient: FC<OnboardingStepClientProps> = ({
         </CardHeader>
         <CardContent>
           <EnhancedClientDialog
-            open={true}
-            onOpenChange={() => setShowEditMode(false)}
+            isOpen={dialogOpen}
+            onClose={() => {
+              setShowEditMode(false);
+              setDialogOpen(false);
+            }}
             onClientAdded={handleClientCreated}
             initialClient={createdClient}
             initialProductContext={createdProductContext}
@@ -147,8 +153,8 @@ const OnboardingStepClient: FC<OnboardingStepClientProps> = ({
       </CardHeader>
       <CardContent>
         <EnhancedClientDialog
-          open={true}
-          onOpenChange={() => {}}
+          isOpen={dialogOpen}
+          onClose={() => setDialogOpen(false)}
           onClientAdded={handleClientCreated}
         />
       </CardContent>
