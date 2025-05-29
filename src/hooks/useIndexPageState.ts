@@ -82,7 +82,7 @@ export const useIndexPageState = () => {
   };
 
   const handleIdeasBankSelected = () => {
-    console.log('💡 Ideas Bank selected');
+    console.log('💡 Ideas Bank selected - navigating to ideas view');
     setCurrentView('ideas');
     setSelectedContentType(null);
     setSelectedArticleSubtype(null);
@@ -115,11 +115,14 @@ export const useIndexPageState = () => {
     handleContentTypeSelect(contentType as ContentType);
   };
 
-  // New method to handle onboarding completion with automatic client selection
+  // Enhanced method to handle onboarding completion with automatic client selection and navigation
   const handleOnboardingComplete = (clientId: string) => {
-    console.log('🎯 Onboarding complete, auto-selecting client:', clientId);
+    console.log('🎯 Onboarding complete, auto-selecting client and navigating to ideas:', clientId);
     setSelectedClientId(clientId);
-    handleIdeasBankSelected();
+    setCurrentView('ideas');
+    setSelectedAssetType('ideas');
+    setSelectedContentType(null);
+    setSelectedArticleSubtype(null);
   };
 
   return {

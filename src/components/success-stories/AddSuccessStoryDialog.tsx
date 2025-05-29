@@ -137,7 +137,7 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
       
       toast({
         title: "Success Story Added",
-        description: "Your success story has been added successfully.",
+        description: "Your success story has been created by the Frayma AI Narrative Engine.",
       });
     } catch (error) {
       console.error("Error adding success story:", error);
@@ -155,21 +155,28 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
-          <DialogTitle>Add New Success Story</DialogTitle>
+          <DialogTitle>Create Success Story</DialogTitle>
           <DialogDescription>
-            Create a new customer success story to showcase the benefits of your product.
+            Let the Frayma AI Narrative Engine analyze and create a compelling customer success story to showcase your product's impact.
           </DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="auto-add" className="flex-1 flex flex-col min-h-0">
           <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
-            <TabsTrigger value="auto-add">Auto-Add from URL</TabsTrigger>
+            <TabsTrigger value="auto-add">Frayma AI Analysis</TabsTrigger>
             <TabsTrigger value="manual">Manual Entry</TabsTrigger>
           </TabsList>
           
           <TabsContent value="auto-add" className="flex-1 min-h-0">
             <ScrollArea className="h-full pr-4">
               <div className="space-y-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-medium text-blue-800 mb-2">Frayma AI Narrative Engine</h4>
+                  <p className="text-sm text-blue-700">
+                    Our advanced narrative engine will analyze the customer success story from your URL and automatically extract key insights, quotes, and product features to create a compelling narrative.
+                  </p>
+                </div>
+                
                 <AutoAnalysisForm
                   url={url}
                   onUrlChange={setUrl}
@@ -227,10 +234,10 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Please wait
+                Creating...
               </>
             ) : (
-              "Save"
+              "Create Success Story"
             )}
           </Button>
         </DialogFooter>

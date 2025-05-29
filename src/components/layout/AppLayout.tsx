@@ -4,6 +4,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from '@/components/AppSidebar';
 import MainContent from './MainContent';
 import LoadingState from './LoadingState';
+import { useAuth } from '@/contexts/AuthContext';
 import { Client, Author, ICPStoryScript, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
@@ -53,6 +54,7 @@ interface AppLayoutProps {
 
 const AppLayout: FC<AppLayoutProps> = (props) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { user } = useAuth();
 
   console.log('🏗️ AppLayout: Rendering with current view:', props.currentView);
   console.log('🏗️ AppLayout: Selected asset type:', props.selectedAssetType);
@@ -111,8 +113,17 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
     }
   };
 
-  // Mock user for display purposes - in a real app this would come from auth context
-  const mockUser = { email: 'user@example.com' };
+  // Get user display name or email
+  const getUserDisplay = () => {
+    if (!user) return 'Guest';
+    
+    // Try to get full name from user metadata
+    const fullName = user.user_metadata?.full_name;
+    if (fullName) return fullName;
+    
+    // Fallback to email
+    return user.email || 'User';
+  };
 
   return (
     <SidebarProvider defaultOpen={!sidebarCollapsed}>
@@ -137,7 +148,7 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
             </div>
             
             <div className="text-sm text-gray-500">
-              {mockUser.email}
+              {getUserDisplay()}
             </div>
           </div>
           

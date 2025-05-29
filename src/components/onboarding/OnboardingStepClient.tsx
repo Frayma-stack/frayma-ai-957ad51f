@@ -1,14 +1,10 @@
 
 import { FC, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building, Loader2 } from "lucide-react";
+import { Building, Sparkles, Edit } from "lucide-react";
 import { Client, ProductContext } from '@/types/storytelling';
-import { useToast } from "@/hooks/use-toast";
-import { useClientAnalysis } from '@/hooks/useClientAnalysis';
+import EnhancedClientDialog from '@/components/EnhancedClientDialog';
 
 interface OnboardingStepClientProps {
   onClientAdded: (client: Client, productContext?: ProductContext) => void;
@@ -19,125 +15,142 @@ const OnboardingStepClient: FC<OnboardingStepClientProps> = ({
   onClientAdded,
   onNext,
 }) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [websiteUrl, setWebsiteUrl] = useState('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const { toast } = useToast();
-  const { analyzeClient } = useClientAnalysis();
+  const [hasCreatedClient, setHasCreatedClient] = useState(false);
+  const [createdClient, setCreatedClient] = useState<Client | null>(null);
+  const [createdProductContext, setCreatedProductContext] = useState<ProductContext | null>(null);
+  const [showEditMode, setShowEditMode] = useState(false);
 
-  const handleCreateClient = async () => {
-    if (!name.trim()) {
-      toast({
-        title: "Error",
-        description: "Client name is required",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const client: Client = {
-      id: crypto.randomUUID(),
-      name: name.trim(),
-      description: description.trim() || undefined,
-      companyLinks: websiteUrl ? [{ type: 'website' as const, url: websiteUrl }] : [],
-      createdAt: new Date().toISOString()
-    };
-
-    let productContext: ProductContext | undefined;
-
-    // If website URL is provided, try to analyze it
-    if (websiteUrl.trim()) {
-      setIsAnalyzing(true);
-      try {
-        await analyzeClient([{ type: 'website', url: websiteUrl }], name, (analyzedContext) => {
-          productContext = {
-            id: crypto.randomUUID(),
-            categoryPOV: analyzedContext.categoryPOV || '',
-            companyMission: analyzedContext.companyMission || '',
-            uniqueInsight: analyzedContext.uniqueInsight || '',
-            features: analyzedContext.features || [],
-            useCases: analyzedContext.useCases || [],
-            differentiators: analyzedContext.differentiators || [],
-            companyLinks: client.companyLinks,
-            clientId: client.id
-          };
-        });
-      } catch (error) {
-        console.error('Analysis failed:', error);
-        toast({
-          title: "Analysis Failed",
-          description: "Proceeding without analysis. You can add product context later.",
-          variant: "destructive"
-        });
-      } finally {
-        setIsAnalyzing(false);
-      }
-    }
-
+  const handleClientCreated = (client: Client, productContext?: ProductContext) => {
+    console.log('🏢 Client created in onboarding:', client.name);
+    setCreatedClient(client);
+    setCreatedProductContext(productContext || null);
+    setHasCreatedClient(true);
+    setShowEditMode(false);
     onClientAdded(client, productContext);
+  };
+
+  const handleNext = () => {
+    if (!hasCreatedClient) return;
     onNext();
   };
+
+  const handleEditClient = () => {
+    setShowEditMode(true);
+  };
+
+  if (showEditMode) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center space-x-2">
+            <Building className="h-5 w-5 text-story-blue" />
+            <CardTitle>Edit Business Information</CardTitle>
+          </div>
+          <CardDescription>
+            Refine the business analysis created by the Frayma AI Narrative Engine.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <EnhancedClientDialog
+            open={true}
+            onOpenChange={() => setShowEditMode(false)}
+            onClientAdded={handleClientCreated}
+            initialClient={createdClient}
+            initialProductContext={createdProductContext}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (hasCreatedClient && createdClient) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Building className="h-5 w-5 text-story-blue" />
+              <CardTitle>Business Profile Created!</CardTitle>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleEditClient}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Business
+            </Button>
+          </div>
+          <CardDescription>
+            The Frayma AI Narrative Engine has analyzed your business. Review the insights below.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center space-x-2 mb-3">
+              <Sparkles className="h-5 w-5 text-blue-600" />
+              <h4 className="font-medium text-blue-800">Frayma AI Business Analysis</h4>
+            </div>
+            <div className="space-y-3 text-sm">
+              <div>
+                <span className="font-medium text-blue-700">Company:</span> {createdClient.name}
+              </div>
+              {createdClient.description && (
+                <div>
+                  <span className="font-medium text-blue-700">Description:</span> {createdClient.description}
+                </div>
+              )}
+              {createdProductContext && (
+                <>
+                  {createdProductContext.features && createdProductContext.features.length > 0 && (
+                    <div>
+                      <span className="font-medium text-blue-700">Key Features:</span>
+                      <ul className="mt-1 ml-4 list-disc">
+                        {createdProductContext.features.slice(0, 3).map((feature) => (
+                          <li key={feature.id} className="text-blue-600">{feature.name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {createdProductContext.differentiators && createdProductContext.differentiators.length > 0 && (
+                    <div>
+                      <span className="font-medium text-blue-700">Differentiators:</span>
+                      <ul className="mt-1 ml-4 list-disc">
+                        {createdProductContext.differentiators.slice(0, 2).map((diff) => (
+                          <li key={diff.id} className="text-blue-600">{diff.name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          <Button 
+            onClick={handleNext}
+            className="w-full bg-story-blue hover:bg-story-light-blue"
+          >
+            Continue to Audience Definition
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center space-x-2">
           <Building className="h-5 w-5 text-story-blue" />
-          <CardTitle>Add Your Business</CardTitle>
+          <CardTitle>Define Your Business</CardTitle>
         </div>
         <CardDescription>
-          Tell us about your company or client. This could be your own business or a client you're creating content for.
+          Let the Frayma AI Narrative Engine analyze your business to understand your unique value proposition and market position.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <Label htmlFor="client-name">Business/Client Name *</Label>
-          <Input
-            id="client-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="e.g., Acme Corp, My Startup"
-            required
-          />
-        </div>
-        
-        <div>
-          <Label htmlFor="client-description">Brief Description</Label>
-          <Textarea
-            id="client-description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="What does this business do? (optional)"
-            rows={2}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="website-url">Website URL</Label>
-          <Input
-            id="website-url"
-            type="url"
-            value={websiteUrl}
-            onChange={(e) => setWebsiteUrl(e.target.value)}
-            placeholder="https://example.com (optional - enables auto-analysis)"
-          />
-        </div>
-
-        <Button 
-          onClick={handleCreateClient}
-          disabled={!name.trim() || isAnalyzing}
-          className="w-full bg-story-blue hover:bg-story-light-blue"
-        >
-          {isAnalyzing ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Analyzing & Creating...
-            </>
-          ) : (
-            'Create Business Profile'
-          )}
-        </Button>
+      <CardContent>
+        <EnhancedClientDialog
+          open={true}
+          onOpenChange={() => {}}
+          onClientAdded={handleClientCreated}
+        />
       </CardContent>
     </Card>
   );
