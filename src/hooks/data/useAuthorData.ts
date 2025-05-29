@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { supabaseDataService } from '@/services/SupabaseDataService';
+import { authorService } from '@/services/AuthorService';
 import { Author } from '@/types/storytelling';
 import { toast } from 'sonner';
 
@@ -8,14 +8,24 @@ export const useAuthorData = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
 
   const loadAuthors = async () => {
-    const data = await supabaseDataService.getAuthors();
-    setAuthors(data);
-    return data;
+    try {
+      console.log('Loading authors...');
+      const data = await authorService.getAuthors();
+      console.log('Authors loaded:', data);
+      setAuthors(data);
+      return data;
+    } catch (error) {
+      console.error('Error loading authors:', error);
+      toast.error('Failed to load authors');
+      throw error;
+    }
   };
 
   const handleAuthorAdded = async (author: Author) => {
     try {
-      const newAuthor = await supabaseDataService.createAuthor(author);
+      console.log('Adding author:', author);
+      const newAuthor = await authorService.createAuthor(author);
+      console.log('Author added successfully:', newAuthor);
       setAuthors(prev => [newAuthor, ...prev]);
       toast.success('Author created successfully');
       return newAuthor;
@@ -28,7 +38,9 @@ export const useAuthorData = () => {
 
   const handleAuthorUpdated = async (updatedAuthor: Author) => {
     try {
-      const author = await supabaseDataService.updateAuthor(updatedAuthor);
+      console.log('Updating author:', updatedAuthor);
+      const author = await authorService.updateAuthor(updatedAuthor);
+      console.log('Author updated successfully:', author);
       setAuthors(prev => prev.map(a => a.id === author.id ? author : a));
       toast.success('Author updated successfully');
       return author;
@@ -41,7 +53,8 @@ export const useAuthorData = () => {
 
   const handleAuthorDeleted = async (authorId: string) => {
     try {
-      await supabaseDataService.deleteAuthor(authorId);
+      console.log('Deleting author:', authorId);
+      await authorService.deleteAuthor(authorId);
       setAuthors(prev => prev.filter(author => author.id !== authorId));
       toast.success('Author deleted successfully');
     } catch (error) {

@@ -1,26 +1,28 @@
 
-import { useToast } from "@/components/ui/use-toast";
 import { Author } from '@/types/storytelling';
+import { toast } from 'sonner';
 import { validateAndCleanAuthor } from '@/utils/authorFormUtils';
 
 export const useAuthorValidation = () => {
-  const { toast } = useToast();
-
-  const validateAndCleanAuthorData = (author: Author) => {
-    // Basic validation
+  const validateAndCleanCurrentAuthor = (author: Author) => {
+    console.log('Validating author:', author);
+    
     if (!author.name.trim()) {
-      toast({
-        title: "Missing information",
-        description: "Please provide a name for this author.",
-        variant: "destructive"
-      });
+      toast.error('Author name is required');
       return null;
     }
-    
-    return validateAndCleanAuthor(author);
+
+    const cleanedAuthor = validateAndCleanAuthor(author);
+    if (!cleanedAuthor) {
+      toast.error('Failed to validate author data');
+      return null;
+    }
+
+    console.log('Author validation successful:', cleanedAuthor);
+    return cleanedAuthor;
   };
 
   return {
-    validateAndCleanAuthor: validateAndCleanAuthorData
+    validateAndCleanAuthor: validateAndCleanCurrentAuthor
   };
 };

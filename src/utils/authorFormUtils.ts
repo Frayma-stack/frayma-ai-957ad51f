@@ -50,20 +50,37 @@ export const createInitialAuthor = (initialAuthor?: Author | null): Author => {
   };
 };
 
-export const validateAndCleanAuthor = (author: Author) => {
-  // Clean up empty items
-  const cleanedAuthor = {
+export const validateAndCleanAuthor = (author: Author): Author | null => {
+  // Validate required fields
+  if (!author.name.trim()) {
+    console.error('Author name is required');
+    return null;
+  }
+
+  // Set default values for required fields
+  const cleanedAuthor: Author = {
     ...author,
-    experiences: author.experiences.filter(exp => exp.title.trim() !== '' || exp.description.trim() !== ''),
-    tones: author.tones.filter(tone => tone.tone.trim() !== ''),
-    beliefs: author.beliefs.filter(belief => belief.belief.trim() !== ''),
-    socialLinks: author.socialLinks?.filter(link => link.url.trim() !== '') || undefined
+    name: author.name.trim(),
+    role: author.role || 'Professional',
+    organization: author.organization || 'Unknown Organization',
+    backstory: author.backstory || 'Professional background to be updated.',
+    experiences: author.experiences?.filter(exp => exp.title.trim() !== '' || exp.description.trim() !== '') || [],
+    tones: author.tones?.filter(tone => tone.tone.trim() !== '') || [],
+    beliefs: author.beliefs?.filter(belief => belief.belief.trim() !== '') || [],
+    socialLinks: author.socialLinks?.filter(link => link.url.trim() !== '') || []
   };
-  
-  // Make sure each array has at least one item
-  if (cleanedAuthor.experiences.length === 0) cleanedAuthor.experiences = [createEmptyExperience()];
-  if (cleanedAuthor.tones.length === 0) cleanedAuthor.tones = [createEmptyTone()];
-  if (cleanedAuthor.beliefs.length === 0) cleanedAuthor.beliefs = [createEmptyBelief()];
-  
+
+  // Ensure we have at least one item in each array if they're empty
+  if (cleanedAuthor.experiences.length === 0) {
+    cleanedAuthor.experiences = [{ id: crypto.randomUUID(), title: 'To be updated', description: 'Professional experience to be added.' }];
+  }
+  if (cleanedAuthor.tones.length === 0) {
+    cleanedAuthor.tones = [{ id: crypto.randomUUID(), tone: 'Professional', description: 'Professional communication style' }];
+  }
+  if (cleanedAuthor.beliefs.length === 0) {
+    cleanedAuthor.beliefs = [{ id: crypto.randomUUID(), belief: 'Quality matters', description: 'Believes in delivering quality work' }];
+  }
+
+  console.log('Cleaned author:', cleanedAuthor);
   return cleanedAuthor;
 };
