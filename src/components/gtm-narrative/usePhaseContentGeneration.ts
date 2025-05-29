@@ -23,7 +23,14 @@ export const usePhaseContentGeneration = ({
   const { interpolateTemplate } = usePromptConfig();
 
   const generatePhaseContent = async (phase: 'intro' | 'body' | 'conclusion') => {
-    if (!isConfigured) return;
+    if (!isConfigured) {
+      toast({
+        title: "ChatGPT not configured",
+        description: "Please configure your ChatGPT API key to use auto-generation.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsGenerating(true);
     
@@ -40,8 +47,8 @@ export const usePhaseContentGeneration = ({
           promptCategory = 'intro_generation';
           contentKey = 'generatedIntro';
           variables = {
-            selectedHeadline: selectedHeadline?.text || '',
-            mainTargetICP: selectedScript?.name || '',
+            selectedHeadline: selectedHeadline?.text || 'Compelling Article Title',
+            mainTargetICP: selectedScript?.name || 'Professional audience',
             ideaTrigger: formData.ideaTrigger
           };
           break;
@@ -66,7 +73,11 @@ export const usePhaseContentGeneration = ({
       }
 
       const prompt = interpolateTemplate(promptCategory, variables);
+      console.log(`Generated ${phase} prompt:`, prompt);
+      
       const response = await generateContent(prompt);
+      console.log(`Raw ${phase} response:`, response);
+      
       onDataChange(contentKey, response);
       
       toast({
