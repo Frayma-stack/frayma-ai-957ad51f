@@ -7,16 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2 } from 'lucide-react';
 
-interface UseCase {
+interface LocalUseCase {
   id: string;
   name: string;
   description: string;
-  beneficiaryDescription?: string; // New field for who/what team it helped
+  beneficiaryDescription?: string;
 }
 
 interface UseCaseManagerProps {
-  useCases: UseCase[];
-  onAddUseCase: (useCase: Omit<UseCase, 'id'>) => void;
+  useCases: LocalUseCase[];
+  onAddUseCase: (useCase: Omit<LocalUseCase, 'id'>) => void;
   onRemoveUseCase: (id: string) => void;
 }
 

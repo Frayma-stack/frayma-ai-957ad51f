@@ -259,9 +259,11 @@ export type Database = {
           company_links: Json | null
           company_mission: string
           created_at: string
+          description: string | null
           differentiators: Json | null
           features: Json | null
           id: string
+          name: string
           unique_insight: string
           updated_at: string
           use_cases: Json | null
@@ -273,9 +275,11 @@ export type Database = {
           company_links?: Json | null
           company_mission: string
           created_at?: string
+          description?: string | null
           differentiators?: Json | null
           features?: Json | null
           id?: string
+          name?: string
           unique_insight: string
           updated_at?: string
           use_cases?: Json | null
@@ -287,9 +291,11 @@ export type Database = {
           company_links?: Json | null
           company_mission?: string
           created_at?: string
+          description?: string | null
           differentiators?: Json | null
           features?: Json | null
           id?: string
+          name?: string
           unique_insight?: string
           updated_at?: string
           use_cases?: Json | null
@@ -344,6 +350,7 @@ export type Database = {
           title: string
           updated_at: string
           url: string | null
+          use_cases: Json | null
           user_id: string
         }
         Insert: {
@@ -357,6 +364,7 @@ export type Database = {
           title: string
           updated_at?: string
           url?: string | null
+          use_cases?: Json | null
           user_id: string
         }
         Update: {
@@ -370,6 +378,7 @@ export type Database = {
           title?: string
           updated_at?: string
           url?: string | null
+          use_cases?: Json | null
           user_id?: string
         }
         Relationships: [

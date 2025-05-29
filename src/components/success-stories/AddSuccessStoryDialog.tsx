@@ -32,9 +32,9 @@ interface Feature {
   usageDescription?: string;
 }
 
-interface UseCase {
+interface LocalUseCase {
   id: string;
-  useCase: string;
+  name: string;
   description: string;
   beneficiaryDescription?: string;
 }
@@ -51,7 +51,7 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
   const [afterSummary, setAfterSummary] = useState('');
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [features, setFeatures] = useState<Feature[]>([]);
-  const [useCases, setUseCases] = useState<UseCase[]>([]);
+  const [useCases, setUseCases] = useState<LocalUseCase[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -61,7 +61,7 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
     afterSummary: string;
     quotes: Quote[];
     features: Feature[];
-    useCases?: UseCase[];
+    useCases?: LocalUseCase[];
   }) => {
     setTitle(data.title);
     setBeforeSummary(data.beforeSummary);
@@ -89,7 +89,7 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
     setFeatures(features.filter(feature => feature.id !== id));
   };
 
-  const handleAddUseCase = (newUseCase: Omit<UseCase, 'id'>) => {
+  const handleAddUseCase = (newUseCase: Omit<LocalUseCase, 'id'>) => {
     setUseCases([...useCases, { ...newUseCase, id: crypto.randomUUID() }]);
   };
   
@@ -124,7 +124,7 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
         })),
         useCases: useCases.map(uc => ({
           id: uc.id,
-          useCase: uc.useCase,
+          useCase: uc.name,
           description: uc.description
         })),
         clientId: selectedClientId,
