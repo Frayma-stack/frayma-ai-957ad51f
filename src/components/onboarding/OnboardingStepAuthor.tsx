@@ -7,7 +7,7 @@ import { Author } from '@/types/storytelling';
 import AuthorForm from '@/components/AuthorForm';
 
 interface OnboardingStepAuthorProps {
-  onAuthorAdded: (author: Author) => void;
+  onAuthorAdded: (author: Author) => Promise<Author>;
   onNext: () => void;
 }
 
@@ -19,12 +19,18 @@ const OnboardingStepAuthor: FC<OnboardingStepAuthorProps> = ({
   const [createdAuthor, setCreatedAuthor] = useState<Author | null>(null);
   const [showEditMode, setShowEditMode] = useState(false);
 
-  const handleAuthorCreated = (author: Author) => {
+  const handleAuthorCreated = async (author: Author) => {
     console.log('🎯 Author created in onboarding:', author.name);
-    setCreatedAuthor(author);
-    setHasCreatedAuthor(true);
-    setShowEditMode(false);
-    onAuthorAdded(author);
+    try {
+      const savedAuthor = await onAuthorAdded(author);
+      setCreatedAuthor(savedAuthor);
+      setHasCreatedAuthor(true);
+      setShowEditMode(false);
+      return savedAuthor;
+    } catch (error) {
+      console.error('🎯 Error saving author in onboarding:', error);
+      throw error;
+    }
   };
 
   const handleNext = () => {

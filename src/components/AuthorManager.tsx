@@ -54,7 +54,7 @@ const AuthorManager: FC<AuthorManagerProps> = ({
   
   const clientInfo = getClientInfo();
   
-  const handleSave = async (author: Author) => {
+  const handleSave = async (author: Author): Promise<Author> => {
     console.log('🚀 AuthorManager.handleSave called with:', {
       authorId: author.id,
       authorName: author.name,
@@ -93,6 +93,7 @@ const AuthorManager: FC<AuthorManagerProps> = ({
       console.log('🚀 Save operation successful, closing form...');
       setShowForm(false);
       setEditingAuthor(null);
+      return result;
     } catch (error) {
       console.error('🚀 Error in AuthorManager.handleSave:', error);
       console.error('🚀 Error name:', error instanceof Error ? error.name : 'Unknown');
@@ -103,6 +104,7 @@ const AuthorManager: FC<AuthorManagerProps> = ({
         description: `Failed to save author: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
+      throw error;
     }
   };
   
