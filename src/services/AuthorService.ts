@@ -15,12 +15,19 @@ import {
 
 export class AuthorService extends BaseSupabaseService {
   async getAuthors(): Promise<Author[]> {
+    console.log('AuthorService.getAuthors called');
+    
     const { data, error } = await supabase
       .from('authors')
       .select('*')
       .order('created_at', { ascending: false });
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching authors:', error);
+      throw error;
+    }
+    
+    console.log('Authors fetched successfully:', data?.length || 0);
     
     return (data || []).map(author => ({
       id: author.id,
@@ -41,9 +48,18 @@ export class AuthorService extends BaseSupabaseService {
   }
 
   async createAuthor(author: Omit<Author, 'id'>): Promise<Author> {
-    console.log('Creating author:', author);
+    console.log('AuthorService.createAuthor called with:', {
+      name: author.name,
+      role: author.role,
+      organization: author.organization,
+      experiencesCount: author.experiences?.length || 0,
+      tonesCount: author.tones?.length || 0,
+      beliefsCount: author.beliefs?.length || 0,
+      socialLinksCount: author.socialLinks?.length || 0
+    });
     
     const userId = await this.getCurrentUserId();
+    console.log('Current user ID:', userId);
     
     // Prepare the data for insertion
     const insertData = {
@@ -59,7 +75,13 @@ export class AuthorService extends BaseSupabaseService {
       client_id: author.clientId || null
     };
 
-    console.log('Insert data:', insertData);
+    console.log('Insert data prepared:', {
+      ...insertData,
+      experiences: `${JSON.stringify(insertData.experiences).length} chars`,
+      tones: `${JSON.stringify(insertData.tones).length} chars`,
+      beliefs: `${JSON.stringify(insertData.beliefs).length} chars`,
+      social_links: `${JSON.stringify(insertData.social_links).length} chars`
+    });
     
     const { data, error } = await supabase
       .from('authors')
@@ -72,7 +94,7 @@ export class AuthorService extends BaseSupabaseService {
       throw error;
     }
     
-    console.log('Author created successfully:', data);
+    console.log('Author created successfully with ID:', data.id);
     
     return {
       id: data.id,
@@ -93,7 +115,12 @@ export class AuthorService extends BaseSupabaseService {
   }
 
   async updateAuthor(author: Author): Promise<Author> {
-    console.log('Updating author:', author);
+    console.log('AuthorService.updateAuthor called with:', {
+      id: author.id,
+      name: author.name,
+      role: author.role,
+      organization: author.organization
+    });
     
     const updateData = {
       name: author.name,
@@ -107,7 +134,7 @@ export class AuthorService extends BaseSupabaseService {
       client_id: author.clientId || null
     };
 
-    console.log('Update data:', updateData);
+    console.log('Update data prepared for author:', author.id);
     
     const { data, error } = await supabase
       .from('authors')
@@ -121,7 +148,7 @@ export class AuthorService extends BaseSupabaseService {
       throw error;
     }
     
-    console.log('Author updated successfully:', data);
+    console.log('Author updated successfully:', data.id);
     
     return {
       id: data.id,
@@ -142,7 +169,7 @@ export class AuthorService extends BaseSupabaseService {
   }
 
   async deleteAuthor(authorId: string): Promise<void> {
-    console.log('Deleting author:', authorId);
+    console.log('AuthorService.deleteAuthor called for:', authorId);
     
     const { error } = await supabase
       .from('authors')
@@ -154,7 +181,7 @@ export class AuthorService extends BaseSupabaseService {
       throw error;
     }
     
-    console.log('Author deleted successfully');
+    console.log('Author deleted successfully:', authorId);
   }
 }
 

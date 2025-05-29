@@ -51,9 +51,16 @@ export const createInitialAuthor = (initialAuthor?: Author | null): Author => {
 };
 
 export const validateAndCleanAuthor = (author: Author): Author | null => {
+  console.log('validateAndCleanAuthor called with:', {
+    name: author.name,
+    role: author.role,
+    organization: author.organization,
+    backstory: author.backstory
+  });
+
   // Validate required fields
   if (!author.name.trim()) {
-    console.error('Author name is required');
+    console.error('Author validation failed: name is required');
     return null;
   }
 
@@ -81,6 +88,16 @@ export const validateAndCleanAuthor = (author: Author): Author | null => {
     cleanedAuthor.beliefs = [{ id: crypto.randomUUID(), belief: 'Quality matters', description: 'Believes in delivering quality work' }];
   }
 
-  console.log('Cleaned author:', cleanedAuthor);
+  console.log('Cleaned author result:', {
+    name: cleanedAuthor.name,
+    role: cleanedAuthor.role,
+    organization: cleanedAuthor.organization,
+    backstory: cleanedAuthor.backstory,
+    experiencesCount: cleanedAuthor.experiences.length,
+    tonesCount: cleanedAuthor.tones.length,
+    beliefsCount: cleanedAuthor.beliefs.length,
+    socialLinksCount: cleanedAuthor.socialLinks.length
+  });
+  
   return cleanedAuthor;
 };

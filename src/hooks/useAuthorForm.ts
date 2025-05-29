@@ -14,6 +14,12 @@ import { useFormPersistence } from './useFormPersistence';
 export const useAuthorForm = (initialAuthor?: Author | null) => {
   const author = createInitialAuthor(initialAuthor);
   
+  console.log('useAuthorForm initialized with:', { 
+    hasInitialAuthor: !!initialAuthor, 
+    authorId: author.id,
+    authorName: author.name 
+  });
+  
   // Use form persistence for the basic info
   const {
     values: persistedBasicInfo,
@@ -87,13 +93,25 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
 
   // Update the composed author state whenever any part changes
   useEffect(() => {
-    setCurrentAuthor({
+    const composedAuthor = {
       ...basicInfo,
       experiences,
       tones,
       beliefs,
       socialLinks
+    };
+    
+    console.log('Author composition updated:', {
+      name: composedAuthor.name,
+      role: composedAuthor.role,
+      organization: composedAuthor.organization,
+      experiencesCount: composedAuthor.experiences.length,
+      tonesCount: composedAuthor.tones.length,
+      beliefsCount: composedAuthor.beliefs.length,
+      socialLinksCount: composedAuthor.socialLinks.length
     });
+    
+    setCurrentAuthor(composedAuthor);
   }, [basicInfo, experiences, tones, beliefs, socialLinks]);
 
   // Update persistence when basic info changes
@@ -119,9 +137,23 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
   const { validateAndCleanAuthor } = useAuthorValidation();
 
   const validateAndCleanCurrentAuthor = () => {
-    // Clear persisted data when form is submitted successfully
-    clearPersistedData();
-    return validateAndCleanAuthor(currentAuthor);
+    console.log('Starting author validation...', {
+      authorName: currentAuthor.name,
+      hasRole: !!currentAuthor.role,
+      hasOrganization: !!currentAuthor.organization,
+      hasBackstory: !!currentAuthor.backstory
+    });
+    
+    const validatedAuthor = validateAndCleanAuthor(currentAuthor);
+    
+    if (validatedAuthor) {
+      console.log('Author validation successful, clearing persisted data');
+      clearPersistedData();
+    } else {
+      console.error('Author validation failed');
+    }
+    
+    return validatedAuthor;
   };
 
   return {

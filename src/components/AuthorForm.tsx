@@ -25,6 +25,7 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
   const [activeTab, setActiveTab] = useState('experiences');
   const [showExpandedForm, setShowExpandedForm] = useState(false);
   const [isManualMode, setIsManualMode] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   
   const {
     author,
@@ -45,10 +46,36 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
     validateAndCleanAuthor
   } = useAuthorForm(initialAuthor);
 
-  const handleSave = () => {
-    const cleanedAuthor = validateAndCleanAuthor();
-    if (cleanedAuthor) {
-      onSave(cleanedAuthor);
+  const handleSave = async () => {
+    console.log('AuthorForm handleSave called');
+    
+    if (isSaving) {
+      console.log('Already saving, ignoring duplicate request');
+      return;
+    }
+    
+    setIsSaving(true);
+    
+    try {
+      console.log('Validating author before save...', {
+        name: author.name,
+        role: author.role,
+        organization: author.organization
+      });
+      
+      const cleanedAuthor = validateAndCleanAuthor();
+      
+      if (cleanedAuthor) {
+        console.log('Author validated successfully, calling onSave...', cleanedAuthor.name);
+        await onSave(cleanedAuthor);
+        console.log('onSave completed successfully');
+      } else {
+        console.error('Author validation failed, cannot save');
+      }
+    } catch (error) {
+      console.error('Error during save process:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -60,6 +87,8 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
     tones?: any[];
     beliefs?: any[];
   }) => {
+    console.log('Analysis complete with results:', results);
+    
     // Show the expanded form when analysis completes or manual mode is triggered
     setShowExpandedForm(true);
     
@@ -78,11 +107,12 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
     author.tones.some(tone => tone.tone) ||
     author.beliefs.some(belief => belief.belief);
 
-  console.log('AuthorForm state:', {
+  console.log('AuthorForm render state:', {
     authorName: author.name,
     showExpandedForm,
     hasAnalyzedContent,
-    isManualMode
+    isManualMode,
+    isSaving
   });
 
   return (
@@ -140,6 +170,7 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
       <AuthorFormActions 
         onSave={handleSave}
         onCancel={onCancel}
+        isSaving={isSaving}
       />
     </Card>
   );
