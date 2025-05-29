@@ -22,7 +22,7 @@ const OnboardingStepICP: FC<OnboardingStepICPProps> = ({
   const [showEditMode, setShowEditMode] = useState(false);
 
   const handleICPCreated = (script: ICPStoryScript) => {
-    console.log('👥 ICP created in onboarding:', script.icpName);
+    console.log('👥 ICP created in onboarding:', script.name || script.title);
     setCreatedICP(script);
     setHasCreatedICP(true);
     setShowEditMode(false);
@@ -55,7 +55,6 @@ const OnboardingStepICP: FC<OnboardingStepICPProps> = ({
             onSave={handleICPCreated}
             onCancel={() => setShowEditMode(false)}
             selectedClientId={selectedClientId}
-            editingScript={createdICP}
           />
         </CardContent>
       </Card>
@@ -88,19 +87,19 @@ const OnboardingStepICP: FC<OnboardingStepICPProps> = ({
             </div>
             <div className="space-y-3 text-sm">
               <div>
-                <span className="font-medium text-purple-700">Target Audience:</span> {createdICP.icpName}
+                <span className="font-medium text-purple-700">Target Audience:</span> {createdICP.name || createdICP.title}
               </div>
-              {createdICP.icpDescription && (
+              {createdICP.description && (
                 <div>
-                  <span className="font-medium text-purple-700">Description:</span> {createdICP.icpDescription}
+                  <span className="font-medium text-purple-700">Description:</span> {createdICP.description}
                 </div>
               )}
-              {createdICP.narrativeAnchors && createdICP.narrativeAnchors.length > 0 && (
+              {createdICP.idealCustomerProfile && createdICP.idealCustomerProfile.length > 0 && (
                 <div>
-                  <span className="font-medium text-purple-700">Key Narrative Anchors:</span>
+                  <span className="font-medium text-purple-700">Key Profile Points:</span>
                   <ul className="mt-1 ml-4 list-disc">
-                    {createdICP.narrativeAnchors.slice(0, 3).map((anchor) => (
-                      <li key={anchor.id} className="text-purple-600">{anchor.anchor}</li>
+                    {createdICP.idealCustomerProfile.slice(0, 3).map((point, index) => (
+                      <li key={index} className="text-purple-600">{point.profile}</li>
                     ))}
                   </ul>
                 </div>

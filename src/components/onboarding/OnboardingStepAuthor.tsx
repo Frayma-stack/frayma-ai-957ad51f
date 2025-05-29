@@ -51,7 +51,7 @@ const OnboardingStepAuthor: FC<OnboardingStepAuthorProps> = ({
         <CardContent>
           <AuthorForm 
             onSave={handleAuthorCreated}
-            initialData={createdAuthor}
+            onCancel={() => setShowEditMode(false)}
           />
         </CardContent>
       </Card>
@@ -140,7 +140,7 @@ const OnboardingStepAuthor: FC<OnboardingStepAuthorProps> = ({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <AuthorForm onSave={handleAuthorCreated} />
+        <AuthorForm onSave={handleAuthorCreated} onCancel={() => {}} />
       </CardContent>
     </Card>
   );
