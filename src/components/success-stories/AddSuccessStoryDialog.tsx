@@ -34,7 +34,7 @@ interface Feature {
 
 interface UseCase {
   id: string;
-  name: string;
+  useCase: string;
   description: string;
   beneficiaryDescription?: string;
 }
@@ -117,8 +117,16 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
         beforeSummary,
         afterSummary,
         quotes,
-        features,
-        useCases,
+        features: features.map(f => ({
+          id: f.id,
+          name: f.name,
+          description: f.description
+        })),
+        useCases: useCases.map(uc => ({
+          id: uc.id,
+          useCase: uc.useCase,
+          description: uc.description
+        })),
         clientId: selectedClientId,
         createdAt: new Date().toISOString(),
       };

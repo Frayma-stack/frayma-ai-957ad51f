@@ -193,7 +193,7 @@ export interface NarrativeSelectionItem {
 export interface NarrativeSelection {
   type: 'belief' | 'pain' | 'struggle' | 'transformation';
   items: string[];
-  anchorType: NarrativeAnchorType;
+  anchorType?: NarrativeAnchorType;
 }
 
 

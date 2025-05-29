@@ -20,6 +20,7 @@ export class SuccessStoryService extends BaseSupabaseService {
       afterSummary: story.after_summary,
       quotes: Array.isArray(story.quotes) ? story.quotes as any[] : [],
       features: Array.isArray(story.features) ? story.features as any[] : [],
+      useCases: Array.isArray(story.use_cases) ? story.use_cases as any[] : [],
       clientId: story.client_id,
       createdAt: story.created_at
     }));
@@ -38,6 +39,7 @@ export class SuccessStoryService extends BaseSupabaseService {
         after_summary: story.afterSummary,
         quotes: story.quotes || [],
         features: story.features || [],
+        use_cases: story.useCases || [],
         client_id: story.clientId || null
       })
       .select()
@@ -53,6 +55,7 @@ export class SuccessStoryService extends BaseSupabaseService {
       afterSummary: data.after_summary,
       quotes: Array.isArray(data.quotes) ? data.quotes as any[] : [],
       features: Array.isArray(data.features) ? data.features as any[] : [],
+      useCases: Array.isArray(data.use_cases) ? data.use_cases as any[] : [],
       clientId: data.client_id,
       createdAt: data.created_at
     };
@@ -68,6 +71,7 @@ export class SuccessStoryService extends BaseSupabaseService {
         after_summary: story.afterSummary,
         quotes: story.quotes || [],
         features: story.features || [],
+        use_cases: story.useCases || [],
         client_id: story.clientId || null
       })
       .eq('id', story.id)
@@ -84,6 +88,7 @@ export class SuccessStoryService extends BaseSupabaseService {
       afterSummary: data.after_summary,
       quotes: Array.isArray(data.quotes) ? data.quotes as any[] : [],
       features: Array.isArray(data.features) ? data.features as any[] : [],
+      useCases: Array.isArray(data.use_cases) ? data.use_cases as any[] : [],
       clientId: data.client_id,
       createdAt: data.created_at
     };

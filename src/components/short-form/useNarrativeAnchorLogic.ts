@@ -22,7 +22,7 @@ export const useNarrativeAnchorLogic = ({
     if (isAnchorTypeSelected(type)) {
       setNarrativeSelections(narrativeSelections.filter(selection => selection.type !== type));
     } else {
-      setNarrativeSelections([...narrativeSelections, { type, items: [] }]);
+      setNarrativeSelections([...narrativeSelections, { type, items: [], anchorType: 'belief' }]);
     }
   };
 

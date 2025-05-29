@@ -88,6 +88,13 @@ export const useSuccessStoryFlowState = ({
             description: formData.feature01Description
           }
         ].filter(feature => feature.name),
+        useCases: [
+          {
+            id: 'usecase-1',
+            useCase: formData.useCase01 || 'Primary Use Case',
+            description: formData.useCase01Description || 'Use case description'
+          }
+        ].filter(useCase => useCase.useCase),
         createdAt: new Date().toISOString()
       };
 

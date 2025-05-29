@@ -18,11 +18,12 @@ export class ClientAnalysisResponseProcessor {
     }
   }
 
-  static transformToProductContext(parsedData: any, validLinks: CompanyLink[]): ProductContext {
+  static transformToProductContext(parsedData: any, validLinks: CompanyLink[], name: string = 'Product Context'): ProductContext {
     // Transform parsed data into ProductContext with enhanced mapping
     const features: ProductFeature[] = (parsedData.features || []).map((feature: any) => ({
       id: crypto.randomUUID(),
       name: feature.name || '',
+      description: feature.description || '',
       benefits: Array.isArray(feature.benefits) ? feature.benefits.filter(Boolean) : [],
       media: []
     }));
@@ -44,6 +45,8 @@ export class ClientAnalysisResponseProcessor {
     
     return {
       id: crypto.randomUUID(),
+      name: name,
+      description: parsedData.description || '',
       features,
       useCases,
       differentiators,

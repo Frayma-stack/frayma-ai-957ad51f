@@ -24,6 +24,8 @@ export class ProductContextService extends BaseSupabaseService {
     
     return (data || []).map(context => ({
       id: context.id,
+      name: context.name || 'Product Context',
+      description: context.description || '',
       features: convertToProductFeatures(context.features),
       useCases: convertToProductUseCases(context.use_cases),
       differentiators: convertToProductDifferentiators(context.differentiators),
@@ -42,6 +44,8 @@ export class ProductContextService extends BaseSupabaseService {
       .from('product_contexts')
       .insert({
         user_id: userId,
+        name: context.name,
+        description: context.description,
         features: convertFromProductFeatures(context.features || []),
         use_cases: convertFromProductUseCases(context.useCases || []),
         differentiators: convertFromProductDifferentiators(context.differentiators || []),
@@ -58,6 +62,8 @@ export class ProductContextService extends BaseSupabaseService {
     
     return {
       id: data.id,
+      name: data.name || 'Product Context',
+      description: data.description || '',
       features: convertToProductFeatures(data.features),
       useCases: convertToProductUseCases(data.use_cases),
       differentiators: convertToProductDifferentiators(data.differentiators),
@@ -73,6 +79,8 @@ export class ProductContextService extends BaseSupabaseService {
     const { data, error } = await supabase
       .from('product_contexts')
       .update({
+        name: context.name,
+        description: context.description,
         features: convertFromProductFeatures(context.features || []),
         use_cases: convertFromProductUseCases(context.useCases || []),
         differentiators: convertFromProductDifferentiators(context.differentiators || []),
@@ -90,6 +98,8 @@ export class ProductContextService extends BaseSupabaseService {
     
     return {
       id: data.id,
+      name: data.name || 'Product Context',
+      description: data.description || '',
       features: convertToProductFeatures(data.features),
       useCases: convertToProductUseCases(data.use_cases),
       differentiators: convertToProductDifferentiators(data.differentiators),

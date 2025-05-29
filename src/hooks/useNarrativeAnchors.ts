@@ -47,7 +47,7 @@ export const useNarrativeAnchors = ({
         if (narrativeSelections.length === 0) {
           const firstOption = options[0]?.value as NarrativeAnchor;
           if (firstOption) {
-            setNarrativeSelections([{ type: firstOption, items: [] }]);
+            setNarrativeSelections([{ type: firstOption, items: [], anchorType: 'belief' }]);
           }
         }
       }
