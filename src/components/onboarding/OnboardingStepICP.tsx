@@ -22,7 +22,7 @@ const OnboardingStepICP: FC<OnboardingStepICPProps> = ({
   const [showEditMode, setShowEditMode] = useState(false);
 
   const handleICPCreated = (script: ICPStoryScript) => {
-    console.log('👥 ICP created in onboarding:', script.name || script.title);
+    console.log('👥 ICP created in onboarding:', script.name);
     setCreatedICP(script);
     setHasCreatedICP(true);
     setShowEditMode(false);
@@ -87,19 +87,19 @@ const OnboardingStepICP: FC<OnboardingStepICPProps> = ({
             </div>
             <div className="space-y-3 text-sm">
               <div>
-                <span className="font-medium text-purple-700">Target Audience:</span> {createdICP.name || createdICP.title}
+                <span className="font-medium text-purple-700">Target Audience:</span> {createdICP.name}
               </div>
-              {createdICP.description && (
+              {createdICP.demographics && (
                 <div>
-                  <span className="font-medium text-purple-700">Description:</span> {createdICP.description}
+                  <span className="font-medium text-purple-700">Demographics:</span> {createdICP.demographics}
                 </div>
               )}
-              {createdICP.idealCustomerProfile && createdICP.idealCustomerProfile.length > 0 && (
+              {createdICP.coreBeliefs && createdICP.coreBeliefs.length > 0 && (
                 <div>
-                  <span className="font-medium text-purple-700">Key Profile Points:</span>
+                  <span className="font-medium text-purple-700">Core Beliefs:</span>
                   <ul className="mt-1 ml-4 list-disc">
-                    {createdICP.idealCustomerProfile.slice(0, 3).map((point, index) => (
-                      <li key={index} className="text-purple-600">{point.profile}</li>
+                    {createdICP.coreBeliefs.slice(0, 3).map((belief) => (
+                      <li key={belief.id} className="text-purple-600">{belief.content}</li>
                     ))}
                   </ul>
                 </div>

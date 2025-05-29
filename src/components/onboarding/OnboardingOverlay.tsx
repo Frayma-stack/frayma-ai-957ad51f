@@ -53,9 +53,9 @@ const OnboardingOverlay: FC<OnboardingOverlayProps> = ({
       icon: Users,
       component: (
         <OnboardingStepICP 
-          onICPScriptAdded={onICPScriptAdded} 
+          onICPAdded={onICPScriptAdded} 
           onNext={nextStep}
-          clientId={createdClientId || ''}
+          selectedClientId={createdClientId || ''}
         />
       )
     },

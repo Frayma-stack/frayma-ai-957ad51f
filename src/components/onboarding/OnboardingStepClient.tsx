@@ -60,9 +60,8 @@ const OnboardingStepClient: FC<OnboardingStepClientProps> = ({
               setShowEditMode(false);
               setDialogOpen(false);
             }}
-            onSave={handleClientCreated}
-            initialClient={createdClient}
-            initialProductContext={createdProductContext}
+            onClientCreated={handleClientCreated}
+            editingClient={createdClient}
           />
         </CardContent>
       </Card>
@@ -155,7 +154,7 @@ const OnboardingStepClient: FC<OnboardingStepClientProps> = ({
         <EnhancedClientDialog
           isOpen={dialogOpen}
           onClose={() => setDialogOpen(false)}
-          onSave={handleClientCreated}
+          onClientCreated={handleClientCreated}
         />
       </CardContent>
     </Card>
