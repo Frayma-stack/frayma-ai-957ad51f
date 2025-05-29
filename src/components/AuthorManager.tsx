@@ -30,6 +30,12 @@ const AuthorManager: FC<AuthorManagerProps> = ({
   const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
   const { toast } = useToast();
   
+  console.log('🚀 AuthorManager initialized with:', {
+    authorsCount: authors.length,
+    onAuthorAddedType: typeof onAuthorAdded,
+    onAuthorUpdatedType: typeof onAuthorUpdated
+  });
+  
   // Get current client info if we're in a client-specific view
   const getClientInfo = () => {
     const selectedClientId = authors[0]?.clientId;
@@ -46,22 +52,43 @@ const AuthorManager: FC<AuthorManagerProps> = ({
   
   const clientInfo = getClientInfo();
   
-  const handleSave = (author: Author) => {
-    if (editingAuthor) {
-      onAuthorUpdated(author);
+  const handleSave = async (author: Author) => {
+    console.log('🚀 AuthorManager.handleSave called with:', {
+      authorId: author.id,
+      authorName: author.name,
+      isEditing: !!editingAuthor
+    });
+    
+    try {
+      if (editingAuthor) {
+        console.log('🚀 Calling onAuthorUpdated...');
+        await onAuthorUpdated(author);
+        console.log('🚀 onAuthorUpdated completed');
+        toast({
+          title: "Author updated",
+          description: `${author.name} has been updated successfully.`
+        });
+      } else {
+        console.log('🚀 Calling onAuthorAdded...');
+        await onAuthorAdded(author);
+        console.log('🚀 onAuthorAdded completed');
+        toast({
+          title: "Author added",
+          description: `${author.name} has been added successfully.`
+        });
+      }
+      
+      console.log('🚀 Closing form and clearing state...');
+      setShowForm(false);
+      setEditingAuthor(null);
+    } catch (error) {
+      console.error('🚀 Error in AuthorManager.handleSave:', error);
       toast({
-        title: "Author updated",
-        description: `${author.name} has been updated successfully.`
-      });
-    } else {
-      onAuthorAdded(author);
-      toast({
-        title: "Author added",
-        description: `${author.name} has been added successfully.`
+        title: "Error",
+        description: "Failed to save author. Please try again.",
+        variant: "destructive"
       });
     }
-    setShowForm(false);
-    setEditingAuthor(null);
   };
   
   const handleCancel = () => {

@@ -27,6 +27,12 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
   const [isManualMode, setIsManualMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
+  console.log('AuthorForm initialized with:', {
+    hasInitialAuthor: !!initialAuthor,
+    initialAuthorName: initialAuthor?.name,
+    onSaveType: typeof onSave
+  });
+  
   const {
     author,
     handleInputChange,
@@ -47,38 +53,52 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
   } = useAuthorForm(initialAuthor);
 
   const handleSave = async () => {
-    console.log('AuthorForm handleSave called');
+    console.log('🔥 AuthorForm.handleSave called - START');
+    console.log('🔥 Current saving state:', isSaving);
+    console.log('🔥 Current author state:', {
+      id: author.id,
+      name: author.name,
+      role: author.role,
+      organization: author.organization,
+      backstory: author.backstory
+    });
     
     if (isSaving) {
-      console.log('Already saving, ignoring duplicate request');
+      console.log('🔥 Already saving, ignoring duplicate request');
       return;
     }
     
     setIsSaving(true);
+    console.log('🔥 Set isSaving to true');
     
     try {
-      console.log('Current author before validation:', {
-        name: author.name,
-        role: author.role,
-        organization: author.organization,
-        id: author.id
+      console.log('🔥 About to validate author...');
+      const cleanedAuthor = validateAndCleanAuthor();
+      console.log('🔥 Validation result:', {
+        isValid: !!cleanedAuthor,
+        cleanedAuthorName: cleanedAuthor?.name,
+        cleanedAuthorId: cleanedAuthor?.id
       });
       
-      const cleanedAuthor = validateAndCleanAuthor();
-      
       if (cleanedAuthor) {
-        console.log('Author validated successfully, calling onSave...', {
+        console.log('🔥 Author validation passed, calling onSave...');
+        console.log('🔥 Calling onSave with:', {
           name: cleanedAuthor.name,
-          id: cleanedAuthor.id
+          id: cleanedAuthor.id,
+          role: cleanedAuthor.role,
+          organization: cleanedAuthor.organization
         });
+        
         await onSave(cleanedAuthor);
-        console.log('onSave completed successfully');
+        console.log('🔥 onSave completed successfully');
       } else {
-        console.error('Author validation failed, cannot save');
+        console.error('🔥 Author validation failed - cleanedAuthor is null');
       }
     } catch (error) {
-      console.error('Error during save process:', error);
+      console.error('🔥 Error during save process:', error);
+      console.error('🔥 Error stack:', error instanceof Error ? error.stack : 'No stack available');
     } finally {
+      console.log('🔥 Setting isSaving to false');
       setIsSaving(false);
     }
   };

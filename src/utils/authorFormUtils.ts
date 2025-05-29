@@ -33,7 +33,18 @@ export const createEmptySocialLink = (): AuthorSocialLink => ({
 });
 
 export const createInitialAuthor = (initialAuthor?: Author | null): Author => {
-  return initialAuthor || {
+  console.log('🔧 createInitialAuthor called with:', {
+    hasInitialAuthor: !!initialAuthor,
+    initialAuthorName: initialAuthor?.name,
+    initialAuthorId: initialAuthor?.id
+  });
+  
+  if (initialAuthor) {
+    console.log('🔧 Using provided initialAuthor');
+    return initialAuthor;
+  }
+  
+  const newAuthor = {
     id: crypto.randomUUID(),
     name: '',
     bio: '',
@@ -48,25 +59,35 @@ export const createInitialAuthor = (initialAuthor?: Author | null): Author => {
     beliefs: [createEmptyBelief()],
     socialLinks: [createEmptySocialLink()]
   };
+  
+  console.log('🔧 Created new author with ID:', newAuthor.id);
+  return newAuthor;
 };
 
 export const validateAndCleanAuthor = (author: Author): Author | null => {
-  console.log('validateAndCleanAuthor called with:', {
-    name: author.name,
-    role: author.role,
-    organization: author.organization,
-    backstory: author.backstory
+  console.log('🔧 validateAndCleanAuthor called with:', {
+    id: author?.id || 'undefined',
+    name: author?.name || 'undefined',
+    role: author?.role || 'undefined',
+    organization: author?.organization || 'undefined'
   });
 
+  // Safety check for null/undefined author
+  if (!author) {
+    console.error('🔧 Author validation failed: author object is null or undefined');
+    return null;
+  }
+
   // Validate required fields
-  if (!author.name.trim()) {
-    console.error('Author validation failed: name is required');
+  if (!author.name?.trim()) {
+    console.error('🔧 Author validation failed: name is required');
     return null;
   }
 
   // Set default values for required fields
   const cleanedAuthor: Author = {
     ...author,
+    id: author.id || crypto.randomUUID(), // Ensure ID exists
     name: author.name.trim(),
     role: author.role || 'Professional',
     organization: author.organization || 'Unknown Organization',
@@ -88,11 +109,11 @@ export const validateAndCleanAuthor = (author: Author): Author | null => {
     cleanedAuthor.beliefs = [{ id: crypto.randomUUID(), belief: 'Quality matters', description: 'Believes in delivering quality work' }];
   }
 
-  console.log('Cleaned author result:', {
+  console.log('🔧 Cleaned author result:', {
+    id: cleanedAuthor.id,
     name: cleanedAuthor.name,
     role: cleanedAuthor.role,
     organization: cleanedAuthor.organization,
-    backstory: cleanedAuthor.backstory,
     experiencesCount: cleanedAuthor.experiences.length,
     tonesCount: cleanedAuthor.tones.length,
     beliefsCount: cleanedAuthor.beliefs.length,

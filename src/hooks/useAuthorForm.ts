@@ -14,7 +14,7 @@ import { useFormPersistence } from './useFormPersistence';
 export const useAuthorForm = (initialAuthor?: Author | null) => {
   const author = createInitialAuthor(initialAuthor);
   
-  console.log('useAuthorForm initialized with:', { 
+  console.log('🏠 useAuthorForm initialized with:', { 
     hasInitialAuthor: !!initialAuthor, 
     authorId: author.id,
     authorName: author.name 
@@ -101,8 +101,9 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
       socialLinks
     };
     
-    console.log('Author composition updated:', {
+    console.log('🏠 Author composition updated:', {
       name: composedAuthor.name,
+      id: composedAuthor.id,
       role: composedAuthor.role,
       organization: composedAuthor.organization,
       experiencesCount: composedAuthor.experiences.length,
@@ -134,26 +135,41 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
   );
 
   // Handle validation
-  const { validateAndCleanAuthor: validateAuthor } = useAuthorValidation();
+  const { validateAndCleanAuthor } = useAuthorValidation();
 
   const validateAndCleanCurrentAuthor = () => {
-    console.log('Starting author validation...', {
+    console.log('🏠 Starting author validation...', {
+      authorId: currentAuthor.id,
       authorName: currentAuthor.name,
       hasRole: !!currentAuthor.role,
       hasOrganization: !!currentAuthor.organization,
       hasBackstory: !!currentAuthor.backstory
     });
     
-    const validatedAuthor = validateAuthor(currentAuthor);
-    
-    if (validatedAuthor) {
-      console.log('Author validation successful, clearing persisted data');
-      clearPersistedData();
-    } else {
-      console.error('Author validation failed');
+    try {
+      // Important fix: Pass the current author to the validation function
+      const validatedAuthor = validateAndCleanAuthor(currentAuthor);
+      
+      console.log('🏠 Validation result:', {
+        isValid: !!validatedAuthor,
+        validatedName: validatedAuthor?.name,
+        validatedId: validatedAuthor?.id
+      });
+      
+      if (validatedAuthor) {
+        console.log('🏠 Author validation successful, clearing persisted data');
+        clearPersistedData();
+        console.log('🏠 Persisted data cleared');
+      } else {
+        console.error('🏠 Author validation failed - returned null');
+      }
+      
+      return validatedAuthor;
+    } catch (error) {
+      console.error('🏠 Error in validateAndCleanCurrentAuthor:', error);
+      console.error('🏠 Error stack:', error instanceof Error ? error.stack : 'No stack available');
+      return null;
     }
-    
-    return validatedAuthor;
   };
 
   return {
