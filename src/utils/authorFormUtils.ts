@@ -69,7 +69,8 @@ export const validateAndCleanAuthor = (author: Author): Author | null => {
     id: author?.id || 'undefined',
     name: author?.name || 'undefined',
     role: author?.role || 'undefined',
-    organization: author?.organization || 'undefined'
+    organization: author?.organization || 'undefined',
+    rawAuthor: author
   });
 
   // Safety check for null/undefined author
@@ -78,9 +79,13 @@ export const validateAndCleanAuthor = (author: Author): Author | null => {
     return null;
   }
 
-  // Validate required fields
+  // Validate required fields - only name is truly required
   if (!author.name?.trim()) {
-    console.error('🔧 Author validation failed: name is required');
+    console.error('🔧 Author validation failed: name is required but got:', {
+      name: author.name,
+      nameType: typeof author.name,
+      trimmedName: author.name?.trim()
+    });
     return null;
   }
 
@@ -89,6 +94,10 @@ export const validateAndCleanAuthor = (author: Author): Author | null => {
     ...author,
     id: author.id || crypto.randomUUID(), // Ensure ID exists
     name: author.name.trim(),
+    bio: author.bio || '',
+    company: author.company || '',
+    title: author.title || '',
+    email: author.email || '',
     role: author.role || 'Professional',
     organization: author.organization || 'Unknown Organization',
     backstory: author.backstory || 'Professional background to be updated.',

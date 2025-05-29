@@ -17,7 +17,7 @@ import AuthorFormActions from './author-form/AuthorFormActions';
 
 interface AuthorFormProps {
   initialAuthor?: Author | null;
-  onSave: (author: Author) => void;
+  onSave: (author: Author) => Promise<Author> | Author;
   onCancel: () => void;
 }
 
@@ -27,10 +27,11 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
   const [isManualMode, setIsManualMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
-  console.log('AuthorForm initialized with:', {
+  console.log('🔥 AuthorForm initialized with:', {
     hasInitialAuthor: !!initialAuthor,
     initialAuthorName: initialAuthor?.name,
-    onSaveType: typeof onSave
+    onSaveType: typeof onSave,
+    isAsync: onSave.constructor.name === 'AsyncFunction'
   });
   
   const {
@@ -55,12 +56,15 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
   const handleSave = async () => {
     console.log('🔥 AuthorForm.handleSave called - START');
     console.log('🔥 Current saving state:', isSaving);
-    console.log('🔥 Current author state:', {
+    console.log('🔥 Current author state before validation:', {
       id: author.id,
       name: author.name,
       role: author.role,
       organization: author.organization,
-      backstory: author.backstory
+      backstory: author.backstory,
+      hasExperiences: author.experiences?.length > 0,
+      hasTones: author.tones?.length > 0,
+      hasBeliefs: author.beliefs?.length > 0
     });
     
     if (isSaving) {
@@ -77,26 +81,39 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
       console.log('🔥 Validation result:', {
         isValid: !!cleanedAuthor,
         cleanedAuthorName: cleanedAuthor?.name,
-        cleanedAuthorId: cleanedAuthor?.id
+        cleanedAuthorId: cleanedAuthor?.id,
+        cleanedAuthorRole: cleanedAuthor?.role,
+        cleanedAuthorOrganization: cleanedAuthor?.organization
       });
       
       if (cleanedAuthor) {
         console.log('🔥 Author validation passed, calling onSave...');
-        console.log('🔥 Calling onSave with:', {
+        console.log('🔥 Calling onSave with cleaned author:', {
           name: cleanedAuthor.name,
           id: cleanedAuthor.id,
           role: cleanedAuthor.role,
-          organization: cleanedAuthor.organization
+          organization: cleanedAuthor.organization,
+          experiencesCount: cleanedAuthor.experiences?.length || 0,
+          tonesCount: cleanedAuthor.tones?.length || 0,
+          beliefsCount: cleanedAuthor.beliefs?.length || 0
         });
         
-        await onSave(cleanedAuthor);
-        console.log('🔥 onSave completed successfully');
+        const result = await onSave(cleanedAuthor);
+        console.log('🔥 onSave completed successfully, result:', {
+          resultType: typeof result,
+          resultName: result?.name,
+          resultId: result?.id
+        });
       } else {
         console.error('🔥 Author validation failed - cleanedAuthor is null');
+        console.error('🔥 Raw author that failed validation:', author);
       }
     } catch (error) {
       console.error('🔥 Error during save process:', error);
+      console.error('🔥 Error name:', error instanceof Error ? error.name : 'Unknown');
+      console.error('🔥 Error message:', error instanceof Error ? error.message : 'Unknown');
       console.error('🔥 Error stack:', error instanceof Error ? error.stack : 'No stack available');
+      throw error; // Re-throw to ensure error handling works properly
     } finally {
       console.log('🔥 Setting isSaving to false');
       setIsSaving(false);
@@ -131,8 +148,9 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
     author.tones.some(tone => tone.tone) ||
     author.beliefs.some(belief => belief.belief);
 
-  console.log('AuthorForm render state:', {
+  console.log('🔥 AuthorForm render state:', {
     authorName: author.name,
+    authorId: author.id,
     showExpandedForm,
     hasAnalyzedContent,
     isManualMode,

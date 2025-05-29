@@ -15,9 +15,9 @@ import { useToast } from '@/components/ui/use-toast';
 
 interface AuthorManagerProps {
   authors: Author[];
-  onAuthorAdded: (author: Author) => void;
-  onAuthorUpdated: (author: Author) => void;
-  onAuthorDeleted: (authorId: string) => void;
+  onAuthorAdded: (author: Author) => Promise<Author>;
+  onAuthorUpdated: (author: Author) => Promise<Author>;
+  onAuthorDeleted: (authorId: string) => Promise<void>;
 }
 
 const AuthorManager: FC<AuthorManagerProps> = ({ 
@@ -33,7 +33,9 @@ const AuthorManager: FC<AuthorManagerProps> = ({
   console.log('🚀 AuthorManager initialized with:', {
     authorsCount: authors.length,
     onAuthorAddedType: typeof onAuthorAdded,
-    onAuthorUpdatedType: typeof onAuthorUpdated
+    onAuthorUpdatedType: typeof onAuthorUpdated,
+    isAddedAsync: onAuthorAdded.constructor.name === 'AsyncFunction',
+    isUpdatedAsync: onAuthorUpdated.constructor.name === 'AsyncFunction'
   });
   
   // Get current client info if we're in a client-specific view
@@ -56,58 +58,84 @@ const AuthorManager: FC<AuthorManagerProps> = ({
     console.log('🚀 AuthorManager.handleSave called with:', {
       authorId: author.id,
       authorName: author.name,
-      isEditing: !!editingAuthor
+      isEditing: !!editingAuthor,
+      authorRole: author.role,
+      authorOrganization: author.organization
     });
     
     try {
+      let result: Author;
+      
       if (editingAuthor) {
-        console.log('🚀 Calling onAuthorUpdated...');
-        await onAuthorUpdated(author);
-        console.log('🚀 onAuthorUpdated completed');
+        console.log('🚀 Calling onAuthorUpdated for existing author...');
+        result = await onAuthorUpdated(author);
+        console.log('🚀 onAuthorUpdated completed, result:', {
+          id: result.id,
+          name: result.name
+        });
         toast({
           title: "Author updated",
           description: `${author.name} has been updated successfully.`
         });
       } else {
-        console.log('🚀 Calling onAuthorAdded...');
-        await onAuthorAdded(author);
-        console.log('🚀 onAuthorAdded completed');
+        console.log('🚀 Calling onAuthorAdded for new author...');
+        result = await onAuthorAdded(author);
+        console.log('🚀 onAuthorAdded completed, result:', {
+          id: result.id,
+          name: result.name
+        });
         toast({
           title: "Author added",
           description: `${author.name} has been added successfully.`
         });
       }
       
-      console.log('🚀 Closing form and clearing state...');
+      console.log('🚀 Save operation successful, closing form...');
       setShowForm(false);
       setEditingAuthor(null);
     } catch (error) {
       console.error('🚀 Error in AuthorManager.handleSave:', error);
+      console.error('🚀 Error name:', error instanceof Error ? error.name : 'Unknown');
+      console.error('🚀 Error message:', error instanceof Error ? error.message : 'Unknown');
+      console.error('🚀 Error stack:', error instanceof Error ? error.stack : 'No stack available');
       toast({
         title: "Error",
-        description: "Failed to save author. Please try again.",
+        description: `Failed to save author: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
     }
   };
   
   const handleCancel = () => {
+    console.log('🚀 AuthorManager.handleCancel called');
     setShowForm(false);
     setEditingAuthor(null);
   };
   
   const handleEdit = (author: Author) => {
+    console.log('🚀 AuthorManager.handleEdit called for author:', author.name);
     setEditingAuthor(author);
     setShowForm(true);
   };
   
-  const handleDelete = (authorId: string) => {
+  const handleDelete = async (authorId: string) => {
+    console.log('🚀 AuthorManager.handleDelete called for author:', authorId);
     if (confirm('Are you sure you want to delete this author? This action cannot be undone.')) {
-      onAuthorDeleted(authorId);
-      toast({
-        title: "Author deleted",
-        description: "The author has been removed successfully."
-      });
+      try {
+        await onAuthorDeleted(authorId);
+        console.log('🚀 Author deleted successfully');
+        toast({
+          title: "Author deleted",
+          description: "The author has been removed successfully."
+        });
+      } catch (error) {
+        console.error('🚀 Error deleting author:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete author. Please try again.",
+          variant: "destructive"
+        });
+      }
     }
   };
   
