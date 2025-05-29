@@ -1,8 +1,8 @@
-
 import { FC } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProductFeature } from '@/types/storytelling';
 import { Plus, Trash } from 'lucide-react';
 import MediaUploader from '../MediaUploader';
@@ -17,7 +17,14 @@ const FeaturesSection: FC<FeaturesSectionProps> = ({
   onFeaturesChange
 }) => {
   const addFeature = () => {
-    onFeaturesChange([...features, { id: crypto.randomUUID(), name: '', benefits: [''], media: [] }]);
+    const newFeature: ProductFeature = {
+      id: crypto.randomUUID(),
+      name: '',
+      description: '',
+      benefits: [''],
+      media: []
+    };
+    onFeaturesChange([...features, newFeature]);
   };
 
   const removeFeature = (index: number) => {
@@ -74,6 +81,13 @@ const FeaturesSection: FC<FeaturesSectionProps> = ({
                 value={feature.name}
                 onChange={(e) => updateFeature(index, 'name', e.target.value)}
                 placeholder="Feature name"
+                className="text-sm"
+              />
+              
+              <Textarea
+                value={feature.description}
+                onChange={(e) => updateFeature(index, 'description', e.target.value)}
+                placeholder="Feature description"
                 className="text-sm"
               />
               

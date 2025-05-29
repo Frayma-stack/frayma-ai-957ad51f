@@ -1,4 +1,5 @@
 
+
 export interface AuthorExperience {
   id: string;
   title: string;
@@ -40,6 +41,13 @@ export interface Author {
   clientId?: string;
 }
 
+export interface CompanyLink {
+  id: string;
+  type: 'website' | 'linkedin' | 'twitter' | 'facebook' | 'blog' | 'other';
+  url: string;
+  description?: string;
+}
+
 export interface Client {
   id: string;
   name: string;
@@ -48,6 +56,16 @@ export interface Client {
   industry?: string;
   description?: string;
   productContextId?: string;
+  companyLinks?: CompanyLink[];
+  createdAt?: string;
+}
+
+export interface MediaAttachment {
+  id: string;
+  type: 'image' | 'video' | 'gif';
+  url: string;
+  description: string;
+  fileName?: string;
 }
 
 export interface ProductFeature {
@@ -55,7 +73,7 @@ export interface ProductFeature {
   name: string;
   description: string;
   benefits: string[];
-  media?: any[];
+  media?: MediaAttachment[];
 }
 
 export interface ProductUseCase {
@@ -63,7 +81,7 @@ export interface ProductUseCase {
   useCase: string;
   userRole: string;
   description: string;
-  media?: any[];
+  media?: MediaAttachment[];
 }
 
 export interface ProductDifferentiator {
@@ -71,7 +89,7 @@ export interface ProductDifferentiator {
   name: string;
   description: string;
   competitorComparison?: string;
-  media?: any[];
+  media?: MediaAttachment[];
 }
 
 export interface ProductContext {
@@ -84,7 +102,8 @@ export interface ProductContext {
   features: ProductFeature[];
   useCases: ProductUseCase[];
   differentiators: ProductDifferentiator[];
-  clientId: string;
+  companyLinks?: CompanyLink[];
+  clientId?: string;
 }
 
 export interface ICPStoryScriptItem {
@@ -134,6 +153,8 @@ export interface AnchoringElement {
   itemId: string;
 }
 
+export type ArticleSubType = 'thought-leadership' | 'how-to' | 'case-study' | 'comparison' | 'listicle';
+
 export interface StoryBrief {
   id: string;
   title: string;
@@ -146,6 +167,14 @@ export interface StoryBrief {
   outlineSteps?: string[];
   anchoringElements?: AnchoringElement[];
   clientId?: string;
+  contentType?: ArticleSubType;
+  goal?: string;
+  relatedKeywords?: string[];
+  searchQueries?: string[];
+  businessObjectives?: string[];
+  journeyStage?: string;
+  broaderAudience?: string;
+  readingMotivation?: string;
 }
 
 export type NarrativeAnchorType = 'belief' | 'tone' | 'experience';
@@ -156,6 +185,8 @@ export interface NarrativeSelectionItem {
 }
 
 export interface NarrativeSelection {
+  type: 'belief' | 'pain' | 'struggle' | 'transformation';
+  items: string[];
   anchorType: NarrativeAnchorType;
-  items: NarrativeSelectionItem[];
 }
+

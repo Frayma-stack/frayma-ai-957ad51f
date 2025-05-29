@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +23,8 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
   editingProductContext,
   selectedClientId
 }) => {
+  const [name, setName] = useState(editingProductContext?.name || '');
+  const [description, setDescription] = useState(editingProductContext?.description || '');
   const [categoryPOV, setCategoryPOV] = useState(editingProductContext?.categoryPOV || '');
   const [companyMission, setCompanyMission] = useState(editingProductContext?.companyMission || '');
   const [uniqueInsight, setUniqueInsight] = useState(editingProductContext?.uniqueInsight || '');
@@ -34,6 +35,8 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
   const { toast } = useToast();
 
   const resetForm = () => {
+    setName('');
+    setDescription('');
     setCategoryPOV('');
     setCompanyMission('');
     setUniqueInsight('');
@@ -48,10 +51,10 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
   };
 
   const handleSubmit = () => {
-    if (!categoryPOV.trim() && !companyMission.trim() && !uniqueInsight.trim()) {
+    if (!name.trim()) {
       toast({
         title: "Error",
-        description: "Please fill in at least one of the core narrative fields",
+        description: "Please provide a name for the product context",
         variant: "destructive"
       });
       return;
@@ -59,6 +62,8 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
 
     const productContext: ProductContext = {
       id: editingProductContext?.id || crypto.randomUUID(),
+      name: name.trim(),
+      description: description.trim(),
       categoryPOV: categoryPOV.trim(),
       companyMission: companyMission.trim(),
       uniqueInsight: uniqueInsight.trim(),
@@ -79,7 +84,7 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
   };
 
   const addFeature = () => {
-    setFeatures([...features, { id: crypto.randomUUID(), name: '', benefits: [''], media: [] }]);
+    setFeatures([...features, { id: crypto.randomUUID(), name: '', description: '', benefits: [''], media: [] }]);
   };
 
   const removeFeature = (index: number) => {
@@ -154,6 +159,27 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Core Product Narrative</h3>
             
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Name of the product context"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Description of the product context"
+                rows={3}
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="categoryPOV">Category Point of View</Label>
               <Textarea

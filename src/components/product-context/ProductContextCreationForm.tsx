@@ -16,6 +16,8 @@ const ProductContextCreationForm: FC<ProductContextCreationFormProps> = ({
   onProductContextCreated,
   onCancel
 }) => {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [categoryPOV, setCategoryPOV] = useState('');
   const [companyMission, setCompanyMission] = useState('');
   const [uniqueInsight, setUniqueInsight] = useState('');
@@ -26,7 +28,7 @@ const ProductContextCreationForm: FC<ProductContextCreationFormProps> = ({
   const { toast } = useToast();
 
   const handleCreateProductContext = () => {
-    if (!categoryPOV.trim() && !companyMission.trim() && !uniqueInsight.trim() && 
+    if (!name.trim() && !categoryPOV.trim() && !companyMission.trim() && !uniqueInsight.trim() && 
         features.length === 0 && useCases.length === 0 && differentiators.length === 0) {
       toast({
         title: "Error",
@@ -38,13 +40,14 @@ const ProductContextCreationForm: FC<ProductContextCreationFormProps> = ({
 
     const newProductContext: ProductContext = {
       id: crypto.randomUUID(),
+      name: name.trim() || 'Product Context',
+      description: description.trim() || '',
       categoryPOV: categoryPOV.trim(),
       companyMission: companyMission.trim(),
       uniqueInsight: uniqueInsight.trim(),
       features,
       useCases,
-      differentiators,
-      companyLinks: []
+      differentiators
     };
 
     onProductContextCreated(newProductContext);

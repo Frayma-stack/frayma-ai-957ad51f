@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,7 +76,7 @@ const CollapsibleProductContext: FC<CollapsibleProductContextProps> = ({
 
   // Feature management functions
   const addFeature = () => {
-    setFeatures([...features, { id: crypto.randomUUID(), name: '', benefits: [''], media: [] }]);
+    setFeatures([...features, { id: crypto.randomUUID(), name: '', description: '', benefits: [''], media: [] }]);
   };
 
   const removeFeature = (index: number) => {
