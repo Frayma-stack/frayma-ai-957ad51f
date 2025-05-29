@@ -27,29 +27,29 @@ export const useProfileAnalysis = () => {
       beliefs?: AuthorBelief[];
     }) => void
   ) => {
-    console.log('Starting profile analysis for author:', authorName);
+    console.log('Starting LinkedIn profile analysis for author:', authorName);
     
     setIsAnalyzing(true);
     
     try {
       const urls = collectUrls(socialLinks, additionalUrls);
       
-      console.log('URLs to analyze:', urls);
+      console.log('LinkedIn URLs to analyze:', urls);
       
       if (urls.length === 0) {
         toast({
           title: "No URLs provided",
-          description: "Please provide at least one URL to analyze the profile.",
+          description: "Please provide at least one LinkedIn profile URL for analysis.",
           variant: "destructive"
         });
         setIsAnalyzing(false);
         return;
       }
       
-      // Build the prompt structure for Perplexity
+      // Build the enhanced prompt for LinkedIn experience extraction
       const { systemPrompt, userPrompt } = buildAnalysisPrompt(urls);
-      console.log('System prompt:', systemPrompt);
-      console.log('User prompt:', userPrompt);
+      console.log('LinkedIn analysis system prompt:', systemPrompt);
+      console.log('LinkedIn analysis user prompt:', userPrompt);
       
       const { data, error } = await supabase.functions.invoke('analyze-profile', {
         body: { 
@@ -59,50 +59,50 @@ export const useProfileAnalysis = () => {
       });
       
       if (error) {
-        console.error('Analysis error:', error);
-        throw new Error(error.message || 'Failed to analyze profile');
+        console.error('LinkedIn analysis error:', error);
+        throw new Error(error.message || 'Failed to analyze LinkedIn profile');
       }
       
       if (!data || !data.choices || !data.choices[0]) {
-        throw new Error('Invalid response from analysis service');
+        throw new Error('Invalid response from LinkedIn analysis service');
       }
       
       const content = data.choices[0].message.content;
-      console.log('Analysis content:', content);
+      console.log('LinkedIn analysis content:', content);
       
       const parsed = parseAnalysisContent(content);
       const results = transformAnalysisResults(parsed);
-      console.log('Transformed results:', results);
+      console.log('Transformed LinkedIn results:', results);
       
       if (!results.currentRole && !results.backstory && 
           !results.experiences.length && !results.tones.length && !results.beliefs.length) {
         toast({
-          title: "Analysis yielded no results",
-          description: "No information could be extracted from the provided URLs.",
+          title: "LinkedIn analysis yielded no results",
+          description: "No professional information could be extracted from the provided LinkedIn URLs.",
           variant: "destructive"
         });
       } else {
         onAnalysisComplete(results);
         
         const generatedItems = [];
-        if (results.currentRole) generatedItems.push('role');
-        if (results.backstory) generatedItems.push('backstory');
-        if (results.experiences.length > 0) generatedItems.push(`${results.experiences.length} experiences`);
+        if (results.currentRole) generatedItems.push('current role');
+        if (results.backstory) generatedItems.push('career backstory');
+        if (results.experiences.length > 0) generatedItems.push(`${results.experiences.length} LinkedIn experiences`);
         if (results.tones.length > 0) generatedItems.push(`${results.tones.length} writing tones`);
         if (results.beliefs.length > 0) generatedItems.push(`${results.beliefs.length} product beliefs`);
         
         toast({
-          title: "Profile analysis complete",
-          description: `Successfully generated ${generatedItems.join(', ')}.`,
+          title: "LinkedIn profile analysis complete",
+          description: `Successfully extracted ${generatedItems.join(', ')} from LinkedIn.`,
         });
       }
     } catch (error) {
-      console.error('Error in profile analysis:', error);
+      console.error('Error in LinkedIn profile analysis:', error);
       
       const errorMessage = getErrorMessage(error);
       
       toast({
-        title: "Profile Analysis Failed",
+        title: "LinkedIn Analysis Failed",
         description: errorMessage,
         variant: "destructive"
       });

@@ -1,84 +1,97 @@
 
-import { ParsedAnalysisData } from '@/types/profileAnalyzer';
-
-export const parseAnalysisContent = (content: string): ParsedAnalysisData => {
-  console.log('Raw analysis response content:', content);
+export const parseAnalysisContent = (content: string) => {
+  console.log('Parsing analysis content:', content);
   
-  // Try to find JSON in the response with multiple patterns
-  let jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || 
-                  content.match(/```([\s\S]*?)```/) || 
-                  content.match(/{[\s\S]*}/);
-  
-  if (jsonMatch) {
-    const jsonString = jsonMatch[1] || jsonMatch[0];
-    console.log('Extracted JSON string:', jsonString);
-    try {
-      const parsed = JSON.parse(jsonString);
-      
-      // Validate the parsed data has the expected structure
-      if (!parsed || typeof parsed !== 'object') {
-        throw new Error('Parsed data is not a valid object');
-      }
-      
-      // Ensure arrays exist even if empty
-      if (!Array.isArray(parsed.experiences)) {
-        parsed.experiences = [];
-      }
-      if (!Array.isArray(parsed.writingTones)) {
-        parsed.writingTones = [];
-      }
-      if (!Array.isArray(parsed.productBeliefs)) {
-        parsed.productBeliefs = [];
-      }
-      
-      return parsed;
-    } catch (parseError) {
-      console.error('JSON parse error:', parseError);
-      console.error('Failed to parse JSON string:', jsonString);
-      throw new Error('Invalid JSON format in the analysis response');
-    }
-  } 
-  
-  // If no JSON found, try to parse the entire content as JSON
+  let parsed;
   try {
-    const parsed = JSON.parse(content);
+    // Try to parse as JSON first
+    parsed = JSON.parse(content);
+  } catch (error) {
+    console.log('Content is not JSON, attempting to extract from text');
     
-    // Ensure arrays exist even if empty
-    if (!Array.isArray(parsed.experiences)) {
-      parsed.experiences = [];
-    }
-    if (!Array.isArray(parsed.writingTones)) {
-      parsed.writingTones = [];
-    }
-    if (!Array.isArray(parsed.productBeliefs)) {
-      parsed.productBeliefs = [];
-    }
-    
-    return parsed;
-  } catch (parseError) {
-    console.error('Could not parse content as JSON:', content);
-    console.error('Parse error:', parseError);
-    
-    // If AI refuses to generate content, return a helpful error
-    if (content.includes("I can't access") || content.includes("I'm sorry") || content.includes("I cannot")) {
-      throw new Error('Analysis service cannot access external websites. Please try a different approach or provide the information manually.');
-    }
-    
-    // Check if the response contains any meaningful data we can extract
-    if (content.includes('currentTitle') || content.includes('experiences') || content.includes('writingTones')) {
-      // Attempt to fix common JSON formatting issues
-      let fixedContent = content
-        .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3') // Add quotes to unquoted keys
-        .replace(/:\s*([^",{\[\]}\s][^",{\[\]}\n]*[^",{\[\]}\s])\s*([,}])/g, ': "$1"$2') // Quote unquoted string values
-        .trim();
+    // If not JSON, try to extract structured data from text
+    parsed = extractFromText(content);
+  }
+  
+  console.log('Parsed content:', parsed);
+  return parsed;
+};
+
+const extractFromText = (content: string) => {
+  const result: any = {
+    experiences: [],
+    writingTones: [],
+    productBeliefs: []
+  };
+  
+  // Extract current title/role
+  const titleMatch = content.match(/(?:current\s*(?:title|role|position)|title|role):\s*([^\n]+)/i);
+  if (titleMatch) {
+    result.currentTitle = titleMatch[1].trim();
+  }
+  
+  // Extract organization
+  const orgMatch = content.match(/(?:organization|company|employer):\s*([^\n]+)/i);
+  if (orgMatch) {
+    result.organization = orgMatch[1].trim();
+  }
+  
+  // Extract career backstory
+  const backstoryMatch = content.match(/(?:backstory|background|career\s*background|professional\s*background):\s*([^\n]+(?:\n(?![\w\s]*:)[^\n]+)*)/i);
+  if (backstoryMatch) {
+    result.careerBackstory = backstoryMatch[1].trim();
+  }
+  
+  // Extract LinkedIn experiences with improved pattern matching
+  const experiencePatterns = [
+    /(?:experience|experiences|work\s*experience|professional\s*experience):\s*(.*?)(?=\n(?:[a-z\s]*:|$))/gis,
+    /(?:^|\n)\s*-\s*([^@\n]+)\s*@\s*([^|\n]+)(?:\s*\|\s*([^|\n]+))?/gm,
+    /(?:^|\n)\s*\*\s*([^@\n]+)\s*@\s*([^|\n]+)(?:\s*\|\s*([^|\n]+))?/gm,
+    /(?:^|\n)\s*(\d+\.?\s*)?([^@\n]+)\s*@\s*([^|\n]+)(?:\s*\|\s*([^|\n]+))?/gm
+  ];
+  
+  for (const pattern of experiencePatterns) {
+    let match;
+    while ((match = pattern.exec(content)) !== null) {
+      const title = (match[2] || match[1] || '').trim();
+      const company = (match[3] || match[2] || '').trim();
+      const duration = (match[4] || match[3] || '').trim();
       
-      try {
-        return JSON.parse(fixedContent);
-      } catch (fixError) {
-        console.error('Failed to fix and parse JSON:', fixError);
+      if (title && company && title !== company) {
+        // Format as "Title @Company | Duration"
+        const formattedTitle = duration 
+          ? `${title} @${company} | ${duration}`
+          : `${title} @${company}`;
+          
+        result.experiences.push({
+          title: formattedTitle,
+          company: company,
+          duration: duration,
+          summary: `Professional experience at ${company}`
+        });
       }
     }
-    
-    throw new Error('Could not find valid JSON in the analysis response. The analysis service may have returned an unexpected format. Please try again.');
   }
+  
+  // Extract writing tones
+  const tonesSection = content.match(/(?:writing\s*tones?|communication\s*style|tone):\s*(.*?)(?=\n(?:[a-z\s]*:|$))/gis);
+  if (tonesSection) {
+    const tones = tonesSection[1].split(/[,\n-]/).filter(t => t.trim());
+    result.writingTones = tones.map(tone => ({
+      toneTitle: tone.trim(),
+      toneSummary: `Communication style characteristic`
+    }));
+  }
+  
+  // Extract product beliefs
+  const beliefsSection = content.match(/(?:product\s*beliefs?|beliefs?|philosophy):\s*(.*?)(?=\n(?:[a-z\s]*:|$))/gis);
+  if (beliefsSection) {
+    const beliefs = beliefsSection[1].split(/[,\n-]/).filter(b => b.trim());
+    result.productBeliefs = beliefs.map(belief => ({
+      beliefTitle: belief.trim(),
+      beliefSummary: `Professional belief or principle`
+    }));
+  }
+  
+  return result;
 };

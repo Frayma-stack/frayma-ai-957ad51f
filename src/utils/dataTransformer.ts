@@ -1,87 +1,116 @@
-
 import { AuthorExperience, AuthorToneItem, AuthorBelief } from '@/types/storytelling';
 
 export const transformAnalysisResults = (parsedData: any) => {
   console.log('Transforming analysis results:', parsedData);
   
-  // Map experiences from enhanced format with better fallbacks
-  const experiences: AuthorExperience[] = (parsedData.experiences || []).map((exp: any) => ({
-    id: crypto.randomUUID(),
-    title: exp.title || `${exp.title || 'Professional Role'} @ ${exp.company || 'Company'}${exp.duration ? ` | ${exp.duration}` : ''}`,
-    description: exp.summary || exp.description || 'Professional experience details not available'
-  }));
+  // Transform LinkedIn experiences with proper formatting
+  const experiences: AuthorExperience[] = (parsedData.experiences || []).map((exp: any) => {
+    // If the experience already has the proper format, use it
+    if (exp.title && exp.title.includes('@')) {
+      return {
+        id: crypto.randomUUID(),
+        title: exp.title,
+        description: exp.summary || exp.description || 'Professional experience'
+      };
+    }
+    
+    // Otherwise, format it properly
+    const title = exp.title || exp.role || 'Professional Role';
+    const company = exp.company || exp.organization || 'Company';
+    const duration = exp.duration || exp.period || '';
+    
+    const formattedTitle = duration 
+      ? `${title} @${company} | ${duration}`
+      : `${title} @${company}`;
+    
+    return {
+      id: crypto.randomUUID(),
+      title: formattedTitle,
+      description: exp.summary || exp.description || `Professional experience at ${company}`
+    };
+  });
   
-  // Ensure minimum experiences if data is sparse
-  if (experiences.length === 0 && parsedData.currentTitle) {
+  // If no experiences found but we have current role info, create one
+  if (experiences.length === 0 && (parsedData.currentTitle || parsedData.organization)) {
+    const title = parsedData.currentTitle || 'Current Role';
+    const company = parsedData.organization || 'Organization';
+    
     experiences.push({
       id: crypto.randomUUID(),
-      title: parsedData.currentTitle,
-      description: 'Current role and responsibilities'
+      title: `${title} @${company}`,
+      description: 'Current professional role'
     });
   }
   
-  // Map writing tones from enhanced format
+  // Transform writing tones with better defaults
   const tones: AuthorToneItem[] = (parsedData.writingTones || []).map((tone: any) => ({
     id: crypto.randomUUID(),
-    tone: tone.toneTitle || tone.tone || 'Professional Tone',
-    description: tone.toneSummary || tone.description || 'Writing style characteristic'
+    tone: tone.toneTitle || tone.tone || 'Professional',
+    description: tone.toneSummary || tone.description || 'Communication style'
   }));
   
-  // Ensure exactly 4 tones with meaningful defaults if needed
-  const targetTones = ['Educational', 'Authentic', 'Analytical', 'Engaging'];
-  while (tones.length < 4 && tones.length < targetTones.length) {
-    const defaultTone = targetTones[tones.length];
-    if (!tones.some(t => t.tone.includes(defaultTone))) {
+  // Ensure we have at least 3 meaningful tones
+  const defaultTones = [
+    { tone: 'Professional', description: 'Clear and authoritative communication' },
+    { tone: 'Analytical', description: 'Data-driven and logical approach' },
+    { tone: 'Engaging', description: 'Compelling and accessible content' },
+    { tone: 'Authentic', description: 'Genuine and relatable voice' }
+  ];
+  
+  defaultTones.forEach((defaultTone, index) => {
+    if (tones.length < 4 && !tones.some(t => t.tone.toLowerCase().includes(defaultTone.tone.toLowerCase()))) {
       tones.push({
         id: crypto.randomUUID(),
-        tone: defaultTone,
-        description: `${defaultTone} communication style observed in content`
+        ...defaultTone
       });
-    } else {
-      break;
     }
-  }
+  });
 
-  // Map product beliefs from enhanced format
+  // Transform product beliefs
   const beliefs: AuthorBelief[] = (parsedData.productBeliefs || []).map((belief: any) => ({
     id: crypto.randomUUID(),
-    belief: belief.beliefTitle || belief.belief || 'Product Philosophy',
-    description: belief.beliefSummary || belief.description || 'Product-related belief or opinion'
+    belief: belief.beliefTitle || belief.belief || 'Product Excellence',
+    description: belief.beliefSummary || belief.description || 'Core product philosophy'
   }));
   
-  // Ensure exactly 4 beliefs with meaningful defaults if needed
-  const targetBeliefs = [
-    'User-Centric Design',
-    'Data-Driven Decisions', 
-    'Continuous Innovation',
-    'Quality over Speed'
+  // Ensure we have meaningful beliefs
+  const defaultBeliefs = [
+    { belief: 'User-Centric Design', description: 'Products should solve real user problems' },
+    { belief: 'Data-Driven Decisions', description: 'Insights should guide product strategy' },
+    { belief: 'Continuous Innovation', description: 'Always evolving to meet market needs' },
+    { belief: 'Quality over Speed', description: 'Sustainable excellence in execution' }
   ];
-  while (beliefs.length < 4 && beliefs.length < targetBeliefs.length) {
-    const defaultBelief = targetBeliefs[beliefs.length];
-    if (!beliefs.some(b => b.belief.includes(defaultBelief.split(' ')[0]))) {
+  
+  defaultBeliefs.forEach((defaultBelief, index) => {
+    if (beliefs.length < 4 && !beliefs.some(b => b.belief.toLowerCase().includes(defaultBelief.belief.toLowerCase()))) {
       beliefs.push({
         id: crypto.randomUUID(),
-        belief: defaultBelief,
-        description: `Belief in ${defaultBelief.toLowerCase()} as evidenced in professional approach`
+        ...defaultBelief
       });
-    } else {
-      break;
+    }
+  });
+  
+  // Extract organization from experiences if not directly available
+  let organization = parsedData.organization || '';
+  if (!organization && experiences.length > 0) {
+    const firstExp = experiences[0].title;
+    const atIndex = firstExp.indexOf('@');
+    const pipeIndex = firstExp.indexOf('|');
+    
+    if (atIndex !== -1) {
+      organization = pipeIndex !== -1 
+        ? firstExp.substring(atIndex + 1, pipeIndex).trim()
+        : firstExp.substring(atIndex + 1).trim();
     }
   }
-  
-  // Extract organization from currentTitle if available
-  const organization = parsedData.organization || 
-    (parsedData.currentTitle && parsedData.currentTitle.includes('@') 
-      ? parsedData.currentTitle.split('@')[1]?.trim() 
-      : '');
   
   const result = { 
     currentRole: parsedData.currentTitle || '',
     organization: organization,
     backstory: parsedData.careerBackstory || '',
-    experiences, 
-    tones: tones.slice(0, 4), // Ensure exactly 4 tones
-    beliefs: beliefs.slice(0, 4) // Ensure exactly 4 beliefs
+    experiences: experiences.slice(0, 6), // Limit to 6 most relevant experiences
+    tones: tones.slice(0, 4), // Exactly 4 tones
+    beliefs: beliefs.slice(0, 4) // Exactly 4 beliefs
   };
   
   console.log('Transformed result:', result);
