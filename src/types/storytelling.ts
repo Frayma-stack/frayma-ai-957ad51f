@@ -1,5 +1,6 @@
 
 
+
 export interface AuthorExperience {
   id: string;
   title: string;
@@ -143,6 +144,11 @@ export interface CustomerSuccessStory {
     name: string;
     description: string;
   }[];
+  useCases: {
+    id: string;
+    useCase: string;
+    description: string;
+  }[];
   clientId?: string;
   productContextId?: string;
   createdAt: string;
@@ -153,7 +159,7 @@ export interface AnchoringElement {
   itemId: string;
 }
 
-export type ArticleSubType = 'thought-leadership' | 'how-to' | 'case-study' | 'comparison' | 'listicle';
+export type ArticleSubType = 'thought_leadership' | 'newsletter';
 
 export interface StoryBrief {
   id: string;
@@ -171,7 +177,7 @@ export interface StoryBrief {
   goal?: string;
   relatedKeywords?: string[];
   searchQueries?: string[];
-  businessObjectives?: string[];
+  businessObjectives?: string;
   journeyStage?: string;
   broaderAudience?: string;
   readingMotivation?: string;
@@ -189,4 +195,5 @@ export interface NarrativeSelection {
   items: string[];
   anchorType: NarrativeAnchorType;
 }
+
 

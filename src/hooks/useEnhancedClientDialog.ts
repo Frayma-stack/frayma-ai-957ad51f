@@ -1,4 +1,5 @@
 
+
 import { useState } from 'react';
 import { Client, CompanyLink, ProductContext, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
 import { useToast } from "@/components/ui/use-toast";
@@ -8,7 +9,7 @@ export const useEnhancedClientDialog = (editingClient?: Client | null) => {
   const [name, setName] = useState(editingClient?.name || '');
   const [description, setDescription] = useState(editingClient?.description || '');
   const [companyLinks, setCompanyLinks] = useState<CompanyLink[]>(
-    editingClient?.companyLinks || [{ type: 'website', url: '' }]
+    editingClient?.companyLinks || [{ id: crypto.randomUUID(), type: 'website', url: '' }]
   );
 
   // Product Context fields
@@ -25,7 +26,7 @@ export const useEnhancedClientDialog = (editingClient?: Client | null) => {
   const resetForm = () => {
     setName('');
     setDescription('');
-    setCompanyLinks([{ type: 'website', url: '' }]);
+    setCompanyLinks([{ id: crypto.randomUUID(), type: 'website', url: '' }]);
     setCategoryPOV('');
     setCompanyMission('');
     setUniqueInsight('');
@@ -86,6 +87,8 @@ export const useEnhancedClientDialog = (editingClient?: Client | null) => {
     if (categoryPOV || companyMission || uniqueInsight || features.length > 0 || useCases.length > 0 || differentiators.length > 0) {
       productContext = {
         id: crypto.randomUUID(),
+        name: name.trim() || 'Product Context',
+        description: description.trim() || '',
         categoryPOV: categoryPOV.trim(),
         companyMission: companyMission.trim(),
         uniqueInsight: uniqueInsight.trim(),
@@ -134,3 +137,4 @@ export const useEnhancedClientDialog = (editingClient?: Client | null) => {
     validateForm
   };
 };
+

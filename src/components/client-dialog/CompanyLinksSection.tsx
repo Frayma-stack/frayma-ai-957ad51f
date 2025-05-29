@@ -1,4 +1,5 @@
 
+
 import { FC } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +23,7 @@ const CompanyLinksSection: FC<CompanyLinksSectionProps> = ({
   canAnalyze
 }) => {
   const addCompanyLink = () => {
-    onUpdateCompanyLinks([...companyLinks, { type: 'website', url: '' }]);
+    onUpdateCompanyLinks([...companyLinks, { id: crypto.randomUUID(), type: 'website', url: '' }]);
   };
 
   const removeCompanyLink = (index: number) => {
@@ -55,7 +56,7 @@ const CompanyLinksSection: FC<CompanyLinksSectionProps> = ({
             >
               <option value="website">Website</option>
               <option value="linkedin">LinkedIn</option>
-              <option value="about">About Page</option>
+              <option value="blog">About Page</option>
               <option value="other">Other</option>
             </select>
           </div>
@@ -108,3 +109,4 @@ const CompanyLinksSection: FC<CompanyLinksSectionProps> = ({
 };
 
 export default CompanyLinksSection;
+
