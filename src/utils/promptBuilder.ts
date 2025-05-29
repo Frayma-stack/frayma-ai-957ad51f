@@ -4,6 +4,8 @@ import { AuthorSocialLink } from '@/types/storytelling';
 export const buildAnalysisPrompt = (urls: string[]) => {
   const systemPrompt = `You are an expert professional profile analyzer. Your task is to extract and structure professional information from any available content (LinkedIn profiles, social media bios, personal websites, etc.).
 
+IMPORTANT: If content extraction is limited (e.g., due to LinkedIn access restrictions), work with whatever information is available and make reasonable professional inferences to create a complete profile.
+
 CRITICAL OUTPUT REQUIREMENTS:
 You MUST return a valid JSON object with this EXACT structure:
 {
@@ -57,25 +59,34 @@ You MUST return a valid JSON object with this EXACT structure:
 }
 
 EXTRACTION GUIDELINES:
-1. IF LinkedIn or professional content is available: Extract actual experiences in "Title @Company | Duration" format
-2. IF content is limited: Infer professional background from any available information (bio, posts, website content)
-3. ALWAYS provide exactly 4 writing tones and 4 product beliefs with meaningful summaries
-4. Career backstory should be 2-3 sentences maximum highlighting key progression
-5. If specific information isn't available, make reasonable professional inferences based on available context
-6. Focus on extracting VALUE even from minimal content
+1. IF professional content is available: Extract actual experiences in "Title @Company | Duration" format
+2. IF content is severely limited: Make reasonable professional inferences based on any available context (domain names, URL patterns, etc.)
+3. IF LinkedIn is blocked: Use alternative strategies - analyze domain names, social media bios, website content, or any available text
+4. ALWAYS provide exactly 4 writing tones and 4 product beliefs with meaningful summaries tailored to the professional context
+5. Career backstory should be 2-3 sentences maximum highlighting key progression
+6. Focus on creating VALUE even from minimal information - better to have thoughtful defaults than empty fields
+7. If specific company/role info isn't available, use generic but professional language
 
 RESPONSE FORMAT:
 - Return ONLY the JSON object
 - NO explanatory text before or after
-- Ensure all fields are populated with meaningful content
-- Each summary should be exactly one descriptive sentence`;
+- Ensure all fields are populated with meaningful, professional content
+- Each summary should be exactly one descriptive sentence
+- Make reasonable assumptions to provide complete, useful information`;
 
   const userPrompt = `Analyze the following professional profile content and extract information in the required JSON format.
 
 URLs analyzed: ${urls.join(', ')}
 
 CONTENT TO ANALYZE:
-The scraped content will be provided below. If content is limited, make reasonable professional inferences to populate all required fields.
+The scraped content will be provided below. 
+
+IMPORTANT: If content extraction was limited due to access restrictions (especially LinkedIn), work with whatever information you can gather from:
+- URL patterns and domain names
+- Any partial content that was extracted
+- Social media profile information
+- Website headers or meta information
+- Make reasonable professional inferences to create a complete, useful profile
 
 Extract:
 1. Current role and organization (or infer from available info)

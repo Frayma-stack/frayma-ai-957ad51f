@@ -1,35 +1,42 @@
-
 import { AuthorExperience, AuthorToneItem, AuthorBelief } from '@/types/storytelling';
 
 export const transformAnalysisResults = (parsedData: any) => {
   console.log('Transforming analysis results:', parsedData);
   
+  // If we have very limited data (e.g., due to LinkedIn blocking), create sensible defaults
+  const hasMinimalData = !parsedData || Object.keys(parsedData).length === 0 || 
+    (!parsedData.experiences && !parsedData.currentTitle && !parsedData.organization);
+  
   // Transform LinkedIn experiences with proper formatting
-  const experiences: AuthorExperience[] = (parsedData.experiences || []).map((exp: any) => {
-    // If the experience already has the proper format, use it
-    if (exp.title && exp.title.includes('@')) {
-      return {
-        id: crypto.randomUUID(),
-        title: exp.title,
-        description: exp.summary || exp.description || 'Professional experience'
-      };
-    }
-    
-    // Otherwise, format it properly
-    const title = exp.title || exp.role || 'Professional Role';
-    const company = exp.company || exp.organization || 'Company';
-    const duration = exp.duration || exp.period || '';
-    
-    const formattedTitle = duration 
-      ? `${title} @${company} | ${duration}`
-      : `${title} @${company}`;
-    
-    return {
-      id: crypto.randomUUID(),
-      title: formattedTitle,
-      description: exp.summary || exp.description || `Professional experience at ${company}`
-    };
-  });
+  const experiences: AuthorExperience[] = [];
+  
+  if (parsedData.experiences && Array.isArray(parsedData.experiences)) {
+    parsedData.experiences.forEach((exp: any) => {
+      // If the experience already has the proper format, use it
+      if (exp.title && exp.title.includes('@')) {
+        experiences.push({
+          id: crypto.randomUUID(),
+          title: exp.title,
+          description: exp.summary || exp.description || 'Professional experience'
+        });
+      } else {
+        // Otherwise, format it properly
+        const title = exp.title || exp.role || 'Professional Role';
+        const company = exp.company || exp.organization || 'Company';
+        const duration = exp.duration || exp.period || '';
+        
+        const formattedTitle = duration 
+          ? `${title} @${company} | ${duration}`
+          : `${title} @${company}`;
+        
+        experiences.push({
+          id: crypto.randomUUID(),
+          title: formattedTitle,
+          description: exp.summary || exp.description || `Professional experience at ${company}`
+        });
+      }
+    });
+  }
   
   // If no experiences found but we have current role info, create one
   if (experiences.length === 0 && (parsedData.currentTitle || parsedData.organization)) {
@@ -43,7 +50,16 @@ export const transformAnalysisResults = (parsedData: any) => {
     });
   }
   
-  // Transform writing tones - ensure we have exactly 4 meaningful tones
+  // If we still have no experiences and have minimal data, provide a placeholder
+  if (experiences.length === 0) {
+    experiences.push({
+      id: crypto.randomUUID(),
+      title: 'Professional Experience',
+      description: 'Please update with your professional background'
+    });
+  }
+  
+  // Transform writing tones - provide meaningful defaults
   const tones: AuthorToneItem[] = [];
   
   // Add tones from parsed data first
@@ -59,7 +75,7 @@ export const transformAnalysisResults = (parsedData: any) => {
     });
   }
   
-  // Ensure we have exactly 4 tones with meaningful defaults
+  // Provide smart defaults based on professional context
   const defaultTones = [
     { tone: 'Professional', description: 'Clear and authoritative communication style with industry expertise' },
     { tone: 'Analytical', description: 'Data-driven approach with logical problem-solving focus' },
@@ -86,7 +102,7 @@ export const transformAnalysisResults = (parsedData: any) => {
     });
   }
 
-  // Transform product beliefs - ensure we have exactly 4 meaningful beliefs
+  // Transform product beliefs - provide meaningful defaults
   const beliefs: AuthorBelief[] = [];
   
   // Add beliefs from parsed data first
@@ -102,7 +118,7 @@ export const transformAnalysisResults = (parsedData: any) => {
     });
   }
   
-  // Ensure we have exactly 4 beliefs with meaningful defaults
+  // Provide smart defaults for product beliefs
   const defaultBeliefs = [
     { belief: 'User-Centric Design', description: 'Products should solve real user problems with intuitive experiences' },
     { belief: 'Data-Driven Decisions', description: 'Strategic choices backed by insights and measurable outcomes' },
@@ -152,6 +168,14 @@ export const transformAnalysisResults = (parsedData: any) => {
     beliefs: beliefs.slice(0, 4) // Exactly 4 beliefs
   };
   
-  console.log('Transformed result with experiences:', result.experiences.length, 'tones:', result.tones.length, 'beliefs:', result.beliefs.length);
+  console.log('Transformed result:', {
+    hasMinimalData,
+    experiencesCount: result.experiences.length,
+    tonesCount: result.tones.length,
+    beliefsCount: result.beliefs.length,
+    currentRole: result.currentRole,
+    organization: result.organization
+  });
+  
   return result;
 };

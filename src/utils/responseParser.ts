@@ -1,37 +1,35 @@
 
 export const parseAnalysisContent = (content: string) => {
-  console.log('Parsing analysis content:', content.substring(0, 500) + '...');
+  console.log('Parsing analysis content, length:', content.length);
   
   let parsed;
   try {
     // Try to parse as JSON first
     parsed = JSON.parse(content);
-    console.log('Successfully parsed as JSON');
+    console.log('✅ Successfully parsed as valid JSON');
+    return parsed;
   } catch (error) {
-    console.log('Content is not valid JSON, attempting to extract from text');
+    console.log('⚠️ Content is not valid JSON, attempting extraction');
     
     // Try to extract JSON from text that might have extra content
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       try {
         parsed = JSON.parse(jsonMatch[0]);
-        console.log('Successfully extracted JSON from text');
+        console.log('✅ Successfully extracted JSON from text');
+        return parsed;
       } catch (jsonError) {
-        console.log('Failed to parse extracted JSON, falling back to text extraction');
-        parsed = extractFromText(content);
+        console.log('⚠️ Failed to parse extracted JSON, using fallback extraction');
       }
-    } else {
-      console.log('No JSON found, using text extraction');
-      parsed = extractFromText(content);
     }
+    
+    // Fallback to text extraction
+    return extractFromText(content);
   }
-  
-  console.log('Final parsed content:', parsed);
-  return parsed;
 };
 
 const extractFromText = (content: string) => {
-  console.log('Extracting structured data from text content');
+  console.log('📝 Extracting structured data from text content');
   
   const result: any = {
     currentTitle: '',
@@ -45,8 +43,8 @@ const extractFromText = (content: string) => {
   // Extract current title/role with multiple patterns
   const titlePatterns = [
     /(?:current\s*(?:title|role|position)|title|role|position):\s*([^\n]+)/i,
-    /(?:^|\n)\s*title:\s*([^\n]+)/i,
-    /(?:job\s*title|position):\s*([^\n]+)/i
+    /(?:^|\n)\s*(?:title|role|currentTitle):\s*"?([^"\n]+)"?/i,
+    /(?:job\s*title|position):\s*"?([^"\n]+)"?/i
   ];
   
   for (const pattern of titlePatterns) {
@@ -59,8 +57,8 @@ const extractFromText = (content: string) => {
   
   // Extract organization with multiple patterns
   const orgPatterns = [
-    /(?:organization|company|employer|workplace|works?\s*at):\s*([^\n]+)/i,
-    /(?:^|\n)\s*(?:company|organization):\s*([^\n]+)/i,
+    /(?:organization|company|employer|workplace):\s*"?([^"\n]+)"?/i,
+    /(?:^|\n)\s*(?:company|organization):\s*"?([^"\n]+)"?/i,
     /@\s*([^|\n,]+)(?:\s*\||$)/i
   ];
   
@@ -72,119 +70,112 @@ const extractFromText = (content: string) => {
     }
   }
   
-  // Extract career backstory with multiple patterns
+  // Extract career backstory
   const backstoryPatterns = [
-    /(?:backstory|background|career\s*background|professional\s*background|bio|summary):\s*([^\n]+(?:\n(?![\w\s]*:)[^\n]+)*)/i,
-    /(?:career\s*summary|professional\s*summary):\s*([^\n]+(?:\n(?![\w\s]*:)[^\n]+)*)/i
+    /(?:backstory|background|career\s*background|careerBackstory):\s*"([^"]+)"/i,
+    /(?:professional\s*background|bio|summary):\s*"([^"]+)"/i
   ];
   
   for (const pattern of backstoryPatterns) {
     const match = content.match(pattern);
     if (match && match[1].trim()) {
-      result.careerBackstory = match[1].trim().replace(/[",]/g, '');
+      result.careerBackstory = match[1].trim();
       break;
     }
   }
   
-  // Extract experiences with improved pattern matching
-  const experiencePatterns = [
-    /(?:experience|experiences|work\s*experience|professional\s*experience):\s*\[(.*?)\]/gis,
-    /(?:^|\n)\s*[-*]\s*([^@\n]+)\s*@\s*([^|\n]+)(?:\s*\|\s*([^|\n]+))?/gm,
-    /(?:^|\n)\s*(\d+\.?\s*)?([^@\n]+)\s*@\s*([^|\n]+)(?:\s*\|\s*([^|\n]+))?/gm,
-    /"title":\s*"([^"]+)"/g
-  ];
-  
-  for (const pattern of experiencePatterns) {
-    let match;
-    while ((match = pattern.exec(content)) !== null) {
-      if (pattern.source.includes('title')) {
-        // JSON-style extraction
-        const title = match[1].trim();
-        if (title && title.includes('@')) {
-          const parts = title.split('@');
-          const role = parts[0].trim();
-          const companyDuration = parts[1].trim();
-          const pipeIndex = companyDuration.indexOf('|');
-          const company = pipeIndex !== -1 ? companyDuration.substring(0, pipeIndex).trim() : companyDuration;
-          const duration = pipeIndex !== -1 ? companyDuration.substring(pipeIndex + 1).trim() : '';
+  // Extract experiences
+  const experienceSection = content.match(/experiences['"]*:\s*\[(.*?)\]/gis);
+  if (experienceSection && experienceSection[0]) {
+    const expContent = experienceSection[0];
+    const titleMatches = expContent.match(/"title":\s*"([^"]+)"/g);
+    const summaryMatches = expContent.match(/"summary":\s*"([^"]+)"/g);
+    
+    if (titleMatches) {
+      titleMatches.forEach((titleMatch, index) => {
+        const title = titleMatch.match(/"title":\s*"([^"]+)"/)?.[1];
+        const summary = summaryMatches?.[index]?.match(/"summary":\s*"([^"]+)"/)?.[1];
+        
+        if (title) {
+          // Extract company and duration from title if formatted properly
+          let company = '';
+          let duration = '';
+          
+          if (title.includes('@')) {
+            const parts = title.split('@');
+            const afterAt = parts[1];
+            if (afterAt.includes('|')) {
+              const [comp, dur] = afterAt.split('|');
+              company = comp.trim();
+              duration = dur.trim();
+            } else {
+              company = afterAt.trim();
+            }
+          }
           
           result.experiences.push({
             title: title,
-            company: company,
-            duration: duration,
-            summary: `Professional experience at ${company}`
+            company: company || 'Company',
+            duration: duration || '',
+            summary: summary || `Professional experience${company ? ` at ${company}` : ''}`
           });
         }
-      } else {
-        // Pattern-based extraction
-        const role = (match[2] || match[1] || '').trim();
-        const company = (match[3] || match[2] || '').trim();
-        const duration = (match[4] || match[3] || '').trim();
-        
-        if (role && company && role !== company && role.length > 2 && company.length > 2) {
-          const formattedTitle = duration 
-            ? `${role} @${company} | ${duration}`
-            : `${role} @${company}`;
-            
-          result.experiences.push({
-            title: formattedTitle,
-            company: company,
-            duration: duration,
-            summary: `Professional experience at ${company}`
-          });
-        }
-      }
+      });
     }
   }
   
   // Extract writing tones
-  const tonesPattern = /(?:writing\s*tones?|communication\s*style|tones?):\s*\[(.*?)\]/gis;
-  const tonesMatch = content.match(tonesPattern);
-  if (tonesMatch) {
-    try {
-      const tonesContent = tonesMatch[1];
-      const toneObjects = tonesContent.match(/\{[^}]+\}/g) || [];
-      
-      for (const toneObj of toneObjects) {
-        const titleMatch = toneObj.match(/"toneTitle":\s*"([^"]+)"/);
-        const summaryMatch = toneObj.match(/"toneSummary":\s*"([^"]+)"/);
+  const tonesSection = content.match(/writingTones['"]*:\s*\[(.*?)\]/gis);
+  if (tonesSection && tonesSection[0]) {
+    const tonesContent = tonesSection[0];
+    const toneTitleMatches = tonesContent.match(/"toneTitle":\s*"([^"]+)"/g);
+    const toneSummaryMatches = tonesContent.match(/"toneSummary":\s*"([^"]+)"/g);
+    
+    if (toneTitleMatches) {
+      toneTitleMatches.forEach((match, index) => {
+        const toneTitle = match.match(/"toneTitle":\s*"([^"]+)"/)?.[1];
+        const toneSummary = toneSummaryMatches?.[index]?.match(/"toneSummary":\s*"([^"]+)"/)?.[1];
         
-        if (titleMatch && summaryMatch) {
+        if (toneTitle && toneSummary) {
           result.writingTones.push({
-            toneTitle: titleMatch[1],
-            toneSummary: summaryMatch[1]
+            toneTitle,
+            toneSummary
           });
         }
-      }
-    } catch (error) {
-      console.log('Error parsing writing tones from JSON');
+      });
     }
   }
   
   // Extract product beliefs
-  const beliefsPattern = /(?:product\s*beliefs?|beliefs?|philosophy):\s*\[(.*?)\]/gis;
-  const beliefsMatch = content.match(beliefsPattern);
-  if (beliefsMatch) {
-    try {
-      const beliefsContent = beliefsMatch[1];
-      const beliefObjects = beliefsContent.match(/\{[^}]+\}/g) || [];
-      
-      for (const beliefObj of beliefObjects) {
-        const titleMatch = beliefObj.match(/"beliefTitle":\s*"([^"]+)"/);
-        const summaryMatch = beliefObj.match(/"beliefSummary":\s*"([^"]+)"/);
+  const beliefsSection = content.match(/productBeliefs['"]*:\s*\[(.*?)\]/gis);
+  if (beliefsSection && beliefsSection[0]) {
+    const beliefsContent = beliefsSection[0];
+    const beliefTitleMatches = beliefsContent.match(/"beliefTitle":\s*"([^"]+)"/g);
+    const beliefSummaryMatches = beliefsContent.match(/"beliefSummary":\s*"([^"]+)"/g);
+    
+    if (beliefTitleMatches) {
+      beliefTitleMatches.forEach((match, index) => {
+        const beliefTitle = match.match(/"beliefTitle":\s*"([^"]+)"/)?.[1];
+        const beliefSummary = beliefSummaryMatches?.[index]?.match(/"beliefSummary":\s*"([^"]+)"/)?.[1];
         
-        if (titleMatch && summaryMatch) {
+        if (beliefTitle && beliefSummary) {
           result.productBeliefs.push({
-            beliefTitle: titleMatch[1],
-            beliefSummary: summaryMatch[1]
+            beliefTitle,
+            beliefSummary
           });
         }
-      }
-    } catch (error) {
-      console.log('Error parsing product beliefs from JSON');
+      });
     }
   }
   
-  console.log('Text extraction result:', result);
+  console.log('📊 Text extraction result:', {
+    hasTitle: !!result.currentTitle,
+    hasOrganization: !!result.organization,
+    hasBackstory: !!result.careerBackstory,
+    experiencesCount: result.experiences.length,
+    tonesCount: result.writingTones.length,
+    beliefsCount: result.productBeliefs.length
+  });
+  
   return result;
 };
