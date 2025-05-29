@@ -1,3 +1,4 @@
+
 export interface AuthorExperience {
   id: string;
   title: string;
@@ -49,38 +50,102 @@ export interface Client {
   productContextId?: string;
 }
 
-export interface ProductContext {
-  id: string;
-  name: string;
-  description: string;
-  features: ProductFeature[];
-  clientId: string;
-}
-
 export interface ProductFeature {
   id: string;
   name: string;
   description: string;
+  benefits: string[];
+  media?: any[];
+}
+
+export interface ProductUseCase {
+  id: string;
+  useCase: string;
+  userRole: string;
+  description: string;
+  media?: any[];
+}
+
+export interface ProductDifferentiator {
+  id: string;
+  name: string;
+  description: string;
+  competitorComparison?: string;
+  media?: any[];
+}
+
+export interface ProductContext {
+  id: string;
+  name: string;
+  description: string;
+  categoryPOV: string;
+  companyMission: string;
+  uniqueInsight: string;
+  features: ProductFeature[];
+  useCases: ProductUseCase[];
+  differentiators: ProductDifferentiator[];
+  clientId: string;
+}
+
+export interface ICPStoryScriptItem {
+  id: string;
+  content: string;
 }
 
 export interface ICPStoryScript {
   id: string;
   name: string;
-  persona: string;
-  needs: string;
-  fears: string;
-  goals: string;
+  demographics: string;
+  coreBeliefs: ICPStoryScriptItem[];
+  internalPains: ICPStoryScriptItem[];
+  externalStruggles: ICPStoryScriptItem[];
+  desiredTransformations: ICPStoryScriptItem[];
   clientId?: string;
 }
 
 export interface CustomerSuccessStory {
   id: string;
   title: string;
-  customerName: string;
-  problem: string;
-  solution: string;
-  results: string;
+  url?: string;
+  customerName?: string;
+  problem?: string;
+  solution?: string;
+  results?: string;
+  beforeSummary: string;
+  afterSummary: string;
+  quotes: {
+    id: string;
+    quote: string;
+    author: string;
+    title: string;
+  }[];
+  features: {
+    id: string;
+    name: string;
+    description: string;
+  }[];
+  clientId?: string;
   productContextId?: string;
+  createdAt: string;
+}
+
+export interface AnchoringElement {
+  type: 'belief' | 'pain' | 'struggle' | 'transformation';
+  itemId: string;
+}
+
+export interface StoryBrief {
+  id: string;
+  title: string;
+  targetAudience: string;
+  targetKeyword?: string;
+  problemStatements?: string[];
+  purposeStatement?: string;
+  successStory?: string;
+  callToAction?: string;
+  outlineSteps?: string[];
+  anchoringElements?: AnchoringElement[];
+  clientId?: string;
 }
 
 export type NarrativeAnchorType = 'belief' | 'tone' | 'experience';
