@@ -134,7 +134,7 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
   );
 
   // Handle validation
-  const { validateAndCleanAuthor } = useAuthorValidation();
+  const { validateAndCleanAuthor: validateAuthor } = useAuthorValidation();
 
   const validateAndCleanCurrentAuthor = () => {
     console.log('Starting author validation...', {
@@ -144,7 +144,7 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
       hasBackstory: !!currentAuthor.backstory
     });
     
-    const validatedAuthor = validateAndCleanAuthor(currentAuthor);
+    const validatedAuthor = validateAuthor(currentAuthor);
     
     if (validatedAuthor) {
       console.log('Author validation successful, clearing persisted data');

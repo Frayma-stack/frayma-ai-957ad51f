@@ -57,16 +57,20 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
     setIsSaving(true);
     
     try {
-      console.log('Validating author before save...', {
+      console.log('Current author before validation:', {
         name: author.name,
         role: author.role,
-        organization: author.organization
+        organization: author.organization,
+        id: author.id
       });
       
       const cleanedAuthor = validateAndCleanAuthor();
       
       if (cleanedAuthor) {
-        console.log('Author validated successfully, calling onSave...', cleanedAuthor.name);
+        console.log('Author validated successfully, calling onSave...', {
+          name: cleanedAuthor.name,
+          id: cleanedAuthor.id
+        });
         await onSave(cleanedAuthor);
         console.log('onSave completed successfully');
       } else {
