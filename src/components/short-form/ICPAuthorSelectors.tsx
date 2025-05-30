@@ -11,6 +11,7 @@ interface ICPAuthorSelectorsProps {
   selectedAuthor: string;
   selectedAuthorTone: string;
   selectedAuthorExperience: string;
+  selectedAuthorBelief?: string;
   scripts: ICPStoryScript[];
   authors: Author[];
   selectedIdea: GeneratedIdea | null;
@@ -18,6 +19,7 @@ interface ICPAuthorSelectorsProps {
   onAuthorChange: (value: string) => void;
   onAuthorToneChange: (value: string) => void;
   onAuthorExperienceChange: (value: string) => void;
+  onAuthorBeliefChange?: (value: string) => void;
 }
 
 const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
@@ -25,20 +27,27 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
   selectedAuthor,
   selectedAuthorTone,
   selectedAuthorExperience,
+  selectedAuthorBelief,
   scripts,
   authors,
   selectedIdea,
   onICPChange,
   onAuthorChange,
   onAuthorToneChange,
-  onAuthorExperienceChange
+  onAuthorExperienceChange,
+  onAuthorBeliefChange
 }) => {
   console.log('👥 ICPAuthorSelectors - Client-filtered data received:', {
     selectedICP,
     selectedAuthor,
     scriptsCount: scripts.length,
     authorsCount: authors.length,
-    selectedIdea: selectedIdea ? { id: selectedIdea.id, title: selectedIdea.title } : null
+    selectedIdea: selectedIdea ? { id: selectedIdea.id, title: selectedIdea.title } : null,
+    authorsDetailed: authors.map(a => ({
+      id: a.id,
+      name: a.name,
+      clientId: a.clientId
+    }))
   });
 
   return (
@@ -61,9 +70,11 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
         selectedAuthor={selectedAuthor}
         selectedAuthorTone={selectedAuthorTone}
         selectedAuthorExperience={selectedAuthorExperience}
+        selectedAuthorBelief={selectedAuthorBelief}
         authors={authors}
         onAuthorToneChange={onAuthorToneChange}
         onAuthorExperienceChange={onAuthorExperienceChange}
+        onAuthorBeliefChange={onAuthorBeliefChange}
       />
     </div>
   );

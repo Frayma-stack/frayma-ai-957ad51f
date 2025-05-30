@@ -15,39 +15,46 @@ const AuthorSelector: FC<AuthorSelectorProps> = ({
   authors,
   onAuthorChange
 }) => {
-  console.log('👤 AuthorSelector - Props received:', {
+  console.log('👤 AuthorSelector - Detailed analysis:', {
     selectedAuthor,
-    authorsCount: authors.length,
-    authorsValidation: authors.map(a => ({
+    authorsReceived: authors.length,
+    authorsDetailed: authors.map(a => ({
       id: a.id,
       name: a.name,
       role: a.role,
       organization: a.organization,
       clientId: a.clientId,
-      isValid: !!(a.id && a.id.trim() !== '' && a.name && a.name.trim() !== '')
+      hasValidId: Boolean(a.id && a.id.trim()),
+      hasValidName: Boolean(a.name && a.name.trim())
     }))
   });
 
-  // Validate authors - ensure they have valid ID and name
+  // Simplified validation - just check for basic required fields
   const validAuthors = authors.filter(author => {
-    const hasValidId = author && author.id && typeof author.id === 'string' && author.id.trim() !== '';
-    const hasValidName = author && author.name && typeof author.name === 'string' && author.name.trim() !== '';
-    const isValid = hasValidId && hasValidName;
+    const isValid = Boolean(
+      author && 
+      author.id && 
+      author.id.trim() !== '' && 
+      author.name && 
+      author.name.trim() !== ''
+    );
     
-    console.log('👤 Author validation in AuthorSelector:', {
-      authorId: author?.id,
-      authorName: author?.name,
-      authorRole: author?.role,
-      authorClientId: author?.clientId,
-      hasValidId,
-      hasValidName,
-      isValid
-    });
+    if (!isValid) {
+      console.log('👤 AuthorSelector - Invalid author filtered out:', {
+        authorId: author?.id,
+        authorName: author?.name,
+        reason: !author ? 'null_author' : 
+                !author.id ? 'missing_id' : 
+                author.id.trim() === '' ? 'empty_id' : 
+                !author.name ? 'missing_name' : 
+                author.name.trim() === '' ? 'empty_name' : 'unknown'
+      });
+    }
     
     return isValid;
   });
 
-  console.log('👤 Final valid authors in AuthorSelector:', {
+  console.log('👤 AuthorSelector - Final valid authors:', {
     originalCount: authors.length,
     validCount: validAuthors.length,
     validAuthors: validAuthors.map(a => ({
@@ -73,13 +80,13 @@ const AuthorSelector: FC<AuthorSelectorProps> = ({
             <SelectItem value="no-authors" disabled>
               {authors.length === 0 
                 ? "No authors found for this client - please create an author first"
-                : `No valid authors found for this client (${authors.length} authors have validation issues)`
+                : `No valid authors found (${authors.length} authors have validation issues)`
               }
             </SelectItem>
           ) : (
             validAuthors.map(author => (
               <SelectItem key={author.id} value={author.id}>
-                {author.name} - {author.role}
+                {author.name} {author.role ? `- ${author.role}` : ''}
               </SelectItem>
             ))
           )}

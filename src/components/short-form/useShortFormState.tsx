@@ -1,26 +1,17 @@
 
+import { useState, useEffect, useMemo } from 'react';
 import { useToast } from "@/components/ui/use-toast";
-import { 
-  ICPStoryScript, 
-  Author, 
-  CustomerSuccessStory
-} from '@/types/storytelling';
+import { ICPStoryScript, Author, CustomerSuccessStory, NarrativeSelection } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
-import { useFormPersistedState } from '@/hooks/useFormPersistedState';
-import { useIdeaIntegration } from '@/hooks/useIdeaIntegration';
-import { useClientNameResolver } from '@/hooks/useClientNameResolver';
-import { useNarrativeAnchors } from '@/hooks/useNarrativeAnchors';
+import { ContentType, ContentGoal } from './types';
 import { useAutoSaveIntegration } from '@/hooks/useAutoSaveIntegration';
-import { useShortFormLocalState } from './state/useShortFormLocalState';
-import { usePersistedStateMethods } from './state/usePersistedStateMethods';
-import { useShortFormStateEffects } from './state/useShortFormStateEffects';
 
 interface UseShortFormStateProps {
   scripts: ICPStoryScript[];
   authors: Author[];
   successStories: CustomerSuccessStory[];
   ideas: GeneratedIdea[];
-  contentType: string;
+  contentType: ContentType;
   selectedClientId?: string;
 }
 
@@ -32,100 +23,177 @@ export const useShortFormState = ({
   contentType,
   selectedClientId
 }: UseShortFormStateProps) => {
+  // Core form state
+  const [selectedICP, setSelectedICP] = useState('');
+  const [selectedAuthor, setSelectedAuthor] = useState('');
+  const [selectedAuthorTone, setSelectedAuthorTone] = useState('');
+  const [selectedAuthorExperience, setSelectedAuthorExperience] = useState('');
+  const [selectedAuthorBelief, setSelectedAuthorBelief] = useState('');
+  const [narrativeSelections, setNarrativeSelections] = useState<NarrativeSelection[]>([]);
+  const [contentGoal, setContentGoal] = useState<ContentGoal>('generate_leads');
+  const [generatedContent, setGeneratedContent] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [additionalContext, setAdditionalContext] = useState('');
+  const [selectedSuccessStory, setSelectedSuccessStory] = useState('');
+  const [wordCount, setWordCount] = useState(150);
+  const [emailCount, setEmailCount] = useState(3);
+  const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(null);
+  const [triggerInput, setTriggerInput] = useState('');
+  const [productInputs, setProductInputs] = useState<any>({});
+
   const { toast } = useToast();
-  
-  // Use form persistence
-  const {
-    persistedValues,
-    updatePersistedValue,
-    clearPersistedData,
-    isPersistenceLoaded
-  } = useFormPersistedState();
-
-  // Use local state
-  const localState = useShortFormLocalState({ persistedValues });
-
-  // Create persisted state methods
-  const persistedMethods = usePersistedStateMethods({
-    ...localState,
-    updatePersistedValue
-  });
-
-  // Handle state effects
-  useShortFormStateEffects({
-    isPersistenceLoaded,
-    persistedValues,
-    selectedAuthor: localState.selectedAuthor,
-    setSelectedICP: localState.setSelectedICP,
-    setSelectedAuthor: localState.setSelectedAuthor,
-    setSelectedAuthorTone: localState.setSelectedAuthorTone,
-    setSelectedAuthorExperience: localState.setSelectedAuthorExperience,
-    setContentGoal: localState.setContentGoal,
-    setAdditionalContext: localState.setAdditionalContext,
-    setSelectedSuccessStory: localState.setSelectedSuccessStory,
-    setWordCount: localState.setWordCount,
-    setEmailCount: localState.setEmailCount,
-    setSelectedIdeaId: localState.setSelectedIdeaId,
-    setTriggerInput: localState.setTriggerInput,
-    updatePersistedValue
-  });
 
   // Auto-save integration
-  const autoSaveIntegration = useAutoSaveIntegration({
+  const {
+    isSaving,
+    lastSaved,
+    showRestoreDialog,
+    setShowRestoreDialog,
+    availableDrafts,
+    handleRestoreDraft,
+    handleDeleteDraft,
+    clearCurrentDraft
+  } = useAutoSaveIntegration({
+    formData: {
+      selectedICP,
+      selectedAuthor,
+      selectedAuthorTone,
+      selectedAuthorExperience,
+      selectedAuthorBelief,
+      narrativeSelections,
+      contentGoal,
+      generatedContent,
+      additionalContext,
+      selectedSuccessStory,
+      wordCount,
+      emailCount,
+      selectedIdeaId,
+      triggerInput,
+      productInputs
+    },
     contentType,
-    clientId: selectedClientId,
-    onDraftRestored: (title, content) => {
-      toast({
-        title: "Draft restored",
-        description: "Your previous content has been restored.",
-      });
+    selectedClientId
+  });
+
+  // Reset form when client changes
+  useEffect(() => {
+    console.log('🔄 Client changed, resetting form state:', { selectedClientId });
+    setSelectedICP('');
+    setSelectedAuthor('');
+    setSelectedAuthorTone('');
+    setSelectedAuthorExperience('');
+    setSelectedAuthorBelief('');
+    setNarrativeSelections([]);
+    setAdditionalContext('');
+    setSelectedSuccessStory('');
+    setSelectedIdeaId(null);
+    setTriggerInput('');
+    setProductInputs({});
+    setGeneratedContent('');
+  }, [selectedClientId]);
+
+  // Reset author-dependent selections when author changes
+  useEffect(() => {
+    console.log('👤 Author changed, resetting dependent selections:', { selectedAuthor });
+    setSelectedAuthorTone('');
+    setSelectedAuthorExperience('');
+    setSelectedAuthorBelief('');
+  }, [selectedAuthor]);
+
+  // Derive client name from available data
+  const clientName = useMemo(() => {
+    if (!selectedClientId) return null;
+    
+    // Try to get client name from scripts first
+    const scriptWithClient = scripts.find(s => s.clientId === selectedClientId);
+    if (scriptWithClient?.clientName) return scriptWithClient.clientName;
+    
+    // Then try authors
+    const authorWithClient = authors.find(a => a.clientId === selectedClientId);
+    if (authorWithClient?.organization) return authorWithClient.organization;
+    
+    // Finally try success stories
+    const storyWithClient = successStories.find(s => s.clientId === selectedClientId);
+    if (storyWithClient?.clientName) return storyWithClient.clientName;
+    
+    return null;
+  }, [selectedClientId, scripts, authors, successStories]);
+
+  // Compute available anchors
+  const availableAnchors = useMemo(() => {
+    const selectedScript = scripts.find(script => script.id === selectedICP);
+    if (!selectedScript) return [];
+
+    const anchors = [];
+    if (selectedScript.painPoints?.length > 0) {
+      anchors.push({ value: 'painPoints', label: 'Pain Points' });
     }
-  });
+    if (selectedScript.currentSolutions?.length > 0) {
+      anchors.push({ value: 'currentSolutions', label: 'Current Solutions' });
+    }
+    if (selectedScript.desiredOutcomes?.length > 0) {
+      anchors.push({ value: 'desiredOutcomes', label: 'Desired Outcomes' });
+    }
+    if (selectedScript.jobsToComplete?.length > 0) {
+      anchors.push({ value: 'jobsToComplete', label: 'Jobs to Complete' });
+    }
+    return anchors;
+  }, [selectedICP, scripts]);
 
-  // Use client name resolver
-  const { clientName } = useClientNameResolver({ scripts, authors, successStories });
-
-  // Use idea integration
-  const { getSelectedIdea } = useIdeaIntegration({
-    ideas,
-    selectedIdeaId: localState.selectedIdeaId,
-    updatePersistedValue,
-    setAdditionalContext: persistedMethods.setAdditionalContextWithPersistence,
-    setContentGoal: persistedMethods.setContentGoalWithPersistence,
-    additionalContext: localState.additionalContext
-  });
-
-  // Use narrative anchors
-  const { availableAnchors } = useNarrativeAnchors({
-    selectedICP: localState.selectedICP,
-    scripts,
-    narrativeSelections: localState.narrativeSelections,
-    setNarrativeSelections: localState.setNarrativeSelections
-  });
+  const getSelectedIdea = () => {
+    if (!selectedIdeaId) return null;
+    return ideas.find(idea => idea.id === selectedIdeaId) || null;
+  };
 
   return {
     // State
-    ...localState,
-    generatedContent: autoSaveIntegration.content,
+    selectedICP,
+    selectedAuthor,
+    selectedAuthorTone,
+    selectedAuthorExperience,
+    selectedAuthorBelief,
+    narrativeSelections,
+    contentGoal,
+    generatedContent,
+    isGenerating,
     clientName,
+    additionalContext,
+    selectedSuccessStory,
+    wordCount,
+    emailCount,
     availableAnchors,
-    
-    // Methods
+    selectedIdeaId,
+    triggerInput,
+    productInputs,
     toast,
     getSelectedIdea,
-    ...persistedMethods,
-    clearPersistedData,
+    
+    // Setters
+    setSelectedICP,
+    setSelectedAuthor,
+    setSelectedAuthorTone,
+    setSelectedAuthorExperience,
+    setSelectedAuthorBelief,
+    setNarrativeSelections,
+    setContentGoal,
+    setGeneratedContent,
+    setIsGenerating,
+    setAdditionalContext,
+    setSelectedSuccessStory,
+    setWordCount,
+    setEmailCount,
+    setSelectedIdeaId,
+    setTriggerInput,
+    setProductInputs,
     
     // Auto-save functionality
-    isSaving: autoSaveIntegration.isSaving,
-    lastSaved: autoSaveIntegration.lastSaved,
-    showRestoreDialog: autoSaveIntegration.showRestoreDialog,
-    setShowRestoreDialog: autoSaveIntegration.setShowRestoreDialog,
-    availableDrafts: autoSaveIntegration.availableDrafts,
-    handleRestoreDraft: autoSaveIntegration.handleRestoreDraft,
-    handleDeleteDraft: autoSaveIntegration.handleDeleteDraft,
-    clearCurrentDraft: autoSaveIntegration.clearCurrentDraft,
-    setGeneratedContent: autoSaveIntegration.setContent,
-    setIsGenerating: localState.setIsGenerating
+    isSaving,
+    lastSaved,
+    showRestoreDialog,
+    setShowRestoreDialog,
+    availableDrafts,
+    handleRestoreDraft,
+    handleDeleteDraft,
+    clearCurrentDraft
   };
 };

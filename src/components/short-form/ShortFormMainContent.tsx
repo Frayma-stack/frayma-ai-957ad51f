@@ -27,6 +27,7 @@ interface ShortFormMainContentProps {
   selectedAuthor: string;
   selectedAuthorTone: string;
   selectedAuthorExperience: string;
+  selectedAuthorBelief?: string;
   narrativeSelections: any[];
   contentGoal: any;
   selectedSuccessStory: string;
@@ -45,6 +46,7 @@ interface ShortFormMainContentProps {
   onAuthorChange: (value: string) => void;
   onAuthorToneChange: (value: string) => void;
   onAuthorExperienceChange: (value: string) => void;
+  onAuthorBeliefChange?: (value: string) => void;
   onNarrativeSelectionsChange: (selections: any[]) => void;
   onContentGoalChange: (goal: any) => void;
   onSuccessStoryChange: (story: string) => void;
@@ -70,6 +72,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
   selectedAuthor,
   selectedAuthorTone,
   selectedAuthorExperience,
+  selectedAuthorBelief,
   narrativeSelections,
   contentGoal,
   selectedSuccessStory,
@@ -87,6 +90,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
   onAuthorChange,
   onAuthorToneChange,
   onAuthorExperienceChange,
+  onAuthorBeliefChange,
   onNarrativeSelectionsChange,
   onContentGoalChange,
   onSuccessStoryChange,
@@ -122,6 +126,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
         selectedAuthor={selectedAuthor}
         selectedAuthorTone={selectedAuthorTone}
         selectedAuthorExperience={selectedAuthorExperience}
+        selectedAuthorBelief={selectedAuthorBelief}
         scripts={scripts}
         authors={authors}
         selectedIdea={selectedIdea}
@@ -129,6 +134,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
         onAuthorChange={onAuthorChange}
         onAuthorToneChange={onAuthorToneChange}
         onAuthorExperienceChange={onAuthorExperienceChange}
+        onAuthorBeliefChange={onAuthorBeliefChange}
       />
       
       <NarrativeAnchorSelector

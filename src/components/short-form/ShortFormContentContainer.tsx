@@ -39,6 +39,7 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
     selectedAuthor,
     selectedAuthorTone,
     selectedAuthorExperience,
+    selectedAuthorBelief,
     narrativeSelections,
     contentGoal,
     generatedContent,
@@ -58,6 +59,7 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
     setSelectedAuthor,
     setSelectedAuthorTone,
     setSelectedAuthorExperience,
+    setSelectedAuthorBelief,
     setNarrativeSelections,
     setContentGoal,
     setGeneratedContent,
@@ -105,7 +107,13 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
     authorsToPass: filteredAuthors.length,
     scriptsToPass: filteredScripts.length,
     successStoriesToPass: filteredSuccessStories.length,
-    ideasToPass: filteredIdeas.length
+    ideasToPass: filteredIdeas.length,
+    selectedClientId,
+    filteredAuthorsDetailed: filteredAuthors.map(a => ({
+      id: a.id,
+      name: a.name,
+      clientId: a.clientId
+    }))
   });
 
   return (
@@ -130,6 +138,7 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
           selectedAuthor={selectedAuthor}
           selectedAuthorTone={selectedAuthorTone}
           selectedAuthorExperience={selectedAuthorExperience}
+          selectedAuthorBelief={selectedAuthorBelief}
           narrativeSelections={narrativeSelections}
           contentGoal={contentGoal}
           selectedSuccessStory={selectedSuccessStory}
@@ -147,6 +156,7 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
           onAuthorChange={setSelectedAuthor}
           onAuthorToneChange={setSelectedAuthorTone}
           onAuthorExperienceChange={setSelectedAuthorExperience}
+          onAuthorBeliefChange={setSelectedAuthorBelief}
           onNarrativeSelectionsChange={setNarrativeSelections}
           onContentGoalChange={setContentGoal}
           onSuccessStoryChange={setSelectedSuccessStory}

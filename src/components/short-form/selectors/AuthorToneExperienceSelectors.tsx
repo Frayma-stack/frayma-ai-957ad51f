@@ -8,50 +8,76 @@ interface AuthorToneExperienceSelectorsProps {
   selectedAuthor: string;
   selectedAuthorTone: string;
   selectedAuthorExperience: string;
+  selectedAuthorBelief?: string;
   authors: Author[];
   onAuthorToneChange: (value: string) => void;
   onAuthorExperienceChange: (value: string) => void;
+  onAuthorBeliefChange?: (value: string) => void;
 }
 
 const AuthorToneExperienceSelectors: FC<AuthorToneExperienceSelectorsProps> = ({
   selectedAuthor,
   selectedAuthorTone,
   selectedAuthorExperience,
+  selectedAuthorBelief,
   authors,
   onAuthorToneChange,
-  onAuthorExperienceChange
+  onAuthorExperienceChange,
+  onAuthorBeliefChange
 }) => {
   const getSelectedAuthor = () => {
     const found = authors.find(author => author.id === selectedAuthor);
-    console.log('🎨 getSelectedAuthor result in ToneExperienceSelectors:', {
+    console.log('🎨 getSelectedAuthor in ToneExperienceSelectors:', {
       selectedAuthor,
-      found: found ? { id: found.id, name: found.name } : null
+      found: found ? { id: found.id, name: found.name } : null,
+      totalAuthors: authors.length
     });
     return found;
   };
 
   const selectedAuthorObj = getSelectedAuthor();
 
-  // Get valid tones and experiences from selected author
-  const validTones = selectedAuthorObj?.tones?.filter(tone => tone && tone.id && tone.id.trim() !== '') || [];
-  const validExperiences = selectedAuthorObj?.experiences?.filter(exp => exp && exp.id && exp.id.trim() !== '') || [];
+  // Only show these selectors if an author is selected
+  if (!selectedAuthor || !selectedAuthorObj) {
+    console.log('🎨 No author selected, hiding tone/experience selectors');
+    return null;
+  }
+
+  // Get valid data from selected author
+  const validTones = selectedAuthorObj?.tones?.filter(tone => 
+    tone && tone.id && tone.id.trim() !== '' && tone.tone && tone.tone.trim() !== ''
+  ) || [];
+  
+  const validExperiences = selectedAuthorObj?.experiences?.filter(exp => 
+    exp && exp.id && exp.id.trim() !== '' && exp.title && exp.title.trim() !== ''
+  ) || [];
+  
+  const validBeliefs = selectedAuthorObj?.beliefs?.filter(belief => 
+    belief && belief.id && belief.id.trim() !== '' && belief.belief && belief.belief.trim() !== ''
+  ) || [];
 
   console.log('🎨 Author sub-data validation in ToneExperienceSelectors:', {
     selectedAuthorObj: selectedAuthorObj ? { id: selectedAuthorObj.id, name: selectedAuthorObj.name } : null,
     validTonesCount: validTones.length,
-    validExperiencesCount: validExperiences.length
+    validExperiencesCount: validExperiences.length,
+    validBeliefsCount: validBeliefs.length,
+    rawTones: selectedAuthorObj?.tones?.length || 0,
+    rawExperiences: selectedAuthorObj?.experiences?.length || 0,
+    rawBeliefs: selectedAuthorObj?.beliefs?.length || 0
   });
 
   return (
-    <>
+    <div className="space-y-4">
       {validTones.length > 0 && (
         <div>
-          <Label className="text-sm font-medium">Author Tone</Label>
+          <Label className="text-sm font-medium">Writing Tone</Label>
+          <p className="text-xs text-gray-500 mb-2">Select the author's writing tone</p>
           <Select value={selectedAuthorTone} onValueChange={onAuthorToneChange}>
             <SelectTrigger className="mt-2">
               <SelectValue placeholder="Select tone (optional)" />
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
+              <SelectItem value="">None</SelectItem>
               {validTones.map((tone: any) => (
                 <SelectItem key={tone.id} value={tone.id}>
                   {tone.tone}
@@ -65,11 +91,13 @@ const AuthorToneExperienceSelectors: FC<AuthorToneExperienceSelectorsProps> = ({
       {validExperiences.length > 0 && (
         <div>
           <Label className="text-sm font-medium">Author Experience</Label>
+          <p className="text-xs text-gray-500 mb-2">Select relevant author experience</p>
           <Select value={selectedAuthorExperience} onValueChange={onAuthorExperienceChange}>
             <SelectTrigger className="mt-2">
               <SelectValue placeholder="Select experience (optional)" />
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
+              <SelectItem value="">None</SelectItem>
               {validExperiences.map((experience: any) => (
                 <SelectItem key={experience.id} value={experience.id}>
                   {experience.title}
@@ -79,7 +107,27 @@ const AuthorToneExperienceSelectors: FC<AuthorToneExperienceSelectorsProps> = ({
           </Select>
         </div>
       )}
-    </>
+
+      {validBeliefs.length > 0 && onAuthorBeliefChange && (
+        <div>
+          <Label className="text-sm font-medium">Product Belief</Label>
+          <p className="text-xs text-gray-500 mb-2">Select relevant product belief</p>
+          <Select value={selectedAuthorBelief || ''} onValueChange={onAuthorBeliefChange}>
+            <SelectTrigger className="mt-2">
+              <SelectValue placeholder="Select belief (optional)" />
+            </SelectTrigger>
+            <SelectContent className="bg-white z-50">
+              <SelectItem value="">None</SelectItem>
+              {validBeliefs.map((belief: any) => (
+                <SelectItem key={belief.id} value={belief.id}>
+                  {belief.belief}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+    </div>
   );
 };
 
