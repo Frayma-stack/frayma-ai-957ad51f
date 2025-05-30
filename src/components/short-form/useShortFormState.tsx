@@ -5,7 +5,11 @@ import {
   ICPStoryScript, 
   Author, 
   CustomerSuccessStory,
-  NarrativeSelection
+  NarrativeSelection,
+  ProductContext,
+  ProductFeature,
+  ProductUseCase,
+  ProductDifferentiator
 } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { useFormPersistedState } from '@/hooks/useFormPersistedState';
@@ -14,7 +18,17 @@ import { useClientNameResolver } from '@/hooks/useClientNameResolver';
 import { useNarrativeAnchors } from '@/hooks/useNarrativeAnchors';
 import { useAutoSaveIntegration } from '@/hooks/useAutoSaveIntegration';
 
-type ContentGoal = 'book_call' | 'learn_more' | 'try_product' | 'reply' | 'visit_article';
+type ContentGoal = {
+  type: 'book_call' | 'learn_more' | 'try_product' | 'reply' | 'visit_article';
+  description: string;
+};
+
+interface ProductContextInputs {
+  selectedProductContextType: 'features' | 'usecases' | 'differentiators' | '';
+  selectedFeatures: ProductFeature[];
+  selectedUseCases: ProductUseCase[];
+  selectedDifferentiators: ProductDifferentiator[];
+}
 
 interface UseShortFormStateProps {
   scripts: ICPStoryScript[];
@@ -49,7 +63,9 @@ export const useShortFormState = ({
   const [selectedAuthorTone, setSelectedAuthorTone] = useState<string>(persistedValues.selectedAuthorTone);
   const [selectedAuthorExperience, setSelectedAuthorExperience] = useState<string>(persistedValues.selectedAuthorExperience);
   const [narrativeSelections, setNarrativeSelections] = useState<NarrativeSelection[]>([]);
-  const [contentGoal, setContentGoal] = useState<ContentGoal>(persistedValues.contentGoal);
+  const [contentGoal, setContentGoal] = useState<ContentGoal>(
+    persistedValues.contentGoal || { type: 'book_call', description: '' }
+  );
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [additionalContext, setAdditionalContext] = useState<string>(persistedValues.additionalContext);
   const [selectedSuccessStory, setSelectedSuccessStory] = useState<string>(persistedValues.selectedSuccessStory);
@@ -57,6 +73,14 @@ export const useShortFormState = ({
   const [emailCount, setEmailCount] = useState<number>(persistedValues.emailCount);
   const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(persistedValues.selectedIdeaId);
   const [triggerInput, setTriggerInput] = useState<string>(persistedValues.triggerInput);
+
+  // Product Context state
+  const [productInputs, setProductInputs] = useState<ProductContextInputs>({
+    selectedProductContextType: '',
+    selectedFeatures: [],
+    selectedUseCases: [],
+    selectedDifferentiators: []
+  });
 
   // Auto-save integration
   const autoSaveIntegration = useAutoSaveIntegration({
@@ -100,7 +124,7 @@ export const useShortFormState = ({
       setSelectedAuthor(persistedValues.selectedAuthor);
       setSelectedAuthorTone(persistedValues.selectedAuthorTone);
       setSelectedAuthorExperience(persistedValues.selectedAuthorExperience);
-      setContentGoal(persistedValues.contentGoal);
+      setContentGoal(persistedValues.contentGoal || { type: 'book_call', description: '' });
       setAdditionalContext(persistedValues.additionalContext);
       setSelectedSuccessStory(persistedValues.selectedSuccessStory);
       setWordCount(persistedValues.wordCount);
@@ -191,6 +215,7 @@ export const useShortFormState = ({
     availableAnchors,
     selectedIdeaId,
     triggerInput,
+    productInputs,
     toast,
     getSelectedIdea,
     setSelectedICP: setSelectedICPWithPersistence,
@@ -207,6 +232,7 @@ export const useShortFormState = ({
     setEmailCount: setEmailCountWithPersistence,
     setSelectedIdeaId: setSelectedIdeaIdWithPersistence,
     setTriggerInput: setTriggerInputWithPersistence,
+    setProductInputs,
     clearPersistedData,
     // Auto-save functionality
     isSaving: autoSaveIntegration.isSaving,
