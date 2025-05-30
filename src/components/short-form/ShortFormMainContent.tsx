@@ -131,16 +131,14 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
         onAuthorExperienceChange={onAuthorExperienceChange}
       />
       
-      {!triggerInput && !selectedIdea && (
-        <NarrativeAnchorSelector
-          selectedICP={selectedICP}
-          scripts={scripts}
-          narrativeSelections={narrativeSelections}
-          availableAnchors={availableAnchors}
-          onToggleAnchorType={toggleAnchorType}
-          onToggleItemSelection={toggleItemSelection}
-        />
-      )}
+      <NarrativeAnchorSelector
+        selectedICP={selectedICP}
+        scripts={scripts}
+        narrativeSelections={narrativeSelections}
+        availableAnchors={availableAnchors}
+        onToggleAnchorType={toggleAnchorType}
+        onToggleItemSelection={toggleItemSelection}
+      />
 
       {currentProductContext && (
         <ProductContextSection

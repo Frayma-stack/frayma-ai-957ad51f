@@ -33,25 +33,23 @@ export const useContentFiltering = ({
     });
 
     if (selectedClientId) {
-      // Show authors that belong to the selected client OR have no clientId (available to all)
-      const filtered = authors.filter(author => 
-        author.clientId === selectedClientId || author.clientId === null || author.clientId === undefined
-      );
+      // Only show authors that explicitly belong to the selected client
+      const filtered = authors.filter(author => author.clientId === selectedClientId);
       
-      console.log('🔍 Filtered authors result:', {
+      console.log('🔍 Filtered authors result (strict client matching):', {
         selectedClientId,
         filteredCount: filtered.length,
         filteredAuthors: filtered.map(a => ({
           id: a.id,
           name: a.name,
-          clientId: a.clientId,
-          reason: a.clientId === selectedClientId ? 'matches_client' : 'no_client_id'
+          clientId: a.clientId
         }))
       });
       
       return filtered;
     }
     
+    // If no client is selected, show all authors
     console.log('🔍 No client selected, returning all authors:', authors.length);
     return authors;
   };
