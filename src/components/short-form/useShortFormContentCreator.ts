@@ -1,9 +1,10 @@
+
 import { useShortFormState } from './useShortFormState';
-import { useContentGeneration } from './useContentGeneration';
+import { useShortFormValidation } from './useShortFormValidation';
+import { useShortFormContentGeneration } from './useShortFormContentGeneration';
 import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { ContentType } from './types';
-import { ContentGoal } from './state/types';
 
 interface UseShortFormContentCreatorProps {
   contentType: ContentType;
@@ -75,14 +76,15 @@ export const useShortFormContentCreator = ({
     selectedClientId 
   });
 
-  const {
-    getSelectedICPScript,
-    getSelectedAuthor,
-    getSelectedSuccessStory,
-    generateEmailContent,
-    generateLinkedInContent,
-    generateCustomContent
-  } = useContentGeneration({
+  const { isFormValid } = useShortFormValidation({
+    selectedICP,
+    selectedAuthor,
+    narrativeSelections,
+    triggerInput,
+    getSelectedIdea
+  });
+
+  const { generateContent, getContentTypeLabel } = useShortFormContentGeneration({
     contentType,
     scripts,
     authors,
@@ -97,97 +99,12 @@ export const useShortFormContentCreator = ({
     wordCount,
     emailCount,
     additionalContext,
-    triggerInput
+    triggerInput,
+    setIsGenerating,
+    setGeneratedContent,
+    getSelectedIdea,
+    isFormValid
   });
-
-  const getContentTypeLabel = () => {
-    switch (contentType) {
-      case 'email': return 'Sales Email';
-      case 'linkedin': return 'LinkedIn Post';
-      case 'custom': return 'Custom Content';
-      default: return 'Content';
-    }
-  };
-
-  const isFormValid = (): boolean => {
-    // If we have a trigger input, we need at least an author
-    if (triggerInput.trim()) {
-      return Boolean(selectedAuthor);
-    }
-    
-    // If an idea is selected, we don't need ICP and narrative selections
-    if (getSelectedIdea()) {
-      return Boolean(selectedAuthor);
-    }
-    
-    // Otherwise, we need the full form
-    if (!selectedICP || !selectedAuthor) return false;
-    
-    const hasSelectedItems = narrativeSelections.some(
-      selection => selection.items.length > 0
-    );
-    
-    return hasSelectedItems;
-  };
-
-  const generateContent = () => {
-    if (!isFormValid()) {
-      const selectedIdea = getSelectedIdea();
-      if (triggerInput.trim()) {
-        toast({
-          title: "Missing information",
-          description: "Please select an author to generate content using your trigger.",
-          variant: "destructive"
-        });
-      } else if (selectedIdea) {
-        toast({
-          title: "Missing information",
-          description: "Please select an author to generate content using your saved idea.",
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Missing information",
-          description: "Please select an ICP, author, and at least one narrative item to generate content.",
-          variant: "destructive"
-        });
-      }
-      return;
-    }
-
-    setIsGenerating(true);
-
-    // Simulate content generation
-    setTimeout(() => {
-      const script = getSelectedICPScript();
-      const author = getSelectedAuthor();
-      const successStory = getSelectedSuccessStory();
-      const selectedIdea = getSelectedIdea();
-      
-      if (!author) {
-        setIsGenerating(false);
-        return;
-      }
-      
-      let content = "";
-      
-      if (contentType === 'email') {
-        content = generateEmailContent(script, author, successStory, selectedIdea, triggerInput);
-      } else if (contentType === 'linkedin') {
-        content = generateLinkedInContent(script, author, successStory, selectedIdea, triggerInput);
-      } else if (contentType === 'custom') {
-        content = generateCustomContent(script, author, successStory, selectedIdea, triggerInput);
-      }
-      
-      setGeneratedContent(content);
-      setIsGenerating(false);
-      
-      toast({
-        title: `${getContentTypeLabel()} generated`,
-        description: "Your content has been created. Feel free to edit it as needed."
-      });
-    }, 1500);
-  };
 
   return {
     // State
