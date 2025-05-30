@@ -31,6 +31,25 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   currentProductContext = null,
   onBack
 }) => {
+  console.log('📝 ShortFormContentCreator COMPREHENSIVE DEBUG:', {
+    contentType,
+    authorsCount: authors.length,
+    authorsReceived: authors.map(a => ({
+      id: a.id,
+      name: a.name,
+      role: a.role,
+      organization: a.organization,
+      clientId: a.clientId,
+      hasValidId: !!a.id && a.id.trim() !== '',
+      hasValidName: !!a.name && a.name.trim() !== ''
+    })),
+    scriptsCount: scripts.length,
+    successStoriesCount: successStories.length,
+    ideasCount: ideas.length,
+    selectedClientId,
+    currentProductContext: currentProductContext?.name || 'none'
+  });
+
   const {
     // State
     selectedICP,
@@ -104,6 +123,11 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   const filteredIdeas = selectedClientId 
     ? ideas.filter(idea => idea.clientId === selectedClientId)
     : ideas;
+
+  console.log('📝 ShortFormContentCreator - About to pass authors to ShortFormMainContent:', {
+    authorsCount: authors.length,
+    authorsFirst3: authors.slice(0, 3).map(a => ({ id: a.id, name: a.name }))
+  });
 
   return (
     <div className="space-y-4">

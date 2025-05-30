@@ -33,13 +33,24 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
   onAuthorToneChange,
   onAuthorExperienceChange
 }) => {
-  console.log('👥 ICPAuthorSelectors render:', {
+  console.log('👥 ICPAuthorSelectors DETAILED DEBUG:', {
     selectedICP,
     selectedAuthor,
     scriptsCount: scripts.length,
     authorsCount: authors.length,
+    authorsRaw: authors,
+    authorsDetailed: authors.map(a => ({ 
+      id: a.id, 
+      name: a.name, 
+      role: a.role,
+      idType: typeof a.id,
+      idValue: a.id,
+      idLength: a.id?.length,
+      idTrimmed: a.id?.trim(),
+      isEmpty: !a.id || a.id.trim() === ''
+    })),
     scriptsFirst3: scripts.slice(0, 3).map(s => ({ id: s.id, name: s.name })),
-    authorsFirst3: authors.slice(0, 3).map(a => ({ id: a.id, name: a.name }))
+    selectedIdea: selectedIdea ? { id: selectedIdea.id, title: selectedIdea.title } : null
   });
 
   const getSelectedAuthor = () => {
@@ -56,6 +67,27 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
   // Get valid tones and experiences
   const validTones = selectedAuthorObj?.tones ? filterValidItems(selectedAuthorObj.tones) : [];
   const validExperiences = selectedAuthorObj?.experiences ? filterValidItems(selectedAuthorObj.experiences) : [];
+
+  // Filter valid authors - this might be the issue!
+  const validAuthors = authors.filter(author => {
+    const isValid = author && author.id && author.id.trim() !== '' && author.name && author.name.trim() !== '';
+    console.log('👥 Author validation:', {
+      authorId: author?.id,
+      authorName: author?.name,
+      hasId: !!author?.id,
+      hasName: !!author?.name,
+      idNotEmpty: author?.id && author.id.trim() !== '',
+      nameNotEmpty: author?.name && author.name.trim() !== '',
+      isValid
+    });
+    return isValid;
+  });
+
+  console.log('👥 Valid authors after filtering:', {
+    originalCount: authors.length,
+    validCount: validAuthors.length,
+    validAuthors: validAuthors.map(a => ({ id: a.id, name: a.name, role: a.role }))
+  });
 
   return (
     <div className="space-y-4">
@@ -98,18 +130,19 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
             <SelectValue placeholder="Select author" />
           </SelectTrigger>
           <SelectContent>
-            {authors.length === 0 ? (
+            {validAuthors.length === 0 ? (
               <SelectItem value="no-authors" disabled>
-                No authors found for this client
+                {authors.length === 0 
+                  ? "No authors found for this client"
+                  : `No valid authors found (${authors.length} total authors, but none have valid ID and name)`
+                }
               </SelectItem>
             ) : (
-              authors
-                .filter(author => author.id && author.id.trim() !== '')
-                .map(author => (
-                  <SelectItem key={author.id} value={author.id}>
-                    {author.name} - {author.role}
-                  </SelectItem>
-                ))
+              validAuthors.map(author => (
+                <SelectItem key={author.id} value={author.id}>
+                  {author.name} - {author.role}
+                </SelectItem>
+              ))
             )}
           </SelectContent>
         </Select>

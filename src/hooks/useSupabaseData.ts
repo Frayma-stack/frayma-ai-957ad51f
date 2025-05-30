@@ -25,10 +25,21 @@ export const useSupabaseData = () => {
   const productContextData = useProductContextData();
 
   // Add debugging for authors data changes
-  console.log('🔄 useSupabaseData - Current authors state:', {
+  console.log('🔄 useSupabaseData - COMPREHENSIVE DEBUG:', {
     authorsCount: authorData.authors.length,
     authorsArray: authorData.authors,
-    authorsFirst3: authorData.authors.slice(0, 3).map(a => ({ id: a.id, name: a.name }))
+    authorsDetailed: authorData.authors.map(a => ({
+      id: a.id,
+      name: a.name,
+      role: a.role,
+      organization: a.organization,
+      clientId: a.clientId,
+      hasValidId: !!a.id && a.id.trim() !== '',
+      hasValidName: !!a.name && a.name.trim() !== ''
+    })),
+    clientsCount: clientData.clients.length,
+    userEmail: user?.email,
+    loading
   });
 
   // Load all data when user is available
@@ -50,6 +61,16 @@ export const useSupabaseData = () => {
         productContextData.loadProductContexts()
       ]);
       console.log('✅ All data loaded successfully');
+      
+      // Log the authors after loading
+      console.log('📊 Authors loaded in useSupabaseData:', {
+        count: authorData.authors.length,
+        authors: authorData.authors.map(a => ({
+          id: a.id,
+          name: a.name,
+          role: a.role
+        }))
+      });
     } catch (error) {
       console.error('❌ Error loading data:', error);
       toast.error('Failed to load data from database');
