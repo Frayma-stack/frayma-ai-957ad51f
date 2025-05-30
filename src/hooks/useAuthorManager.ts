@@ -43,7 +43,8 @@ export const useAuthorManager = ({
   };
 
   const handleSave = async (author: Author): Promise<Author> => {
-    console.log('🚀 useAuthorManager.handleSave called with:', {
+    console.log('🚀 useAuthorManager.handleSave CALLED - ENTRY POINT');
+    console.log('🚀 Received author data:', {
       authorId: author.id,
       authorName: author.name,
       isEditing: !!editingAuthor,
@@ -55,7 +56,7 @@ export const useAuthorManager = ({
       let result: Author;
       
       if (editingAuthor) {
-        console.log('🚀 Calling onAuthorUpdated for existing author...');
+        console.log('🚀 This is an EDIT operation, calling onAuthorUpdated...');
         result = await onAuthorUpdated(author);
         console.log('🚀 onAuthorUpdated completed, result:', {
           id: result.id,
@@ -66,7 +67,7 @@ export const useAuthorManager = ({
           description: `${author.name} has been updated successfully.`
         });
       } else {
-        console.log('🚀 Calling onAuthorAdded for new author...');
+        console.log('🚀 This is an ADD operation, calling onAuthorAdded...');
         result = await onAuthorAdded(author);
         console.log('🚀 onAuthorAdded completed, result:', {
           id: result.id,
@@ -83,7 +84,7 @@ export const useAuthorManager = ({
       setEditingAuthor(null);
       return result;
     } catch (error) {
-      console.error('🚀 Error in useAuthorManager.handleSave:', error);
+      console.error('🚀 ERROR in useAuthorManager.handleSave:', error);
       console.error('🚀 Error name:', error instanceof Error ? error.name : 'Unknown');
       console.error('🚀 Error message:', error instanceof Error ? error.message : 'Unknown');
       console.error('🚀 Error stack:', error instanceof Error ? error.stack : 'No stack available');
@@ -130,6 +131,7 @@ export const useAuthorManager = ({
   };
 
   const handleAddAuthor = () => {
+    console.log('🚀 useAuthorManager.handleAddAuthor called - showing form');
     setShowForm(true);
   };
 

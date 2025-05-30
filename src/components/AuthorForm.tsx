@@ -27,11 +27,12 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
   const [isManualMode, setIsManualMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
-  console.log('🔥 AuthorForm initialized with:', {
+  console.log('🔥 AuthorForm RENDER:', {
     hasInitialAuthor: !!initialAuthor,
     initialAuthorName: initialAuthor?.name,
     onSaveType: typeof onSave,
-    isAsync: onSave.constructor.name === 'AsyncFunction'
+    isAsync: onSave.constructor.name === 'AsyncFunction',
+    isSaving
   });
   
   const {
@@ -54,9 +55,9 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
   } = useAuthorForm(initialAuthor);
 
   const handleSave = async () => {
-    console.log('🔥 AuthorForm.handleSave called - START');
-    console.log('🔥 Current saving state:', isSaving);
-    console.log('🔥 Current author state before validation:', {
+    console.log('🔥 AuthorForm.handleSave CLICKED - ENTRY POINT');
+    console.log('🔥 Current isSaving state:', isSaving);
+    console.log('🔥 Current author state:', {
       id: author.id,
       name: author.name,
       role: author.role,
@@ -68,12 +69,12 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
     });
     
     if (isSaving) {
-      console.log('🔥 Already saving, ignoring duplicate request');
+      console.log('🔥 Already saving, ignoring duplicate click');
       return;
     }
     
     setIsSaving(true);
-    console.log('🔥 Set isSaving to true');
+    console.log('🔥 Set isSaving to true, proceeding with save...');
     
     try {
       console.log('🔥 About to validate author...');
@@ -87,8 +88,8 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
       });
       
       if (cleanedAuthor) {
-        console.log('🔥 Author validation passed, calling onSave...');
-        console.log('🔥 Calling onSave with cleaned author:', {
+        console.log('🔥 Validation passed, calling parent onSave function...');
+        console.log('🔥 About to call onSave with:', {
           name: cleanedAuthor.name,
           id: cleanedAuthor.id,
           role: cleanedAuthor.role,
@@ -104,18 +105,19 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
           resultName: result?.name,
           resultId: result?.id
         });
+        console.log('🔥 Author save process completed successfully');
       } else {
         console.error('🔥 Author validation failed - cleanedAuthor is null');
         console.error('🔥 Raw author that failed validation:', author);
       }
     } catch (error) {
-      console.error('🔥 Error during save process:', error);
+      console.error('🔥 ERROR in AuthorForm.handleSave:', error);
       console.error('🔥 Error name:', error instanceof Error ? error.name : 'Unknown');
       console.error('🔥 Error message:', error instanceof Error ? error.message : 'Unknown');
       console.error('🔥 Error stack:', error instanceof Error ? error.stack : 'No stack available');
       throw error; // Re-throw to ensure error handling works properly
     } finally {
-      console.log('🔥 Setting isSaving to false');
+      console.log('🔥 Setting isSaving back to false');
       setIsSaving(false);
     }
   };

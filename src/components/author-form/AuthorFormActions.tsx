@@ -11,14 +11,28 @@ interface AuthorFormActionsProps {
 }
 
 const AuthorFormActions: FC<AuthorFormActionsProps> = ({ onCancel, onSave, isSaving = false }) => {
+  
+  const handleSaveClick = () => {
+    console.log('💾 AuthorFormActions.handleSaveClick - BUTTON CLICKED');
+    console.log('💾 isSaving state:', isSaving);
+    console.log('💾 onSave function type:', typeof onSave);
+    console.log('💾 About to call onSave...');
+    onSave();
+  };
+
+  const handleCancelClick = () => {
+    console.log('💾 AuthorFormActions.handleCancelClick - CANCEL CLICKED');
+    onCancel();
+  };
+
   return (
     <CardFooter className="flex justify-end space-x-2 border-t pt-4">
-      <Button variant="outline" onClick={onCancel} disabled={isSaving}>
+      <Button variant="outline" onClick={handleCancelClick} disabled={isSaving}>
         Cancel
       </Button>
       <Button 
         className="bg-story-blue hover:bg-story-light-blue"
-        onClick={onSave}
+        onClick={handleSaveClick}
         disabled={isSaving}
       >
         {isSaving ? (
