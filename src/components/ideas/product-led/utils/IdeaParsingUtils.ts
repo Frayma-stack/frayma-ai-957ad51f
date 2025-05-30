@@ -1,102 +1,213 @@
 
-import { GeneratedIdea, IdeaScore } from '@/types/ideas';
-
 export interface ParsedIdea {
   title: string;
   narrative: string;
   productTieIn: string;
   cta: string;
   originalContent: string;
-}
-
-export interface IdeaWithScore extends ParsedIdea {
-  score: IdeaScore | null;
   tempId: string;
 }
 
-export const SCORE_OPTIONS: IdeaScore[] = [
-  { value: 0, label: "0 - Won't propel business" },
-  { value: 1, label: "1 - Somewhat useful" },
-  { value: 2, label: "2 - Very promising" },
-  { value: 3, label: "3 - Can't auto-craft without it" }
-];
+export interface IdeaWithScore extends ParsedIdea {
+  score: import('@/types/ideas').IdeaScore | null;
+}
 
-export const parseIdeas = (ideas: string[]): IdeaWithScore[] => {
-  console.log('Raw generated ideas:', ideas);
+export const parseIdeas = (generatedIdeas: string[]): IdeaWithScore[] => {
+  return generatedIdeas.map((ideaContent, index) => {
+    const tempId = `temp-idea-${Date.now()}-${index}`;
+    
+    // Enhanced parsing logic to extract structured content
+    const parsed = parseIdeaContent(ideaContent);
+    
+    return {
+      ...parsed,
+      originalContent: ideaContent,
+      tempId,
+      score: null
+    };
+  });
+};
+
+const parseIdeaContent = (content: string): Omit<ParsedIdea, 'originalContent' | 'tempId'> => {
+  // Initialize with empty values
+  let title = '';
+  let narrative = '';
+  let productTieIn = '';
+  let cta = '';
+
+  // Split content into lines for easier parsing
+  const lines = content.split('\n').map(line => line.trim()).filter(line => line.length > 0);
   
-  return ideas
-    .filter(idea => {
-      const trimmed = idea.trim();
-      // More lenient filtering - just check for substantial content
-      return trimmed && trimmed.length > 50;
-    })
-    .map((idea, index) => {
-      console.log(`Parsing idea ${index + 1}:`, idea);
-      
-      // Split by double line breaks first to get potential idea blocks
-      const blocks = idea.split(/\n\s*\n/).filter(block => block.trim());
-      
-      // Try to find the main idea block that contains all sections
-      let mainBlock = idea;
-      for (const block of blocks) {
-        if (block.toLowerCase().includes('title') && 
-            (block.toLowerCase().includes('narrative') || 
-             block.toLowerCase().includes('product tie-in') || 
-             block.toLowerCase().includes('cta'))) {
-          mainBlock = block;
-          break;
-        }
+  // Try to identify sections using common patterns
+  let currentSection = '';
+  let sectionContent: string[] = [];
+  
+  for (const line of lines) {
+    // Check if this line is a section header
+    const lowerLine = line.toLowerCase();
+    
+    if (isTitleSection(lowerLine)) {
+      if (currentSection && sectionContent.length > 0) {
+        assignContentToSection(currentSection, sectionContent.join(' '), { title, narrative, productTieIn, cta });
       }
+      currentSection = 'title';
+      sectionContent = [];
       
-      console.log(`Main block for idea ${index + 1}:`, mainBlock);
+      // Extract title content from the same line if it exists
+      const titleContent = extractContentFromHeaderLine(line);
+      if (titleContent) {
+        sectionContent.push(titleContent);
+      }
+    } else if (isNarrativeSection(lowerLine)) {
+      if (currentSection && sectionContent.length > 0) {
+        const result = assignContentToSection(currentSection, sectionContent.join(' '), { title, narrative, productTieIn, cta });
+        title = result.title;
+        narrative = result.narrative;
+        productTieIn = result.productTieIn;
+        cta = result.cta;
+      }
+      currentSection = 'narrative';
+      sectionContent = [];
       
-      // Extract sections using more flexible regex patterns
-      const extractSection = (text: string, sectionName: string): string => {
-        // Try multiple patterns for section extraction
-        const patterns = [
-          new RegExp(`${sectionName}[\\s\\-–:]+(.+?)(?=\\n(?:Title|Narrative|Product Tie-in|CTA)[\\s\\-–:]|$)`, 'is'),
-          new RegExp(`${sectionName}[\\s\\-–:]+(.+?)(?=\\n\\w+[\\s\\-–:]|$)`, 'is'),
-          new RegExp(`${sectionName}[\\s\\-–:]+([\\s\\S]+?)(?=\\n(?:Title|Narrative|Product Tie-in|CTA)|$)`, 'i')
-        ];
-        
-        for (const pattern of patterns) {
-          const match = text.match(pattern);
-          if (match && match[1]) {
-            const extracted = match[1].trim();
-            console.log(`Extracted ${sectionName}:`, extracted);
-            return extracted;
-          }
-        }
-        
-        console.log(`No match found for ${sectionName}`);
-        return '';
-      };
+      const narrativeContent = extractContentFromHeaderLine(line);
+      if (narrativeContent) {
+        sectionContent.push(narrativeContent);
+      }
+    } else if (isProductTieInSection(lowerLine)) {
+      if (currentSection && sectionContent.length > 0) {
+        const result = assignContentToSection(currentSection, sectionContent.join(' '), { title, narrative, productTieIn, cta });
+        title = result.title;
+        narrative = result.narrative;
+        productTieIn = result.productTieIn;
+        cta = result.cta;
+      }
+      currentSection = 'productTieIn';
+      sectionContent = [];
       
-      const title = extractSection(mainBlock, 'Title') || 
-                   extractSection(mainBlock, 'TITLE') || 
-                   `Untitled Idea ${index + 1}`;
+      const productContent = extractContentFromHeaderLine(line);
+      if (productContent) {
+        sectionContent.push(productContent);
+      }
+    } else if (isCtaSection(lowerLine)) {
+      if (currentSection && sectionContent.length > 0) {
+        const result = assignContentToSection(currentSection, sectionContent.join(' '), { title, narrative, productTieIn, cta });
+        title = result.title;
+        narrative = result.narrative;
+        productTieIn = result.productTieIn;
+        cta = result.cta;
+      }
+      currentSection = 'cta';
+      sectionContent = [];
       
-      const narrative = extractSection(mainBlock, 'Narrative') || 
-                       extractSection(mainBlock, 'NARRATIVE') || '';
-      
-      const productTieIn = extractSection(mainBlock, 'Product Tie-in') || 
-                          extractSection(mainBlock, 'Product Tie-In') || 
-                          extractSection(mainBlock, 'PRODUCT TIE-IN') || '';
-      
-      const cta = extractSection(mainBlock, 'CTA') || 
-                 extractSection(mainBlock, 'Call to Action') || '';
+      const ctaContent = extractContentFromHeaderLine(line);
+      if (ctaContent) {
+        sectionContent.push(ctaContent);
+      }
+    } else {
+      // This is content for the current section
+      if (line && !line.match(/^[\d\.\-\*\+]\s/)) { // Skip bullet points and numbering
+        sectionContent.push(line);
+      }
+    }
+  }
+  
+  // Handle the last section
+  if (currentSection && sectionContent.length > 0) {
+    const result = assignContentToSection(currentSection, sectionContent.join(' '), { title, narrative, productTieIn, cta });
+    title = result.title;
+    narrative = result.narrative;
+    productTieIn = result.productTieIn;
+    cta = result.cta;
+  }
+  
+  // Fallback: if we couldn't parse structured content, try to extract a basic title
+  if (!title && !narrative && !productTieIn && !cta) {
+    // Use the first meaningful line as title and the rest as narrative
+    const meaningfulLines = lines.filter(line => line.length > 10);
+    if (meaningfulLines.length > 0) {
+      title = meaningfulLines[0];
+      if (meaningfulLines.length > 1) {
+        narrative = meaningfulLines.slice(1).join(' ');
+      }
+    } else {
+      title = lines[0] || 'Generated Idea';
+      narrative = lines.slice(1).join(' ') || content;
+    }
+  }
 
-      const parsedIdea = {
-        title,
-        narrative,
-        productTieIn,
-        cta,
-        originalContent: idea,
-        score: null,
-        tempId: `temp-${index}-${Date.now()}`
-      };
-      
-      console.log(`Parsed idea ${index + 1}:`, parsedIdea);
-      return parsedIdea;
-    });
+  return {
+    title: title || 'Generated Idea',
+    narrative: narrative || 'Narrative content to be developed',
+    productTieIn: productTieIn || 'Product connection to be established',
+    cta: cta || 'Call to action to be defined'
+  };
+};
+
+const isTitleSection = (line: string): boolean => {
+  return line.includes('title') || 
+         line.includes('headline') || 
+         line.match(/^[\d\.\-\*\+]\s*title/i) ||
+         line.match(/^title:/i);
+};
+
+const isNarrativeSection = (line: string): boolean => {
+  return line.includes('narrative') || 
+         line.includes('story') || 
+         line.includes('tension') ||
+         line.includes('belief') ||
+         line.match(/^[\d\.\-\*\+]\s*narrative/i) ||
+         line.match(/^narrative:/i);
+};
+
+const isProductTieInSection = (line: string): boolean => {
+  return line.includes('product') || 
+         line.includes('tie-in') || 
+         line.includes('tie in') ||
+         line.includes('solution') ||
+         line.match(/^[\d\.\-\*\+]\s*product/i) ||
+         line.match(/^product.*:/i);
+};
+
+const isCtaSection = (line: string): boolean => {
+  return line.includes('cta') || 
+         line.includes('call to action') || 
+         line.includes('action') ||
+         line.match(/^[\d\.\-\*\+]\s*cta/i) ||
+         line.match(/^cta:/i) ||
+         line.match(/^call.*action:/i);
+};
+
+const extractContentFromHeaderLine = (line: string): string => {
+  // Remove common prefixes and extract the actual content
+  let content = line
+    .replace(/^[\d\.\-\*\+]\s*/, '') // Remove numbering/bullets
+    .replace(/^(title|narrative|product|cta|call to action)[\:\-\s]*/i, '') // Remove section labels
+    .trim();
+  
+  return content;
+};
+
+const assignContentToSection = (
+  section: string, 
+  content: string, 
+  current: { title: string; narrative: string; productTieIn: string; cta: string }
+): { title: string; narrative: string; productTieIn: string; cta: string } => {
+  const result = { ...current };
+  
+  switch (section) {
+    case 'title':
+      result.title = content;
+      break;
+    case 'narrative':
+      result.narrative = content;
+      break;
+    case 'productTieIn':
+      result.productTieIn = content;
+      break;
+    case 'cta':
+      result.cta = content;
+      break;
+  }
+  
+  return result;
 };
