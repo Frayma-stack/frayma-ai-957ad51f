@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import ClientManager from '@/components/ClientManager';
 import AuthorManager from '@/components/AuthorManager';
@@ -84,6 +83,8 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
   const icpScriptsToUse = filteredICPScripts || icpScripts;
   const successStoriesToUse = filteredSuccessStories || successStories;
 
+  console.log('🎯 AssetViewRouter: selectedAssetType =', selectedAssetType, 'selectedClientId =', selectedClientId);
+
   if (selectedAssetType === 'clients') {
     return (
       <ClientManager
@@ -100,6 +101,7 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
   }
 
   if (selectedAssetType === 'authors') {
+    console.log('🎯 AssetViewRouter: Rendering AuthorManager with selectedClientId:', selectedClientId);
     return (
       <AuthorManager
         authors={authorsToUse}
