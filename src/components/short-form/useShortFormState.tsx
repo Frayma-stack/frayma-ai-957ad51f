@@ -30,7 +30,7 @@ export const useShortFormState = ({
   const [selectedAuthorExperience, setSelectedAuthorExperience] = useState('');
   const [selectedAuthorBelief, setSelectedAuthorBelief] = useState('');
   const [narrativeSelections, setNarrativeSelections] = useState<NarrativeSelection[]>([]);
-  const [contentGoal, setContentGoal] = useState<ContentGoal>('generate_leads');
+  const [contentGoal, setContentGoal] = useState<ContentGoal>({ type: 'generate_leads', description: 'Generate leads' });
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [additionalContext, setAdditionalContext] = useState('');
@@ -54,25 +54,10 @@ export const useShortFormState = ({
     handleDeleteDraft,
     clearCurrentDraft
   } = useAutoSaveIntegration({
-    data: {
-      selectedICP,
-      selectedAuthor,
-      selectedAuthorTone,
-      selectedAuthorExperience,
-      selectedAuthorBelief,
-      narrativeSelections,
-      contentGoal,
-      generatedContent,
-      additionalContext,
-      selectedSuccessStory,
-      wordCount,
-      emailCount,
-      selectedIdeaId,
-      triggerInput,
-      productInputs
-    },
     contentType,
-    selectedClientId
+    clientId: selectedClientId,
+    initialTitle: '',
+    initialContent: generatedContent
   });
 
   // Reset form when client changes
@@ -106,7 +91,7 @@ export const useShortFormState = ({
     
     // Try to get client name from scripts first
     const scriptWithClient = scripts.find(s => s.clientId === selectedClientId);
-    if (scriptWithClient?.client?.name) return scriptWithClient.client.name;
+    if (scriptWithClient?.clientName) return scriptWithClient.clientName;
     
     // Then try authors
     const authorWithClient = authors.find(a => a.clientId === selectedClientId);
@@ -114,7 +99,7 @@ export const useShortFormState = ({
     
     // Finally try success stories
     const storyWithClient = successStories.find(s => s.clientId === selectedClientId);
-    if (storyWithClient?.client?.name) return storyWithClient.client.name;
+    if (storyWithClient?.clientName) return storyWithClient.clientName;
     
     return null;
   }, [selectedClientId, scripts, authors, successStories]);
@@ -125,16 +110,16 @@ export const useShortFormState = ({
     if (!selectedScript) return [];
 
     const anchors = [];
-    if (selectedScript.pain_points?.length > 0) {
+    if (selectedScript.painPoints?.length > 0) {
       anchors.push({ value: 'painPoints', label: 'Pain Points' });
     }
-    if (selectedScript.current_solutions?.length > 0) {
+    if (selectedScript.currentSolutions?.length > 0) {
       anchors.push({ value: 'currentSolutions', label: 'Current Solutions' });
     }
-    if (selectedScript.desired_outcomes?.length > 0) {
+    if (selectedScript.desiredOutcomes?.length > 0) {
       anchors.push({ value: 'desiredOutcomes', label: 'Desired Outcomes' });
     }
-    if (selectedScript.jobs_to_complete?.length > 0) {
+    if (selectedScript.jobsToComplete?.length > 0) {
       anchors.push({ value: 'jobsToComplete', label: 'Jobs to Complete' });
     }
     return anchors;
