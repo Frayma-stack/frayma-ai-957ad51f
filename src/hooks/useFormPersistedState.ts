@@ -1,7 +1,12 @@
 
 import { useFormPersistence } from '@/hooks/useFormPersistence';
 
-type ContentGoal = 'book_call' | 'learn_more' | 'try_product' | 'reply' | 'visit_article';
+type ContentGoalType = 'book_call' | 'learn_more' | 'try_product' | 'reply' | 'visit_article';
+
+interface ContentGoal {
+  type: ContentGoalType;
+  description: string;
+}
 
 interface PersistedFormValues {
   selectedICP: string;
@@ -30,7 +35,7 @@ export const useFormPersistedState = () => {
       selectedAuthor: "",
       selectedAuthorTone: "",
       selectedAuthorExperience: "",
-      contentGoal: "learn_more" as ContentGoal,
+      contentGoal: { type: "learn_more" as ContentGoalType, description: "" },
       additionalContext: "",
       selectedSuccessStory: "none",
       wordCount: 300,
