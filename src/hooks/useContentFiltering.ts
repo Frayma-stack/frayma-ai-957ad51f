@@ -17,11 +17,10 @@ export const useContentFiltering = ({
   productContexts,
 }: UseContentFilteringProps) => {
   const getFilteredAuthors = () => {
-    console.log('🔍 getFilteredAuthors COMPREHENSIVE DEBUG:', {
+    console.log('🔍 getFilteredAuthors - Client-specific filtering:', {
       selectedClientId,
       selectedClientIdType: typeof selectedClientId,
       totalAuthors: authors.length,
-      authorsRaw: authors,
       authorsDetailed: authors.map(author => ({
         id: author.id,
         name: author.name,
@@ -29,14 +28,7 @@ export const useContentFiltering = ({
         organization: author.organization,
         clientId: author.clientId,
         clientIdType: typeof author.clientId,
-        hasClientId: !!author.clientId,
-        clientIdString: String(author.clientId),
-        selectedClientIdString: String(selectedClientId),
-        exactMatch: author.clientId === selectedClientId,
-        stringMatch: String(author.clientId) === String(selectedClientId),
-        isNull: author.clientId === null,
-        isUndefined: author.clientId === undefined,
-        isEmpty: author.clientId === '',
+        belongsToSelectedClient: author.clientId === selectedClientId,
         hasValidId: !!author.id && author.id.trim() !== '',
         hasValidName: !!author.name && author.name.trim() !== ''
       }))
@@ -61,8 +53,7 @@ export const useContentFiltering = ({
       return validAuthors;
     }
 
-    // Filter authors for the selected client
-    // Include authors that belong to the client OR have no client assigned (global authors)
+    // When a client is selected, ONLY show authors that explicitly belong to that client
     const filtered = authors.filter(author => {
       const isValid = author && 
         author.id && 
@@ -71,33 +62,30 @@ export const useContentFiltering = ({
         author.name.trim() !== '';
       
       const belongsToClient = author.clientId === selectedClientId;
-      const isGlobalAuthor = !author.clientId || author.clientId === null || author.clientId === undefined || author.clientId === '';
       
-      const shouldInclude = isValid && (belongsToClient || isGlobalAuthor);
+      const shouldInclude = isValid && belongsToClient;
       
-      console.log('🔍 Author filtering decision:', {
+      console.log('🔍 Author filtering decision (client-specific only):', {
         authorId: author.id,
         authorName: author.name,
         authorClientId: author.clientId,
         selectedClientId,
         isValid,
         belongsToClient,
-        isGlobalAuthor,
         shouldInclude
       });
       
       return shouldInclude;
     });
     
-    console.log('🔍 Filtered authors result (with global authors):', {
+    console.log('🔍 Filtered authors result (client-specific only):', {
       selectedClientId,
       filteredCount: filtered.length,
       filteredAuthors: filtered.map(a => ({
         id: a.id,
         name: a.name,
         role: a.role,
-        clientId: a.clientId,
-        reason: a.clientId === selectedClientId ? 'belongs_to_client' : 'global_author'
+        clientId: a.clientId
       }))
     });
     
@@ -105,24 +93,27 @@ export const useContentFiltering = ({
   };
 
   const getFilteredICPScripts = () => {
-    if (selectedClientId) {
-      return icpScripts.filter(script => script.clientId === selectedClientId);
+    if (!selectedClientId) {
+      return icpScripts;
     }
-    return icpScripts;
+    // Only show ICP scripts that belong to the selected client
+    return icpScripts.filter(script => script.clientId === selectedClientId);
   };
 
   const getFilteredSuccessStories = () => {
-    if (selectedClientId) {
-      return successStories.filter(story => story.clientId === selectedClientId);
+    if (!selectedClientId) {
+      return successStories;
     }
-    return successStories;
+    // Only show success stories that belong to the selected client
+    return successStories.filter(story => story.clientId === selectedClientId);
   };
 
   const getFilteredProductContexts = () => {
-    if (selectedClientId) {
-      return productContexts.filter(context => context.clientId === selectedClientId);
+    if (!selectedClientId) {
+      return productContexts;
     }
-    return productContexts;
+    // Only show product contexts that belong to the selected client
+    return productContexts.filter(context => context.clientId === selectedClientId);
   };
 
   const getCurrentProductContext = () => {
