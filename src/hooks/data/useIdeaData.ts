@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabaseDataService } from '@/services/SupabaseDataService';
 import { GeneratedIdea } from '@/types/ideas';
@@ -15,9 +14,23 @@ export const useIdeaData = () => {
 
   const handleIdeaAdded = async (idea: GeneratedIdea) => {
     try {
+      console.log('💡 Creating idea with client assignment:', {
+        title: idea.title,
+        clientId: idea.clientId,
+        clientAssignment: idea.clientId ? 'client_specific' : 'no_client'
+      });
+
       const newIdea = await supabaseDataService.createIdea(idea);
+      
+      console.log('💡 Idea created successfully:', {
+        id: newIdea.id,
+        title: newIdea.title,
+        clientId: newIdea.clientId,
+        clientAssignment: newIdea.clientId ? 'client_specific' : 'no_client'
+      });
+
       setIdeas(prev => [newIdea, ...prev]);
-      toast.success('Idea saved successfully');
+      toast.success(`Idea saved successfully${newIdea.clientId ? ' for selected client' : ''}`);
       return newIdea;
     } catch (error) {
       console.error('Error creating idea:', error);

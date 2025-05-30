@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -33,30 +32,20 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
   onAuthorToneChange,
   onAuthorExperienceChange
 }) => {
-  console.log('👥 ICPAuthorSelectors ULTRA DETAILED DEBUG:', {
+  console.log('👥 ICPAuthorSelectors - Client-filtered data received:', {
     selectedICP,
     selectedAuthor,
     scriptsCount: scripts.length,
     authorsCount: authors.length,
-    authorsReceived: authors,
+    selectedIdea: selectedIdea ? { id: selectedIdea.id, title: selectedIdea.title } : null,
     authorsValidation: authors.map(a => ({
       id: a.id,
       name: a.name,
       role: a.role,
       organization: a.organization,
       clientId: a.clientId,
-      hasId: !!a.id,
-      hasName: !!a.name,
-      idLength: a.id?.length,
-      nameLength: a.name?.length,
-      idTrimmed: a.id?.trim(),
-      nameTrimmed: a.name?.trim(),
-      isIdValid: !!(a.id && a.id.trim() !== ''),
-      isNameValid: !!(a.name && a.name.trim() !== ''),
-      isOverallValid: !!(a.id && a.id.trim() !== '' && a.name && a.name.trim() !== '')
-    })),
-    scriptsFirst3: scripts.slice(0, 3).map(s => ({ id: s.id, name: s.name })),
-    selectedIdea: selectedIdea ? { id: selectedIdea.id, title: selectedIdea.title } : null
+      isValid: !!(a.id && a.id.trim() !== '' && a.name && a.name.trim() !== '')
+    }))
   });
 
   const getSelectedAuthor = () => {
@@ -76,35 +65,27 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
     const hasValidName = author && author.name && typeof author.name === 'string' && author.name.trim() !== '';
     const isValid = hasValidId && hasValidName;
     
-    console.log('👥 Author validation details:', {
+    console.log('👥 Author validation (client-filtered):', {
       authorId: author?.id,
       authorName: author?.name,
       authorRole: author?.role,
-      authorOrganization: author?.organization,
       authorClientId: author?.clientId,
       hasValidId,
       hasValidName,
-      isValid,
-      rawAuthor: author
+      isValid
     });
     
     return isValid;
   });
 
-  console.log('👥 FINAL Valid authors after filtering:', {
+  console.log('👥 Final valid authors after client filtering:', {
     originalCount: authors.length,
     validCount: validAuthors.length,
     validAuthors: validAuthors.map(a => ({
       id: a.id,
       name: a.name,
       role: a.role,
-      organization: a.organization,
       clientId: a.clientId
-    })),
-    invalidAuthors: authors.filter(a => !validAuthors.includes(a)).map(a => ({
-      id: a?.id,
-      name: a?.name,
-      issue: !a ? 'null_author' : (!a.id || a.id.trim() === '') ? 'invalid_id' : 'invalid_name'
     }))
   });
 
@@ -115,9 +96,7 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
   console.log('👥 Author sub-data validation:', {
     selectedAuthorObj: selectedAuthorObj ? { id: selectedAuthorObj.id, name: selectedAuthorObj.name } : null,
     validTonesCount: validTones.length,
-    validExperiencesCount: validExperiences.length,
-    rawTones: selectedAuthorObj?.tones,
-    rawExperiences: selectedAuthorObj?.experiences
+    validExperiencesCount: validExperiences.length
   });
 
   return (
@@ -164,8 +143,8 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
             {validAuthors.length === 0 ? (
               <SelectItem value="no-authors" disabled>
                 {authors.length === 0 
-                  ? "No authors found - please create an author first"
-                  : `No valid authors found (${authors.length} authors exist but have validation issues)`
+                  ? "No authors found for this client - please create an author first"
+                  : `No valid authors found for this client (${authors.length} authors have validation issues)`
                 }
               </SelectItem>
             ) : (

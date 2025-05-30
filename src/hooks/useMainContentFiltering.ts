@@ -18,27 +18,67 @@ export const useMainContentFiltering = ({
   productContexts,
 }: UseMainContentFilteringProps) => {
   const filteredAuthors = useMemo(() => {
-    return selectedClientId 
-      ? authors.filter(author => author.clientId === selectedClientId)
-      : authors;
+    console.log('🔒 useMainContentFiltering - Applying strict client filtering for authors:', {
+      selectedClientId,
+      totalAuthors: authors.length,
+      clientSpecific: !!selectedClientId
+    });
+
+    // When a client is selected, ONLY show assets that explicitly belong to that client
+    if (selectedClientId) {
+      const filtered = authors.filter(author => author.clientId === selectedClientId);
+      console.log('🔒 Client-specific authors only:', filtered.length);
+      return filtered;
+    }
+    
+    // When no client is selected, show all authors
+    console.log('🔒 No client selected - showing all authors:', authors.length);
+    return authors;
   }, [selectedClientId, authors]);
 
   const filteredICPScripts = useMemo(() => {
-    return selectedClientId 
-      ? icpScripts.filter(script => script.clientId === selectedClientId)
-      : icpScripts;
+    console.log('🔒 useMainContentFiltering - Applying strict client filtering for ICP scripts:', {
+      selectedClientId,
+      totalScripts: icpScripts.length
+    });
+
+    if (selectedClientId) {
+      const filtered = icpScripts.filter(script => script.clientId === selectedClientId);
+      console.log('🔒 Client-specific ICP scripts only:', filtered.length);
+      return filtered;
+    }
+    
+    return icpScripts;
   }, [selectedClientId, icpScripts]);
 
   const filteredSuccessStories = useMemo(() => {
-    return selectedClientId 
-      ? successStories.filter(story => story.clientId === selectedClientId)
-      : successStories;
+    console.log('🔒 useMainContentFiltering - Applying strict client filtering for success stories:', {
+      selectedClientId,
+      totalStories: successStories.length
+    });
+
+    if (selectedClientId) {
+      const filtered = successStories.filter(story => story.clientId === selectedClientId);
+      console.log('🔒 Client-specific success stories only:', filtered.length);
+      return filtered;
+    }
+    
+    return successStories;
   }, [selectedClientId, successStories]);
 
   const currentProductContext = useMemo(() => {
-    return selectedClientId 
-      ? productContexts.find(context => context.clientId === selectedClientId) || null
-      : null;
+    console.log('🔒 useMainContentFiltering - Finding product context for client:', {
+      selectedClientId,
+      totalContexts: productContexts.length
+    });
+
+    if (selectedClientId) {
+      const context = productContexts.find(context => context.clientId === selectedClientId) || null;
+      console.log('🔒 Found product context:', !!context);
+      return context;
+    }
+    
+    return null;
   }, [selectedClientId, productContexts]);
 
   return {

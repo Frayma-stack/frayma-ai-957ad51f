@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabaseDataService } from '@/services/SupabaseDataService';
 import { ICPStoryScript } from '@/types/storytelling';
@@ -15,9 +14,23 @@ export const useICPScriptData = () => {
 
   const handleICPScriptAdded = async (script: ICPStoryScript) => {
     try {
+      console.log('📜 Creating ICP script with client assignment:', {
+        name: script.name,
+        clientId: script.clientId,
+        clientAssignment: script.clientId ? 'client_specific' : 'no_client'
+      });
+
       const newScript = await supabaseDataService.createICPScript(script);
+      
+      console.log('📜 ICP script created successfully:', {
+        id: newScript.id,
+        name: newScript.name,
+        clientId: newScript.clientId,
+        clientAssignment: newScript.clientId ? 'client_specific' : 'no_client'
+      });
+
       setICPScripts(prev => [newScript, ...prev]);
-      toast.success('ICP script created successfully');
+      toast.success(`ICP script created successfully${newScript.clientId ? ' for selected client' : ''}`);
       return newScript;
     } catch (error) {
       console.error('Error creating ICP script:', error);

@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import { Card } from "@/components/ui/card";
 import { ICPStoryScript, Author, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
@@ -31,23 +30,39 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   currentProductContext = null,
   onBack
 }) => {
-  console.log('📝 ShortFormContentCreator COMPREHENSIVE DEBUG:', {
+  console.log('📝 ShortFormContentCreator - Client-specific asset filtering:', {
     contentType,
-    authorsCount: authors.length,
-    authorsReceived: authors.map(a => ({
-      id: a.id,
-      name: a.name,
-      role: a.role,
-      organization: a.organization,
-      clientId: a.clientId,
-      hasValidId: !!a.id && a.id.trim() !== '',
-      hasValidName: !!a.name && a.name.trim() !== ''
-    })),
-    scriptsCount: scripts.length,
-    successStoriesCount: successStories.length,
-    ideasCount: ideas.length,
     selectedClientId,
+    originalAuthorsCount: authors.length,
+    originalScriptsCount: scripts.length,
+    originalSuccessStoriesCount: successStories.length,
+    originalIdeasCount: ideas.length,
     currentProductContext: currentProductContext?.name || 'none'
+  });
+
+  // Apply strict client-specific filtering for ALL assets
+  const filteredAuthors = selectedClientId 
+    ? authors.filter(author => author.clientId === selectedClientId)
+    : authors;
+
+  const filteredScripts = selectedClientId 
+    ? scripts.filter(script => script.clientId === selectedClientId)
+    : scripts;
+
+  const filteredSuccessStories = selectedClientId 
+    ? successStories.filter(story => story.clientId === selectedClientId)
+    : successStories;
+
+  const filteredIdeas = selectedClientId 
+    ? ideas.filter(idea => idea.clientId === selectedClientId)
+    : ideas;
+
+  console.log('📝 ShortFormContentCreator - After client filtering:', {
+    filteredAuthorsCount: filteredAuthors.length,
+    filteredScriptsCount: filteredScripts.length,
+    filteredSuccessStoriesCount: filteredSuccessStories.length,
+    filteredIdeasCount: filteredIdeas.length,
+    restrictionApplied: !!selectedClientId
   });
 
   const {
@@ -103,10 +118,10 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     clearCurrentDraft
   } = useShortFormContentCreator({
     contentType,
-    scripts,
-    authors,
-    successStories,
-    ideas,
+    scripts: filteredScripts,
+    authors: filteredAuthors,
+    successStories: filteredSuccessStories,
+    ideas: filteredIdeas,
     selectedClientId: selectedClientId || undefined
   });
 
@@ -119,14 +134,11 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
 
   const selectedIdea = getSelectedIdea();
 
-  // Filter ideas by selected client
-  const filteredIdeas = selectedClientId 
-    ? ideas.filter(idea => idea.clientId === selectedClientId)
-    : ideas;
-
-  console.log('📝 ShortFormContentCreator - About to pass authors to ShortFormMainContent:', {
-    authorsCount: authors.length,
-    authorsFirst3: authors.slice(0, 3).map(a => ({ id: a.id, name: a.name }))
+  console.log('📝 ShortFormContentCreator - Final data passed to components:', {
+    authorsToPass: filteredAuthors.length,
+    scriptsToPass: filteredScripts.length,
+    successStoriesToPass: filteredSuccessStories.length,
+    ideasToPass: filteredIdeas.length
   });
 
   return (
@@ -140,9 +152,9 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
         
         <ShortFormMainContent
           contentType={contentType}
-          scripts={scripts}
-          authors={authors}
-          successStories={successStories}
+          scripts={filteredScripts}
+          authors={filteredAuthors}
+          successStories={filteredSuccessStories}
           selectedIdea={selectedIdea}
           ideas={filteredIdeas}
           selectedClientId={selectedClientId}

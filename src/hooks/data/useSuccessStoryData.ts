@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabaseDataService } from '@/services/SupabaseDataService';
 import { CustomerSuccessStory } from '@/types/storytelling';
@@ -15,9 +14,23 @@ export const useSuccessStoryData = () => {
 
   const handleSuccessStoryAdded = async (story: CustomerSuccessStory) => {
     try {
+      console.log('📖 Creating success story with client assignment:', {
+        title: story.title,
+        clientId: story.clientId,
+        clientAssignment: story.clientId ? 'client_specific' : 'no_client'
+      });
+
       const newStory = await supabaseDataService.createSuccessStory(story);
+      
+      console.log('📖 Success story created successfully:', {
+        id: newStory.id,
+        title: newStory.title,
+        clientId: newStory.clientId,
+        clientAssignment: newStory.clientId ? 'client_specific' : 'no_client'
+      });
+
       setSuccessStories(prev => [newStory, ...prev]);
-      toast.success('Success story created successfully');
+      toast.success(`Success story created successfully${newStory.clientId ? ' for selected client' : ''}`);
       return newStory;
     } catch (error) {
       console.error('Error creating success story:', error);

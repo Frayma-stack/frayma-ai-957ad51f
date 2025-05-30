@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { authorService } from '@/services/AuthorService';
 import { Author } from '@/types/storytelling';
@@ -28,10 +27,19 @@ export const useAuthorData = () => {
         id: author.id,
         role: author.role,
         organization: author.organization,
+        clientId: author.clientId,
+        clientAssignment: author.clientId ? 'client_specific' : 'no_client',
         experiencesCount: author.experiences?.length || 0,
         tonesCount: author.tones?.length || 0,
         beliefsCount: author.beliefs?.length || 0
       });
+
+      // Ensure clientId is properly set if provided
+      if (author.clientId) {
+        console.log('📚 Author will be assigned to client:', author.clientId);
+      } else {
+        console.log('📚 Warning: Author created without client assignment');
+      }
       
       console.log('📚 Calling authorService.createAuthor...');
       const newAuthor = await authorService.createAuthor(author);
@@ -39,7 +47,9 @@ export const useAuthorData = () => {
         id: newAuthor.id,
         name: newAuthor.name,
         role: newAuthor.role,
-        organization: newAuthor.organization
+        organization: newAuthor.organization,
+        clientId: newAuthor.clientId,
+        clientAssignment: newAuthor.clientId ? 'client_specific' : 'no_client'
       });
       
       console.log('📚 Updating local authors state...');
@@ -50,7 +60,7 @@ export const useAuthorData = () => {
       });
       
       console.log('📚 Showing success toast...');
-      toast.success('Author created successfully');
+      toast.success(`Author created successfully${newAuthor.clientId ? ' for selected client' : ''}`);
       
       console.log('📚 handleAuthorAdded completed successfully');
       return newAuthor;
@@ -70,13 +80,15 @@ export const useAuthorData = () => {
         id: updatedAuthor.id,
         name: updatedAuthor.name,
         role: updatedAuthor.role,
-        organization: updatedAuthor.organization
+        organization: updatedAuthor.organization,
+        clientId: updatedAuthor.clientId
       });
       
       const author = await authorService.updateAuthor(updatedAuthor);
       console.log('📚 Author updated successfully:', {
         id: author.id,
-        name: author.name
+        name: author.name,
+        clientId: author.clientId
       });
       
       setAuthors(prev => prev.map(a => a.id === author.id ? author : a));
