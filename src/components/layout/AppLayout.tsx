@@ -1,17 +1,19 @@
 
-import { FC, useState, useEffect } from 'react';
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { FC } from 'react';
+import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from '@/components/AppSidebar';
 import MainContent from './MainContent';
 import LoadingState from './LoadingState';
-import { useAuth } from '@/contexts/AuthContext';
+import AppHeader from './AppHeader';
+import { useAppLayoutState } from '@/hooks/useAppLayoutState';
+import { useAppLayoutHandlers } from '@/hooks/useAppLayoutHandlers';
 import { Client, Author, ICPStoryScript, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
 
 export type ViewType = 'home' | 'ideas' | 'clients' | 'authors' | 'icp-scripts' | 'success-stories' | 'product-context' | 'drafts';
 
-interface AppLayoutProps {
+export interface AppLayoutProps {
   clients: Client[];
   authors: Author[];
   ideas: GeneratedIdea[];
@@ -53,77 +55,23 @@ interface AppLayoutProps {
 }
 
 const AppLayout: FC<AppLayoutProps> = (props) => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const { user } = useAuth();
-
   console.log('🏗️ AppLayout: Rendering with current view:', props.currentView);
   console.log('🏗️ AppLayout: Selected asset type:', props.selectedAssetType);
 
-  // Auto-collapse sidebar when user starts doing meaningful actions
-  useEffect(() => {
-    const shouldCollapse = 
-      props.selectedContentType !== null ||
-      props.currentView === 'clients' ||
-      props.currentView === 'authors' ||
-      props.currentView === 'icp-scripts' ||
-      props.currentView === 'success-stories' ||
-      props.currentView === 'product-context' ||
-      props.currentView === 'drafts';
+  const { sidebarCollapsed } = useAppLayoutState({
+    selectedContentType: props.selectedContentType,
+    currentView: props.currentView,
+  });
 
-    if (shouldCollapse && !sidebarCollapsed) {
-      console.log('🏗️ AppLayout: Auto-collapsing sidebar');
-      setSidebarCollapsed(true);
-    }
-  }, [props.selectedContentType, props.currentView, sidebarCollapsed]);
-
-  // Handler for asset type changes - this should trigger view changes
-  const handleAssetTypeChange = (type: string) => {
-    console.log('🏗️ AppLayout: Asset type changed:', type);
-    props.onAssetTypeChange(type);
-  };
-
-  // Handler for viewing client assets
-  const handleViewClientAssets = (clientId: string, assetType: string) => {
-    console.log('🏗️ AppLayout: View client assets:', { clientId, assetType });
-    props.onAssetTypeChange(assetType);
-    props.onClientSelected(clientId);
-  };
-
-  // Handler for navigating to ideas bank from home
-  const handleNavigateToIdeasBank = () => {
-    console.log('🏗️ AppLayout: Navigate to ideas bank');
-    props.onIdeasBankSelected();
-  };
+  const { handleAssetTypeChange, handleViewClientAssets, handleNavigateToIdeasBank } = useAppLayoutHandlers({
+    onAssetTypeChange: props.onAssetTypeChange,
+    onClientSelected: props.onClientSelected,
+    onIdeasBankSelected: props.onIdeasBankSelected,
+  });
 
   if (props.loading) {
     return <LoadingState />;
   }
-
-  const getViewTitle = () => {
-    switch (props.currentView) {
-      case 'home': return 'Your Dashboard';
-      case 'ideas': return 'Ideas Bank';
-      case 'clients': return 'Client Manager';
-      case 'authors': return 'Author Manager';
-      case 'icp-scripts': return 'ICP Scripts';
-      case 'success-stories': return 'Success Stories';
-      case 'product-context': return 'Product Context';
-      case 'drafts': return 'Drafts';
-      default: return 'Your Dashboard';
-    }
-  };
-
-  // Get user display name or email
-  const getUserDisplay = () => {
-    if (!user) return 'Guest';
-    
-    // Try to get full name from user metadata
-    const fullName = user.user_metadata?.full_name;
-    if (fullName) return fullName;
-    
-    // Fallback to email
-    return user.email || 'User';
-  };
 
   return (
     <SidebarProvider defaultOpen={!sidebarCollapsed}>
@@ -139,18 +87,7 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
         />
         
         <main className="flex-1 flex flex-col">
-          <div className="border-b bg-white p-4 flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <SidebarTrigger />
-              <h2 className="text-lg font-medium text-gray-900">
-                {getViewTitle()}
-              </h2>
-            </div>
-            
-            <div className="text-sm text-gray-500">
-              {getUserDisplay()}
-            </div>
-          </div>
+          <AppHeader currentView={props.currentView} />
           
           <div className="flex-1 overflow-auto">
             <MainContent 
