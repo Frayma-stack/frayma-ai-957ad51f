@@ -54,7 +54,7 @@ export const useShortFormState = ({
     handleDeleteDraft,
     clearCurrentDraft
   } = useAutoSaveIntegration({
-    formData: {
+    data: {
       selectedICP,
       selectedAuthor,
       selectedAuthorTone,
@@ -106,7 +106,7 @@ export const useShortFormState = ({
     
     // Try to get client name from scripts first
     const scriptWithClient = scripts.find(s => s.clientId === selectedClientId);
-    if (scriptWithClient?.clientName) return scriptWithClient.clientName;
+    if (scriptWithClient?.client?.name) return scriptWithClient.client.name;
     
     // Then try authors
     const authorWithClient = authors.find(a => a.clientId === selectedClientId);
@@ -114,7 +114,7 @@ export const useShortFormState = ({
     
     // Finally try success stories
     const storyWithClient = successStories.find(s => s.clientId === selectedClientId);
-    if (storyWithClient?.clientName) return storyWithClient.clientName;
+    if (storyWithClient?.client?.name) return storyWithClient.client.name;
     
     return null;
   }, [selectedClientId, scripts, authors, successStories]);
@@ -125,16 +125,16 @@ export const useShortFormState = ({
     if (!selectedScript) return [];
 
     const anchors = [];
-    if (selectedScript.painPoints?.length > 0) {
+    if (selectedScript.pain_points?.length > 0) {
       anchors.push({ value: 'painPoints', label: 'Pain Points' });
     }
-    if (selectedScript.currentSolutions?.length > 0) {
+    if (selectedScript.current_solutions?.length > 0) {
       anchors.push({ value: 'currentSolutions', label: 'Current Solutions' });
     }
-    if (selectedScript.desiredOutcomes?.length > 0) {
+    if (selectedScript.desired_outcomes?.length > 0) {
       anchors.push({ value: 'desiredOutcomes', label: 'Desired Outcomes' });
     }
-    if (selectedScript.jobsToComplete?.length > 0) {
+    if (selectedScript.jobs_to_complete?.length > 0) {
       anchors.push({ value: 'jobsToComplete', label: 'Jobs to Complete' });
     }
     return anchors;
