@@ -21,13 +21,36 @@ export const useMainContentFiltering = ({
     console.log('🔒 useMainContentFiltering - Applying strict client filtering for authors:', {
       selectedClientId,
       totalAuthors: authors.length,
-      clientSpecific: !!selectedClientId
+      clientSpecific: !!selectedClientId,
+      authorsDetailed: authors.map(a => ({
+        id: a.id,
+        name: a.name,
+        clientId: a.clientId,
+        organization: a.organization
+      }))
     });
 
     // When a client is selected, ONLY show assets that explicitly belong to that client
     if (selectedClientId) {
       const filtered = authors.filter(author => author.clientId === selectedClientId);
-      console.log('🔒 Client-specific authors only:', filtered.length);
+      console.log('🔒 Client-specific authors only:', {
+        filteredCount: filtered.length,
+        filtered: filtered.map(a => ({
+          id: a.id,
+          name: a.name,
+          clientId: a.clientId
+        }))
+      });
+
+      // Debug: Show authors that don't match
+      const nonMatching = authors.filter(author => author.clientId !== selectedClientId);
+      console.log('🔒 Authors that don\'t match selected client:', nonMatching.map(a => ({
+        id: a.id,
+        name: a.name,
+        clientId: a.clientId,
+        reason: a.clientId === null ? 'clientId_is_null' : 'different_clientId'
+      })));
+
       return filtered;
     }
     

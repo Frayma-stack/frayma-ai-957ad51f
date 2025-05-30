@@ -39,6 +39,13 @@ export const useShortFormFiltering = ({
     }
     
     console.log('🔍 Filtering authors for client:', selectedClientId);
+    console.log('🔍 Available authors before filtering:', authors.map(a => ({
+      id: a.id,
+      name: a.name,
+      clientId: a.clientId,
+      organization: a.organization
+    })));
+    
     const filtered = authors.filter(author => {
       const belongs = author.clientId === selectedClientId;
       console.log('🔍 Author filter check:', {
@@ -56,6 +63,16 @@ export const useShortFormFiltering = ({
       filteredCount: filtered.length,
       filtered: filtered.map(a => ({ id: a.id, name: a.name, clientId: a.clientId }))
     });
+
+    // If no authors found for the selected client, let's check if there are any authors with null clientId
+    if (filtered.length === 0) {
+      const authorsWithNullClient = authors.filter(a => a.clientId === null);
+      console.log('⚠️ No authors found for selected client. Authors with null clientId:', authorsWithNullClient.map(a => ({
+        id: a.id,
+        name: a.name,
+        organization: a.organization
+      })));
+    }
     
     return filtered;
   }, [selectedClientId, authors]);
