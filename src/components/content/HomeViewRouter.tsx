@@ -43,6 +43,15 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
 }) => {
   const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(null);
 
+  console.log('🏠 HomeViewRouter render:', {
+    selectedType,
+    selectedArticleSubtype,
+    filteredICPScriptsCount: filteredICPScripts.length,
+    filteredAuthorsCount: filteredAuthors.length,
+    currentProductContext: currentProductContext?.name || 'none',
+    selectedClientId
+  });
+
   // Listen for the custom event to navigate to ideas bank
   useEffect(() => {
     const handleNavigateToIdeasBank = () => {
@@ -111,6 +120,7 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
           successStories={filteredSuccessStories}
           ideas={ideas}
           selectedClientId={selectedClientId}
+          currentProductContext={currentProductContext}
           onBack={onBack}
         />
       </ScrollArea>
@@ -127,6 +137,7 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
           successStories={filteredSuccessStories}
           ideas={ideas}
           selectedClientId={selectedClientId}
+          currentProductContext={currentProductContext}
           onBack={onBack}
         />
       </ScrollArea>
@@ -143,6 +154,7 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
           successStories={filteredSuccessStories}
           ideas={ideas}
           selectedClientId={selectedClientId}
+          currentProductContext={currentProductContext}
           onBack={onBack}
         />
       </ScrollArea>

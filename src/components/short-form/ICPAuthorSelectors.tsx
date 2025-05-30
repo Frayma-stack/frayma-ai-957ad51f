@@ -1,13 +1,8 @@
 
 import { FC } from 'react';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Mic, User } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Users, User } from "lucide-react";
 import { ICPStoryScript, Author } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 
@@ -38,124 +33,111 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
   onAuthorToneChange,
   onAuthorExperienceChange
 }) => {
+  console.log('👥 ICPAuthorSelectors render:', {
+    selectedICP,
+    selectedAuthor,
+    scriptsCount: scripts.length,
+    authorsCount: authors.length,
+    scriptsFirst3: scripts.slice(0, 3).map(s => ({ id: s.id, name: s.name })),
+    authorsFirst3: authors.slice(0, 3).map(a => ({ id: a.id, name: a.name }))
+  });
+
   const getSelectedAuthor = () => {
     return authors.find(author => author.id === selectedAuthor);
   };
 
-  const getAuthorTones = () => {
-    const author = getSelectedAuthor();
-    return author?.tones || [];
-  };
-
-  const getAuthorExperiences = () => {
-    const author = getSelectedAuthor();
-    return author?.experiences || [];
-  };
+  const selectedAuthorObj = getSelectedAuthor();
 
   return (
-    <>
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Select ICP</label>
-          <Select 
-            value={selectedICP} 
-            onValueChange={onICPChange}
-            disabled={!!selectedIdea}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={selectedIdea ? "Using selected idea" : "Choose an ICP"} />
+    <div className="space-y-4">
+      {!selectedIdea && (
+        <div>
+          <div className="flex items-center">
+            <label className="text-sm font-medium">Target ICP *</label>
+            <Users className="ml-2 h-4 w-4 text-gray-400" />
+          </div>
+          <Select value={selectedICP} onValueChange={onICPChange}>
+            <SelectTrigger className="mt-2">
+              <SelectValue placeholder="Select ICP StoryScript" />
             </SelectTrigger>
             <SelectContent>
-              {scripts.map(script => (
-                <SelectItem key={script.id} value={script.id}>{script.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Select Author</label>
-          <Select value={selectedAuthor} onValueChange={onAuthorChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Choose an author" />
-            </SelectTrigger>
-            <SelectContent>
-              {authors.map(author => (
-                <SelectItem key={author.id} value={author.id}>
-                  {author.name}
-                  {author.role ? ` (${author.role})` : ''}
+              {scripts.length === 0 ? (
+                <SelectItem value="no-scripts" disabled>
+                  No ICP StoryScripts found for this client
                 </SelectItem>
-              ))}
-              {authors.length === 0 && (
-                <SelectItem value="no-authors" disabled>
-                  No authors available. Add authors in Assets tab.
-                </SelectItem>
+              ) : (
+                scripts.map(script => (
+                  <SelectItem key={script.id} value={script.id}>
+                    {script.name}
+                  </SelectItem>
+                ))
               )}
             </SelectContent>
           </Select>
         </div>
+      )}
+      
+      <div>
+        <div className="flex items-center">
+          <label className="text-sm font-medium">Author *</label>
+          <User className="ml-2 h-4 w-4 text-gray-400" />
+        </div>
+        <Select value={selectedAuthor} onValueChange={onAuthorChange}>
+          <SelectTrigger className="mt-2">
+            <SelectValue placeholder="Select author" />
+          </SelectTrigger>
+          <SelectContent>
+            {authors.length === 0 ? (
+              <SelectItem value="no-authors" disabled>
+                No authors found for this client
+              </SelectItem>
+            ) : (
+              authors.map(author => (
+                <SelectItem key={author.id} value={author.id}>
+                  {author.name} - {author.role}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
       </div>
       
-      {selectedAuthor && (
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center">
-              <label className="text-sm font-medium">Author Writing Tone</label>
-              <Mic className="ml-2 h-4 w-4 text-gray-400" />
-            </div>
-            <Select 
-              value={selectedAuthorTone} 
-              onValueChange={onAuthorToneChange}
-              disabled={!selectedAuthor || getAuthorTones().length === 0}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select tone (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                {getAuthorTones().map(tone => (
-                  <SelectItem key={tone.id} value={tone.id}>
-                    {tone.tone}
-                  </SelectItem>
-                ))}
-                {getAuthorTones().length === 0 && (
-                  <SelectItem value="no-tones" disabled>
-                    No tones available for this author
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <div className="flex items-center">
-              <label className="text-sm font-medium">Author Experience</label>
-              <User className="ml-2 h-4 w-4 text-gray-400" />
-            </div>
-            <Select 
-              value={selectedAuthorExperience} 
-              onValueChange={onAuthorExperienceChange}
-              disabled={!selectedAuthor || getAuthorExperiences().length === 0}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select experience (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                {getAuthorExperiences().map(exp => (
-                  <SelectItem key={exp.id} value={exp.id}>
-                    {exp.title}
-                  </SelectItem>
-                ))}
-                {getAuthorExperiences().length === 0 && (
-                  <SelectItem value="no-experiences" disabled>
-                    No experiences available for this author
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-          </div>
+      {selectedAuthorObj && selectedAuthorObj.tones.length > 0 && (
+        <div>
+          <Label className="text-sm font-medium">Author Tone</Label>
+          <Select value={selectedAuthorTone} onValueChange={onAuthorToneChange}>
+            <SelectTrigger className="mt-2">
+              <SelectValue placeholder="Select tone (optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              {selectedAuthorObj.tones.map(tone => (
+                <SelectItem key={tone.id} value={tone.id}>
+                  {tone.tone}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       )}
-    </>
+      
+      {selectedAuthorObj && selectedAuthorObj.experiences.length > 0 && (
+        <div>
+          <Label className="text-sm font-medium">Author Experience</Label>
+          <Select value={selectedAuthorExperience} onValueChange={onAuthorExperienceChange}>
+            <SelectTrigger className="mt-2">
+              <SelectValue placeholder="Select experience (optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              {selectedAuthorObj.experiences.map(experience => (
+                <SelectItem key={experience.id} value={experience.id}>
+                  {experience.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -1,7 +1,7 @@
 
 import { FC } from 'react';
 import { Card } from "@/components/ui/card";
-import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
+import { ICPStoryScript, Author, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import ShortFormHeader from './short-form/ShortFormHeader';
 import ShortFormMainContent from './short-form/ShortFormMainContent';
@@ -17,6 +17,7 @@ interface ShortFormContentCreatorProps {
   successStories: CustomerSuccessStory[];
   ideas?: GeneratedIdea[];
   selectedClientId?: string | null;
+  currentProductContext?: ProductContext | null;
   onBack: () => void;
 }
 
@@ -27,6 +28,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
   successStories,
   ideas = [],
   selectedClientId,
+  currentProductContext = null,
   onBack
 }) => {
   const {
@@ -47,6 +49,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     availableAnchors,
     selectedIdeaId,
     triggerInput,
+    productInputs,
     getSelectedIdea,
     
     // Actions
@@ -63,6 +66,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
     setEmailCount,
     setSelectedIdeaId,
     setTriggerInput,
+    setProductInputs,
     
     // Computed
     getContentTypeLabel,
@@ -118,6 +122,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
           selectedIdea={selectedIdea}
           ideas={filteredIdeas}
           selectedClientId={selectedClientId}
+          currentProductContext={currentProductContext}
           selectedICP={selectedICP}
           selectedAuthor={selectedAuthor}
           selectedAuthorTone={selectedAuthorTone}
@@ -131,6 +136,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
           triggerInput={triggerInput}
           selectedIdeaId={selectedIdeaId}
           availableAnchors={availableAnchors}
+          productInputs={productInputs}
           isGenerating={isGenerating}
           isFormValid={isFormValid()}
           getContentTypeLabel={getContentTypeLabel}
@@ -146,6 +152,7 @@ const ShortFormContentCreator: FC<ShortFormContentCreatorProps> = ({
           onAdditionalContextChange={setAdditionalContext}
           onTriggerInputChange={setTriggerInput}
           onIdeaSelect={setSelectedIdeaId}
+          onProductInputsChange={setProductInputs}
           onGenerateContent={generateContent}
         />
       </Card>

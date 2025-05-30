@@ -3,12 +3,13 @@ import { FC } from 'react';
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
-import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
+import { ICPStoryScript, Author, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import TriggerInputField from './TriggerInputField';
 import ICPAuthorSelectors from './ICPAuthorSelectors';
 import NarrativeAnchorSelector from './NarrativeAnchorSelector';
 import ContentOptionsSection from './ContentOptionsSection';
+import ProductContextSection from './ProductContextSection';
 import { useNarrativeAnchorLogic } from './useNarrativeAnchorLogic';
 import { ContentType } from './types';
 
@@ -20,6 +21,7 @@ interface ShortFormMainContentProps {
   selectedIdea: GeneratedIdea | null;
   ideas: GeneratedIdea[];
   selectedClientId?: string;
+  currentProductContext: ProductContext | null;
   // State props
   selectedICP: string;
   selectedAuthor: string;
@@ -34,6 +36,7 @@ interface ShortFormMainContentProps {
   triggerInput: string;
   selectedIdeaId: string | null;
   availableAnchors: {value: string, label: string}[];
+  productInputs: any;
   isGenerating: boolean;
   isFormValid: boolean;
   getContentTypeLabel: () => string;
@@ -50,6 +53,7 @@ interface ShortFormMainContentProps {
   onAdditionalContextChange: (context: string) => void;
   onTriggerInputChange: (trigger: string) => void;
   onIdeaSelect: (ideaId: string | null) => void;
+  onProductInputsChange: (inputs: any) => void;
   onGenerateContent: () => void;
 }
 
@@ -61,6 +65,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
   selectedIdea,
   ideas,
   selectedClientId,
+  currentProductContext,
   selectedICP,
   selectedAuthor,
   selectedAuthorTone,
@@ -74,6 +79,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
   triggerInput,
   selectedIdeaId,
   availableAnchors,
+  productInputs,
   isGenerating,
   isFormValid,
   getContentTypeLabel,
@@ -89,6 +95,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
   onAdditionalContextChange,
   onTriggerInputChange,
   onIdeaSelect,
+  onProductInputsChange,
   onGenerateContent
 }) => {
   const {
@@ -132,6 +139,14 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
           availableAnchors={availableAnchors}
           onToggleAnchorType={toggleAnchorType}
           onToggleItemSelection={toggleItemSelection}
+        />
+      )}
+
+      {currentProductContext && (
+        <ProductContextSection
+          productContext={currentProductContext}
+          productInputs={productInputs}
+          onProductInputsChange={onProductInputsChange}
         />
       )}
       
