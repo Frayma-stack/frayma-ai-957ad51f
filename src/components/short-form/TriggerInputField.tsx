@@ -42,7 +42,7 @@ const TriggerInputField: FC<TriggerInputFieldProps> = ({
   });
 
   const handleIdeaSelection = async (ideaId: string) => {
-    if (!ideaId) {
+    if (!ideaId || ideaId === 'none') {
       onIdeaSelect?.(null);
       return;
     }
@@ -82,12 +82,12 @@ const TriggerInputField: FC<TriggerInputFieldProps> = ({
             <span>Use Saved Idea as Trigger</span>
           </Label>
           {filteredIdeas.length > 0 ? (
-            <Select value={selectedIdeaId || ""} onValueChange={handleIdeaSelection}>
+            <Select value={selectedIdeaId || "none"} onValueChange={handleIdeaSelection}>
               <SelectTrigger className="mt-2">
                 <SelectValue placeholder="Select a saved idea to use as trigger..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None - Create custom trigger</SelectItem>
+                <SelectItem value="none">None - Create custom trigger</SelectItem>
                 {filteredIdeas.map((idea) => (
                   <SelectItem key={idea.id} value={idea.id}>
                     {idea.title}
