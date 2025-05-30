@@ -2,8 +2,7 @@
 import { useState, useEffect } from 'react';
 import { GeneratedIdea } from '@/types/ideas';
 import { useIdeaSummarization } from '@/hooks/useIdeaSummarization';
-
-type ContentGoal = 'book_call' | 'learn_more' | 'try_product' | 'reply' | 'visit_article';
+import { ContentGoal } from '@/components/short-form/state/types';
 
 interface UseIdeaIntegrationProps {
   ideas: GeneratedIdea[];
@@ -65,14 +64,16 @@ export const useIdeaIntegration = ({
       // Pre-populate CTA if available
       if (selectedIdea.cta) {
         const ctaLower = selectedIdea.cta.toLowerCase();
-        let newGoal: ContentGoal = 'learn_more';
+        let goalType: ContentGoal['type'] = 'learn_more';
         if (ctaLower.includes('call') || ctaLower.includes('meeting') || ctaLower.includes('demo')) {
-          newGoal = 'book_call';
+          goalType = 'book_call';
         } else if (ctaLower.includes('learn') || ctaLower.includes('discover') || ctaLower.includes('find out')) {
-          newGoal = 'learn_more';
+          goalType = 'learn_more';
         } else if (ctaLower.includes('try') || ctaLower.includes('start') || ctaLower.includes('free')) {
-          newGoal = 'try_product';
+          goalType = 'try_product';
         }
+        
+        const newGoal: ContentGoal = { type: goalType, description: '' };
         setContentGoal(newGoal);
         updatePersistedValue('contentGoal', newGoal);
       }
