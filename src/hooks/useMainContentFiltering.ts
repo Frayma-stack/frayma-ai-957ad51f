@@ -18,7 +18,7 @@ export const useMainContentFiltering = ({
   productContexts,
 }: UseMainContentFilteringProps) => {
   const filteredAuthors = useMemo(() => {
-    console.log('🔒 useMainContentFiltering - Applying inclusive client filtering for authors:', {
+    console.log('🔒 useMainContentFiltering - Applying strict client-only filtering for authors:', {
       selectedClientId,
       totalAuthors: authors.length,
       clientSpecific: !!selectedClientId,
@@ -30,30 +30,25 @@ export const useMainContentFiltering = ({
       }))
     });
 
-    // When a client is selected, show authors that belong to that client OR have no client assignment
+    // Strict client-first approach: only show authors that explicitly belong to the selected client
     if (selectedClientId) {
-      const filtered = authors.filter(author => {
-        const belongsToClient = author.clientId === selectedClientId;
-        const isUnassigned = author.clientId === null;
-        return belongsToClient || isUnassigned;
-      });
+      const filtered = authors.filter(author => author.clientId === selectedClientId);
       
-      console.log('🔒 Client-specific and unassigned authors:', {
+      console.log('🔒 Client-specific authors only (strict filtering):', {
         filteredCount: filtered.length,
         filtered: filtered.map(a => ({
           id: a.id,
           name: a.name,
-          clientId: a.clientId,
-          availability: a.clientId === selectedClientId ? 'client_specific' : 'unassigned_global'
+          clientId: a.clientId
         }))
       });
 
       return filtered;
     }
     
-    // When no client is selected, show all authors
-    console.log('🔒 No client selected - showing all authors:', authors.length);
-    return authors;
+    // When no client is selected, return empty array (client-first approach)
+    console.log('🔒 No client selected - returning empty authors array (client-first approach)');
+    return [];
   }, [selectedClientId, authors]);
 
   const filteredICPScripts = useMemo(() => {

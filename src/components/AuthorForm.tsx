@@ -1,40 +1,40 @@
 
 import { FC, useState } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, Loader } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Author } from '@/types/storytelling';
 import { useAuthorForm } from '@/hooks/useAuthorForm';
-import AuthorFormTabs from './author-form/AuthorFormTabs';
 import AuthorBasicInfoSection from './author-form/AuthorBasicInfoSection';
-import AuthorAnalyzedInfoSection from './author-form/AuthorAnalyzedInfoSection';
+import AuthorExperiencesSection from './author-form/AuthorExperiencesSection';
+import AuthorTonesSection from './author-form/AuthorTonesSection';
+import AuthorBeliefsSection from './author-form/AuthorBeliefsSection';
 import AuthorSocialLinksSection from './author-form/AuthorSocialLinksSection';
-import AuthorFormActions from './author-form/AuthorFormActions';
 
 interface AuthorFormProps {
   initialAuthor?: Author | null;
-  onSave: (author: Author) => Promise<Author> | Author;
+  selectedClientId?: string | null;
+  onSave: (author: Author) => Promise<Author>;
   onCancel: () => void;
 }
 
-const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) => {
-  const [activeTab, setActiveTab] = useState('experiences');
-  const [showExpandedForm, setShowExpandedForm] = useState(false);
-  const [isManualMode, setIsManualMode] = useState(false);
+const AuthorForm: FC<AuthorFormProps> = ({ 
+  initialAuthor, 
+  selectedClientId,
+  onSave, 
+  onCancel 
+}) => {
   const [isSaving, setIsSaving] = useState(false);
-  
-  console.log('🔥 AuthorForm RENDER:', {
+  const [error, setError] = useState<string | null>(null);
+
+  console.log('📝 AuthorForm rendered with:', {
     hasInitialAuthor: !!initialAuthor,
-    initialAuthorName: initialAuthor?.name,
-    onSaveType: typeof onSave,
-    isAsync: onSave.constructor.name === 'AsyncFunction',
-    isSaving
+    selectedClientId,
+    isEditing: !!initialAuthor,
+    clientAssignment: selectedClientId ? 'will_assign_to_client' : 'no_client_selected'
   });
-  
+
   const {
     author,
     handleInputChange,
@@ -50,172 +50,137 @@ const AuthorForm: FC<AuthorFormProps> = ({ initialAuthor, onSave, onCancel }) =>
     handleSocialLinkChange,
     addSocialLink,
     removeSocialLink,
-    handleAuthorAnalysisResult,
-    validateAndCleanAuthor
-  } = useAuthorForm(initialAuthor);
+    validateAndCleanAuthor,
+    clearPersistedData
+  } = useAuthorForm(initialAuthor, selectedClientId);
 
   const handleSave = async () => {
-    console.log('🔥 AuthorForm.handleSave CLICKED - ENTRY POINT');
-    console.log('🔥 Current isSaving state:', isSaving);
-    console.log('🔥 Current author state:', {
-      id: author.id,
-      name: author.name,
-      role: author.role,
-      organization: author.organization,
-      backstory: author.backstory,
-      hasExperiences: author.experiences?.length > 0,
-      hasTones: author.tones?.length > 0,
-      hasBeliefs: author.beliefs?.length > 0
-    });
-    
-    if (isSaving) {
-      console.log('🔥 Already saving, ignoring duplicate click');
-      return;
-    }
-    
+    console.log('📝 AuthorForm handleSave called');
+    setError(null);
     setIsSaving(true);
-    console.log('🔥 Set isSaving to true, proceeding with save...');
-    
+
     try {
-      console.log('🔥 About to validate author...');
-      const cleanedAuthor = validateAndCleanAuthor();
-      console.log('🔥 Validation result:', {
-        isValid: !!cleanedAuthor,
-        cleanedAuthorName: cleanedAuthor?.name,
-        cleanedAuthorId: cleanedAuthor?.id,
-        cleanedAuthorRole: cleanedAuthor?.role,
-        cleanedAuthorOrganization: cleanedAuthor?.organization
-      });
+      const validatedAuthor = validateAndCleanAuthor();
       
-      if (cleanedAuthor) {
-        console.log('🔥 Validation passed, calling parent onSave function...');
-        console.log('🔥 About to call onSave with:', {
-          name: cleanedAuthor.name,
-          id: cleanedAuthor.id,
-          role: cleanedAuthor.role,
-          organization: cleanedAuthor.organization,
-          experiencesCount: cleanedAuthor.experiences?.length || 0,
-          tonesCount: cleanedAuthor.tones?.length || 0,
-          beliefsCount: cleanedAuthor.beliefs?.length || 0
-        });
-        
-        const result = await onSave(cleanedAuthor);
-        console.log('🔥 onSave completed successfully, result:', {
-          resultType: typeof result,
-          resultName: result?.name,
-          resultId: result?.id
-        });
-        console.log('🔥 Author save process completed successfully');
-      } else {
-        console.error('🔥 Author validation failed - cleanedAuthor is null');
-        console.error('🔥 Raw author that failed validation:', author);
+      if (!validatedAuthor) {
+        throw new Error('Author validation failed. Please check all required fields.');
       }
+
+      console.log('📝 AuthorForm calling onSave with validated author:', {
+        id: validatedAuthor.id,
+        name: validatedAuthor.name,
+        clientId: validatedAuthor.clientId,
+        hasClientAssignment: !!validatedAuthor.clientId
+      });
+
+      await onSave(validatedAuthor);
+      console.log('📝 AuthorForm onSave completed successfully');
     } catch (error) {
-      console.error('🔥 ERROR in AuthorForm.handleSave:', error);
-      console.error('🔥 Error name:', error instanceof Error ? error.name : 'Unknown');
-      console.error('🔥 Error message:', error instanceof Error ? error.message : 'Unknown');
-      console.error('🔥 Error stack:', error instanceof Error ? error.stack : 'No stack available');
-      throw error; // Re-throw to ensure error handling works properly
+      console.error('📝 AuthorForm save error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to save author');
     } finally {
-      console.log('🔥 Setting isSaving back to false');
       setIsSaving(false);
     }
   };
 
-  const handleAnalysisComplete = (results: {
-    currentRole?: string;
-    organization?: string;
-    backstory?: string;
-    experiences?: any[];
-    tones?: any[];
-    beliefs?: any[];
-  }) => {
-    console.log('Analysis complete with results:', results);
-    
-    // Show the expanded form when analysis completes or manual mode is triggered
-    setShowExpandedForm(true);
-    
-    // Check if this is manual mode (empty results object)
-    const isManual = Object.keys(results).length === 0;
-    setIsManualMode(isManual);
-    
-    // Handle the analysis results (if any)
-    if (!isManual) {
-      handleAuthorAnalysisResult(results);
-    }
+  const handleCancel = () => {
+    console.log('📝 AuthorForm handleCancel called');
+    clearPersistedData();
+    onCancel();
   };
 
-  const hasAnalyzedContent = author.role || author.organization || author.backstory || 
-    author.experiences.some(exp => exp.title || exp.description) ||
-    author.tones.some(tone => tone.tone) ||
-    author.beliefs.some(belief => belief.belief);
-
-  console.log('🔥 AuthorForm render state:', {
-    authorName: author.name,
-    authorId: author.id,
-    showExpandedForm,
-    hasAnalyzedContent,
-    isManualMode,
-    isSaving
-  });
+  // Show warning if no client is selected for new authors
+  const showClientWarning = !initialAuthor && !selectedClientId;
 
   return (
-    <Card className="bg-white shadow-md">
+    <Card className="max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle className="text-story-blue">
+        <CardTitle className="text-2xl font-bold text-story-blue">
           {initialAuthor ? 'Edit Author' : 'Add New Author'}
         </CardTitle>
-        <CardDescription>
-          Define author voice and perspective for generating authentic content. Add social links and use profile analysis to auto-fill information, or add author details manually.
-        </CardDescription>
+        {selectedClientId && (
+          <p className="text-sm text-gray-600">
+            This author will be assigned to the selected client
+          </p>
+        )}
       </CardHeader>
       
-      <CardContent className="space-y-8">
-        <AuthorBasicInfoSection 
-          author={author}
-          onInputChange={handleInputChange}
-        />
+      <CardContent className="space-y-6">
+        {showClientWarning && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Important:</strong> Please select a client first. Authors must be associated with a client to be used for content creation.
+            </AlertDescription>
+          </Alert>
+        )}
 
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <AuthorBasicInfoSection 
+          author={author} 
+          onInputChange={handleInputChange} 
+        />
+        
+        <AuthorExperiencesSection
+          experiences={author.experiences}
+          onExperienceChange={handleExperienceChange}
+          onAddExperience={addExperience}
+          onRemoveExperience={removeExperience}
+        />
+        
+        <AuthorTonesSection
+          tones={author.tones}
+          onToneChange={handleToneChange}
+          onAddTone={addTone}
+          onRemoveTone={removeTone}
+        />
+        
+        <AuthorBeliefsSection
+          beliefs={author.beliefs}
+          onBeliefChange={handleBeliefChange}
+          onAddBelief={addBelief}
+          onRemoveBelief={removeBelief}
+        />
+        
         <AuthorSocialLinksSection
-          author={author}
+          socialLinks={author.socialLinks}
           onSocialLinkChange={handleSocialLinkChange}
           onAddSocialLink={addSocialLink}
           onRemoveSocialLink={removeSocialLink}
-          onAnalyzeProfile={() => {}} // This is handled within the component
-          onAnalysisComplete={handleAnalysisComplete}
         />
-
-        {(showExpandedForm || hasAnalyzedContent) && (
-          <AuthorAnalyzedInfoSection
-            author={author}
-            onInputChange={handleInputChange}
-            showSection={true}
-          />
-        )}
-
-        {(showExpandedForm || hasAnalyzedContent) && (
-          <AuthorFormTabs
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            author={author}
-            onExperienceChange={handleExperienceChange}
-            onAddExperience={addExperience}
-            onRemoveExperience={removeExperience}
-            onToneChange={handleToneChange}
-            onAddTone={addTone}
-            onRemoveTone={removeTone}
-            onBeliefChange={handleBeliefChange}
-            onAddBelief={addBelief}
-            onRemoveBelief={removeBelief}
-          />
-        )}
+        
+        <div className="flex gap-4 pt-6">
+          <Button 
+            onClick={handleSave}
+            disabled={isSaving || showClientWarning}
+            className="flex-1 bg-story-blue hover:bg-story-light-blue"
+          >
+            {isSaving ? (
+              <>
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              initialAuthor ? 'Update Author' : 'Create Author'
+            )}
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            onClick={handleCancel}
+            disabled={isSaving}
+            className="flex-1"
+          >
+            Cancel
+          </Button>
+        </div>
       </CardContent>
-
-      <AuthorFormActions 
-        onSave={handleSave}
-        onCancel={onCancel}
-        isSaving={isSaving}
-      />
     </Card>
   );
 };

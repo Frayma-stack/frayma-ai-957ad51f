@@ -8,6 +8,7 @@ import { useAuthorManager } from '@/hooks/useAuthorManager';
 
 interface AuthorManagerProps {
   authors: Author[];
+  selectedClientId?: string | null;
   onAuthorAdded: (author: Author) => Promise<Author>;
   onAuthorUpdated: (author: Author) => Promise<Author>;
   onAuthorDeleted: (authorId: string) => Promise<void>;
@@ -15,6 +16,7 @@ interface AuthorManagerProps {
 
 const AuthorManager: FC<AuthorManagerProps> = ({ 
   authors, 
+  selectedClientId,
   onAuthorAdded,
   onAuthorUpdated,
   onAuthorDeleted
@@ -39,7 +41,9 @@ const AuthorManager: FC<AuthorManagerProps> = ({
     showForm,
     editingAuthor: editingAuthor?.id || null,
     authorsCount: authors.length,
-    clientName: clientInfo?.name
+    clientName: clientInfo?.name,
+    selectedClientId,
+    clientAssignment: selectedClientId ? 'client_specific_mode' : 'no_client_selected'
   });
 
   return (
@@ -48,6 +52,7 @@ const AuthorManager: FC<AuthorManagerProps> = ({
         clientInfo={clientInfo}
         showForm={showForm}
         onAddAuthor={handleAddAuthor}
+        selectedClientId={selectedClientId}
       />
       
       {showForm ? (
@@ -55,6 +60,7 @@ const AuthorManager: FC<AuthorManagerProps> = ({
           <div>📝 SHOWING AUTHOR FORM</div>
           <AuthorForm 
             initialAuthor={editingAuthor} 
+            selectedClientId={selectedClientId}
             onSave={handleSave}
             onCancel={handleCancel}
           />

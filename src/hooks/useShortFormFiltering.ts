@@ -18,7 +18,7 @@ export const useShortFormFiltering = ({
   successStories,
   ideas
 }: UseShortFormFilteringProps) => {
-  console.log('🔍 useShortFormFiltering - Client-specific asset filtering:', {
+  console.log('🔍 useShortFormFiltering - Strict client-only asset filtering:', {
     selectedClientId,
     originalAuthorsCount: authors.length,
     originalScriptsCount: scripts.length,
@@ -34,11 +34,11 @@ export const useShortFormFiltering = ({
 
   const filteredAuthors = useMemo(() => {
     if (!selectedClientId) {
-      console.log('🔍 No client selected, returning all authors');
-      return authors;
+      console.log('🔍 No client selected, returning empty authors array (client-first approach)');
+      return [];
     }
     
-    console.log('🔍 Filtering authors for client:', selectedClientId);
+    console.log('🔍 Filtering authors for client (strict mode):', selectedClientId);
     console.log('🔍 Available authors before filtering:', authors.map(a => ({
       id: a.id,
       name: a.name,
@@ -46,33 +46,29 @@ export const useShortFormFiltering = ({
       organization: a.organization
     })));
     
-    // Modified filtering logic: include authors that belong to the client OR have no client assignment (null)
+    // Strict filtering: ONLY show authors that explicitly belong to the selected client
     const filtered = authors.filter(author => {
       const belongsToClient = author.clientId === selectedClientId;
-      const isUnassigned = author.clientId === null;
-      const shouldInclude = belongsToClient || isUnassigned;
       
-      console.log('🔍 Author filter check:', {
+      console.log('🔍 Author filter check (strict client-only):', {
         authorId: author.id,
         authorName: author.name,
         authorClientId: author.clientId,
         selectedClientId,
         belongsToClient,
-        isUnassigned,
-        shouldInclude
+        willInclude: belongsToClient
       });
       
-      return shouldInclude;
+      return belongsToClient;
     });
     
-    console.log('🔍 Authors after filtering:', {
+    console.log('🔍 Authors after strict filtering:', {
       originalCount: authors.length,
       filteredCount: filtered.length,
       filtered: filtered.map(a => ({ 
         id: a.id, 
         name: a.name, 
-        clientId: a.clientId,
-        reason: a.clientId === selectedClientId ? 'client_specific' : 'unassigned_available_for_all'
+        clientId: a.clientId
       }))
     });
 
@@ -97,7 +93,7 @@ export const useShortFormFiltering = ({
       : ideas;
   }, [selectedClientId, ideas]);
 
-  console.log('🔍 useShortFormFiltering - After client filtering:', {
+  console.log('🔍 useShortFormFiltering - After strict client filtering:', {
     filteredAuthorsCount: filteredAuthors.length,
     filteredScriptsCount: filteredScripts.length,
     filteredSuccessStoriesCount: filteredSuccessStories.length,

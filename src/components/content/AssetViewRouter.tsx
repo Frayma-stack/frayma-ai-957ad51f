@@ -1,3 +1,4 @@
+
 import { FC } from 'react';
 import ClientManager from '@/components/ClientManager';
 import AuthorManager from '@/components/AuthorManager';
@@ -102,6 +103,7 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
     return (
       <AuthorManager
         authors={authorsToUse}
+        selectedClientId={selectedClientId}
         onAuthorAdded={onAuthorAdded}
         onAuthorUpdated={onAuthorUpdated}
         onAuthorDeleted={onAuthorDeleted}

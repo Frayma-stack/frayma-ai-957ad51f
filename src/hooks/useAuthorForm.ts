@@ -11,13 +11,15 @@ import { useAuthorAnalysisHandler } from './useAuthorAnalysisHandler';
 import { useAuthorValidation } from './useAuthorValidation';
 import { useFormPersistence } from './useFormPersistence';
 
-export const useAuthorForm = (initialAuthor?: Author | null) => {
+export const useAuthorForm = (initialAuthor?: Author | null, selectedClientId?: string | null) => {
   const author = createInitialAuthor(initialAuthor);
   
   console.log('🏠 useAuthorForm initialized with:', { 
     hasInitialAuthor: !!initialAuthor, 
     authorId: author.id,
-    authorName: author.name 
+    authorName: author.name,
+    selectedClientId,
+    clientAssignment: selectedClientId ? 'will_assign_to_client' : 'no_client_selected'
   });
   
   // Use form persistence for the basic info
@@ -88,7 +90,9 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
     experiences,
     tones,
     beliefs,
-    socialLinks
+    socialLinks,
+    // Automatically assign clientId if provided and this is a new author
+    clientId: initialAuthor?.clientId || selectedClientId || null
   });
 
   // Update the composed author state whenever any part changes
@@ -98,7 +102,9 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
       experiences,
       tones,
       beliefs,
-      socialLinks
+      socialLinks,
+      // Ensure clientId is set for new authors
+      clientId: initialAuthor?.clientId || selectedClientId || null
     };
     
     console.log('🏠 Author composition updated:', {
@@ -106,6 +112,8 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
       id: composedAuthor.id,
       role: composedAuthor.role,
       organization: composedAuthor.organization,
+      clientId: composedAuthor.clientId,
+      clientAssignment: composedAuthor.clientId ? 'assigned_to_client' : 'no_client_assignment',
       experiencesCount: composedAuthor.experiences.length,
       tonesCount: composedAuthor.tones.length,
       beliefsCount: composedAuthor.beliefs.length,
@@ -113,7 +121,7 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
     });
     
     setCurrentAuthor(composedAuthor);
-  }, [basicInfo, experiences, tones, beliefs, socialLinks]);
+  }, [basicInfo, experiences, tones, beliefs, socialLinks, selectedClientId, initialAuthor]);
 
   // Update persistence when basic info changes
   useEffect(() => {
@@ -143,7 +151,9 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
       authorName: currentAuthor.name,
       hasRole: !!currentAuthor.role,
       hasOrganization: !!currentAuthor.organization,
-      hasBackstory: !!currentAuthor.backstory
+      hasBackstory: !!currentAuthor.backstory,
+      clientId: currentAuthor.clientId,
+      hasClientAssignment: !!currentAuthor.clientId
     });
     
     try {
@@ -153,7 +163,8 @@ export const useAuthorForm = (initialAuthor?: Author | null) => {
       console.log('🏠 Validation result:', {
         isValid: !!validatedAuthor,
         validatedName: validatedAuthor?.name,
-        validatedId: validatedAuthor?.id
+        validatedId: validatedAuthor?.id,
+        validatedClientId: validatedAuthor?.clientId
       });
       
       if (validatedAuthor) {
