@@ -1,63 +1,49 @@
 
 import { FC, useState } from 'react';
-import { Author, AuthorSocialLink } from '@/types/storytelling';
+import { AuthorSocialLink } from '@/types/storytelling';
 import { useProfileAnalysis } from '@/hooks/useProfileAnalysis';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash, Sparkles, Loader2, UserPlus } from 'lucide-react';
 
 interface AuthorSocialLinksSectionProps {
-  author: Author;
+  socialLinks: AuthorSocialLink[];
   onSocialLinkChange: (id: string, field: keyof AuthorSocialLink, value: string | 'linkedin' | 'x' | 'blog' | 'website' | 'other') => void;
   onAddSocialLink: () => void;
   onRemoveSocialLink: (id: string) => void;
-  onAnalyzeProfile: () => void;
-  onAnalysisComplete: (results: {
-    currentRole?: string;
-    organization?: string;
-    backstory?: string;
-    experiences?: any[];
-    tones?: any[];
-    beliefs?: any[];
-  }) => void;
 }
 
 const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
-  author,
+  socialLinks,
   onSocialLinkChange,
   onAddSocialLink,
-  onRemoveSocialLink,
-  onAnalyzeProfile,
-  onAnalysisComplete
+  onRemoveSocialLink
 }) => {
   const { isAnalyzing, analyzeProfile } = useProfileAnalysis();
   const [manualMode, setManualMode] = useState(false);
   
-  const hasAnyUrls = (author.socialLinks || []).some(link => link.url.trim() !== '');
+  const hasAnyUrls = socialLinks.some(link => link.url.trim() !== '');
   
   console.log('AuthorSocialLinksSection state:', {
-    authorName: author.name,
     hasAnyUrls,
     manualMode
   });
 
   const handleAnalysis = () => {
-    if (!author.name.trim() || !hasAnyUrls) {
+    if (!hasAnyUrls) {
       return;
     }
     
     analyzeProfile(
-      author.socialLinks || [], 
+      socialLinks, 
       '', 
-      author.name,
-      onAnalysisComplete
+      '',
+      () => {}
     );
   };
 
   const handleManualMode = () => {
     setManualMode(true);
-    // Trigger analysis complete to show the expanded form
-    onAnalysisComplete({});
   };
 
   // If manual mode is selected, show message and continue to expanded form
@@ -91,7 +77,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
       </p>
 
       <div className="space-y-4">
-        {(author.socialLinks || []).map((link) => (
+        {socialLinks.map((link) => (
           <div key={link.id} className="flex items-center gap-3">
             <select 
               className="border border-input bg-background px-3 py-2 rounded-md text-sm h-10 min-w-[120px]"
@@ -114,7 +100,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
               variant="ghost" 
               size="icon" 
               onClick={() => onRemoveSocialLink(link.id)}
-              disabled={(author.socialLinks || []).length <= 1}
+              disabled={socialLinks.length <= 1}
             >
               <Trash className="h-4 w-4" />
             </Button>
@@ -125,7 +111,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
       <div className="flex items-center justify-center space-x-4">
         <Button 
           onClick={handleAnalysis}
-          disabled={isAnalyzing || !author.name.trim() || !hasAnyUrls}
+          disabled={isAnalyzing || !hasAnyUrls}
           className="bg-story-blue hover:bg-story-light-blue"
         >
           {isAnalyzing ? (
@@ -157,13 +143,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
         </Button>
       </div>
 
-      {!author.name.trim() && (
-        <p className="text-sm text-amber-600 text-center">
-          Please enter the author's name first before analyzing their profile.
-        </p>
-      )}
-
-      {author.name.trim() && !hasAnyUrls && (
+      {!hasAnyUrls && (
         <p className="text-sm text-amber-600 text-center">
           Please add at least one social link or URL to analyze the profile.
         </p>
