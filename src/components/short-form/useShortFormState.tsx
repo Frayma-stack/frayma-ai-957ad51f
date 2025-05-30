@@ -30,7 +30,7 @@ export const useShortFormState = ({
   const [selectedAuthorExperience, setSelectedAuthorExperience] = useState('');
   const [selectedAuthorBelief, setSelectedAuthorBelief] = useState('');
   const [narrativeSelections, setNarrativeSelections] = useState<NarrativeSelection[]>([]);
-  const [contentGoal, setContentGoal] = useState<ContentGoal>({ type: 'generate_leads', description: 'Generate leads' });
+  const [contentGoal, setContentGoal] = useState<ContentGoal>({ type: 'book_call', description: 'Book a call' });
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [additionalContext, setAdditionalContext] = useState('');
@@ -89,20 +89,14 @@ export const useShortFormState = ({
   const clientName = useMemo(() => {
     if (!selectedClientId) return null;
     
-    // Try to get client name from scripts first
-    const scriptWithClient = scripts.find(s => s.clientId === selectedClientId);
-    if (scriptWithClient?.clientName) return scriptWithClient.clientName;
-    
-    // Then try authors
+    // Try to get client name from authors first (they have organization field)
     const authorWithClient = authors.find(a => a.clientId === selectedClientId);
     if (authorWithClient?.organization) return authorWithClient.organization;
     
-    // Finally try success stories
-    const storyWithClient = successStories.find(s => s.clientId === selectedClientId);
-    if (storyWithClient?.clientName) return storyWithClient.clientName;
-    
+    // For scripts and success stories, we don't have direct client name access
+    // so we'll return null and let the parent component handle it
     return null;
-  }, [selectedClientId, scripts, authors, successStories]);
+  }, [selectedClientId, authors]);
 
   // Compute available anchors
   const availableAnchors = useMemo(() => {
@@ -110,17 +104,17 @@ export const useShortFormState = ({
     if (!selectedScript) return [];
 
     const anchors = [];
-    if (selectedScript.painPoints?.length > 0) {
-      anchors.push({ value: 'painPoints', label: 'Pain Points' });
+    if (selectedScript.coreBeliefs?.length > 0) {
+      anchors.push({ value: 'coreBeliefs', label: 'Core Beliefs' });
     }
-    if (selectedScript.currentSolutions?.length > 0) {
-      anchors.push({ value: 'currentSolutions', label: 'Current Solutions' });
+    if (selectedScript.internalPains?.length > 0) {
+      anchors.push({ value: 'internalPains', label: 'Internal Pains' });
     }
-    if (selectedScript.desiredOutcomes?.length > 0) {
-      anchors.push({ value: 'desiredOutcomes', label: 'Desired Outcomes' });
+    if (selectedScript.externalStruggles?.length > 0) {
+      anchors.push({ value: 'externalStruggles', label: 'External Struggles' });
     }
-    if (selectedScript.jobsToComplete?.length > 0) {
-      anchors.push({ value: 'jobsToComplete', label: 'Jobs to Complete' });
+    if (selectedScript.desiredTransformations?.length > 0) {
+      anchors.push({ value: 'desiredTransformations', label: 'Desired Transformations' });
     }
     return anchors;
   }, [selectedICP, scripts]);
