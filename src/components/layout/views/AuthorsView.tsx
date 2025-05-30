@@ -12,6 +12,13 @@ const AuthorsView: FC<AuthorsViewProps> = ({
   onAuthorUpdated,
   onAuthorDeleted,
 }) => {
+  console.log('👀 AuthorsView render:', {
+    filteredAuthorsCount: filteredAuthors.length,
+    filteredAuthorsFirst3: filteredAuthors.slice(0, 3).map(a => ({ id: a.id, name: a.name })),
+    filteredAuthorsType: typeof filteredAuthors,
+    filteredAuthorsIsArray: Array.isArray(filteredAuthors)
+  });
+
   return (
     <div className="p-6">
       <AuthorManager

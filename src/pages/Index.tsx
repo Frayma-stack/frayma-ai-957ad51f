@@ -61,6 +61,7 @@ const Index = () => {
     user: user?.email,
     clientsCount: clients.length,
     authorsCount: authors.length,
+    authorsFirst3: authors.slice(0, 3).map(a => ({ id: a.id, name: a.name })),
     ideasCount: ideas.length,
     loading,
     selectedClientId,
@@ -95,6 +96,13 @@ const Index = () => {
     handleClientSelected(clientId);
     handleAssetTypeChange(assetType);
   };
+
+  console.log('📊 Index - About to pass authors to AppLayout:', {
+    authorsCount: authors.length,
+    authorsArrayLength: authors?.length || 'undefined',
+    authorsType: typeof authors,
+    authorsIsArray: Array.isArray(authors)
+  });
 
   if (!user) {
     return <div>Please log in to access the application.</div>;

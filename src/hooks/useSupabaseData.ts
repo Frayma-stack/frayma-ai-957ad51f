@@ -24,6 +24,13 @@ export const useSupabaseData = () => {
   const successStoryData = useSuccessStoryData();
   const productContextData = useProductContextData();
 
+  // Add debugging for authors data changes
+  console.log('🔄 useSupabaseData - Current authors state:', {
+    authorsCount: authorData.authors.length,
+    authorsArray: authorData.authors,
+    authorsFirst3: authorData.authors.slice(0, 3).map(a => ({ id: a.id, name: a.name }))
+  });
+
   // Load all data when user is available
   const loadAllData = async () => {
     if (!user) {
@@ -89,7 +96,7 @@ export const useSupabaseData = () => {
     );
   };
 
-  console.log('📊 Current data counts:', {
+  console.log('📊 useSupabaseData - Final data counts before return:', {
     clients: clientData.clients.length,
     authors: authorData.authors.length,
     ideas: ideaData.ideas.length,
