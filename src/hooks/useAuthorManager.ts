@@ -22,6 +22,8 @@ export const useAuthorManager = ({
 
   console.log('🚀 useAuthorManager initialized with:', {
     authorsCount: authors.length,
+    showForm,
+    editingAuthor: editingAuthor?.id || null,
     onAuthorAddedType: typeof onAuthorAdded,
     onAuthorUpdatedType: typeof onAuthorUpdated,
     isAddedAsync: onAuthorAdded.constructor.name === 'AsyncFunction',
@@ -44,12 +46,12 @@ export const useAuthorManager = ({
 
   const handleSave = async (author: Author): Promise<Author> => {
     console.log('🚀 useAuthorManager.handleSave CALLED - ENTRY POINT');
-    console.log('🚀 Received author data:', {
+    console.log('🚀 Current state before save:', {
+      showForm,
+      editingAuthor: editingAuthor?.id || null,
       authorId: author.id,
       authorName: author.name,
-      isEditing: !!editingAuthor,
-      authorRole: author.role,
-      authorOrganization: author.organization
+      isEditing: !!editingAuthor
     });
     
     try {
@@ -79,9 +81,22 @@ export const useAuthorManager = ({
         });
       }
       
-      console.log('🚀 Save operation successful, closing form...');
+      console.log('🚀 Save operation successful, about to update state...');
+      console.log('🚀 Current state before state update:', {
+        showForm,
+        editingAuthor: editingAuthor?.id || null
+      });
+      
+      console.log('🚀 Setting showForm to false...');
       setShowForm(false);
+      console.log('🚀 Setting editingAuthor to null...');
       setEditingAuthor(null);
+      
+      console.log('🚀 State update calls completed, final state should be:', {
+        showForm: false,
+        editingAuthor: null
+      });
+      
       return result;
     } catch (error) {
       console.error('🚀 ERROR in useAuthorManager.handleSave:', error);
@@ -99,6 +114,7 @@ export const useAuthorManager = ({
 
   const handleCancel = () => {
     console.log('🚀 useAuthorManager.handleCancel called');
+    console.log('🚀 Setting showForm to false and editingAuthor to null');
     setShowForm(false);
     setEditingAuthor(null);
   };
@@ -132,8 +148,19 @@ export const useAuthorManager = ({
 
   const handleAddAuthor = () => {
     console.log('🚀 useAuthorManager.handleAddAuthor called - showing form');
+    console.log('🚀 Current state before add:', {
+      showForm,
+      editingAuthor: editingAuthor?.id || null
+    });
+    console.log('🚀 Setting showForm to true...');
     setShowForm(true);
   };
+
+  console.log('🚀 useAuthorManager returning state:', {
+    showForm,
+    editingAuthor: editingAuthor?.id || null,
+    authorsCount: authors.length
+  });
 
   return {
     showForm,

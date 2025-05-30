@@ -35,6 +35,13 @@ const AuthorManager: FC<AuthorManagerProps> = ({
     onAuthorDeleted
   });
 
+  console.log('📋 AuthorManager render:', {
+    showForm,
+    editingAuthor: editingAuthor?.id || null,
+    authorsCount: authors.length,
+    clientName: clientInfo?.name
+  });
+
   return (
     <div className="space-y-6">
       <AuthorManagerHeader
@@ -44,18 +51,24 @@ const AuthorManager: FC<AuthorManagerProps> = ({
       />
       
       {showForm ? (
-        <AuthorForm 
-          initialAuthor={editingAuthor} 
-          onSave={handleSave}
-          onCancel={handleCancel}
-        />
+        <>
+          <div>📝 SHOWING AUTHOR FORM</div>
+          <AuthorForm 
+            initialAuthor={editingAuthor} 
+            onSave={handleSave}
+            onCancel={handleCancel}
+          />
+        </>
       ) : (
-        <AuthorGrid
-          authors={authors}
-          clientName={clientInfo?.name}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        <>
+          <div>📊 SHOWING AUTHOR GRID</div>
+          <AuthorGrid
+            authors={authors}
+            clientName={clientInfo?.name}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        </>
       )}
     </div>
   );
