@@ -10,8 +10,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Star, TextCursor, MailPlus, Info } from "lucide-react";
 import { CustomerSuccessStory } from '@/types/storytelling';
-
-type ContentGoal = 'book_call' | 'learn_more' | 'try_product' | 'reply' | 'visit_article';
+import { ContentGoal } from './state/types';
 
 interface ContentOptionsSectionProps {
   contentType: 'email' | 'linkedin' | 'custom';
@@ -76,8 +75,11 @@ const ContentOptionsSection: FC<ContentOptionsSectionProps> = ({
         <div className="space-y-2">
           <label className="text-sm font-medium">Content Goal / CTA</label>
           <Select 
-            value={contentGoal} 
-            onValueChange={(value) => onContentGoalChange(value as ContentGoal)}
+            value={contentGoal.type} 
+            onValueChange={(value) => onContentGoalChange({ 
+              type: value as ContentGoal['type'], 
+              description: contentGoal.description 
+            })}
           >
             <SelectTrigger>
               <SelectValue />

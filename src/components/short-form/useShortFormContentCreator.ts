@@ -1,9 +1,9 @@
-
 import { useShortFormState } from './useShortFormState';
 import { useContentGeneration } from './useContentGeneration';
 import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
-import { ContentType, ContentGoal } from './types';
+import { ContentType } from './types';
+import { ContentGoal } from './state/types';
 
 interface UseShortFormContentCreatorProps {
   contentType: ContentType;

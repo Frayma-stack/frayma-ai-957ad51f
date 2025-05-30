@@ -1,7 +1,12 @@
 
-export interface ContentGoal {
-  type: 'book_call' | 'learn_more' | 'try_product' | 'reply' | 'visit_article';
-  description: string;
+export type ContentType = 'email' | 'linkedin' | 'custom';
+
+export interface ProductContextInputs {
+  selectedProductContextType: 'features' | 'usecases' | 'differentiators' | '';
+  selectedFeatures: any[];
+  selectedUseCases: any[];
+  selectedDifferentiators: any[];
 }
 
-export type ContentType = 'email' | 'linkedin' | 'custom';
+// Re-export ContentGoal from the state types to maintain consistency
+export type { ContentGoal } from './state/types';

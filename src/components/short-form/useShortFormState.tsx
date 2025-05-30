@@ -56,7 +56,17 @@ export const useShortFormState = ({
     isPersistenceLoaded,
     persistedValues,
     selectedAuthor: localState.selectedAuthor,
-    ...localState,
+    setSelectedICP: localState.setSelectedICP,
+    setSelectedAuthor: localState.setSelectedAuthor,
+    setSelectedAuthorTone: localState.setSelectedAuthorTone,
+    setSelectedAuthorExperience: localState.setSelectedAuthorExperience,
+    setContentGoal: localState.setContentGoal,
+    setAdditionalContext: localState.setAdditionalContext,
+    setSelectedSuccessStory: localState.setSelectedSuccessStory,
+    setWordCount: localState.setWordCount,
+    setEmailCount: localState.setEmailCount,
+    setSelectedIdeaId: localState.setSelectedIdeaId,
+    setTriggerInput: localState.setTriggerInput,
     updatePersistedValue
   });
 
