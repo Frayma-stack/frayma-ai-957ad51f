@@ -23,13 +23,41 @@ export const useShortFormFiltering = ({
     originalAuthorsCount: authors.length,
     originalScriptsCount: scripts.length,
     originalSuccessStoriesCount: successStories.length,
-    originalIdeasCount: ideas.length
+    originalIdeasCount: ideas.length,
+    authorsDetailed: authors.map(a => ({
+      id: a.id,
+      name: a.name,
+      clientId: a.clientId,
+      belongsToSelectedClient: a.clientId === selectedClientId
+    }))
   });
 
   const filteredAuthors = useMemo(() => {
-    return selectedClientId 
-      ? authors.filter(author => author.clientId === selectedClientId)
-      : authors;
+    if (!selectedClientId) {
+      console.log('🔍 No client selected, returning all authors');
+      return authors;
+    }
+    
+    console.log('🔍 Filtering authors for client:', selectedClientId);
+    const filtered = authors.filter(author => {
+      const belongs = author.clientId === selectedClientId;
+      console.log('🔍 Author filter check:', {
+        authorId: author.id,
+        authorName: author.name,
+        authorClientId: author.clientId,
+        selectedClientId,
+        belongs
+      });
+      return belongs;
+    });
+    
+    console.log('🔍 Authors after filtering:', {
+      originalCount: authors.length,
+      filteredCount: filtered.length,
+      filtered: filtered.map(a => ({ id: a.id, name: a.name, clientId: a.clientId }))
+    });
+    
+    return filtered;
   }, [selectedClientId, authors]);
 
   const filteredScripts = useMemo(() => {
