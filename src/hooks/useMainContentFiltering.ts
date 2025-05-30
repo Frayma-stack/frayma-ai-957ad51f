@@ -18,7 +18,7 @@ export const useMainContentFiltering = ({
   productContexts,
 }: UseMainContentFilteringProps) => {
   const filteredAuthors = useMemo(() => {
-    console.log('🔒 useMainContentFiltering - Applying strict client filtering for authors:', {
+    console.log('🔒 useMainContentFiltering - Applying inclusive client filtering for authors:', {
       selectedClientId,
       totalAuthors: authors.length,
       clientSpecific: !!selectedClientId,
@@ -30,26 +30,23 @@ export const useMainContentFiltering = ({
       }))
     });
 
-    // When a client is selected, ONLY show assets that explicitly belong to that client
+    // When a client is selected, show authors that belong to that client OR have no client assignment
     if (selectedClientId) {
-      const filtered = authors.filter(author => author.clientId === selectedClientId);
-      console.log('🔒 Client-specific authors only:', {
+      const filtered = authors.filter(author => {
+        const belongsToClient = author.clientId === selectedClientId;
+        const isUnassigned = author.clientId === null;
+        return belongsToClient || isUnassigned;
+      });
+      
+      console.log('🔒 Client-specific and unassigned authors:', {
         filteredCount: filtered.length,
         filtered: filtered.map(a => ({
           id: a.id,
           name: a.name,
-          clientId: a.clientId
+          clientId: a.clientId,
+          availability: a.clientId === selectedClientId ? 'client_specific' : 'unassigned_global'
         }))
       });
-
-      // Debug: Show authors that don't match
-      const nonMatching = authors.filter(author => author.clientId !== selectedClientId);
-      console.log('🔒 Authors that don\'t match selected client:', nonMatching.map(a => ({
-        id: a.id,
-        name: a.name,
-        clientId: a.clientId,
-        reason: a.clientId === null ? 'clientId_is_null' : 'different_clientId'
-      })));
 
       return filtered;
     }

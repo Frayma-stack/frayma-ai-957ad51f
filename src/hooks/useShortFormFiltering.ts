@@ -46,34 +46,36 @@ export const useShortFormFiltering = ({
       organization: a.organization
     })));
     
+    // Modified filtering logic: include authors that belong to the client OR have no client assignment (null)
     const filtered = authors.filter(author => {
-      const belongs = author.clientId === selectedClientId;
+      const belongsToClient = author.clientId === selectedClientId;
+      const isUnassigned = author.clientId === null;
+      const shouldInclude = belongsToClient || isUnassigned;
+      
       console.log('🔍 Author filter check:', {
         authorId: author.id,
         authorName: author.name,
         authorClientId: author.clientId,
         selectedClientId,
-        belongs
+        belongsToClient,
+        isUnassigned,
+        shouldInclude
       });
-      return belongs;
+      
+      return shouldInclude;
     });
     
     console.log('🔍 Authors after filtering:', {
       originalCount: authors.length,
       filteredCount: filtered.length,
-      filtered: filtered.map(a => ({ id: a.id, name: a.name, clientId: a.clientId }))
+      filtered: filtered.map(a => ({ 
+        id: a.id, 
+        name: a.name, 
+        clientId: a.clientId,
+        reason: a.clientId === selectedClientId ? 'client_specific' : 'unassigned_available_for_all'
+      }))
     });
 
-    // If no authors found for the selected client, let's check if there are any authors with null clientId
-    if (filtered.length === 0) {
-      const authorsWithNullClient = authors.filter(a => a.clientId === null);
-      console.log('⚠️ No authors found for selected client. Authors with null clientId:', authorsWithNullClient.map(a => ({
-        id: a.id,
-        name: a.name,
-        organization: a.organization
-      })));
-    }
-    
     return filtered;
   }, [selectedClientId, authors]);
 
