@@ -48,6 +48,15 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
 
   const selectedAuthorObj = getSelectedAuthor();
 
+  // Filter function to ensure no empty string values
+  const filterValidItems = (items: any[]) => {
+    return items?.filter(item => item && item.id && item.id.trim() !== '') || [];
+  };
+
+  // Get valid tones and experiences
+  const validTones = selectedAuthorObj?.tones ? filterValidItems(selectedAuthorObj.tones) : [];
+  const validExperiences = selectedAuthorObj?.experiences ? filterValidItems(selectedAuthorObj.experiences) : [];
+
   return (
     <div className="space-y-4">
       {!selectedIdea && (
@@ -66,11 +75,13 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
                   No ICP StoryScripts found for this client
                 </SelectItem>
               ) : (
-                scripts.map(script => (
-                  <SelectItem key={script.id} value={script.id}>
-                    {script.name}
-                  </SelectItem>
-                ))
+                scripts
+                  .filter(script => script.id && script.id.trim() !== '')
+                  .map(script => (
+                    <SelectItem key={script.id} value={script.id}>
+                      {script.name}
+                    </SelectItem>
+                  ))
               )}
             </SelectContent>
           </Select>
@@ -92,17 +103,19 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
                 No authors found for this client
               </SelectItem>
             ) : (
-              authors.map(author => (
-                <SelectItem key={author.id} value={author.id}>
-                  {author.name} - {author.role}
-                </SelectItem>
-              ))
+              authors
+                .filter(author => author.id && author.id.trim() !== '')
+                .map(author => (
+                  <SelectItem key={author.id} value={author.id}>
+                    {author.name} - {author.role}
+                  </SelectItem>
+                ))
             )}
           </SelectContent>
         </Select>
       </div>
       
-      {selectedAuthorObj && selectedAuthorObj.tones && selectedAuthorObj.tones.length > 0 && (
+      {validTones.length > 0 && (
         <div>
           <Label className="text-sm font-medium">Author Tone</Label>
           <Select value={selectedAuthorTone} onValueChange={onAuthorToneChange}>
@@ -110,7 +123,7 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
               <SelectValue placeholder="Select tone (optional)" />
             </SelectTrigger>
             <SelectContent>
-              {selectedAuthorObj.tones.map((tone: any) => (
+              {validTones.map((tone: any) => (
                 <SelectItem key={tone.id} value={tone.id}>
                   {tone.tone}
                 </SelectItem>
@@ -120,7 +133,7 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
         </div>
       )}
       
-      {selectedAuthorObj && selectedAuthorObj.experiences && selectedAuthorObj.experiences.length > 0 && (
+      {validExperiences.length > 0 && (
         <div>
           <Label className="text-sm font-medium">Author Experience</Label>
           <Select value={selectedAuthorExperience} onValueChange={onAuthorExperienceChange}>
@@ -128,7 +141,7 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
               <SelectValue placeholder="Select experience (optional)" />
             </SelectTrigger>
             <SelectContent>
-              {selectedAuthorObj.experiences.map((experience: any) => (
+              {validExperiences.map((experience: any) => (
                 <SelectItem key={experience.id} value={experience.id}>
                   {experience.title}
                 </SelectItem>

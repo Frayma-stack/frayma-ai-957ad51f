@@ -41,6 +41,9 @@ const ContentOptionsSection: FC<ContentOptionsSectionProps> = ({
   onEmailCountChange,
   onAdditionalContextChange
 }) => {
+  // Filter success stories to ensure no empty string IDs
+  const validSuccessStories = successStories?.filter(story => story.id && story.id.trim() !== '') || [];
+
   return (
     <>
       <div className="space-y-2">
@@ -57,12 +60,12 @@ const ContentOptionsSection: FC<ContentOptionsSectionProps> = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="none">None</SelectItem>
-            {successStories.map(story => (
+            {validSuccessStories.map(story => (
               <SelectItem key={story.id} value={story.id}>
                 {story.title}
               </SelectItem>
             ))}
-            {successStories.length === 0 && (
+            {validSuccessStories.length === 0 && (
               <SelectItem value="no-stories" disabled>
                 No success stories available. Add stories in Assets tab.
               </SelectItem>
