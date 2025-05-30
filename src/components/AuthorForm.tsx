@@ -60,7 +60,7 @@ const AuthorForm: FC<AuthorFormProps> = ({
     setIsSaving(true);
 
     try {
-      const validatedAuthor = validateAndCleanAuthor();
+      const validatedAuthor = validateAndCleanAuthor(author);
       
       if (!validatedAuthor) {
         throw new Error('Author validation failed. Please check all required fields.');
