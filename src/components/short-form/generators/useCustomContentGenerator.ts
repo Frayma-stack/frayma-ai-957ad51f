@@ -112,9 +112,9 @@ export const useCustomContentGenerator = ({
       if (selectedIdea?.cta) {
         content += `${selectedIdea.cta}`;
       } else {
-        const ctaText = contentGoal === 'book_call' ? 'If you\'d like to discuss how this applies to your specific situation, I\'d be happy to schedule a conversation.' : 
-          contentGoal === 'learn_more' ? 'For more detailed insights on this topic, I\'ve prepared additional resources.' : 
-          contentGoal === 'try_product' ? 'To see these principles in action, I can walk you through a practical demonstration.' : 
+        const ctaText = contentGoal.type === 'book_call' ? 'If you\'d like to discuss how this applies to your specific situation, I\'d be happy to schedule a conversation.' : 
+          contentGoal.type === 'learn_more' ? 'For more detailed insights on this topic, I\'ve prepared additional resources.' : 
+          contentGoal.type === 'try_product' ? 'To see these principles in action, I can walk you through a practical demonstration.' : 
           'I\'m curious about your experience with these challenges. What has worked best in your context?';
         content += ctaText;
       }
@@ -192,10 +192,10 @@ export const useCustomContentGenerator = ({
       
       content += `## Next Steps\n\n`;
       
-      content += `${contentGoal === 'book_call' ? 'Ready to transform your approach? Schedule a consultation with our team to discuss your specific challenges.' : 
-      contentGoal === 'learn_more' ? 'Want to learn more? Download our comprehensive guide on this topic.' : 
-      contentGoal === 'try_product' ? 'Experience the difference firsthand. Start your free trial today.' : 
-      contentGoal === 'visit_article' ? 'For more insights, check out our related article on this topic.' :
+      content += `${contentGoal.type === 'book_call' ? 'Ready to transform your approach? Schedule a consultation with our team to discuss your specific challenges.' : 
+      contentGoal.type === 'learn_more' ? 'Want to learn more? Download our comprehensive guide on this topic.' : 
+      contentGoal.type === 'try_product' ? 'Experience the difference firsthand. Start your free trial today.' : 
+      contentGoal.type === 'visit_article' ? 'For more insights, check out our related article on this topic.' :
       'Connect with us to discuss how these strategies can be applied to your specific situation.'}\n\n`;
     }
     

@@ -1,3 +1,4 @@
+
 import { useShortFormState } from './useShortFormState';
 import { useContentGeneration } from './useContentGeneration';
 import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
@@ -38,6 +39,7 @@ export const useShortFormContentCreator = ({
     availableAnchors,
     selectedIdeaId,
     triggerInput,
+    productInputs,
     toast,
     getSelectedIdea,
     setSelectedICP,
@@ -54,6 +56,7 @@ export const useShortFormContentCreator = ({
     setEmailCount,
     setSelectedIdeaId,
     setTriggerInput,
+    setProductInputs,
     // Auto-save functionality
     isSaving,
     lastSaved,
@@ -204,6 +207,7 @@ export const useShortFormContentCreator = ({
     availableAnchors,
     selectedIdeaId,
     triggerInput,
+    productInputs,
     getSelectedIdea,
     
     // Actions
@@ -220,6 +224,7 @@ export const useShortFormContentCreator = ({
     setEmailCount,
     setSelectedIdeaId,
     setTriggerInput,
+    setProductInputs,
     
     // Computed
     getContentTypeLabel,

@@ -87,9 +87,9 @@ export const useEmailContentGenerator = ({
       if (selectedIdea?.cta) {
         content += `${selectedIdea.cta}\n\n`;
       } else {
-        content += `${contentGoal === 'book_call' ? 'Would you be interested in a brief call to discuss how this might apply to your situation?' : 
-        contentGoal === 'learn_more' ? 'I\'d be happy to share more details about how this approach works.' : 
-        contentGoal === 'try_product' ? 'Would you like to see how this works in practice? I can show you a quick demo.' :
+        content += `${contentGoal.type === 'book_call' ? 'Would you be interested in a brief call to discuss how this might apply to your situation?' : 
+        contentGoal.type === 'learn_more' ? 'I\'d be happy to share more details about how this approach works.' : 
+        contentGoal.type === 'try_product' ? 'Would you like to see how this works in practice? I can show you a quick demo.' :
         'I\'d love to hear your thoughts on this approach.'}\n\n`;
       }
     } else {

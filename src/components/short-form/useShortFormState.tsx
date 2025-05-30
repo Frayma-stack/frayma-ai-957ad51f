@@ -104,8 +104,8 @@ export const useShortFormState = ({
     ideas,
     selectedIdeaId,
     updatePersistedValue,
-    setAdditionalContext,
-    setContentGoal,
+    setAdditionalContext: setAdditionalContextWithPersistence,
+    setContentGoal: setContentGoalWithPersistence,
     additionalContext
   });
 
