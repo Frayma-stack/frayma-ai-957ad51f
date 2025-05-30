@@ -33,62 +33,91 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
   onAuthorToneChange,
   onAuthorExperienceChange
 }) => {
-  console.log('👥 ICPAuthorSelectors DETAILED DEBUG:', {
+  console.log('👥 ICPAuthorSelectors ULTRA DETAILED DEBUG:', {
     selectedICP,
     selectedAuthor,
     scriptsCount: scripts.length,
     authorsCount: authors.length,
-    authorsRaw: authors,
-    authorsDetailed: authors.map(a => ({ 
-      id: a.id, 
-      name: a.name, 
+    authorsReceived: authors,
+    authorsValidation: authors.map(a => ({
+      id: a.id,
+      name: a.name,
       role: a.role,
+      organization: a.organization,
       clientId: a.clientId,
-      idType: typeof a.id,
-      idValue: a.id,
+      hasId: !!a.id,
+      hasName: !!a.name,
       idLength: a.id?.length,
+      nameLength: a.name?.length,
       idTrimmed: a.id?.trim(),
-      isEmpty: !a.id || a.id.trim() === ''
+      nameTrimmed: a.name?.trim(),
+      isIdValid: !!(a.id && a.id.trim() !== ''),
+      isNameValid: !!(a.name && a.name.trim() !== ''),
+      isOverallValid: !!(a.id && a.id.trim() !== '' && a.name && a.name.trim() !== '')
     })),
     scriptsFirst3: scripts.slice(0, 3).map(s => ({ id: s.id, name: s.name })),
     selectedIdea: selectedIdea ? { id: selectedIdea.id, title: selectedIdea.title } : null
   });
 
   const getSelectedAuthor = () => {
-    return authors.find(author => author.id === selectedAuthor);
+    const found = authors.find(author => author.id === selectedAuthor);
+    console.log('👥 getSelectedAuthor result:', {
+      selectedAuthor,
+      found: found ? { id: found.id, name: found.name } : null
+    });
+    return found;
   };
 
   const selectedAuthorObj = getSelectedAuthor();
 
-  // Filter function to ensure no empty string values
-  const filterValidItems = (items: any[]) => {
-    return items?.filter(item => item && item.id && item.id.trim() !== '') || [];
-  };
-
-  // Get valid tones and experiences
-  const validTones = selectedAuthorObj?.tones ? filterValidItems(selectedAuthorObj.tones) : [];
-  const validExperiences = selectedAuthorObj?.experiences ? filterValidItems(selectedAuthorObj.experiences) : [];
-
-  // Authors are already filtered by the parent component, so we just need to validate them
+  // Validate authors - ensure they have valid ID and name
   const validAuthors = authors.filter(author => {
-    const isValid = author && author.id && author.id.trim() !== '' && author.name && author.name.trim() !== '';
-    console.log('👥 Author validation:', {
+    const hasValidId = author && author.id && typeof author.id === 'string' && author.id.trim() !== '';
+    const hasValidName = author && author.name && typeof author.name === 'string' && author.name.trim() !== '';
+    const isValid = hasValidId && hasValidName;
+    
+    console.log('👥 Author validation details:', {
       authorId: author?.id,
       authorName: author?.name,
+      authorRole: author?.role,
+      authorOrganization: author?.organization,
       authorClientId: author?.clientId,
-      hasId: !!author?.id,
-      hasName: !!author?.name,
-      idNotEmpty: author?.id && author.id.trim() !== '',
-      nameNotEmpty: author?.name && author.name.trim() !== '',
-      isValid
+      hasValidId,
+      hasValidName,
+      isValid,
+      rawAuthor: author
     });
+    
     return isValid;
   });
 
-  console.log('👥 Valid authors after filtering:', {
+  console.log('👥 FINAL Valid authors after filtering:', {
     originalCount: authors.length,
     validCount: validAuthors.length,
-    validAuthors: validAuthors.map(a => ({ id: a.id, name: a.name, role: a.role, clientId: a.clientId }))
+    validAuthors: validAuthors.map(a => ({
+      id: a.id,
+      name: a.name,
+      role: a.role,
+      organization: a.organization,
+      clientId: a.clientId
+    })),
+    invalidAuthors: authors.filter(a => !validAuthors.includes(a)).map(a => ({
+      id: a?.id,
+      name: a?.name,
+      issue: !a ? 'null_author' : (!a.id || a.id.trim() === '') ? 'invalid_id' : 'invalid_name'
+    }))
+  });
+
+  // Get valid tones and experiences from selected author
+  const validTones = selectedAuthorObj?.tones?.filter(tone => tone && tone.id && tone.id.trim() !== '') || [];
+  const validExperiences = selectedAuthorObj?.experiences?.filter(exp => exp && exp.id && exp.id.trim() !== '') || [];
+
+  console.log('👥 Author sub-data validation:', {
+    selectedAuthorObj: selectedAuthorObj ? { id: selectedAuthorObj.id, name: selectedAuthorObj.name } : null,
+    validTonesCount: validTones.length,
+    validExperiencesCount: validExperiences.length,
+    rawTones: selectedAuthorObj?.tones,
+    rawExperiences: selectedAuthorObj?.experiences
   });
 
   return (
@@ -131,12 +160,12 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
           <SelectTrigger className="mt-2">
             <SelectValue placeholder="Select author" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white z-50">
             {validAuthors.length === 0 ? (
               <SelectItem value="no-authors" disabled>
                 {authors.length === 0 
-                  ? "No authors found for this client"
-                  : `No valid authors found (${authors.length} total authors, but none have valid ID and name)`
+                  ? "No authors found - please create an author first"
+                  : `No valid authors found (${authors.length} authors exist but have validation issues)`
                 }
               </SelectItem>
             ) : (
@@ -157,7 +186,7 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
             <SelectTrigger className="mt-2">
               <SelectValue placeholder="Select tone (optional)" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white z-50">
               {validTones.map((tone: any) => (
                 <SelectItem key={tone.id} value={tone.id}>
                   {tone.tone}
@@ -175,7 +204,7 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
             <SelectTrigger className="mt-2">
               <SelectValue placeholder="Select experience (optional)" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white z-50">
               {validExperiences.map((experience: any) => (
                 <SelectItem key={experience.id} value={experience.id}>
                   {experience.title}
