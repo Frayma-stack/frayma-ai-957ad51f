@@ -51,6 +51,7 @@ const MainContent: FC<MainContentProps> = (props) => {
     selectedClientId,
     productContexts,
     onProductContextUpdated,
+    currentView,
   } = props;
 
   // Get current product context for the selected client
@@ -61,9 +62,30 @@ const MainContent: FC<MainContentProps> = (props) => {
   };
 
   const getFilteredAuthors = () => {
-    return selectedClientId 
+    console.log('🔍 MainContent.getFilteredAuthors called:', {
+      selectedClientId,
+      currentView,
+      totalAuthors: props.authors.length,
+      authorsFirst3: props.authors.slice(0, 3).map(a => ({ id: a.id, name: a.name, clientId: a.clientId }))
+    });
+
+    // When in the dedicated authors view, show all authors regardless of selected client
+    if (currentView === 'authors') {
+      console.log('🔍 In authors view - returning all authors:', props.authors.length);
+      return props.authors;
+    }
+
+    // For other views, filter by client if one is selected
+    const filtered = selectedClientId 
       ? props.authors.filter(author => author.clientId === selectedClientId)
       : props.authors;
+
+    console.log('🔍 Filtered authors result:', {
+      filteredCount: filtered.length,
+      filteredFirst3: filtered.slice(0, 3).map(a => ({ id: a.id, name: a.name, clientId: a.clientId }))
+    });
+
+    return filtered;
   };
 
   const getFilteredICPScripts = () => {
