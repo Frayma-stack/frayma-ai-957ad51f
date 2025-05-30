@@ -1,4 +1,6 @@
 
+import { IdeaScore } from '@/types/ideas';
+
 export interface ParsedIdea {
   title: string;
   narrative: string;
@@ -9,8 +11,15 @@ export interface ParsedIdea {
 }
 
 export interface IdeaWithScore extends ParsedIdea {
-  score: import('@/types/ideas').IdeaScore | null;
+  score: IdeaScore | null;
 }
+
+export const SCORE_OPTIONS: IdeaScore[] = [
+  { value: 0, label: '0 - Poor' },
+  { value: 1, label: '1 - Fair' },
+  { value: 2, label: '2 - Good' },
+  { value: 3, label: '3 - Excellent' }
+];
 
 export const parseIdeas = (generatedIdeas: string[]): IdeaWithScore[] => {
   return generatedIdeas.map((ideaContent, index) => {
@@ -146,8 +155,8 @@ const parseIdeaContent = (content: string): Omit<ParsedIdea, 'originalContent' |
 const isTitleSection = (line: string): boolean => {
   return line.includes('title') || 
          line.includes('headline') || 
-         line.match(/^[\d\.\-\*\+]\s*title/i) ||
-         line.match(/^title:/i);
+         Boolean(line.match(/^[\d\.\-\*\+]\s*title/i)) ||
+         Boolean(line.match(/^title:/i));
 };
 
 const isNarrativeSection = (line: string): boolean => {
@@ -155,8 +164,8 @@ const isNarrativeSection = (line: string): boolean => {
          line.includes('story') || 
          line.includes('tension') ||
          line.includes('belief') ||
-         line.match(/^[\d\.\-\*\+]\s*narrative/i) ||
-         line.match(/^narrative:/i);
+         Boolean(line.match(/^[\d\.\-\*\+]\s*narrative/i)) ||
+         Boolean(line.match(/^narrative:/i));
 };
 
 const isProductTieInSection = (line: string): boolean => {
@@ -164,17 +173,17 @@ const isProductTieInSection = (line: string): boolean => {
          line.includes('tie-in') || 
          line.includes('tie in') ||
          line.includes('solution') ||
-         line.match(/^[\d\.\-\*\+]\s*product/i) ||
-         line.match(/^product.*:/i);
+         Boolean(line.match(/^[\d\.\-\*\+]\s*product/i)) ||
+         Boolean(line.match(/^product.*:/i));
 };
 
 const isCtaSection = (line: string): boolean => {
   return line.includes('cta') || 
          line.includes('call to action') || 
          line.includes('action') ||
-         line.match(/^[\d\.\-\*\+]\s*cta/i) ||
-         line.match(/^cta:/i) ||
-         line.match(/^call.*action:/i);
+         Boolean(line.match(/^[\d\.\-\*\+]\s*cta/i)) ||
+         Boolean(line.match(/^cta:/i)) ||
+         Boolean(line.match(/^call.*action:/i));
 };
 
 const extractContentFromHeaderLine = (line: string): string => {
