@@ -102,7 +102,7 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
         </Select>
       </div>
       
-      {selectedAuthorObj && selectedAuthorObj.tones.length > 0 && (
+      {selectedAuthorObj && selectedAuthorObj.tones && selectedAuthorObj.tones.length > 0 && (
         <div>
           <Label className="text-sm font-medium">Author Tone</Label>
           <Select value={selectedAuthorTone} onValueChange={onAuthorToneChange}>
@@ -110,7 +110,7 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
               <SelectValue placeholder="Select tone (optional)" />
             </SelectTrigger>
             <SelectContent>
-              {selectedAuthorObj.tones.map(tone => (
+              {selectedAuthorObj.tones.map((tone: any) => (
                 <SelectItem key={tone.id} value={tone.id}>
                   {tone.tone}
                 </SelectItem>
@@ -120,7 +120,7 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
         </div>
       )}
       
-      {selectedAuthorObj && selectedAuthorObj.experiences.length > 0 && (
+      {selectedAuthorObj && selectedAuthorObj.experiences && selectedAuthorObj.experiences.length > 0 && (
         <div>
           <Label className="text-sm font-medium">Author Experience</Label>
           <Select value={selectedAuthorExperience} onValueChange={onAuthorExperienceChange}>
@@ -128,7 +128,7 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
               <SelectValue placeholder="Select experience (optional)" />
             </SelectTrigger>
             <SelectContent>
-              {selectedAuthorObj.experiences.map(experience => (
+              {selectedAuthorObj.experiences.map((experience: any) => (
                 <SelectItem key={experience.id} value={experience.id}>
                   {experience.title}
                 </SelectItem>

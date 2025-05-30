@@ -106,14 +106,22 @@ export const useAutoSave = (config: AutoSaveConfig) => {
     if (!user) return [];
 
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('drafts')
         .select('*')
         .eq('user_id', user.id)
         .eq('content_type', config.contentType)
-        .eq('client_id', config.clientId || null)
         .order('updated_at', { ascending: false })
         .limit(5);
+
+      // Only add client_id filter if it's provided and not null/undefined
+      if (config.clientId) {
+        query = query.eq('client_id', config.clientId);
+      } else {
+        query = query.is('client_id', null);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       return data || [];
