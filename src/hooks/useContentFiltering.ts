@@ -17,9 +17,42 @@ export const useContentFiltering = ({
   productContexts,
 }: UseContentFilteringProps) => {
   const getFilteredAuthors = () => {
+    console.log('🔍 getFilteredAuthors called with:', {
+      selectedClientId,
+      totalAuthors: authors.length,
+      authorsDetailed: authors.map(author => ({
+        id: author.id,
+        name: author.name,
+        clientId: author.clientId,
+        hasClientId: !!author.clientId,
+        clientIdType: typeof author.clientId,
+        matchesSelected: author.clientId === selectedClientId,
+        isNull: author.clientId === null,
+        isUndefined: author.clientId === undefined
+      }))
+    });
+
     if (selectedClientId) {
-      return authors.filter(author => author.clientId === selectedClientId);
+      // Show authors that belong to the selected client OR have no clientId (available to all)
+      const filtered = authors.filter(author => 
+        author.clientId === selectedClientId || author.clientId === null || author.clientId === undefined
+      );
+      
+      console.log('🔍 Filtered authors result:', {
+        selectedClientId,
+        filteredCount: filtered.length,
+        filteredAuthors: filtered.map(a => ({
+          id: a.id,
+          name: a.name,
+          clientId: a.clientId,
+          reason: a.clientId === selectedClientId ? 'matches_client' : 'no_client_id'
+        }))
+      });
+      
+      return filtered;
     }
+    
+    console.log('🔍 No client selected, returning all authors:', authors.length);
     return authors;
   };
 

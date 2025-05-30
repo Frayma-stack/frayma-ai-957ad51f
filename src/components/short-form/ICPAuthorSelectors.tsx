@@ -43,6 +43,7 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
       id: a.id, 
       name: a.name, 
       role: a.role,
+      clientId: a.clientId,
       idType: typeof a.id,
       idValue: a.id,
       idLength: a.id?.length,
@@ -68,12 +69,13 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
   const validTones = selectedAuthorObj?.tones ? filterValidItems(selectedAuthorObj.tones) : [];
   const validExperiences = selectedAuthorObj?.experiences ? filterValidItems(selectedAuthorObj.experiences) : [];
 
-  // Filter valid authors - this might be the issue!
+  // Authors are already filtered by the parent component, so we just need to validate them
   const validAuthors = authors.filter(author => {
     const isValid = author && author.id && author.id.trim() !== '' && author.name && author.name.trim() !== '';
     console.log('👥 Author validation:', {
       authorId: author?.id,
       authorName: author?.name,
+      authorClientId: author?.clientId,
       hasId: !!author?.id,
       hasName: !!author?.name,
       idNotEmpty: author?.id && author.id.trim() !== '',
@@ -86,7 +88,7 @@ const ICPAuthorSelectors: FC<ICPAuthorSelectorsProps> = ({
   console.log('👥 Valid authors after filtering:', {
     originalCount: authors.length,
     validCount: validAuthors.length,
-    validAuthors: validAuthors.map(a => ({ id: a.id, name: a.name, role: a.role }))
+    validAuthors: validAuthors.map(a => ({ id: a.id, name: a.name, role: a.role, clientId: a.clientId }))
   });
 
   return (
