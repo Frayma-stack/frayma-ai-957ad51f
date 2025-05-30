@@ -27,9 +27,9 @@ interface MainContentProps {
   onClientDeleted: (clientId: string) => void;
   onClientSelected: (clientId: string | null) => void;
   onViewClientAssets: (clientId: string, assetType: string) => void;
-  onAuthorAdded: (author: Author) => void;
-  onAuthorUpdated: (author: Author) => void;
-  onAuthorDeleted: (authorId: string) => void;
+  onAuthorAdded: (author: Author) => Promise<Author>;
+  onAuthorUpdated: (author: Author) => Promise<Author>;
+  onAuthorDeleted: (authorId: string) => Promise<void>;
   onIdeaAdded: (idea: GeneratedIdea) => void;
   onIdeaUpdated: (idea: GeneratedIdea) => void;
   onIdeaDeleted: (ideaId: string) => void;

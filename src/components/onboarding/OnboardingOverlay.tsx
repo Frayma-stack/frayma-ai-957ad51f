@@ -12,7 +12,7 @@ import OnboardingStepIdeas from './OnboardingStepIdeas';
 import { Author, Client, ProductContext, ICPStoryScript } from '@/types/storytelling';
 
 interface OnboardingOverlayProps {
-  onAuthorAdded: (author: Author) => void;
+  onAuthorAdded: (author: Author) => Promise<Author>;
   onClientAdded: (client: Client, productContext?: ProductContext) => void;
   onICPScriptAdded: (script: ICPStoryScript) => void;
   onNavigateToIdeasBank: () => void;
