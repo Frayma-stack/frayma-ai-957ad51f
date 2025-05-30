@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Author } from '@/types/storytelling';
 
@@ -31,13 +30,23 @@ export const useAuthorStateComposition = ({
   initialAuthor,
   selectedClientId
 }: UseAuthorStateCompositionProps) => {
+  // Determine the correct client ID
+  const getClientId = () => {
+    // If editing an existing author, keep their existing client assignment
+    if (initialAuthor) {
+      return initialAuthor.clientId;
+    }
+    // For new authors, use the selected client ID
+    return selectedClientId || null;
+  };
+
   const [currentAuthor, setCurrentAuthor] = useState<Author>({
     ...basicInfo,
     experiences,
     tones,
     beliefs,
     socialLinks,
-    clientId: initialAuthor?.clientId || selectedClientId || null
+    clientId: getClientId()
   });
 
   // Update the composed author state whenever any part changes
@@ -48,7 +57,7 @@ export const useAuthorStateComposition = ({
       tones,
       beliefs,
       socialLinks,
-      clientId: initialAuthor?.clientId || selectedClientId || null
+      clientId: getClientId()
     };
     
     console.log('🔧 Author composition updated:', {
@@ -58,6 +67,8 @@ export const useAuthorStateComposition = ({
       organization: composedAuthor.organization,
       clientId: composedAuthor.clientId,
       clientAssignment: composedAuthor.clientId ? 'assigned_to_client' : 'no_client_assignment',
+      selectedClientId,
+      isEditing: !!initialAuthor,
       experiencesCount: composedAuthor.experiences.length,
       tonesCount: composedAuthor.tones.length,
       beliefsCount: composedAuthor.beliefs.length,

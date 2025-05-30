@@ -1,4 +1,3 @@
-
 import { Author } from '@/types/storytelling';
 import { createInitialAuthor } from '@/utils/authorFormUtils';
 import { useAuthorBasicInfo } from './useAuthorBasicInfo';
@@ -12,14 +11,21 @@ import { useAuthorStateComposition } from './useAuthorStateComposition';
 import { useAuthorFormValidation } from './useAuthorFormValidation';
 
 export const useAuthorForm = (initialAuthor?: Author | null, selectedClientId?: string | null) => {
+  // Create initial author with proper client assignment
   const author = createInitialAuthor(initialAuthor);
+  
+  // Ensure new authors get the selected client ID
+  if (!initialAuthor && selectedClientId) {
+    author.clientId = selectedClientId;
+  }
   
   console.log('🏠 useAuthorForm initialized with:', { 
     hasInitialAuthor: !!initialAuthor, 
     authorId: author.id,
     authorName: author.name,
     selectedClientId,
-    clientAssignment: selectedClientId ? 'will_assign_to_client' : 'no_client_selected'
+    authorClientId: author.clientId,
+    clientAssignment: author.clientId ? 'assigned_to_client' : 'no_client_assignment'
   });
   
   // Use form persistence for the basic info

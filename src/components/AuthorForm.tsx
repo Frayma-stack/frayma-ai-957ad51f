@@ -66,11 +66,18 @@ const AuthorForm: FC<AuthorFormProps> = ({
         throw new Error('Author validation failed. Please check all required fields.');
       }
 
+      // Ensure client assignment for new authors
+      if (!initialAuthor && selectedClientId && !validatedAuthor.clientId) {
+        console.log('📝 Forcing client assignment for new author');
+        validatedAuthor.clientId = selectedClientId;
+      }
+
       console.log('📝 AuthorForm calling onSave with validated author:', {
         id: validatedAuthor.id,
         name: validatedAuthor.name,
         clientId: validatedAuthor.clientId,
-        hasClientAssignment: !!validatedAuthor.clientId
+        hasClientAssignment: !!validatedAuthor.clientId,
+        isNewAuthor: !initialAuthor
       });
 
       await onSave(validatedAuthor);
@@ -120,6 +127,13 @@ const AuthorForm: FC<AuthorFormProps> = ({
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
+        )}
+
+        {/* Debug info for client assignment */}
+        {!initialAuthor && selectedClientId && (
+          <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+            Debug: New author will be assigned to client ID: {selectedClientId}
+          </div>
         )}
 
         <AuthorBasicInfoSection 
