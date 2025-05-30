@@ -1,5 +1,4 @@
 
-import { useState, useEffect } from 'react';
 import { Author } from '@/types/storytelling';
 import { createInitialAuthor } from '@/utils/authorFormUtils';
 import { useAuthorBasicInfo } from './useAuthorBasicInfo';
@@ -8,8 +7,9 @@ import { useAuthorTones } from './useAuthorTones';
 import { useAuthorBeliefs } from './useAuthorBeliefs';
 import { useAuthorSocialLinks } from './useAuthorSocialLinks';
 import { useAuthorAnalysisHandler } from './useAuthorAnalysisHandler';
-import { useAuthorValidation } from './useAuthorValidation';
-import { useFormPersistence } from './useFormPersistence';
+import { useAuthorFormPersistence } from './useAuthorFormPersistence';
+import { useAuthorStateComposition } from './useAuthorStateComposition';
+import { useAuthorFormValidation } from './useAuthorFormValidation';
 
 export const useAuthorForm = (initialAuthor?: Author | null, selectedClientId?: string | null) => {
   const author = createInitialAuthor(initialAuthor);
@@ -24,20 +24,10 @@ export const useAuthorForm = (initialAuthor?: Author | null, selectedClientId?: 
   
   // Use form persistence for the basic info
   const {
-    values: persistedBasicInfo,
-    updateValue: updatePersistedValue,
-    clearPersistedData,
-    isLoaded: isPersistenceLoaded
-  } = useFormPersistence({
-    key: initialAuthor ? `author_edit_${initialAuthor.id}` : 'author_new',
-    defaultValues: {
-      name: author.name,
-      bio: author.bio || '',
-      company: author.company || '',
-      title: author.title || '',
-      email: author.email || ''
-    }
-  });
+    persistedBasicInfo,
+    isPersistenceLoaded,
+    clearPersistedData
+  } = useAuthorFormPersistence(initialAuthor);
 
   // Initialize all hooks with the initial author data
   const { basicInfo, handleInputChange } = useAuthorBasicInfo(
@@ -84,55 +74,16 @@ export const useAuthorForm = (initialAuthor?: Author | null, selectedClientId?: 
     removeSocialLink
   } = useAuthorSocialLinks(initialSocialLinks);
 
-  // Compose the current author state directly
-  const [currentAuthor, setCurrentAuthor] = useState<Author>({
-    ...basicInfo,
+  // Compose the current author state
+  const { currentAuthor } = useAuthorStateComposition({
+    basicInfo,
     experiences,
     tones,
     beliefs,
     socialLinks,
-    // Automatically assign clientId if provided and this is a new author
-    clientId: initialAuthor?.clientId || selectedClientId || null
+    initialAuthor,
+    selectedClientId
   });
-
-  // Update the composed author state whenever any part changes
-  useEffect(() => {
-    const composedAuthor = {
-      ...basicInfo,
-      experiences,
-      tones,
-      beliefs,
-      socialLinks,
-      // Ensure clientId is set for new authors
-      clientId: initialAuthor?.clientId || selectedClientId || null
-    };
-    
-    console.log('🏠 Author composition updated:', {
-      name: composedAuthor.name,
-      id: composedAuthor.id,
-      role: composedAuthor.role,
-      organization: composedAuthor.organization,
-      clientId: composedAuthor.clientId,
-      clientAssignment: composedAuthor.clientId ? 'assigned_to_client' : 'no_client_assignment',
-      experiencesCount: composedAuthor.experiences.length,
-      tonesCount: composedAuthor.tones.length,
-      beliefsCount: composedAuthor.beliefs.length,
-      socialLinksCount: composedAuthor.socialLinks.length
-    });
-    
-    setCurrentAuthor(composedAuthor);
-  }, [basicInfo, experiences, tones, beliefs, socialLinks, selectedClientId, initialAuthor]);
-
-  // Update persistence when basic info changes
-  useEffect(() => {
-    if (isPersistenceLoaded) {
-      updatePersistedValue('name', basicInfo.name);
-      updatePersistedValue('bio', basicInfo.bio || '');
-      updatePersistedValue('company', basicInfo.company || '');
-      updatePersistedValue('title', basicInfo.title || '');
-      updatePersistedValue('email', basicInfo.email || '');
-    }
-  }, [basicInfo, updatePersistedValue, isPersistenceLoaded]);
 
   // Handle analysis integration
   const { handleAuthorAnalysisResult } = useAuthorAnalysisHandler(
@@ -143,45 +94,7 @@ export const useAuthorForm = (initialAuthor?: Author | null, selectedClientId?: 
   );
 
   // Handle validation
-  const { validateAndCleanAuthor } = useAuthorValidation();
-
-  const validateAndCleanCurrentAuthor = () => {
-    console.log('🏠 Starting author validation...', {
-      authorId: currentAuthor.id,
-      authorName: currentAuthor.name,
-      hasRole: !!currentAuthor.role,
-      hasOrganization: !!currentAuthor.organization,
-      hasBackstory: !!currentAuthor.backstory,
-      clientId: currentAuthor.clientId,
-      hasClientAssignment: !!currentAuthor.clientId
-    });
-    
-    try {
-      // Important fix: Pass the current author to the validation function
-      const validatedAuthor = validateAndCleanAuthor(currentAuthor);
-      
-      console.log('🏠 Validation result:', {
-        isValid: !!validatedAuthor,
-        validatedName: validatedAuthor?.name,
-        validatedId: validatedAuthor?.id,
-        validatedClientId: validatedAuthor?.clientId
-      });
-      
-      if (validatedAuthor) {
-        console.log('🏠 Author validation successful, clearing persisted data');
-        clearPersistedData();
-        console.log('🏠 Persisted data cleared');
-      } else {
-        console.error('🏠 Author validation failed - returned null');
-      }
-      
-      return validatedAuthor;
-    } catch (error) {
-      console.error('🏠 Error in validateAndCleanCurrentAuthor:', error);
-      console.error('🏠 Error stack:', error instanceof Error ? error.stack : 'No stack available');
-      return null;
-    }
-  };
+  const { validateAndCleanCurrentAuthor } = useAuthorFormValidation(clearPersistedData);
 
   return {
     author: currentAuthor,
