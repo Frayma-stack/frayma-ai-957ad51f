@@ -31,6 +31,7 @@ const MainContentViewRouter: FC<MainContentViewRouterProps> = (props) => {
   if (currentView === 'authors') {
     return (
       <AuthorsView
+        selectedClientId={props.selectedClientId}
         filteredAuthors={props.filteredAuthors}
         onAuthorAdded={props.onAuthorAdded}
         onAuthorUpdated={props.onAuthorUpdated}
