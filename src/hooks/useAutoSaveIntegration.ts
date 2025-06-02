@@ -26,18 +26,39 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
     authorId: config.authorId
   });
 
-  // Auto-save when title or content changes
+  // Auto-save when content changes (with updated content tracking)
   useEffect(() => {
-    if (title.trim() || content.trim()) {
+    console.log('💾 Auto-save effect triggered:', {
+      hasTitle: !!title.trim(),
+      hasContent: !!content.trim(),
+      contentLength: content.length,
+      contentType: config.contentType
+    });
+
+    if (content.trim()) {
+      // Generate a title if one doesn't exist
+      const autoTitle = title.trim() || `${config.contentType} - ${new Date().toLocaleDateString()}`;
+      
       autoSave.saveDraft({
-        title,
+        title: autoTitle,
         content,
         contentType: config.contentType,
         clientId: config.clientId,
         authorId: config.authorId
       });
     }
-  }, [title, content, config.contentType, config.clientId, config.authorId]);
+  }, [content, title, config.contentType, config.clientId, config.authorId]);
+
+  // Watch for content changes from parent component
+  useEffect(() => {
+    if (config.initialContent && config.initialContent !== content) {
+      console.log('📝 Content updated from parent:', {
+        newContentLength: config.initialContent.length,
+        currentContentLength: content.length
+      });
+      setContent(config.initialContent);
+    }
+  }, [config.initialContent]);
 
   // Load available drafts on mount
   const loadAvailableDrafts = useCallback(async () => {
@@ -55,6 +76,7 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
   }, [loadAvailableDrafts]);
 
   const handleRestoreDraft = useCallback((draft: any) => {
+    console.log('🔄 Restoring draft:', { draftId: draft.id, title: draft.title });
     setTitle(draft.title);
     setContent(draft.content);
     autoSave.setCurrentDraftId(draft.id);
@@ -81,6 +103,7 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
   }, [user, loadAvailableDrafts]);
 
   const clearCurrentDraft = useCallback(async () => {
+    console.log('🗑️ Clearing current draft');
     await autoSave.clearDraft();
     setTitle('');
     setContent('');

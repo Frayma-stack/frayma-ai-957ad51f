@@ -85,6 +85,8 @@ export const useShortFormContentGeneration = ({
   };
 
   const generateContent = () => {
+    console.log('🔄 Starting content generation...');
+    
     if (!isFormValid()) {
       const selectedIdea = getSelectedIdea();
       if (triggerInput.trim()) {
@@ -110,37 +112,71 @@ export const useShortFormContentGeneration = ({
     }
 
     setIsGenerating(true);
+    console.log('🎯 Content generation started, isGenerating set to true');
 
-    // Simulate content generation
+    // Simulate content generation with a more realistic delay
     setTimeout(() => {
-      const script = getSelectedICPScript();
-      const author = getSelectedAuthor();
-      const successStory = getSelectedSuccessStory();
-      const selectedIdea = getSelectedIdea();
-      
-      if (!author) {
+      try {
+        const script = getSelectedICPScript();
+        const author = getSelectedAuthor();
+        const successStory = getSelectedSuccessStory();
+        const selectedIdea = getSelectedIdea();
+        
+        console.log('📝 Generating content with data:', {
+          hasScript: !!script,
+          hasAuthor: !!author,
+          hasSuccessStory: !!successStory,
+          hasSelectedIdea: !!selectedIdea,
+          contentType,
+          triggerInput: triggerInput.substring(0, 50) + '...'
+        });
+        
+        if (!author) {
+          console.error('❌ No author found for content generation');
+          setIsGenerating(false);
+          toast({
+            title: "Generation failed",
+            description: "Author information is required for content generation.",
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        let content = "";
+        
+        if (contentType === 'email') {
+          content = generateEmailContent(script, author, successStory, selectedIdea, triggerInput);
+        } else if (contentType === 'linkedin') {
+          content = generateLinkedInContent(script, author, successStory, selectedIdea, triggerInput);
+        } else if (contentType === 'custom') {
+          content = generateCustomContent(script, author, successStory, selectedIdea, triggerInput);
+        }
+        
+        console.log('✅ Content generated successfully:', {
+          contentLength: content.length,
+          contentPreview: content.substring(0, 100) + '...'
+        });
+        
+        // Set the generated content
+        setGeneratedContent(content);
         setIsGenerating(false);
-        return;
+        
+        // Show success message
+        toast({
+          title: `${getContentTypeLabel()} generated successfully!`,
+          description: "Your content is ready for editing. It will be automatically saved as a draft.",
+        });
+        
+      } catch (error) {
+        console.error('❌ Content generation error:', error);
+        setIsGenerating(false);
+        toast({
+          title: "Generation failed",
+          description: "There was an error generating your content. Please try again.",
+          variant: "destructive"
+        });
       }
-      
-      let content = "";
-      
-      if (contentType === 'email') {
-        content = generateEmailContent(script, author, successStory, selectedIdea, triggerInput);
-      } else if (contentType === 'linkedin') {
-        content = generateLinkedInContent(script, author, successStory, selectedIdea, triggerInput);
-      } else if (contentType === 'custom') {
-        content = generateCustomContent(script, author, successStory, selectedIdea, triggerInput);
-      }
-      
-      setGeneratedContent(content);
-      setIsGenerating(false);
-      
-      toast({
-        title: `${getContentTypeLabel()} generated`,
-        description: "Your content has been created. Feel free to edit it as needed."
-      });
-    }, 1500);
+    }, 2000); // 2 second delay to simulate generation
   };
 
   return {

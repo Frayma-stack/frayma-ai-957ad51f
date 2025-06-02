@@ -1,3 +1,4 @@
+
 import { FC } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,6 +41,13 @@ const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
 }) => {
   const { toast } = useToast();
 
+  console.log('📺 ContentGenerationDisplay render:', {
+    hasContent: !!content,
+    contentLength: content?.length || 0,
+    isGenerating,
+    contentPreview: content ? content.substring(0, 50) + '...' : 'No content'
+  });
+
   const handleCopyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(content);
@@ -71,7 +79,9 @@ const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
     });
   };
 
+  // Show the component even if generating (to show the loading state)
   if (!content && !isGenerating) {
+    console.log('📺 ContentGenerationDisplay: No content and not generating, not rendering');
     return null;
   }
 
@@ -80,7 +90,9 @@ const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
       <Card className="w-full bg-white shadow-md">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle className="text-brand-primary">Generated {contentTypeLabel}</CardTitle>
+            <CardTitle className="text-brand-primary">
+              {isGenerating ? `Generating ${contentTypeLabel}...` : `Generated ${contentTypeLabel}`}
+            </CardTitle>
             <div className="flex items-center gap-2">
               <AutoSaveIndicator 
                 isSaving={isSaving} 
@@ -91,6 +103,7 @@ const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
                   variant="outline"
                   size="sm"
                   onClick={() => onSetShowRestoreDialog(true)}
+                  disabled={isGenerating}
                 >
                   Restore Draft
                 </Button>
@@ -103,11 +116,11 @@ const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
             value={content}
             onChange={(e) => onContentChange(e.target.value)}
             className="min-h-[300px] font-mono text-sm"
-            placeholder={isGenerating ? "Generating content..." : `Your ${contentTypeLabel.toLowerCase()} will appear here...`}
+            placeholder={isGenerating ? "Generating your content, please wait..." : `Your ${contentTypeLabel.toLowerCase()} will appear here...`}
             disabled={isGenerating}
           />
           
-          {content && (
+          {content && !isGenerating && (
             <div className="flex gap-2 flex-wrap">
               <Button
                 variant="outline"
@@ -140,6 +153,15 @@ const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
                   Clear Draft
                 </Button>
               )}
+            </div>
+          )}
+
+          {isGenerating && (
+            <div className="flex items-center justify-center py-8">
+              <div className="flex items-center gap-3 text-gray-600">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-brand-primary"></div>
+                <span>Generating your {contentTypeLabel.toLowerCase()}...</span>
+              </div>
             </div>
           )}
         </CardContent>
