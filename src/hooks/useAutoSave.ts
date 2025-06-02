@@ -31,10 +31,23 @@ export const useAutoSave = (config: AutoSaveConfig) => {
 
   // Create or update a draft
   const saveDraft = useCallback(async (data: DraftData) => {
-    if (!user || !enableAutoSave) return null;
+    if (!user || !enableAutoSave) {
+      console.log('⚠️ Auto-save skipped:', { hasUser: !!user, enableAutoSave });
+      return null;
+    }
+
+    if (!data.content.trim()) {
+      console.log('⚠️ Auto-save skipped: empty content');
+      return null;
+    }
 
     try {
       setIsSaving(true);
+      console.log('💾 Starting auto-save:', {
+        contentLength: data.content.length,
+        hasCurrentDraftId: !!currentDraftId,
+        contentType: data.contentType
+      });
       
       const draftPayload = {
         title: data.title || 'Untitled Draft',
@@ -58,7 +71,11 @@ export const useAutoSave = (config: AutoSaveConfig) => {
           })
           .eq('id', currentDraftId);
 
-        if (error) throw error;
+        if (error) {
+          console.error('❌ Auto-save update failed:', error);
+          throw error;
+        }
+        console.log('✅ Draft updated successfully:', currentDraftId);
       } else {
         // Create new draft
         const { data: newDraft, error } = await supabase
@@ -67,19 +84,23 @@ export const useAutoSave = (config: AutoSaveConfig) => {
           .select('id')
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('❌ Auto-save insert failed:', error);
+          throw error;
+        }
         if (newDraft) {
           setCurrentDraftId(newDraft.id);
+          console.log('✅ New draft created:', newDraft.id);
         }
       }
 
       setLastSaved(new Date());
       return currentDraftId;
     } catch (error) {
-      console.error('Auto-save failed:', error);
+      console.error('❌ Auto-save failed:', error);
       toast({
         title: "Auto-save failed",
-        description: "Your changes couldn't be saved automatically. Please save manually.",
+        description: "Generated post could not be saved automatically. Please save manually.",
         variant: "destructive",
       });
       return null;
@@ -90,13 +111,17 @@ export const useAutoSave = (config: AutoSaveConfig) => {
 
   // Debounced save function
   const debouncedSave = useCallback((data: DraftData) => {
-    if (!enableAutoSave || !data.content.trim()) return;
+    if (!enableAutoSave || !data.content.trim()) {
+      console.log('⚠️ Debounced save skipped:', { enableAutoSave, hasContent: !!data.content.trim() });
+      return;
+    }
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
     timeoutRef.current = setTimeout(() => {
+      console.log('⏰ Debounced save executing...');
       saveDraft(data);
     }, debounceMs);
   }, [saveDraft, debounceMs, enableAutoSave]);
@@ -142,6 +167,7 @@ export const useAutoSave = (config: AutoSaveConfig) => {
         
         setCurrentDraftId(null);
         setLastSaved(null);
+        console.log('🗑️ Draft cleared successfully');
       } catch (error) {
         console.error('Failed to clear draft:', error);
       }

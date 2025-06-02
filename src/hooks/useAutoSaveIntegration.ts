@@ -26,7 +26,31 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
     authorId: config.authorId
   });
 
-  // Auto-save when content changes (with updated content tracking)
+  // Watch for content changes from parent component (this is the key fix)
+  useEffect(() => {
+    if (config.initialContent !== undefined && config.initialContent !== content) {
+      console.log('📝 Content updated from parent:', {
+        newContentLength: config.initialContent.length,
+        currentContentLength: content.length,
+        newContentPreview: config.initialContent ? config.initialContent.substring(0, 50) + '...' : 'empty',
+        shouldUpdate: config.initialContent !== content
+      });
+      setContent(config.initialContent);
+    }
+  }, [config.initialContent, content]);
+
+  // Watch for title changes from parent component
+  useEffect(() => {
+    if (config.initialTitle !== undefined && config.initialTitle !== title) {
+      console.log('📝 Title updated from parent:', {
+        newTitle: config.initialTitle,
+        currentTitle: title
+      });
+      setTitle(config.initialTitle);
+    }
+  }, [config.initialTitle, title]);
+
+  // Auto-save when content changes (with debouncing)
   useEffect(() => {
     console.log('💾 Auto-save effect triggered:', {
       hasTitle: !!title.trim(),
@@ -48,29 +72,20 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
         authorId: config.authorId
       });
     }
-  }, [content, title, config.contentType, config.clientId, config.authorId]);
-
-  // Watch for content changes from parent component
-  useEffect(() => {
-    if (config.initialContent !== undefined && config.initialContent !== content) {
-      console.log('📝 Content updated from parent:', {
-        newContentLength: config.initialContent.length,
-        currentContentLength: content.length,
-        newContentPreview: config.initialContent ? config.initialContent.substring(0, 50) + '...' : 'empty',
-        shouldUpdate: config.initialContent !== content
-      });
-      setContent(config.initialContent);
-    }
-  }, [config.initialContent]);
+  }, [content, title, config.contentType, config.clientId, config.authorId, autoSave]);
 
   // Load available drafts on mount
   const loadAvailableDrafts = useCallback(async () => {
-    const drafts = await autoSave.loadDrafts();
-    setAvailableDrafts(drafts);
-    
-    // Auto-show restore dialog if there are drafts and current content is empty
-    if (drafts.length > 0 && !title.trim() && !content.trim()) {
-      setShowRestoreDialog(true);
+    try {
+      const drafts = await autoSave.loadDrafts();
+      setAvailableDrafts(drafts);
+      
+      // Auto-show restore dialog if there are drafts and current content is empty
+      if (drafts.length > 0 && !title.trim() && !content.trim()) {
+        setShowRestoreDialog(true);
+      }
+    } catch (error) {
+      console.error('❌ Failed to load drafts:', error);
     }
   }, [autoSave.loadDrafts, title, content]);
 

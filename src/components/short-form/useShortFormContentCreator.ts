@@ -1,9 +1,10 @@
 
-import { useShortFormState } from './useShortFormState';
-import { useShortFormValidation } from './useShortFormValidation';
-import { useShortFormContentGeneration } from './useShortFormContentGeneration';
+import { useState } from 'react';
 import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
+import { useShortFormState } from './useShortFormState';
+import { useShortFormContentGeneration } from './useShortFormContentGeneration';
+import { useAutoSaveIntegration } from '@/hooks/useAutoSaveIntegration';
 import { ContentType } from './types';
 
 interface UseShortFormContentCreatorProps {
@@ -23,92 +24,10 @@ export const useShortFormContentCreator = ({
   ideas,
   selectedClientId
 }: UseShortFormContentCreatorProps) => {
+  const [generatedContent, setGeneratedContent] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const {
-    selectedICP,
-    selectedAuthor,
-    selectedAuthorTone,
-    selectedAuthorExperience,
-    selectedAuthorBelief,
-    narrativeSelections,
-    contentGoal,
-    generatedContent,
-    isGenerating,
-    clientName,
-    additionalContext,
-    selectedSuccessStory,
-    wordCount,
-    emailCount,
-    availableAnchors,
-    selectedIdeaId,
-    triggerInput,
-    productInputs,
-    toast,
-    getSelectedIdea,
-    setSelectedICP,
-    setSelectedAuthor,
-    setSelectedAuthorTone,
-    setSelectedAuthorExperience,
-    setSelectedAuthorBelief,
-    setNarrativeSelections,
-    setContentGoal,
-    setGeneratedContent,
-    setIsGenerating,
-    setAdditionalContext,
-    setSelectedSuccessStory,
-    setWordCount,
-    setEmailCount,
-    setSelectedIdeaId,
-    setTriggerInput,
-    setProductInputs,
-    // Auto-save functionality
-    isSaving,
-    lastSaved,
-    showRestoreDialog,
-    setShowRestoreDialog,
-    availableDrafts,
-    handleRestoreDraft,
-    handleDeleteDraft,
-    clearCurrentDraft
-  } = useShortFormState({ 
-    scripts, 
-    authors, 
-    successStories, 
-    ideas, 
-    contentType,
-    selectedClientId 
-  });
-
-  const { isFormValid } = useShortFormValidation({
-    selectedICP,
-    selectedAuthor,
-    narrativeSelections,
-    triggerInput,
-    getSelectedIdea
-  });
-
-  const { generateContent, getContentTypeLabel } = useShortFormContentGeneration({
-    contentType,
-    scripts,
-    authors,
-    successStories,
-    narrativeSelections,
-    selectedICP,
-    selectedAuthor,
-    selectedAuthorTone,
-    selectedAuthorExperience,
-    selectedSuccessStory,
-    contentGoal,
-    wordCount,
-    emailCount,
-    additionalContext,
-    triggerInput,
-    setIsGenerating,
-    setGeneratedContent,
-    getSelectedIdea,
-    isFormValid
-  });
-
-  return {
     // State
     selectedICP,
     selectedAuthor,
@@ -117,9 +36,6 @@ export const useShortFormContentCreator = ({
     selectedAuthorBelief,
     narrativeSelections,
     contentGoal,
-    generatedContent,
-    isGenerating,
-    clientName,
     additionalContext,
     selectedSuccessStory,
     wordCount,
@@ -138,7 +54,120 @@ export const useShortFormContentCreator = ({
     setSelectedAuthorBelief,
     setNarrativeSelections,
     setContentGoal,
+    setAdditionalContext,
+    setSelectedSuccessStory,
+    setWordCount,
+    setEmailCount,
+    setSelectedIdeaId,
+    setTriggerInput,
+    setProductInputs
+  } = useShortFormState({
+    contentType,
+    scripts,
+    authors,
+    successStories,
+    ideas,
+    selectedClientId
+  });
+
+  // Auto-save integration with proper content tracking
+  const autoSaveIntegration = useAutoSaveIntegration({
+    contentType,
+    clientId: selectedClientId,
+    authorId: selectedAuthor || undefined,
+    initialContent: generatedContent, // Pass the generated content here
+    initialTitle: '', // Let auto-save generate the title
+    onDraftRestored: (title: string, content: string) => {
+      console.log('🔄 Draft restored in content creator:', { title, content: content.substring(0, 50) + '...' });
+      setGeneratedContent(content);
+    }
+  });
+
+  const {
+    generateContent,
+    getContentTypeLabel
+  } = useShortFormContentGeneration({
+    contentType,
+    scripts,
+    authors,
+    successStories,
+    narrativeSelections,
+    selectedICP,
+    selectedAuthor,
+    selectedAuthorTone,
+    selectedAuthorExperience,
+    selectedSuccessStory,
+    contentGoal,
+    wordCount,
+    emailCount,
+    additionalContext,
+    triggerInput,
+    setIsGenerating,
     setGeneratedContent,
+    getSelectedIdea,
+    isFormValid: () => {
+      const selectedIdea = getSelectedIdea();
+      if (triggerInput.trim()) {
+        return Boolean(selectedAuthor);
+      } else if (selectedIdea) {
+        return Boolean(selectedAuthor);
+      } else {
+        return Boolean(selectedICP && selectedAuthor && narrativeSelections.length > 0);
+      }
+    }
+  });
+
+  // Handler to update generated content and trigger auto-save
+  const handleGeneratedContentChange = (content: string) => {
+    console.log('📝 Generated content changed:', {
+      contentLength: content.length,
+      contentPreview: content ? content.substring(0, 50) + '...' : 'empty'
+    });
+    setGeneratedContent(content);
+    // The auto-save integration will handle saving automatically via useEffect
+  };
+
+  const isFormValid = () => {
+    const selectedIdea = getSelectedIdea();
+    if (triggerInput.trim()) {
+      return Boolean(selectedAuthor);
+    } else if (selectedIdea) {
+      return Boolean(selectedAuthor);
+    } else {
+      return Boolean(selectedICP && selectedAuthor && narrativeSelections.length > 0);
+    }
+  };
+
+  return {
+    // State
+    selectedICP,
+    selectedAuthor,
+    selectedAuthorTone,
+    selectedAuthorExperience,
+    selectedAuthorBelief,
+    narrativeSelections,
+    contentGoal,
+    generatedContent,
+    isGenerating,
+    additionalContext,
+    selectedSuccessStory,
+    wordCount,
+    emailCount,
+    availableAnchors,
+    selectedIdeaId,
+    triggerInput,
+    productInputs,
+    getSelectedIdea,
+    
+    // Actions
+    setSelectedICP,
+    setSelectedAuthor,
+    setSelectedAuthorTone,
+    setSelectedAuthorExperience,
+    setSelectedAuthorBelief,
+    setNarrativeSelections,
+    setContentGoal,
+    setGeneratedContent: handleGeneratedContentChange,
     setAdditionalContext,
     setSelectedSuccessStory,
     setWordCount,
@@ -153,13 +182,13 @@ export const useShortFormContentCreator = ({
     generateContent,
     
     // Auto-save functionality
-    isSaving,
-    lastSaved,
-    showRestoreDialog,
-    setShowRestoreDialog,
-    availableDrafts,
-    handleRestoreDraft,
-    handleDeleteDraft,
-    clearCurrentDraft
+    isSaving: autoSaveIntegration.isSaving,
+    lastSaved: autoSaveIntegration.lastSaved,
+    showRestoreDialog: autoSaveIntegration.showRestoreDialog,
+    setShowRestoreDialog: autoSaveIntegration.setShowRestoreDialog,
+    availableDrafts: autoSaveIntegration.availableDrafts,
+    handleRestoreDraft: autoSaveIntegration.handleRestoreDraft,
+    handleDeleteDraft: autoSaveIntegration.handleDeleteDraft,
+    clearCurrentDraft: autoSaveIntegration.clearCurrentDraft
   };
 };
