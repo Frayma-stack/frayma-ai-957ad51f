@@ -36,16 +36,17 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
     onProductInputsChange({
       ...productInputs,
       selectedProductContextType: type,
-      selectedFeatures: type === 'features' ? productInputs.selectedFeatures : [],
-      selectedUseCases: type === 'usecases' ? productInputs.selectedUseCases : [],
-      selectedDifferentiators: type === 'differentiators' ? productInputs.selectedDifferentiators : []
+      selectedFeatures: type === 'features' ? (productInputs.selectedFeatures || []) : [],
+      selectedUseCases: type === 'usecases' ? (productInputs.selectedUseCases || []) : [],
+      selectedDifferentiators: type === 'differentiators' ? (productInputs.selectedDifferentiators || []) : []
     });
   };
 
   const handleFeatureToggle = (feature: ProductFeature) => {
-    const newFeatures = productInputs.selectedFeatures.find(f => f.id === feature.id)
-      ? productInputs.selectedFeatures.filter(f => f.id !== feature.id)
-      : [...productInputs.selectedFeatures, feature];
+    const selectedFeatures = productInputs.selectedFeatures || [];
+    const newFeatures = selectedFeatures.find(f => f.id === feature.id)
+      ? selectedFeatures.filter(f => f.id !== feature.id)
+      : [...selectedFeatures, feature];
     
     onProductInputsChange({
       ...productInputs,
@@ -54,9 +55,10 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
   };
 
   const handleUseCaseToggle = (useCase: ProductUseCase) => {
-    const newUseCases = productInputs.selectedUseCases.find(u => u.id === useCase.id)
-      ? productInputs.selectedUseCases.filter(u => u.id !== useCase.id)
-      : [...productInputs.selectedUseCases, useCase];
+    const selectedUseCases = productInputs.selectedUseCases || [];
+    const newUseCases = selectedUseCases.find(u => u.id === useCase.id)
+      ? selectedUseCases.filter(u => u.id !== useCase.id)
+      : [...selectedUseCases, useCase];
     
     onProductInputsChange({
       ...productInputs,
@@ -65,15 +67,21 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
   };
 
   const handleDifferentiatorToggle = (differentiator: ProductDifferentiator) => {
-    const newDifferentiators = productInputs.selectedDifferentiators.find(d => d.id === differentiator.id)
-      ? productInputs.selectedDifferentiators.filter(d => d.id !== differentiator.id)
-      : [...productInputs.selectedDifferentiators, differentiator];
+    const selectedDifferentiators = productInputs.selectedDifferentiators || [];
+    const newDifferentiators = selectedDifferentiators.find(d => d.id === differentiator.id)
+      ? selectedDifferentiators.filter(d => d.id !== differentiator.id)
+      : [...selectedDifferentiators, differentiator];
     
     onProductInputsChange({
       ...productInputs,
       selectedDifferentiators: newDifferentiators
     });
   };
+
+  // Safe access to arrays with fallbacks
+  const selectedFeatures = productInputs.selectedFeatures || [];
+  const selectedUseCases = productInputs.selectedUseCases || [];
+  const selectedDifferentiators = productInputs.selectedDifferentiators || [];
 
   return (
     <Card className="border-brand-primary/20">
@@ -125,7 +133,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
                 <div key={feature.id} className="flex items-start space-x-2">
                   <Checkbox
                     id={feature.id}
-                    checked={productInputs.selectedFeatures.find(f => f.id === feature.id) !== undefined}
+                    checked={selectedFeatures.find(f => f.id === feature.id) !== undefined}
                     onCheckedChange={() => handleFeatureToggle(feature)}
                   />
                   <div className="flex-1">
@@ -155,7 +163,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
                 <div key={useCase.id} className="flex items-start space-x-2">
                   <Checkbox
                     id={useCase.id}
-                    checked={productInputs.selectedUseCases.find(u => u.id === useCase.id) !== undefined}
+                    checked={selectedUseCases.find(u => u.id === useCase.id) !== undefined}
                     onCheckedChange={() => handleUseCaseToggle(useCase)}
                   />
                   <div className="flex-1">
@@ -185,7 +193,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
                 <div key={differentiator.id} className="flex items-start space-x-2">
                   <Checkbox
                     id={differentiator.id}
-                    checked={productInputs.selectedDifferentiators.find(d => d.id === differentiator.id) !== undefined}
+                    checked={selectedDifferentiators.find(d => d.id === differentiator.id) !== undefined}
                     onCheckedChange={() => handleDifferentiatorToggle(differentiator)}
                   />
                   <div className="flex-1">
