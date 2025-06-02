@@ -12,46 +12,43 @@ export const useNarrativeContent = ({
   selectedICP,
   scripts
 }: UseNarrativeContentProps) => {
-  const getSelectedICPScript = () => {
-    return scripts.find(script => script.id === selectedICP);
-  };
+  const getSelectedNarrativeContents = (): string[] => {
+    const script = scripts.find(s => s.id === selectedICP);
+    if (!script) return [];
 
-  const getSelectedNarrativeContents = () => {
-    const result: string[] = [];
-    
+    const contents: string[] = [];
+
     narrativeSelections.forEach(selection => {
-      const items = getNarrativeItems(selection.type);
+      let items;
+      switch (selection.type) {
+        case 'belief':
+          items = script.coreBeliefs || [];
+          break;
+        case 'pain':
+          items = script.internalPains || [];
+          break;
+        case 'struggle':
+          items = script.externalStruggles || [];
+          break;
+        case 'transformation':
+          items = script.desiredTransformations || [];
+          break;
+        default:
+          items = [];
+      }
+
       selection.items.forEach(itemId => {
         const item = items.find(i => i.id === itemId);
         if (item) {
-          result.push(item.content);
+          contents.push(item.content);
         }
       });
     });
-    
-    return result;
-  };
 
-  const getNarrativeItems = (type: 'belief' | 'pain' | 'struggle' | 'transformation') => {
-    const script = getSelectedICPScript();
-    if (!script) return [];
-
-    switch (type) {
-      case 'belief':
-        return script.coreBeliefs.map(item => ({ id: item.id, content: item.content }));
-      case 'pain':
-        return script.internalPains.map(item => ({ id: item.id, content: item.content }));
-      case 'struggle':
-        return script.externalStruggles.map(item => ({ id: item.id, content: item.content }));
-      case 'transformation':
-        return script.desiredTransformations.map(item => ({ id: item.id, content: item.content }));
-      default:
-        return [];
-    }
+    return contents;
   };
 
   return {
-    getSelectedNarrativeContents,
-    getNarrativeItems
+    getSelectedNarrativeContents
   };
 };

@@ -4,9 +4,6 @@ import { GeneratedIdea } from '@/types/ideas';
 import { ContentType, ContentGoal } from './types';
 import { useContentDataAccess } from './useContentDataAccess';
 import { useNarrativeContent } from './useNarrativeContent';
-import { useEmailContentGenerator } from './generators/useEmailContentGenerator';
-import { useLinkedInContentGenerator } from './generators/useLinkedInContentGenerator';
-import { useCustomContentGenerator } from './generators/useCustomContentGenerator';
 
 interface UseContentGenerationProps {
   contentType: ContentType;
@@ -34,21 +31,12 @@ export const useContentGeneration = ({
   narrativeSelections,
   selectedICP,
   selectedAuthor,
-  selectedAuthorTone,
-  selectedAuthorExperience,
-  selectedSuccessStory,
-  contentGoal,
-  wordCount,
-  emailCount,
-  additionalContext,
-  triggerInput
+  selectedSuccessStory
 }: UseContentGenerationProps) => {
   const {
     getSelectedICPScript,
     getSelectedAuthor,
-    getSelectedSuccessStory,
-    getAuthorTones,
-    getAuthorExperiences
+    getSelectedSuccessStory
   } = useContentDataAccess({
     scripts,
     authors,
@@ -65,49 +53,10 @@ export const useContentGeneration = ({
     scripts
   });
 
-  const { generateEmailContent } = useEmailContentGenerator({
-    selectedAuthorTone,
-    selectedAuthorExperience,
-    additionalContext,
-    emailCount,
-    contentGoal,
-    triggerInput,
-    getAuthorTones,
-    getAuthorExperiences,
-    getSelectedNarrativeContents
-  });
-
-  const { generateLinkedInContent } = useLinkedInContentGenerator({
-    selectedAuthorTone,
-    selectedAuthorExperience,
-    additionalContext,
-    contentGoal,
-    triggerInput,
-    getAuthorTones,
-    getAuthorExperiences,
-    getSelectedNarrativeContents
-  });
-
-  const { generateCustomContent } = useCustomContentGenerator({
-    selectedAuthorTone,
-    selectedAuthorExperience,
-    additionalContext,
-    contentGoal,
-    triggerInput,
-    getAuthorTones,
-    getAuthorExperiences,
-    getSelectedNarrativeContents
-  });
-
   return {
     getSelectedICPScript,
     getSelectedAuthor,
     getSelectedSuccessStory,
-    getAuthorTones,
-    getAuthorExperiences,
-    getSelectedNarrativeContents,
-    generateEmailContent,
-    generateLinkedInContent,
-    generateCustomContent
+    getSelectedNarrativeContents
   };
 };

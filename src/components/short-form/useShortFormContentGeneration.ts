@@ -1,5 +1,6 @@
 
 import { useToast } from "@/components/ui/use-toast";
+import { useChatGPT } from '@/contexts/ChatGPTContext';
 import { ICPStoryScript, Author, CustomerSuccessStory, NarrativeSelection } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { ContentType, ContentGoal } from './types';
@@ -49,14 +50,13 @@ export const useShortFormContentGeneration = ({
   isFormValid
 }: UseShortFormContentGenerationProps) => {
   const { toast } = useToast();
+  const { generateContent: generateWithChatGPT, isConfigured } = useChatGPT();
 
   const {
     getSelectedICPScript,
     getSelectedAuthor,
     getSelectedSuccessStory,
-    generateEmailContent,
-    generateLinkedInContent,
-    generateCustomContent
+    getSelectedNarrativeContents
   } = useContentGeneration({
     contentType,
     scripts,
@@ -84,115 +84,198 @@ export const useShortFormContentGeneration = ({
     }
   };
 
-  const generateContent = () => {
-    console.log('🔄 Starting content auto-crafting...');
+  const buildPrompt = () => {
+    const script = getSelectedICPScript();
+    const author = getSelectedAuthor();
+    const successStory = getSelectedSuccessStory();
+    const selectedIdea = getSelectedIdea();
+    const narrativeContents = getSelectedNarrativeContents();
+
+    let prompt = `You are an expert GTM narrative writer creating compelling, high-converting ${contentType} content.\n\n`;
+
+    // Content type specific instructions
+    if (contentType === 'linkedin') {
+      prompt += `Create a LinkedIn post that:
+- Uses engaging storytelling to capture attention
+- Includes relevant hashtags and professional tone
+- Has a clear call-to-action
+- Is approximately ${wordCount} words
+- Uses LinkedIn best practices for engagement\n\n`;
+    } else if (contentType === 'email') {
+      prompt += `Create a ${emailCount}-email sequence that:
+- Uses compelling subject lines
+- Builds trust and credibility
+- Addresses pain points directly
+- Has clear calls-to-action
+- Follows email marketing best practices\n\n`;
+    } else {
+      prompt += `Create custom content that:
+- Is approximately ${wordCount} words
+- Uses compelling storytelling
+- Has a clear call-to-action
+- Addresses the target audience's needs\n\n`;
+    }
+
+    // Add trigger/idea context
+    if (triggerInput) {
+      prompt += `CONTENT TRIGGER/THESIS:\n${triggerInput}\n\n`;
+    } else if (selectedIdea) {
+      prompt += `CONTENT IDEA:\nTitle: ${selectedIdea.title}\nNarrative: ${selectedIdea.narrative}\n`;
+      if (selectedIdea.productTieIn) {
+        prompt += `Product Tie-in: ${selectedIdea.productTieIn}\n`;
+      }
+      if (selectedIdea.cta) {
+        prompt += `CTA: ${selectedIdea.cta}\n`;
+      }
+      prompt += '\n';
+    }
+
+    // Add ICP context
+    if (script) {
+      prompt += `TARGET ICP: ${script.name}\n`;
+      if (script.description) {
+        prompt += `ICP Description: ${script.description}\n`;
+      }
+      prompt += '\n';
+    }
+
+    // Add narrative anchors
+    if (narrativeContents.length > 0) {
+      prompt += `NARRATIVE ANCHORS TO INCORPORATE:\n`;
+      narrativeContents.forEach((content, index) => {
+        prompt += `${index + 1}. ${content}\n`;
+      });
+      prompt += '\n';
+    }
+
+    // Add author context
+    if (author) {
+      prompt += `AUTHOR CONTEXT:\n`;
+      prompt += `Name: ${author.name}\n`;
+      if (author.currentTitle) prompt += `Title: ${author.currentTitle}\n`;
+      if (author.organization) prompt += `Organization: ${author.organization}\n`;
+      if (author.careerBackstory) prompt += `Background: ${author.careerBackstory}\n`;
+      
+      // Add tone and experience
+      if (selectedAuthorTone && author.writingTones) {
+        const tone = author.writingTones.find(t => t.id === selectedAuthorTone);
+        if (tone) prompt += `Writing Tone: ${tone.toneTitle} - ${tone.toneSummary}\n`;
+      }
+      if (selectedAuthorExperience && author.experiences) {
+        const experience = author.experiences.find(e => e.id === selectedAuthorExperience);
+        if (experience) prompt += `Experience Context: ${experience.title} - ${experience.summary}\n`;
+      }
+      prompt += '\n';
+    }
+
+    // Add success story
+    if (successStory) {
+      prompt += `SUCCESS STORY TO REFERENCE:\n`;
+      prompt += `Title: ${successStory.title}\n`;
+      prompt += `Before: ${successStory.beforeSummary}\n`;
+      prompt += `After: ${successStory.afterSummary}\n`;
+      if (successStory.quotes.length > 0) {
+        prompt += `Quote: "${successStory.quotes[0].quote}" - ${successStory.quotes[0].author}\n`;
+      }
+      prompt += '\n';
+    }
+
+    // Add content goal
+    prompt += `CONTENT GOAL: ${contentGoal.description}\n\n`;
+
+    // Add additional context
+    if (additionalContext && !additionalContext.startsWith('Based on saved idea:')) {
+      prompt += `ADDITIONAL CONTEXT:\n${additionalContext}\n\n`;
+    }
+
+    prompt += `INSTRUCTIONS:
+1. Write engaging, narrative-driven content that resonates with the target audience
+2. Incorporate the narrative anchors naturally into the story
+3. Use the author's voice and expertise authentically
+4. Include specific, actionable insights
+5. End with a compelling call-to-action aligned with the content goal
+6. Make it feel personal and credible, not templated
+7. Use storytelling techniques to build engagement
+
+Write the complete ${contentType} content now:`;
+
+    return prompt;
+  };
+
+  const generateContent = async () => {
+    console.log('🔄 Starting AI-powered content generation...');
     
     if (!isFormValid()) {
       const selectedIdea = getSelectedIdea();
       if (triggerInput.trim()) {
         toast({
           title: "Missing information",
-          description: "Please select an author to auto-craft content using your trigger.",
+          description: "Please select an author to generate content using your trigger.",
           variant: "destructive"
         });
       } else if (selectedIdea) {
         toast({
           title: "Missing information",
-          description: "Please select an author to auto-craft content using your saved idea.",
+          description: "Please select an author to generate content using your saved idea.",
           variant: "destructive"
         });
       } else {
         toast({
           title: "Missing information",
-          description: "Please select an ICP, author, and at least one narrative item to auto-craft content.",
+          description: "Please select an ICP, author, and at least one narrative item to generate content.",
           variant: "destructive"
         });
       }
       return;
     }
 
-    setIsGenerating(true);
-    console.log('🎯 Content auto-crafting started, isGenerating set to true');
+    if (!isConfigured) {
+      toast({
+        title: "ChatGPT not configured",
+        description: "Please configure your ChatGPT API key to generate content.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    // Simulate content generation with a more realistic delay
-    setTimeout(() => {
-      try {
-        const script = getSelectedICPScript();
-        const author = getSelectedAuthor();
-        const successStory = getSelectedSuccessStory();
-        const selectedIdea = getSelectedIdea();
-        
-        console.log('📝 Auto-crafting content with data:', {
-          hasScript: !!script,
-          hasAuthor: !!author,
-          hasSuccessStory: !!successStory,
-          hasSelectedIdea: !!selectedIdea,
-          contentType,
-          triggerInput: triggerInput.substring(0, 50) + '...',
-          narrativeSelectionsCount: narrativeSelections.length
-        });
-        
-        if (!author) {
-          console.error('❌ No author found for content auto-crafting');
-          setIsGenerating(false);
-          toast({
-            title: "Auto-crafting failed",
-            description: "Author information is required for content auto-crafting.",
-            variant: "destructive"
-          });
-          return;
-        }
-        
-        let content = "";
-        
-        if (contentType === 'email') {
-          content = generateEmailContent(script, author, successStory, selectedIdea, triggerInput);
-        } else if (contentType === 'linkedin') {
-          content = generateLinkedInContent(script, author, successStory, selectedIdea, triggerInput);
-        } else if (contentType === 'custom') {
-          content = generateCustomContent(script, author, successStory, selectedIdea, triggerInput);
-        }
-        
-        console.log('✅ Content auto-crafted successfully:', {
-          contentLength: content.length,
-          contentPreview: content.substring(0, 100) + '...',
-          contentType,
-          hasContent: !!content
-        });
-        
-        // Ensure content is not empty
-        if (!content || content.trim().length === 0) {
-          console.error('❌ Auto-crafted content is empty');
-          setIsGenerating(false);
-          toast({
-            title: "Auto-crafting failed",
-            description: "Generated content was empty. Please try again.",
-            variant: "destructive"
-          });
-          return;
-        }
-        
-        // Set the generated content
-        console.log('📝 Setting generated content:', content.substring(0, 100) + '...');
-        setGeneratedContent(content);
-        setIsGenerating(false);
-        
-        // Show success message
-        toast({
-          title: `${getContentTypeLabel()} auto-crafted successfully!`,
-          description: "Your content is ready for editing. It will be automatically saved as a draft.",
-        });
-        
-      } catch (error) {
-        console.error('❌ Content auto-crafting error:', error);
-        setIsGenerating(false);
-        toast({
-          title: "Auto-crafting failed",
-          description: "There was an error auto-crafting your content. Please try again.",
-          variant: "destructive"
-        });
+    setIsGenerating(true);
+    console.log('🎯 AI content generation started');
+
+    try {
+      const prompt = buildPrompt();
+      console.log('📝 Generated prompt for AI:', prompt.substring(0, 200) + '...');
+      
+      const generatedContent = await generateWithChatGPT(prompt, {
+        maxTokens: contentType === 'email' ? 3000 : 2000,
+        temperature: 0.7
+      });
+      
+      console.log('✅ AI content generated successfully:', {
+        contentLength: generatedContent.length,
+        contentPreview: generatedContent.substring(0, 100) + '...'
+      });
+      
+      if (!generatedContent || generatedContent.trim().length === 0) {
+        throw new Error('Generated content was empty');
       }
-    }, 2000); // 2 second delay to simulate generation
+      
+      setGeneratedContent(generatedContent);
+      
+      toast({
+        title: `${getContentTypeLabel()} generated successfully!`,
+        description: "Your AI-powered content is ready for editing. It will be automatically saved as a draft.",
+      });
+      
+    } catch (error) {
+      console.error('❌ AI content generation error:', error);
+      toast({
+        title: "Generation failed",
+        description: error instanceof Error ? error.message : "There was an error generating your content. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return {

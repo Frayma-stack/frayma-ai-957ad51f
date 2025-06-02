@@ -26,27 +26,15 @@ export const useContentDataAccess = ({
   const getSelectedAuthor = () => {
     return authors.find(author => author.id === selectedAuthor);
   };
-  
+
   const getSelectedSuccessStory = () => {
-    if (selectedSuccessStory === "none") return undefined;
+    if (selectedSuccessStory === 'none' || !selectedSuccessStory) return undefined;
     return successStories.find(story => story.id === selectedSuccessStory);
-  };
-
-  const getAuthorTones = () => {
-    const author = getSelectedAuthor();
-    return author?.tones || [];
-  };
-
-  const getAuthorExperiences = () => {
-    const author = getSelectedAuthor();
-    return author?.experiences || [];
   };
 
   return {
     getSelectedICPScript,
     getSelectedAuthor,
-    getSelectedSuccessStory,
-    getAuthorTones,
-    getAuthorExperiences
+    getSelectedSuccessStory
   };
 };
