@@ -177,10 +177,10 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
         {isGenerating ? (
           <>
             <Loader className="mr-2 h-4 w-4 animate-spin" />
-            Generating...
+            Auto-crafting...
           </>
         ) : (
-          `Generate ${getContentTypeLabel()}`
+          `Auto-craft ${getContentTypeLabel()}`
         )}
       </Button>
     </CardContent>

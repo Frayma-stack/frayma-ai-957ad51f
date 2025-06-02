@@ -71,7 +71,7 @@ const ContentEditor: FC<ContentEditorProps> = ({ initialContent, title, onBack }
           value={content}
           onChange={(e) => setContent(e.target.value)}
           className="min-h-[400px] text-sm font-mono"
-          placeholder="Your generated content will appear here for editing..."
+          placeholder="Your auto-crafted content will appear here for editing..."
         />
         
         <div className="flex flex-wrap gap-3">

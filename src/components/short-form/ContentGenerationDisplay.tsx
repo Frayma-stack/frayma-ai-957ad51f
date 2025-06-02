@@ -45,7 +45,8 @@ const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
     hasContent: !!content,
     contentLength: content?.length || 0,
     isGenerating,
-    contentPreview: content ? content.substring(0, 50) + '...' : 'No content'
+    contentPreview: content ? content.substring(0, 50) + '...' : 'No content',
+    shouldShow: !!(content || isGenerating)
   });
 
   const handleCopyToClipboard = async () => {
@@ -79,7 +80,7 @@ const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
     });
   };
 
-  // Show the component even if generating (to show the loading state)
+  // Always show the component if generating or if there's content
   if (!content && !isGenerating) {
     console.log('📺 ContentGenerationDisplay: No content and not generating, not rendering');
     return null;
@@ -91,7 +92,7 @@ const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-brand-primary">
-              {isGenerating ? `Generating ${contentTypeLabel}...` : `Generated ${contentTypeLabel}`}
+              {isGenerating ? `Auto-crafting ${contentTypeLabel}...` : `Auto-crafted ${contentTypeLabel}`}
             </CardTitle>
             <div className="flex items-center gap-2">
               <AutoSaveIndicator 
@@ -116,7 +117,7 @@ const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
             value={content}
             onChange={(e) => onContentChange(e.target.value)}
             className="min-h-[300px] font-mono text-sm"
-            placeholder={isGenerating ? "Generating your content, please wait..." : `Your ${contentTypeLabel.toLowerCase()} will appear here...`}
+            placeholder={isGenerating ? "Auto-crafting your content, please wait..." : `Your ${contentTypeLabel.toLowerCase()} will appear here...`}
             disabled={isGenerating}
           />
           
@@ -160,7 +161,7 @@ const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-3 text-gray-600">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-brand-primary"></div>
-                <span>Generating your {contentTypeLabel.toLowerCase()}...</span>
+                <span>Auto-crafting your {contentTypeLabel.toLowerCase()}...</span>
               </div>
             </div>
           )}

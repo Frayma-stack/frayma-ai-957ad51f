@@ -85,26 +85,26 @@ export const useShortFormContentGeneration = ({
   };
 
   const generateContent = () => {
-    console.log('🔄 Starting content generation...');
+    console.log('🔄 Starting content auto-crafting...');
     
     if (!isFormValid()) {
       const selectedIdea = getSelectedIdea();
       if (triggerInput.trim()) {
         toast({
           title: "Missing information",
-          description: "Please select an author to generate content using your trigger.",
+          description: "Please select an author to auto-craft content using your trigger.",
           variant: "destructive"
         });
       } else if (selectedIdea) {
         toast({
           title: "Missing information",
-          description: "Please select an author to generate content using your saved idea.",
+          description: "Please select an author to auto-craft content using your saved idea.",
           variant: "destructive"
         });
       } else {
         toast({
           title: "Missing information",
-          description: "Please select an ICP, author, and at least one narrative item to generate content.",
+          description: "Please select an ICP, author, and at least one narrative item to auto-craft content.",
           variant: "destructive"
         });
       }
@@ -112,7 +112,7 @@ export const useShortFormContentGeneration = ({
     }
 
     setIsGenerating(true);
-    console.log('🎯 Content generation started, isGenerating set to true');
+    console.log('🎯 Content auto-crafting started, isGenerating set to true');
 
     // Simulate content generation with a more realistic delay
     setTimeout(() => {
@@ -122,21 +122,22 @@ export const useShortFormContentGeneration = ({
         const successStory = getSelectedSuccessStory();
         const selectedIdea = getSelectedIdea();
         
-        console.log('📝 Generating content with data:', {
+        console.log('📝 Auto-crafting content with data:', {
           hasScript: !!script,
           hasAuthor: !!author,
           hasSuccessStory: !!successStory,
           hasSelectedIdea: !!selectedIdea,
           contentType,
-          triggerInput: triggerInput.substring(0, 50) + '...'
+          triggerInput: triggerInput.substring(0, 50) + '...',
+          narrativeSelectionsCount: narrativeSelections.length
         });
         
         if (!author) {
-          console.error('❌ No author found for content generation');
+          console.error('❌ No author found for content auto-crafting');
           setIsGenerating(false);
           toast({
-            title: "Generation failed",
-            description: "Author information is required for content generation.",
+            title: "Auto-crafting failed",
+            description: "Author information is required for content auto-crafting.",
             variant: "destructive"
           });
           return;
@@ -152,27 +153,42 @@ export const useShortFormContentGeneration = ({
           content = generateCustomContent(script, author, successStory, selectedIdea, triggerInput);
         }
         
-        console.log('✅ Content generated successfully:', {
+        console.log('✅ Content auto-crafted successfully:', {
           contentLength: content.length,
-          contentPreview: content.substring(0, 100) + '...'
+          contentPreview: content.substring(0, 100) + '...',
+          contentType,
+          hasContent: !!content
         });
         
+        // Ensure content is not empty
+        if (!content || content.trim().length === 0) {
+          console.error('❌ Auto-crafted content is empty');
+          setIsGenerating(false);
+          toast({
+            title: "Auto-crafting failed",
+            description: "Generated content was empty. Please try again.",
+            variant: "destructive"
+          });
+          return;
+        }
+        
         // Set the generated content
+        console.log('📝 Setting generated content:', content.substring(0, 100) + '...');
         setGeneratedContent(content);
         setIsGenerating(false);
         
         // Show success message
         toast({
-          title: `${getContentTypeLabel()} generated successfully!`,
+          title: `${getContentTypeLabel()} auto-crafted successfully!`,
           description: "Your content is ready for editing. It will be automatically saved as a draft.",
         });
         
       } catch (error) {
-        console.error('❌ Content generation error:', error);
+        console.error('❌ Content auto-crafting error:', error);
         setIsGenerating(false);
         toast({
-          title: "Generation failed",
-          description: "There was an error generating your content. Please try again.",
+          title: "Auto-crafting failed",
+          description: "There was an error auto-crafting your content. Please try again.",
           variant: "destructive"
         });
       }

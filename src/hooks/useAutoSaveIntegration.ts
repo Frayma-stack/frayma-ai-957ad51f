@@ -32,7 +32,8 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
       hasTitle: !!title.trim(),
       hasContent: !!content.trim(),
       contentLength: content.length,
-      contentType: config.contentType
+      contentType: config.contentType,
+      contentPreview: content ? content.substring(0, 50) + '...' : 'empty'
     });
 
     if (content.trim()) {
@@ -51,10 +52,12 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
 
   // Watch for content changes from parent component
   useEffect(() => {
-    if (config.initialContent && config.initialContent !== content) {
+    if (config.initialContent !== undefined && config.initialContent !== content) {
       console.log('📝 Content updated from parent:', {
         newContentLength: config.initialContent.length,
-        currentContentLength: content.length
+        currentContentLength: content.length,
+        newContentPreview: config.initialContent ? config.initialContent.substring(0, 50) + '...' : 'empty',
+        shouldUpdate: config.initialContent !== content
       });
       setContent(config.initialContent);
     }
