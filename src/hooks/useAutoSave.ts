@@ -27,7 +27,7 @@ export const useAutoSave = (config: AutoSaveConfig) => {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
-  const { enableAutoSave = true, debounceMs = 2000 } = config;
+  const { enableAutoSave = true, debounceMs = 1000 } = config; // Reduced debounce time
 
   // Create or update a draft
   const saveDraft = useCallback(async (data: DraftData) => {
@@ -46,11 +46,14 @@ export const useAutoSave = (config: AutoSaveConfig) => {
       console.log('💾 Starting auto-save:', {
         contentLength: data.content.length,
         hasCurrentDraftId: !!currentDraftId,
-        contentType: data.contentType
+        contentType: data.contentType,
+        clientId: data.clientId,
+        authorId: data.authorId,
+        userId: user.id
       });
       
       const draftPayload = {
-        title: data.title || 'Untitled Draft',
+        title: data.title || `${data.contentType} - ${new Date().toLocaleDateString()}`,
         content: data.content,
         content_type: data.contentType,
         client_id: data.clientId || null,
@@ -61,23 +64,41 @@ export const useAutoSave = (config: AutoSaveConfig) => {
         status: 'draft' as const
       };
 
+      console.log('💾 Draft payload prepared:', {
+        title: draftPayload.title,
+        contentLength: draftPayload.content.length,
+        contentType: draftPayload.content_type,
+        hasClientId: !!draftPayload.client_id,
+        hasAuthorId: !!draftPayload.author_id,
+        userId: draftPayload.user_id
+      });
+
       if (currentDraftId) {
         // Update existing draft
-        const { error } = await supabase
+        console.log('🔄 Updating existing draft:', currentDraftId);
+        const { data: updatedDraft, error } = await supabase
           .from('drafts')
           .update({
             ...draftPayload,
             updated_at: new Date().toISOString()
           })
-          .eq('id', currentDraftId);
+          .eq('id', currentDraftId)
+          .select('id')
+          .single();
 
         if (error) {
-          console.error('❌ Auto-save update failed:', error);
-          throw error;
+          console.error('❌ Auto-save update failed:', {
+            error: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint
+          });
+          throw new Error(`Update failed: ${error.message}`);
         }
-        console.log('✅ Draft updated successfully:', currentDraftId);
+        console.log('✅ Draft updated successfully:', updatedDraft?.id || currentDraftId);
       } else {
         // Create new draft
+        console.log('📝 Creating new draft');
         const { data: newDraft, error } = await supabase
           .from('drafts')
           .insert(draftPayload)
@@ -85,8 +106,14 @@ export const useAutoSave = (config: AutoSaveConfig) => {
           .single();
 
         if (error) {
-          console.error('❌ Auto-save insert failed:', error);
-          throw error;
+          console.error('❌ Auto-save insert failed:', {
+            error: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+            payload: draftPayload
+          });
+          throw new Error(`Insert failed: ${error.message}`);
         }
         if (newDraft) {
           setCurrentDraftId(newDraft.id);
@@ -95,12 +122,14 @@ export const useAutoSave = (config: AutoSaveConfig) => {
       }
 
       setLastSaved(new Date());
+      console.log('✅ Auto-save completed successfully');
       return currentDraftId;
     } catch (error) {
-      console.error('❌ Auto-save failed:', error);
+      console.error('❌ Auto-save failed with error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Auto-save failed",
-        description: "Generated post could not be saved automatically. Please save manually.",
+        description: `Content could not be saved automatically: ${errorMessage}`,
         variant: "destructive",
       });
       return null;
@@ -108,6 +137,12 @@ export const useAutoSave = (config: AutoSaveConfig) => {
       setIsSaving(false);
     }
   }, [user, currentDraftId, enableAutoSave, toast]);
+
+  // Immediate save function (no debouncing)
+  const saveImmediately = useCallback((data: DraftData) => {
+    console.log('⚡ Immediate save triggered');
+    return saveDraft(data);
+  }, [saveDraft]);
 
   // Debounced save function
   const debouncedSave = useCallback((data: DraftData) => {
@@ -185,6 +220,7 @@ export const useAutoSave = (config: AutoSaveConfig) => {
 
   return {
     saveDraft: debouncedSave,
+    saveImmediately, // Export immediate save function
     loadDrafts,
     clearDraft,
     currentDraftId,

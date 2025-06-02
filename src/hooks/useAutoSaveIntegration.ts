@@ -26,7 +26,7 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
     authorId: config.authorId
   });
 
-  // Watch for content changes from parent component (this is the key fix)
+  // Watch for content changes from parent component
   useEffect(() => {
     if (config.initialContent !== undefined && config.initialContent !== content) {
       console.log('📝 Content updated from parent:', {
@@ -50,7 +50,7 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
     }
   }, [config.initialTitle, title]);
 
-  // Auto-save when content changes (with debouncing)
+  // Auto-save when content changes - use immediate save for generated content
   useEffect(() => {
     console.log('💾 Auto-save effect triggered:', {
       hasTitle: !!title.trim(),
@@ -64,12 +64,22 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
       // Generate a title if one doesn't exist
       const autoTitle = title.trim() || `${config.contentType} - ${new Date().toLocaleDateString()}`;
       
-      autoSave.saveDraft({
+      const draftData = {
         title: autoTitle,
         content,
         contentType: config.contentType,
         clientId: config.clientId,
         authorId: config.authorId
+      };
+
+      console.log('💾 Triggering immediate save for generated content');
+      // Use immediate save for newly generated content to avoid delays
+      autoSave.saveImmediately(draftData).then((result) => {
+        if (result !== null) {
+          console.log('✅ Content auto-saved successfully');
+        }
+      }).catch((error) => {
+        console.error('❌ Immediate save failed:', error);
       });
     }
   }, [content, title, config.contentType, config.clientId, config.authorId, autoSave]);
