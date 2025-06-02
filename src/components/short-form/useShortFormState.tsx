@@ -4,7 +4,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { ICPStoryScript, Author, CustomerSuccessStory, NarrativeSelection } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { ContentType, ContentGoal } from './types';
-import { useAutoSaveIntegration } from '@/hooks/useAutoSaveIntegration';
 
 interface UseShortFormStateProps {
   scripts: ICPStoryScript[];
@@ -42,23 +41,6 @@ export const useShortFormState = ({
   const [productInputs, setProductInputs] = useState<any>({});
 
   const { toast } = useToast();
-
-  // Auto-save integration
-  const {
-    isSaving,
-    lastSaved,
-    showRestoreDialog,
-    setShowRestoreDialog,
-    availableDrafts,
-    handleRestoreDraft,
-    handleDeleteDraft,
-    clearCurrentDraft
-  } = useAutoSaveIntegration({
-    contentType,
-    clientId: selectedClientId,
-    initialTitle: '',
-    initialContent: generatedContent
-  });
 
   // Reset form when client changes
   useEffect(() => {
@@ -163,16 +145,6 @@ export const useShortFormState = ({
     setEmailCount,
     setSelectedIdeaId,
     setTriggerInput,
-    setProductInputs,
-    
-    // Auto-save functionality
-    isSaving,
-    lastSaved,
-    showRestoreDialog,
-    setShowRestoreDialog,
-    availableDrafts,
-    handleRestoreDraft,
-    handleDeleteDraft,
-    clearCurrentDraft
+    setProductInputs
   };
 };

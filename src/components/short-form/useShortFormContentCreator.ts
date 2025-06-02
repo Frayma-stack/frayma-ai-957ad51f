@@ -75,8 +75,8 @@ export const useShortFormContentCreator = ({
     contentType,
     clientId: selectedClientId,
     authorId: selectedAuthor || undefined,
-    initialContent: generatedContent, // Pass the generated content here
-    initialTitle: '', // Let auto-save generate the title
+    initialContent: generatedContent,
+    initialTitle: '',
     onDraftRestored: (title: string, content: string) => {
       console.log('🔄 Draft restored in content creator:', { title, content: content.substring(0, 50) + '...' });
       setGeneratedContent(content);
@@ -103,7 +103,13 @@ export const useShortFormContentCreator = ({
     additionalContext,
     triggerInput,
     setIsGenerating,
-    setGeneratedContent,
+    setGeneratedContent: (content: string) => {
+      console.log('📝 Generated content set:', {
+        contentLength: content.length,
+        contentPreview: content ? content.substring(0, 50) + '...' : 'empty'
+      });
+      setGeneratedContent(content);
+    },
     getSelectedIdea,
     isFormValid: () => {
       const selectedIdea = getSelectedIdea();
@@ -116,16 +122,6 @@ export const useShortFormContentCreator = ({
       }
     }
   });
-
-  // Handler to update generated content and trigger auto-save
-  const handleGeneratedContentChange = (content: string) => {
-    console.log('📝 Generated content changed:', {
-      contentLength: content.length,
-      contentPreview: content ? content.substring(0, 50) + '...' : 'empty'
-    });
-    setGeneratedContent(content);
-    // The auto-save integration will handle saving automatically via useEffect
-  };
 
   const isFormValid = () => {
     const selectedIdea = getSelectedIdea();
@@ -167,7 +163,7 @@ export const useShortFormContentCreator = ({
     setSelectedAuthorBelief,
     setNarrativeSelections,
     setContentGoal,
-    setGeneratedContent: handleGeneratedContentChange,
+    setGeneratedContent,
     setAdditionalContext,
     setSelectedSuccessStory,
     setWordCount,
