@@ -84,7 +84,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
         <div>
           <Label className="text-sm font-medium">Product Context Type</Label>
           <div className="flex flex-col space-y-2 mt-2">
-            {productContext.features.length > 0 && (
+            {productContext.features && productContext.features.length > 0 && (
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="features"
@@ -94,7 +94,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
                 <Label htmlFor="features" className="text-sm">Product Features ({productContext.features.length})</Label>
               </div>
             )}
-            {productContext.useCases.length > 0 && (
+            {productContext.useCases && productContext.useCases.length > 0 && (
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="usecases"
@@ -104,7 +104,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
                 <Label htmlFor="usecases" className="text-sm">Use Cases ({productContext.useCases.length})</Label>
               </div>
             )}
-            {productContext.differentiators.length > 0 && (
+            {productContext.differentiators && productContext.differentiators.length > 0 && (
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="differentiators"
@@ -121,7 +121,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
           <div>
             <Label className="text-sm font-medium">Select Features</Label>
             <div className="mt-2 space-y-2 max-h-32 overflow-y-auto border rounded p-3">
-              {productContext.features.map(feature => (
+              {productContext.features?.map(feature => (
                 <div key={feature.id} className="flex items-start space-x-2">
                   <Checkbox
                     id={feature.id}
@@ -132,15 +132,17 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
                     <Label htmlFor={feature.id} className="text-sm font-medium cursor-pointer">
                       {feature.name}
                     </Label>
-                    <p className="text-xs text-gray-600 mt-1">{feature.description}</p>
-                    {feature.benefits.length > 0 && (
+                    {feature.description && (
+                      <p className="text-xs text-gray-600 mt-1">{feature.description}</p>
+                    )}
+                    {feature.benefits && Array.isArray(feature.benefits) && feature.benefits.length > 0 && (
                       <div className="text-xs text-gray-500 mt-1">
                         Benefits: {feature.benefits.join(', ')}
                       </div>
                     )}
                   </div>
                 </div>
-              ))}
+              )) || []}
             </div>
           </div>
         )}
@@ -149,7 +151,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
           <div>
             <Label className="text-sm font-medium">Select Use Cases</Label>
             <div className="mt-2 space-y-2 max-h-32 overflow-y-auto border rounded p-3">
-              {productContext.useCases.map(useCase => (
+              {productContext.useCases?.map(useCase => (
                 <div key={useCase.id} className="flex items-start space-x-2">
                   <Checkbox
                     id={useCase.id}
@@ -160,13 +162,17 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
                     <Label htmlFor={useCase.id} className="text-sm font-medium cursor-pointer">
                       {useCase.useCase}
                     </Label>
-                    <p className="text-xs text-gray-600 mt-1">
-                      <span className="font-medium">Role:</span> {useCase.userRole}
-                    </p>
-                    <p className="text-xs text-gray-600">{useCase.description}</p>
+                    {useCase.userRole && (
+                      <p className="text-xs text-gray-600 mt-1">
+                        <span className="font-medium">Role:</span> {useCase.userRole}
+                      </p>
+                    )}
+                    {useCase.description && (
+                      <p className="text-xs text-gray-600">{useCase.description}</p>
+                    )}
                   </div>
                 </div>
-              ))}
+              )) || []}
             </div>
           </div>
         )}
@@ -175,7 +181,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
           <div>
             <Label className="text-sm font-medium">Select Differentiators</Label>
             <div className="mt-2 space-y-2 max-h-32 overflow-y-auto border rounded p-3">
-              {productContext.differentiators.map(differentiator => (
+              {productContext.differentiators?.map(differentiator => (
                 <div key={differentiator.id} className="flex items-start space-x-2">
                   <Checkbox
                     id={differentiator.id}
@@ -186,7 +192,9 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
                     <Label htmlFor={differentiator.id} className="text-sm font-medium cursor-pointer">
                       {differentiator.name}
                     </Label>
-                    <p className="text-xs text-gray-600 mt-1">{differentiator.description}</p>
+                    {differentiator.description && (
+                      <p className="text-xs text-gray-600 mt-1">{differentiator.description}</p>
+                    )}
                     {differentiator.competitorComparison && (
                       <p className="text-xs text-gray-500 mt-1">
                         vs Competition: {differentiator.competitorComparison}
@@ -194,7 +202,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
                     )}
                   </div>
                 </div>
-              ))}
+              )) || []}
             </div>
           </div>
         )}
