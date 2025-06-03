@@ -42,22 +42,28 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
   onRegenerate
 }) => {
   if (contentPhase !== 'outline') {
+    const getContentTypeLabel = () => {
+      return articleSubType === 'newsletter' 
+        ? 'First-Person Narrative Newsletter'
+        : 'Thought Leadership & How-to Guide';
+    };
+
     const phaseConfig = {
       intro: {
-        title: 'Introduction & Hook',
-        description: 'AI-generated opening that captures attention and establishes credibility',
+        title: `${getContentTypeLabel()} - Introduction & Hook`,
+        description: 'AI-generated opening following Product-Led Storytelling principles to capture attention and establish credibility',
         content: formData.generatedIntro,
         contentKey: 'generatedIntro' as keyof FormData
       },
       body: {
-        title: 'Main Content Body',
-        description: 'Core framework and value demonstration following your strategic outline',
+        title: `${getContentTypeLabel()} - Main Content Body`,
+        description: 'Core content following the PLS framework and 3Rs Formula, addressing your content discovery triggers',
         content: formData.generatedBody,
         contentKey: 'generatedBody' as keyof FormData
       },
       conclusion: {
-        title: 'Results & Call to Action',
-        description: 'Compelling conclusion with clear next steps for your audience',
+        title: `${getContentTypeLabel()} - Results & Call to Action`,
+        description: 'Compelling conclusion with social proof integration and clear next steps for your audience',
         content: formData.generatedConclusion,
         contentKey: 'generatedConclusion' as keyof FormData
       }

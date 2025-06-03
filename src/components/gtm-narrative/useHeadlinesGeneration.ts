@@ -28,56 +28,205 @@ export const useHeadlinesGeneration = ({
       
       const variables = {
         trigger_or_thesis: formData.ideaTrigger,
+        main_keyword: formData.targetKeyword,
+        cta: formData.callToAction,
+        why_publish: formData.publishReason,
         main_icp: selectedScript?.name || 'Professional audience',
+        journey_stage: formData.journeyStage,
+        anchors_and_types: formData.narrativeAnchors.map(anchor => `${anchor.type}: ${anchor.content}`).join('; '),
+        success_story_summary: formData.successStory || 'Customer transformation story',
+        related_keywords_list: formData.relatedKeywords.join(', '),
+        search_queries_list: formData.searchQueries.join('; '),
         problem_statements_list: formData.problemStatements.join('; ')
       };
 
       const prompt = interpolateTemplate('outline_sections', variables);
       console.log('Generated outline prompt:', prompt);
       
-      const response = await generateContent(prompt);
+      const response = await generateContent(prompt, {
+        maxTokens: 2000,
+        temperature: 0.7
+      });
       console.log('Raw outline response:', response);
       
-      // Try to parse as JSON first, then extract text
-      let outlineData;
-      try {
-        outlineData = JSON.parse(response);
-      } catch (jsonError) {
-        console.log('Outline response is not JSON, creating default sections...');
+      // Extract outline sections from the response
+      const outlineSections: OutlineSection[] = [];
+      
+      // Parse the response to extract H2 and H3 sections
+      const lines = response.split('\n').filter(line => line.trim());
+      
+      lines.forEach((line, index) => {
+        const trimmedLine = line.trim();
         
-        // Create default sections if parsing fails
-        outlineData = {
-          sections: [
-            { type: 'H2', title: 'The Challenge', phase: 'attract' },
-            { type: 'H2', title: 'Understanding the Problem', phase: 'filter' },
-            { type: 'H2', title: 'The Solution Approach', phase: 'engage' },
-            { type: 'H2', title: 'Results and Impact', phase: 'results' }
-          ]
-        };
+        // Check for H2 headers (## or H2:)
+        if (trimmedLine.match(/^##\s+/) || trimmedLine.match(/^H2:\s*/)) {
+          const title = trimmedLine.replace(/^##\s+/, '').replace(/^H2:\s*/, '').trim();
+          let phase: 'attract' | 'filter' | 'engage' | 'results' = 'engage';
+          
+          // Determine phase based on content and position
+          if (index < 2 || title.toLowerCase().includes('hook') || title.toLowerCase().includes('intro')) {
+            phase = 'attract';
+          } else if (title.toLowerCase().includes('filter') || title.toLowerCase().includes('who this is for')) {
+            phase = 'filter';
+          } else if (title.toLowerCase().includes('transform') || title.toLowerCase().includes('result') || title.toLowerCase().includes('cta')) {
+            phase = 'results';
+          }
+          
+          outlineSections.push({
+            id: `section_${outlineSections.length}`,
+            type: 'H2',
+            title,
+            phase,
+            context: '',
+            linkedAssetType: undefined,
+            linkedAssetId: undefined
+          });
+        }
+        
+        // Check for H3 headers (### or H3:)
+        else if (trimmedLine.match(/^###\s+/) || trimmedLine.match(/^H3:\s*/)) {
+          const title = trimmedLine.replace(/^###\s+/, '').replace(/^H3:\s*/, '').trim();
+          const lastSection = outlineSections[outlineSections.length - 1];
+          const phase = lastSection ? lastSection.phase : 'engage';
+          
+          outlineSections.push({
+            id: `section_${outlineSections.length}`,
+            type: 'H3',
+            title,
+            phase,
+            context: '',
+            linkedAssetType: undefined,
+            linkedAssetId: undefined
+          });
+        }
+      });
+      
+      // If no sections were parsed, create default PLS-based outline
+      if (outlineSections.length === 0) {
+        const defaultSections: OutlineSection[] = [
+          {
+            id: 'section_0',
+            type: 'H2',
+            title: 'The Hook: Why This Matters Now',
+            phase: 'attract',
+            context: 'Opening that captures attention and establishes urgency',
+            linkedAssetType: undefined,
+            linkedAssetId: undefined
+          },
+          {
+            id: 'section_1',
+            type: 'H3',
+            title: 'Who This Is For (And Who It Isn\'t)',
+            phase: 'filter',
+            context: 'Filter for the target ICP reader',
+            linkedAssetType: undefined,
+            linkedAssetId: undefined
+          },
+          {
+            id: 'section_2',
+            type: 'H2',
+            title: formData.searchQueries[0] || 'The Main Challenge',
+            phase: 'engage',
+            context: 'Address the primary search query or problem statement',
+            linkedAssetType: undefined,
+            linkedAssetId: undefined
+          },
+          {
+            id: 'section_3',
+            type: 'H3',
+            title: 'The Framework That Works',
+            phase: 'engage',
+            context: 'Present your methodology or solution approach',
+            linkedAssetType: undefined,
+            linkedAssetId: undefined
+          },
+          {
+            id: 'section_4',
+            type: 'H2',
+            title: 'Real Results: How Others Succeeded',
+            phase: 'results',
+            context: 'Weave in success story and social proof',
+            linkedAssetType: 'success_story',
+            linkedAssetId: undefined
+          },
+          {
+            id: 'section_5',
+            type: 'H3',
+            title: 'Your Next Step',
+            phase: 'results',
+            context: 'Clear call-to-action aligned with publishing goals',
+            linkedAssetType: undefined,
+            linkedAssetId: undefined
+          }
+        ];
+        
+        onDataChange('outlineSections', defaultSections);
+      } else {
+        onDataChange('outlineSections', outlineSections);
       }
       
-      const outlineSections: OutlineSection[] = (outlineData.sections || []).map((section: any, index: number) => ({
-        id: `section_${index}`,
-        type: section.type || 'H2' as 'H2' | 'H3' | 'H4',
-        title: section.title || `Section ${index + 1}`,
-        phase: section.phase || 'engage' as 'attract' | 'filter' | 'engage' | 'results',
-        context: '',
-        linkedAssetType: undefined,
-        linkedAssetId: undefined
-      }));
-      
-      onDataChange('outlineSections', outlineSections);
     } catch (error) {
       console.error('Error generating outline sections:', error);
       
-      // Fallback to default sections
-      const defaultSections: OutlineSection[] = [
-        { id: 'section_0', type: 'H2', title: 'The Challenge', phase: 'attract', context: '', linkedAssetType: undefined, linkedAssetId: undefined },
-        { id: 'section_1', type: 'H2', title: 'Understanding the Problem', phase: 'filter', context: '', linkedAssetType: undefined, linkedAssetId: undefined },
-        { id: 'section_2', type: 'H2', title: 'The Solution Approach', phase: 'engage', context: '', linkedAssetType: undefined, linkedAssetId: undefined },
-        { id: 'section_3', type: 'H2', title: 'Results and Impact', phase: 'results', context: '', linkedAssetType: undefined, linkedAssetId: undefined }
+      // Fallback to PLS-based default sections using content discovery data
+      const fallbackSections: OutlineSection[] = [
+        {
+          id: 'section_0',
+          type: 'H2',
+          title: `The ${formData.relatedKeywords[0] || 'Challenge'} Problem Everyone's Talking About`,
+          phase: 'attract',
+          context: 'Hook that addresses main keyword and establishes credibility',
+          linkedAssetType: undefined,
+          linkedAssetId: undefined
+        },
+        {
+          id: 'section_1',
+          type: 'H3',
+          title: 'Why Traditional Approaches Fall Short',
+          phase: 'filter',
+          context: 'Filter content that qualifies the right audience',
+          linkedAssetType: undefined,
+          linkedAssetId: undefined
+        },
+        {
+          id: 'section_2',
+          type: 'H2',
+          title: formData.searchQueries[0] || 'The Core Question You Need to Answer',
+          phase: 'engage',
+          context: 'Main body section addressing primary search query',
+          linkedAssetType: undefined,
+          linkedAssetId: undefined
+        },
+        {
+          id: 'section_3',
+          type: 'H3',
+          title: formData.problemStatements[0] || 'Breaking Down the Real Problem',
+          phase: 'engage',
+          context: 'Supporting section addressing key problem statement',
+          linkedAssetType: undefined,
+          linkedAssetId: undefined
+        },
+        {
+          id: 'section_4',
+          type: 'H2',
+          title: 'How [Customer] Transformed Their Results',
+          phase: 'results',
+          context: 'Success story integration to build credibility and urgency',
+          linkedAssetType: 'success_story',
+          linkedAssetId: undefined
+        },
+        {
+          id: 'section_5',
+          type: 'H3',
+          title: 'What This Means for You',
+          phase: 'results',
+          context: 'Clear next steps and call-to-action',
+          linkedAssetType: undefined,
+          linkedAssetId: undefined
+        }
       ];
-      onDataChange('outlineSections', defaultSections);
+      
+      onDataChange('outlineSections', fallbackSections);
     }
   };
 
@@ -107,7 +256,7 @@ export const useHeadlinesGeneration = ({
         journey_stage: formData.journeyStage,
         motivation: formData.readingPrompt,
         anchors_and_types: formData.narrativeAnchors.map(anchor => `${anchor.type}: ${anchor.content}`).join('; '),
-        success_story_summary: 'Customer success transformation',
+        success_story_summary: formData.successStory || 'Customer success transformation',
         related_keywords_list: formData.relatedKeywords.join(', '),
         search_queries_list: formData.searchQueries.join('; '),
         problem_statements_list: formData.problemStatements.join('; ')
@@ -116,7 +265,10 @@ export const useHeadlinesGeneration = ({
       const prompt = interpolateTemplate('headlines_generation', variables);
       console.log('Generated headlines prompt:', prompt);
       
-      const response = await generateContent(prompt);
+      const response = await generateContent(prompt, {
+        maxTokens: 1500,
+        temperature: 0.8
+      });
       console.log('Raw headlines response:', response);
       
       // Try to parse the response - handle both JSON and text formats
@@ -153,11 +305,13 @@ export const useHeadlinesGeneration = ({
       }));
       
       onDataChange('headlineOptions', headlineOptions);
+      
+      // Generate outline sections after headlines are created
       await generateOutlineSections();
       
       toast({
-        title: "Headlines generated",
-        description: "Review and select your preferred headline, then refine the content outline."
+        title: "Headlines and outline generated",
+        description: "AI has created headline options and a PLS-based content outline using your discovery triggers. Review and customize as needed."
       });
     } catch (error) {
       console.error('Error generating headlines:', error);
