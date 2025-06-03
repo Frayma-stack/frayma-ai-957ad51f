@@ -133,8 +133,8 @@ export const useShortFormContentGeneration = ({
     // Add ICP context
     if (script) {
       prompt += `TARGET ICP: ${script.name}\n`;
-      if (script.description) {
-        prompt += `ICP Description: ${script.description}\n`;
+      if (script.demographics) {
+        prompt += `ICP Demographics: ${script.demographics}\n`;
       }
       prompt += '\n';
     }
@@ -152,18 +152,18 @@ export const useShortFormContentGeneration = ({
     if (author) {
       prompt += `AUTHOR CONTEXT:\n`;
       prompt += `Name: ${author.name}\n`;
-      if (author.currentTitle) prompt += `Title: ${author.currentTitle}\n`;
+      if (author.title) prompt += `Title: ${author.title}\n`;
       if (author.organization) prompt += `Organization: ${author.organization}\n`;
-      if (author.careerBackstory) prompt += `Background: ${author.careerBackstory}\n`;
+      if (author.backstory) prompt += `Background: ${author.backstory}\n`;
       
       // Add tone and experience
-      if (selectedAuthorTone && author.writingTones) {
-        const tone = author.writingTones.find(t => t.id === selectedAuthorTone);
-        if (tone) prompt += `Writing Tone: ${tone.toneTitle} - ${tone.toneSummary}\n`;
+      if (selectedAuthorTone && author.tones) {
+        const tone = author.tones.find(t => t.id === selectedAuthorTone);
+        if (tone) prompt += `Writing Tone: ${tone.tone} - ${tone.description}\n`;
       }
       if (selectedAuthorExperience && author.experiences) {
         const experience = author.experiences.find(e => e.id === selectedAuthorExperience);
-        if (experience) prompt += `Experience Context: ${experience.title} - ${experience.summary}\n`;
+        if (experience) prompt += `Experience Context: ${experience.title} - ${experience.description}\n`;
       }
       prompt += '\n';
     }
