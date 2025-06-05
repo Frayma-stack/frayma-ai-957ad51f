@@ -14,6 +14,20 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
+// Subscription tier mapping based on price amounts
+const determineSubscriptionTier = (amount: number): { tier: string; maxUsers: number } => {
+  // Convert to dollars for easier comparison (Stripe amounts are in cents)
+  const dollarAmount = amount / 100;
+  
+  if (dollarAmount >= 150) {
+    return { tier: "Narrative Pro", maxUsers: 5 };
+  } else if (dollarAmount >= 39) {
+    return { tier: "Narrative Starter", maxUsers: 1 };
+  } else {
+    return { tier: "free", maxUsers: 1 };
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -56,7 +70,7 @@ serve(async (req) => {
         user_id: user.id,
         stripe_customer_id: null,
         subscribed: false,
-        subscription_tier: null,
+        subscription_tier: 'free',
         subscription_end: null,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'email' });
@@ -70,7 +84,7 @@ serve(async (req) => {
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' });
 
-      return new Response(JSON.stringify({ subscribed: false, subscription_tier: 'free' }), {
+      return new Response(JSON.stringify({ subscribed: false, subscription_tier: 'free', max_users: 1 }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
@@ -99,13 +113,10 @@ serve(async (req) => {
       const price = await stripe.prices.retrieve(priceId);
       const amount = price.unit_amount || 0;
       
-      if (amount <= 1499) {
-        subscriptionTier = "Narrative Starter";
-        maxUsers = 3;
-      } else {
-        subscriptionTier = "Narrative Pro";
-        maxUsers = 10;
-      }
+      const tierInfo = determineSubscriptionTier(amount);
+      subscriptionTier = tierInfo.tier;
+      maxUsers = tierInfo.maxUsers;
+      
       logStep("Determined subscription tier", { priceId, amount, subscriptionTier, maxUsers });
     } else {
       logStep("No active subscription found");
