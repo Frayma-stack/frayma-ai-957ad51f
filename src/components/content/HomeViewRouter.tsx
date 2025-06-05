@@ -169,6 +169,7 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
         selectedClientId={selectedClientId}
         selectedIdeaId={selectedIdeaId}
         onIdeaSelect={setSelectedIdeaId}
+        onNavigateToIdeasBank={onNavigateToIdeasBank}
       />
     </ScrollArea>
   );

@@ -1,13 +1,14 @@
+
 import { FC, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Mail, MessageSquare, Users, Lightbulb, Plus } from 'lucide-react';
+import { FileText, Mail, MessageSquare, Users, Lightbulb, Plus, Sparkles } from 'lucide-react';
 import { GeneratedIdea } from '@/types/ideas';
 import SavedIdeaCard from './SavedIdeaCard';
 
 export type ContentType = 'article' | 'linkedin' | 'email' | 'custom' | 'success-story';
-export type ArticleSubType = 'thought-leadership' | 'newsletter';
+export type ArticleSubType = 'thought_leadership' | 'newsletter';
 
 interface ContentTypeSelectorProps {
   onSelect: (type: ContentType) => void;
@@ -15,6 +16,7 @@ interface ContentTypeSelectorProps {
   selectedClientId?: string | null;
   selectedIdeaId?: string | null;
   onIdeaSelect?: (ideaId: string) => void;
+  onNavigateToIdeasBank?: () => void;
 }
 
 const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ 
@@ -22,7 +24,8 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
   ideas = [],
   selectedClientId,
   selectedIdeaId,
-  onIdeaSelect
+  onIdeaSelect,
+  onNavigateToIdeasBank
 }) => {
   const [selectedIdea, setSelectedIdea] = useState<string | null>(selectedIdeaId || null);
 
@@ -100,8 +103,36 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
     onSelect('article');
   };
 
+  const handleMintNewIdeas = () => {
+    console.log('✨ Mint New Ideas clicked - navigating to Ideas Bank');
+    if (onNavigateToIdeasBank) {
+      onNavigateToIdeasBank();
+    }
+  };
+
   return (
     <div className="space-y-8">
+      {/* Mint New Ideas CTA - Always visible on homescreen */}
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-dashed border-blue-300">
+        <CardContent className="p-8 text-center">
+          <div className="flex items-center justify-center mb-4">
+            <Sparkles className="h-8 w-8 text-blue-600 mr-3" />
+            <h3 className="text-xl font-semibold text-gray-800">Need Fresh Ideas?</h3>
+          </div>
+          <p className="text-gray-600 mb-6 max-w-lg mx-auto">
+            Auto-craft a fresh batch of Product-Led Storytelling ideas with different angles and perspectives using our AI-powered idea generator.
+          </p>
+          <Button 
+            onClick={handleMintNewIdeas}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
+            size="lg"
+          >
+            <Sparkles className="h-5 w-5 mr-2" />
+            Mint New Ideas
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Saved Ideas Section */}
       {filteredIdeas.length > 0 && (
         <div className="space-y-4">
