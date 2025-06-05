@@ -1,10 +1,9 @@
-
 import { FC } from 'react';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from '@/components/AppSidebar';
 import MainContent from './MainContent';
 import LoadingState from './LoadingState';
-import AppHeader from './AppHeader';
+import { AppHeader } from './AppHeader';
 import { useAppLayoutState } from '@/hooks/useAppLayoutState';
 import { useAppLayoutHandlers } from '@/hooks/useAppLayoutHandlers';
 import { Client, Author, ICPStoryScript, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
@@ -87,7 +86,7 @@ const AppLayout: FC<AppLayoutProps> = (props) => {
         />
         
         <main className="flex-1 flex flex-col">
-          <AppHeader currentView={props.currentView} />
+          <AppHeader />
           
           <div className="flex-1 overflow-auto">
             <MainContent 
