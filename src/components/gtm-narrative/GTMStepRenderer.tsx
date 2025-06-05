@@ -135,12 +135,19 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
         />
       );
     case 4:
+      console.log('🎨 Rendering EnhancedContentOutlineStep with data:', {
+        headlineOptions: formData.headlineOptions?.length || 0,
+        outlineSections: formData.outlineSections?.length || 0,
+        successStoriesCount: successStories.length,
+        articleSubType
+      });
+      
       return (
         <EnhancedContentOutlineStep
           data={{
-            headlineOptions: formData.headlineOptions,
-            selectedHeadline: formData.selectedHeadline,
-            outlineSections: formData.outlineSections
+            headlineOptions: formData.headlineOptions || [],
+            selectedHeadline: formData.selectedHeadline || '',
+            outlineSections: formData.outlineSections || []
           }}
           articleSubType={articleSubType}
           successStories={successStories}
@@ -150,11 +157,18 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
           isGeneratingHeadlines={isGenerating}
           isGeneratingOutline={isGenerating}
           onDataChange={onDataChange}
-          onAddHeadline={() => {}}
+          onAddHeadline={() => {
+            console.log('Add headline triggered');
+          }}
         />
       );
     default:
-      return null;
+      console.warn('⚠️ Unknown step:', currentStep);
+      return (
+        <div className="text-center py-8">
+          <p className="text-gray-500">Unknown step: {currentStep}</p>
+        </div>
+      );
   }
 };
 

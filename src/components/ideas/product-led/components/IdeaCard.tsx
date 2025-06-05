@@ -1,21 +1,23 @@
 
 import { FC } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Save } from 'lucide-react';
-import { IdeaWithScore, ParsedIdea } from '../utils/IdeaParsingUtils';
-import IdeaScoreSelector from './IdeaScoreSelector';
-import IdeaContentActions from '../../IdeaContentActions';
+import { Badge } from "@/components/ui/badge";
+import { Save, Lightbulb, Target, TrendingUp, MessageSquare } from 'lucide-react';
 import { IdeaScore } from '@/types/ideas';
+import { IdeaWithScore } from '../utils/IdeaParsingUtils';
+import IdeaScoreSelector from './IdeaScoreSelector';
+import IdeaContentTypeSelector from './IdeaContentTypeSelector';
 
 interface IdeaCardProps {
   ideaData: IdeaWithScore;
   index: number;
   icpId: string;
   selectedClientId?: string;
-  onFieldUpdate: (field: keyof ParsedIdea, value: string) => void;
+  onFieldUpdate: (field: 'title' | 'narrative' | 'productTieIn' | 'cta', value: string) => void;
   onScoreUpdate: (score: IdeaScore) => void;
   onSave: () => void;
   onContentTypeSelect: (tempId: string, contentType: string) => void;
@@ -31,87 +33,104 @@ const IdeaCard: FC<IdeaCardProps> = ({
   onSave,
   onContentTypeSelect
 }) => {
+  const canSave = ideaData.score && ideaData.title && ideaData.narrative;
+
   return (
-    <Card className="border-l-4 border-l-blue-500 shadow-sm">
+    <Card className="w-full border-l-4 border-l-story-blue">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg flex items-center justify-between">
-          <span>Idea {index + 1}</span>
-          <div className="flex items-center space-x-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Lightbulb className="h-5 w-5 text-story-blue" />
+            <Badge variant="outline" className="text-xs">
+              Idea {index + 1}
+            </Badge>
+          </div>
+          
+          <div className="flex items-center space-x-2">
             <IdeaScoreSelector
               score={ideaData.score}
-              onScoreChange={onScoreUpdate}
+              onChange={onScoreUpdate}
             />
-            <IdeaContentActions
-              idea={{
-                id: ideaData.tempId,
-                title: ideaData.title,
-                narrative: ideaData.narrative,
-                productTieIn: ideaData.productTieIn,
-                cta: ideaData.cta,
-                createdAt: new Date().toISOString(),
-                score: ideaData.score,
-                source: { type: 'manual', content: ideaData.originalContent },
-                icpId: icpId,
-                narrativeAnchor: 'belief',
-                narrativeItemId: '',
-                productFeatures: [],
-                clientId: selectedClientId,
-              }}
-              onContentTypeSelect={onContentTypeSelect}
-            />
+            
             <Button
               onClick={onSave}
-              disabled={!ideaData.score}
-              className="bg-green-500 hover:bg-green-600 text-white"
+              disabled={!canSave}
               size="sm"
+              className="bg-story-blue hover:bg-story-blue/90"
             >
-              <Save className="h-4 w-4 mr-1" />
-              Save
+              <Save className="h-4 w-4 mr-2" />
+              Save Idea
             </Button>
           </div>
-        </CardTitle>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid gap-4">
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold text-blue-600">Title</Label>
-            <Textarea
-              value={ideaData.title}
-              onChange={(e) => onFieldUpdate('title', e.target.value)}
-              className="min-h-[60px] font-medium border-blue-200 focus:border-blue-400"
-              placeholder="Enter a compelling title..."
-            />
+
+      <CardContent className="space-y-4">
+        {/* Title Section */}
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Target className="h-4 w-4 text-blue-600" />
+            <Label className="text-sm font-medium">Title</Label>
           </div>
-          
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold text-green-600">Narrative</Label>
-            <Textarea
-              value={ideaData.narrative}
-              onChange={(e) => onFieldUpdate('narrative', e.target.value)}
-              className="min-h-[100px] border-green-200 focus:border-green-400"
-              placeholder="Describe the narrative tension or belief this idea challenges..."
-            />
+          <Input
+            value={ideaData.title}
+            onChange={(e) => onFieldUpdate('title', e.target.value)}
+            placeholder="Enter idea title..."
+            className="font-medium"
+          />
+        </div>
+
+        {/* Narrative Section */}
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <MessageSquare className="h-4 w-4 text-purple-600" />
+            <Label className="text-sm font-medium">Narrative</Label>
           </div>
-          
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold text-purple-600">Product Tie-In</Label>
-            <Textarea
-              value={ideaData.productTieIn}
-              onChange={(e) => onFieldUpdate('productTieIn', e.target.value)}
-              className="min-h-[100px] border-purple-200 focus:border-purple-400"
-              placeholder="How does this naturally surface your product's unique value..."
-            />
+          <Textarea
+            value={ideaData.narrative}
+            onChange={(e) => onFieldUpdate('narrative', e.target.value)}
+            placeholder="What's the story or tension this idea explores?"
+            rows={3}
+            className="resize-none"
+          />
+        </div>
+
+        {/* Product Tie-In Section */}
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <TrendingUp className="h-4 w-4 text-green-600" />
+            <Label className="text-sm font-medium">Product Tie-In</Label>
           </div>
-          
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold text-orange-600">Call to Action</Label>
-            <Textarea
-              value={ideaData.cta}
-              onChange={(e) => onFieldUpdate('cta', e.target.value)}
-              className="min-h-[60px] border-orange-200 focus:border-orange-400"
-              placeholder="What specific action should readers take..."
-            />
+          <Textarea
+            value={ideaData.productTieIn}
+            onChange={(e) => onFieldUpdate('productTieIn', e.target.value)}
+            placeholder="How does this naturally connect to your product?"
+            rows={2}
+            className="resize-none"
+          />
+        </div>
+
+        {/* CTA Section */}
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Target className="h-4 w-4 text-orange-600" />
+            <Label className="text-sm font-medium">Call to Action</Label>
           </div>
+          <Input
+            value={ideaData.cta}
+            onChange={(e) => onFieldUpdate('cta', e.target.value)}
+            placeholder="What action should readers take?"
+          />
+        </div>
+
+        {/* Content Type Selection */}
+        <div className="pt-4 border-t">
+          <IdeaContentTypeSelector
+            tempId={ideaData.tempId}
+            onContentTypeSelect={onContentTypeSelect}
+            icpId={icpId}
+            selectedClientId={selectedClientId}
+          />
         </div>
       </CardContent>
     </Card>
