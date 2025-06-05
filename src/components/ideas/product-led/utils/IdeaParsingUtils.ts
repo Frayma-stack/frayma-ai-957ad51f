@@ -1,4 +1,3 @@
-
 import { IdeaScore } from '@/types/ideas';
 
 export interface ParsedIdea {
@@ -13,6 +12,13 @@ export interface ParsedIdea {
 export interface IdeaWithScore extends ParsedIdea {
   score?: IdeaScore;
 }
+
+export const SCORE_OPTIONS: IdeaScore[] = [
+  { value: 0, label: '0 - Poor' },
+  { value: 1, label: '1 - Fair' },
+  { value: 2, label: '2 - Good' },
+  { value: 3, label: '3 - Excellent' }
+];
 
 const cleanText = (text: string): string => {
   return text

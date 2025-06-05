@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { GeneratedIdea } from '@/types/ideas';
 import SavedIdeaCard from './SavedIdeaCard';
 
 export type ContentType = 'article' | 'linkedin' | 'email' | 'custom' | 'success-story';
+export type ArticleSubType = 'thought-leadership' | 'newsletter';
 
 interface ContentTypeSelectorProps {
   onSelect: (type: ContentType) => void;

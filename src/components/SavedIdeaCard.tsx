@@ -42,7 +42,7 @@ const SavedIdeaCard: FC<SavedIdeaCardProps> = ({
             </Badge>
             {idea.score && (
               <Badge variant="secondary" className="text-xs">
-                Score: {idea.score}/5
+                Score: {idea.score.value}/3
               </Badge>
             )}
           </div>

@@ -49,7 +49,7 @@ const IdeaCard: FC<IdeaCardProps> = ({
           <div className="flex items-center space-x-2">
             <IdeaScoreSelector
               score={ideaData.score}
-              onChange={onScoreUpdate}
+              onScoreChange={onScoreUpdate}
             />
             
             <Button
