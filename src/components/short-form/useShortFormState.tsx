@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ICPStoryScript, Author, CustomerSuccessStory, NarrativeSelection } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { ContentType, ContentGoal } from './types';
@@ -41,6 +41,27 @@ export const useShortFormState = ({
   const [productInputs, setProductInputs] = useState<any>({});
 
   const { toast } = useToast();
+
+  // Check for pre-selected ICP from generated idea on mount
+  useEffect(() => {
+    const storedGeneratedIdea = localStorage.getItem('selectedGeneratedIdea');
+    if (storedGeneratedIdea) {
+      try {
+        const ideaData = JSON.parse(storedGeneratedIdea);
+        console.log('🎯 Auto-selecting ICP from generated idea:', ideaData.icpId);
+        
+        if (ideaData.icpId && scripts.find(script => script.id === ideaData.icpId)) {
+          setSelectedICP(ideaData.icpId);
+          toast({
+            title: "ICP Auto-Selected",
+            description: "The ICP from your generated idea has been pre-selected.",
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing stored generated idea for ICP:', error);
+      }
+    }
+  }, [scripts, toast]);
 
   // Reset form when client changes
   useEffect(() => {

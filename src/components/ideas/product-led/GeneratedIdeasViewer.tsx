@@ -1,11 +1,11 @@
 
 import { FC, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from 'lucide-react';
 import { GeneratedIdea, IdeaScore } from '@/types/ideas';
 import { parseIdeas, IdeaWithScore, ParsedIdea } from './utils/IdeaParsingUtils';
-import IdeaCard from './components/IdeaCard';
+import ExpandedIdeaCard from './components/ExpandedIdeaCard';
 import EmptyIdeasState from './components/EmptyIdeasState';
 import GenerateNewIdeasCTA from './components/GenerateNewIdeasCTA';
 
@@ -85,8 +85,26 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
   };
 
   const handleContentTypeSelect = (tempId: string, contentType: string) => {
-    // For generated ideas, we'll pass the tempId and let the parent handle navigation
-    onContentTypeSelect(tempId, contentType);
+    // Find the idea data for this tempId
+    const ideaData = ideasWithScores.find(idea => idea.tempId === tempId);
+    if (ideaData) {
+      console.log('🎯 Content type selected for generated idea:', {
+        tempId,
+        contentType,
+        ideaTitle: ideaData.title,
+        icpId
+      });
+      
+      // Store the idea data and ICP selection for the content creation flow
+      localStorage.setItem('selectedGeneratedIdea', JSON.stringify({
+        ...ideaData,
+        icpId,
+        selectedClientId
+      }));
+      
+      // Pass the tempId to trigger navigation
+      onContentTypeSelect(tempId, contentType);
+    }
   };
 
   return (
@@ -109,7 +127,7 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
         <>
           <div className="max-h-[700px] overflow-y-auto space-y-6 pr-2">
             {ideasWithScores.map((ideaData, index) => (
-              <IdeaCard
+              <ExpandedIdeaCard
                 key={ideaData.tempId}
                 ideaData={ideaData}
                 index={index}

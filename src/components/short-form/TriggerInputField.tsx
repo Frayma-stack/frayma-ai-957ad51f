@@ -1,5 +1,5 @@
 
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -27,6 +27,35 @@ const TriggerInputField: FC<TriggerInputFieldProps> = ({
   onIdeaSelect
 }) => {
   const { summarizeIdeaForContent } = useIdeaSummarization();
+
+  // Check for newly minted idea data on component mount
+  useEffect(() => {
+    const storedGeneratedIdea = localStorage.getItem('selectedGeneratedIdea');
+    if (storedGeneratedIdea) {
+      try {
+        const ideaData = JSON.parse(storedGeneratedIdea);
+        console.log('🎯 Found stored generated idea data:', ideaData);
+        
+        // Generate trigger content from the minted idea
+        const triggerContent = `Title: ${ideaData.title}
+
+Narrative: ${ideaData.narrative}
+
+Product Tie-in: ${ideaData.productTieIn}
+
+Call to Action: ${ideaData.cta}`;
+        
+        onTriggerInputChange(triggerContent);
+        toast.success('Newly minted idea loaded as trigger');
+        
+        // Clean up the stored data
+        localStorage.removeItem('selectedGeneratedIdea');
+      } catch (error) {
+        console.error('Error parsing stored generated idea:', error);
+        localStorage.removeItem('selectedGeneratedIdea');
+      }
+    }
+  }, [onTriggerInputChange]);
 
   // Filter ideas by selected client
   const filteredIdeas = selectedClientId 
