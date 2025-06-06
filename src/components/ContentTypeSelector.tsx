@@ -46,7 +46,7 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
     {
       type: 'article' as ContentType,
       title: 'GTM Narrative Piece',
-      description: 'Long-form thought leadership content using Product-Led Storytelling framework',
+      description: 'Auto-craft in-depth thought leadership content, how-to guides, and first-person newsletters that solidify your positioning and win buyers',
       icon: FileText,
       color: 'bg-blue-500',
       badge: 'Premium'
@@ -82,6 +82,14 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
       icon: Users,
       color: 'bg-orange-500',
       badge: 'Proof'
+    },
+    {
+      type: 'mint-ideas' as ContentType,
+      title: 'Mint New Ideas',
+      description: 'Auto-craft fresh Product-Led Storytelling ideas with different angles and perspectives',
+      icon: Sparkles,
+      color: 'bg-indigo-500',
+      badge: 'Ideas'
     }
   ];
 
@@ -103,36 +111,16 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
     onSelect('article');
   };
 
-  const handleMintNewIdeas = () => {
-    console.log('✨ Mint New Ideas clicked - navigating to Ideas Bank');
-    if (onNavigateToIdeasBank) {
+  const handleContentTypeSelect = (type: ContentType) => {
+    if (type === 'mint-ideas' && onNavigateToIdeasBank) {
       onNavigateToIdeasBank();
+    } else {
+      onSelect(type);
     }
   };
 
   return (
     <div className="space-y-8">
-      {/* Mint New Ideas CTA - Always visible on homescreen */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-dashed border-blue-300">
-        <CardContent className="p-8 text-center">
-          <div className="flex items-center justify-center mb-4">
-            <Sparkles className="h-8 w-8 text-blue-600 mr-3" />
-            <h3 className="text-xl font-semibold text-gray-800">Need Fresh Ideas?</h3>
-          </div>
-          <p className="text-gray-600 mb-6 max-w-lg mx-auto">
-            Auto-craft a fresh batch of Product-Led Storytelling ideas with different angles and perspectives using our AI-powered idea generator.
-          </p>
-          <Button 
-            onClick={handleMintNewIdeas}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
-            size="lg"
-          >
-            <Sparkles className="h-5 w-5 mr-2" />
-            Mint New Ideas
-          </Button>
-        </CardContent>
-      </Card>
-
       {/* Saved Ideas Section */}
       {filteredIdeas.length > 0 && (
         <div className="space-y-4">
@@ -158,10 +146,27 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
           </div>
           
           <div className="border-t pt-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Or choose a content type to create from scratch:
-            </h2>
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                What Will You Auto-Craft?
+              </h2>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                Choose one below to start framing thoughts into sharp POVs, and auto-crafting GTM assets with narratives that win you buyers.
+              </p>
+            </div>
           </div>
+        </div>
+      )}
+
+      {/* Show heading and copy when no saved ideas */}
+      {filteredIdeas.length === 0 && (
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            What Will You Auto-Craft?
+          </h2>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            Choose one below to start framing thoughts into sharp POVs, and auto-crafting GTM assets with narratives that win you buyers.
+          </p>
         </div>
       )}
 
@@ -173,7 +178,7 @@ const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
             <Card
               key={contentType.type}
               className="cursor-pointer hover:shadow-lg transition-all duration-200 group border-2 hover:border-story-blue"
-              onClick={() => onSelect(contentType.type)}
+              onClick={() => handleContentTypeSelect(contentType.type)}
             >
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">

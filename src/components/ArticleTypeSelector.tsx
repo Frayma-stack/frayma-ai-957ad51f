@@ -1,137 +1,150 @@
+
 import { FC } from 'react';
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, FileText, Mail } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, FileText, Mail, Lightbulb } from 'lucide-react';
+import { ArticleSubType } from '@/components/ContentTypeSelector';
 import { GeneratedIdea } from '@/types/ideas';
-import { ArticleSubType } from './ContentTypeSelector';
+import SavedIdeaCard from './SavedIdeaCard';
 
 interface ArticleTypeSelectorProps {
   onSelect: (subtype: ArticleSubType) => void;
   onBack: () => void;
-  ideas: GeneratedIdea[];
+  ideas?: GeneratedIdea[];
   selectedClientId?: string | null;
   selectedIdeaId?: string | null;
-  onIdeaSelect?: (ideaId: string | null) => void;
+  onIdeaSelect?: (ideaId: string) => void;
 }
 
 const ArticleTypeSelector: FC<ArticleTypeSelectorProps> = ({ 
   onSelect, 
-  onBack, 
-  ideas, 
-  selectedClientId, 
-  selectedIdeaId, 
-  onIdeaSelect 
+  onBack,
+  ideas = [],
+  selectedClientId,
+  selectedIdeaId,
+  onIdeaSelect
 }) => {
-  const articleTypes = [
-    {
-      type: 'thought_leadership' as ArticleSubType,
-      title: 'Thought Leadership',
-      description: 'In-depth articles that establish\nexpertise and industry authority',
-      icon: FileText,
-      color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
-      iconColor: 'text-blue-600'
-    },
-    {
-      type: 'newsletter' as ArticleSubType,
-      title: 'Newsletter',
-      description: 'Engaging content designed\nfor regular audience updates',
-      icon: Mail,
-      color: 'bg-green-50 border-green-200 hover:bg-green-100',
-      iconColor: 'text-green-600'
-    }
-  ];
-
+  // Filter ideas to only show those for the selected client
   const filteredIdeas = selectedClientId 
     ? ideas.filter(idea => idea.clientId === selectedClientId)
     : [];
 
+  const articleTypes = [
+    {
+      type: 'thought_leadership' as ArticleSubType,
+      title: 'Long-Form GTM Pieces',
+      description: 'Auto-craft in-depth thought leadership content or how-to guides with narratives that solidify your positioning',
+      icon: FileText,
+      color: 'bg-blue-500',
+      badge: 'Thought Leadership'
+    },
+    {
+      type: 'newsletter' as ArticleSubType,
+      title: 'First-Person Newsletters',
+      description: 'Craft newsletters in first-person narratives that build and foster more engaged audiences',
+      icon: Mail,
+      color: 'bg-green-500',
+      badge: 'Newsletter'
+    }
+  ];
+
+  const handleIdeaSelect = (ideaId: string) => {
+    if (onIdeaSelect) {
+      onIdeaSelect(ideaId);
+    }
+  };
+
+  const handleUseIdeaForContent = (ideaId: string) => {
+    if (onIdeaSelect) {
+      onIdeaSelect(ideaId);
+    }
+    // Auto-select thought leadership when using an idea
+    onSelect('thought_leadership');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-4 mb-6">
-        <Button
-          variant="ghost"
-          size="sm"
+        <Button 
+          variant="outline" 
+          size="sm" 
           onClick={onBack}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+          className="flex items-center space-x-2"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back</span>
         </Button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Choose Article Type</h1>
+          <p className="text-gray-600">Select the type of article you want to create</p>
+        </div>
       </div>
 
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Choose Article Type
-        </h2>
-        <p className="text-gray-600">
-          Select the format that best fits your content goals
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-        {articleTypes.map((articleType) => (
-          <Card 
-            key={articleType.type}
-            className={`cursor-pointer transition-all duration-200 ${articleType.color} hover:shadow-md`}
-            onClick={() => onSelect(articleType.type)}
-          >
-            <CardHeader className="pb-4">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className={`p-3 rounded-lg bg-white`}>
-                  <articleType.icon className={`h-6 w-6 ${articleType.iconColor}`} />
-                </div>
-                <CardTitle className="text-xl font-semibold text-gray-900">
-                  {articleType.title}
-                </CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
-                {articleType.description}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
+      {/* Saved Ideas Section */}
       {filteredIdeas.length > 0 && (
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Or start from a saved idea:
-          </h3>
-          <div className="grid gap-3">
-            {filteredIdeas.slice(0, 5).map((idea) => (
-              <Card 
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Lightbulb className="h-5 w-5 text-story-blue" />
+            <h2 className="text-lg font-semibold text-gray-900">
+              Or start from a saved idea:
+            </h2>
+            <Badge variant="secondary" className="text-xs">
+              {filteredIdeas.length} idea{filteredIdeas.length !== 1 ? 's' : ''} available
+            </Badge>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+            {filteredIdeas.map((idea) => (
+              <SavedIdeaCard
                 key={idea.id}
-                className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                  selectedIdeaId === idea.id 
-                    ? 'border-story-blue bg-story-blue/5' 
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-                onClick={() => onIdeaSelect?.(idea.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900 mb-1">
-                        {idea.title}
-                      </h4>
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {idea.narrative}
-                      </p>
-                    </div>
-                    {selectedIdeaId === idea.id && (
-                      <div className="ml-3 p-1 bg-story-blue rounded-full">
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                idea={idea}
+                onSelect={handleIdeaSelect}
+                onUseForContent={handleUseIdeaForContent}
+              />
             ))}
+          </div>
+          
+          <div className="border-t pt-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Or choose an article type to create from scratch:
+            </h2>
           </div>
         </div>
       )}
+
+      {/* Article Types Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {articleTypes.map((articleType) => {
+          const Icon = articleType.icon;
+          return (
+            <Card
+              key={articleType.type}
+              className="cursor-pointer hover:shadow-lg transition-all duration-200 group border-2 hover:border-story-blue"
+              onClick={() => onSelect(articleType.type)}
+            >
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className={`p-3 rounded-lg ${articleType.color} group-hover:scale-110 transition-transform duration-200`}>
+                    <Icon className="h-6 w-6 text-white" />
+                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    {articleType.badge}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <CardTitle className="text-lg mb-2 group-hover:text-story-blue transition-colors">
+                  {articleType.title}
+                </CardTitle>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  {articleType.description}
+                </p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 };
