@@ -66,7 +66,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
   
   const clientInfo = getClientInfo();
 
-  // Create a default story object with all required properties
+  // Create a default story object with all required properties including createdAt
   const defaultStory: CustomerSuccessStory = {
     id: '',
     title: '',
