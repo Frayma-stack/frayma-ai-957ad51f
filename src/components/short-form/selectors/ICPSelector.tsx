@@ -15,19 +15,24 @@ const ICPSelector: FC<ICPSelectorProps> = ({
   scripts,
   onICPChange
 }) => {
+  // Handle value changes to convert special "__no_scripts__" value back to empty string
+  const handleICPChange = (value: string) => {
+    onICPChange(value === "__no_scripts__" ? "" : value);
+  };
+
   return (
     <div>
       <div className="flex items-center">
         <label className="text-sm font-medium">Target ICP *</label>
         <Users className="ml-2 h-4 w-4 text-gray-400" />
       </div>
-      <Select value={selectedICP} onValueChange={onICPChange}>
+      <Select value={selectedICP || "__no_scripts__"} onValueChange={handleICPChange}>
         <SelectTrigger className="mt-2">
           <SelectValue placeholder="Select ICP StoryScript" />
         </SelectTrigger>
         <SelectContent>
           {scripts.length === 0 ? (
-            <SelectItem value="no-scripts" disabled>
+            <SelectItem value="__no_scripts__">
               No ICP StoryScripts found for this client
             </SelectItem>
           ) : (

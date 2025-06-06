@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { GeneratedIdea, IdeasSortOrder, IdeaScore } from '@/types/ideas';
 import { Button } from '@/components/ui/button';
@@ -92,6 +91,9 @@ const SavedIdeas = ({
     });
 
   const handleScoreChange = (ideaId: string, scoreValue: string) => {
+    // Don't allow empty string values
+    if (!scoreValue || scoreValue === '__no_score__') return;
+    
     const idea = ideas.find(i => i.id === ideaId);
     if (idea) {
       const score = SCORE_OPTIONS.find(s => s.value === Number(scoreValue));
@@ -239,14 +241,14 @@ const SavedIdeas = ({
                     Target ICP (Optional)
                   </label>
                   <Select
-                    value={newIdea.icpId}
-                    onValueChange={(value) => setNewIdea({...newIdea, icpId: value})}
+                    value={newIdea.icpId || "__none__"}
+                    onValueChange={(value) => setNewIdea({...newIdea, icpId: value === "__none__" ? "" : value})}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select an ICP" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="__none__">None</SelectItem>
                       {scripts.map((script) => (
                         <SelectItem key={script.id} value={script.id}>
                           {script.name}
@@ -261,7 +263,7 @@ const SavedIdeas = ({
                     Score
                   </label>
                   <Select
-                    value={newIdea.score?.value.toString()}
+                    value={newIdea.score?.value.toString() || "2"}
                     onValueChange={(value) => {
                       const score = SCORE_OPTIONS.find(s => s.value === Number(value));
                       setNewIdea({...newIdea, score: score || null});
@@ -305,13 +307,14 @@ const SavedIdeas = ({
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-lg">{idea.title}</CardTitle>
                   <Select
-                    value={idea.score?.value.toString() || ''}
+                    value={idea.score?.value.toString() || "__no_score__"}
                     onValueChange={(value) => handleScoreChange(idea.id, value)}
                   >
                     <SelectTrigger className="w-[120px]">
                       <SelectValue placeholder="Rate" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="__no_score__">No Rating</SelectItem>
                       {SCORE_OPTIONS.map((score) => (
                         <SelectItem key={score.value} value={score.value.toString()}>
                           {score.label}

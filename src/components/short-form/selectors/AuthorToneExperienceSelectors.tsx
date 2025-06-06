@@ -68,30 +68,30 @@ const AuthorToneExperienceSelectors: FC<AuthorToneExperienceSelectorsProps> = ({
 
   // Handle value changes to convert special "none" value back to empty string
   const handleToneChange = (value: string) => {
-    onAuthorToneChange(value === "none-selected" ? "" : value);
+    onAuthorToneChange(value === "__none__" ? "" : value);
   };
 
   const handleExperienceChange = (value: string) => {
-    onAuthorExperienceChange(value === "none-selected" ? "" : value);
+    onAuthorExperienceChange(value === "__none__" ? "" : value);
   };
 
   const handleBeliefChange = (value: string) => {
     if (onAuthorBeliefChange) {
-      onAuthorBeliefChange(value === "none-selected" ? "" : value);
+      onAuthorBeliefChange(value === "__none__" ? "" : value);
     }
   };
 
-  // Convert empty strings to special "none" value for display
+  // Convert empty strings to special "__none__" value for display (non-empty string)
   const getToneDisplayValue = () => {
-    return selectedAuthorTone === "" ? "none-selected" : selectedAuthorTone;
+    return selectedAuthorTone === "" ? "__none__" : selectedAuthorTone;
   };
 
   const getExperienceDisplayValue = () => {
-    return selectedAuthorExperience === "" ? "none-selected" : selectedAuthorExperience;
+    return selectedAuthorExperience === "" ? "__none__" : selectedAuthorExperience;
   };
 
   const getBeliefDisplayValue = () => {
-    return (selectedAuthorBelief || "") === "" ? "none-selected" : selectedAuthorBelief || "";
+    return (selectedAuthorBelief || "") === "" ? "__none__" : selectedAuthorBelief || "";
   };
 
   return (
@@ -105,7 +105,7 @@ const AuthorToneExperienceSelectors: FC<AuthorToneExperienceSelectorsProps> = ({
               <SelectValue placeholder="Select tone (optional)" />
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
-              <SelectItem value="none-selected">None</SelectItem>
+              <SelectItem value="__none__">None</SelectItem>
               {validTones.map((tone: any) => (
                 <SelectItem key={tone.id} value={tone.id}>
                   {tone.tone}
@@ -125,7 +125,7 @@ const AuthorToneExperienceSelectors: FC<AuthorToneExperienceSelectorsProps> = ({
               <SelectValue placeholder="Select experience (optional)" />
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
-              <SelectItem value="none-selected">None</SelectItem>
+              <SelectItem value="__none__">None</SelectItem>
               {validExperiences.map((experience: any) => (
                 <SelectItem key={experience.id} value={experience.id}>
                   {experience.title}
@@ -145,7 +145,7 @@ const AuthorToneExperienceSelectors: FC<AuthorToneExperienceSelectorsProps> = ({
               <SelectValue placeholder="Select belief (optional)" />
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
-              <SelectItem value="none-selected">None</SelectItem>
+              <SelectItem value="__none__">None</SelectItem>
               {validBeliefs.map((belief: any) => (
                 <SelectItem key={belief.id} value={belief.id}>
                   {belief.belief}

@@ -65,19 +65,24 @@ const AuthorSelector: FC<AuthorSelectorProps> = ({
     }))
   });
 
+  // Handle value changes to convert special "__no_authors__" value back to empty string
+  const handleAuthorChange = (value: string) => {
+    onAuthorChange(value === "__no_authors__" ? "" : value);
+  };
+
   return (
     <div>
       <div className="flex items-center">
         <label className="text-sm font-medium">Author *</label>
         <User className="ml-2 h-4 w-4 text-gray-400" />
       </div>
-      <Select value={selectedAuthor} onValueChange={onAuthorChange}>
+      <Select value={selectedAuthor || "__no_authors__"} onValueChange={handleAuthorChange}>
         <SelectTrigger className="mt-2">
           <SelectValue placeholder="Select author" />
         </SelectTrigger>
         <SelectContent className="bg-white z-50">
           {validAuthors.length === 0 ? (
-            <SelectItem value="no-authors" disabled>
+            <SelectItem value="__no_authors__">
               {authors.length === 0 
                 ? "No authors found for this client - please create an author first"
                 : `No valid authors found (${authors.length} authors have validation issues)`
