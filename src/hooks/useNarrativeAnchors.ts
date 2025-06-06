@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { ICPStoryScript, NarrativeSelection } from '@/types/storytelling';
 
@@ -16,7 +17,7 @@ export const useNarrativeAnchors = ({
   narrativeSelections,
   setNarrativeSelections
 }: UseNarrativeAnchorsProps) => {
-  const [availableAnchors, setAvailableAnchors<{value: string, label: string}[]>([]);
+  const [availableAnchors, setAvailableAnchors] = useState<{value: string, label: string}[]>([]);
 
   // Update available narrative anchors when ICP changes
   useEffect(() => {
@@ -29,15 +30,15 @@ export const useNarrativeAnchors = ({
           options.push({value: 'belief', label: 'Core Belief'});
         }
         
-        if (script.internalPains.some(item => item.content.trim())) {
+        if (script.internalPains && script.internalPains.some(item => item.content.trim())) {
           options.push({value: 'pain', label: 'Internal Pain'});
         }
         
-        if (script.externalStruggles.some(item => item.content.trim())) {
+        if (script.externalStruggles && script.externalStruggles.some(item => item.content.trim())) {
           options.push({value: 'struggle', label: 'External Struggle'});
         }
         
-        if (script.desiredTransformations.some(item => item.content.trim())) {
+        if (script.desiredTransformations && script.desiredTransformations.some(item => item.content.trim())) {
           options.push({value: 'transformation', label: 'Desired Transformation'});
         }
         
@@ -51,7 +52,7 @@ export const useNarrativeAnchors = ({
         }
       }
     }
-  }, [selectedICP]);
+  }, [selectedICP, scripts, narrativeSelections.length, setNarrativeSelections]);
 
   return { availableAnchors };
 };
