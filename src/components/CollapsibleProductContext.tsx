@@ -1,3 +1,4 @@
+
 import { FC, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,9 +27,9 @@ const CollapsibleProductContext: FC<CollapsibleProductContextProps> = ({
   const [categoryPOV, setCategoryPOV] = useState(productContext.categoryPOV);
   const [companyMission, setCompanyMission] = useState(productContext.companyMission);
   const [uniqueInsight, setUniqueInsight] = useState(productContext.uniqueInsight);
-  const [features, setFeatures] = useState<ProductFeature[]>(productContext.features);
-  const [useCases, setUseCases] = useState<ProductUseCase[]>(productContext.useCases);
-  const [differentiators, setDifferentiators] = useState<ProductDifferentiator[]>(productContext.differentiators);
+  const [features, setFeatures] = useState<ProductFeature[]>(productContext.features || []);
+  const [useCases, setUseCases] = useState<ProductUseCase[]>(productContext.useCases || []);
+  const [differentiators, setDifferentiators] = useState<ProductDifferentiator[]>(productContext.differentiators || []);
   
   const { toast } = useToast();
 
@@ -38,9 +39,9 @@ const CollapsibleProductContext: FC<CollapsibleProductContextProps> = ({
     setCategoryPOV(productContext.categoryPOV);
     setCompanyMission(productContext.companyMission);
     setUniqueInsight(productContext.uniqueInsight);
-    setFeatures([...productContext.features]);
-    setUseCases([...productContext.useCases]);
-    setDifferentiators([...productContext.differentiators]);
+    setFeatures([...(productContext.features || [])]);
+    setUseCases([...(productContext.useCases || [])]);
+    setDifferentiators([...(productContext.differentiators || [])]);
   };
 
   const handleCancel = () => {
@@ -49,9 +50,9 @@ const CollapsibleProductContext: FC<CollapsibleProductContextProps> = ({
     setCategoryPOV(productContext.categoryPOV);
     setCompanyMission(productContext.companyMission);
     setUniqueInsight(productContext.uniqueInsight);
-    setFeatures([...productContext.features]);
-    setUseCases([...productContext.useCases]);
-    setDifferentiators([...productContext.differentiators]);
+    setFeatures([...(productContext.features || [])]);
+    setUseCases([...(productContext.useCases || [])]);
+    setDifferentiators([...(productContext.differentiators || [])]);
   };
 
   const handleSave = () => {
@@ -97,21 +98,27 @@ const CollapsibleProductContext: FC<CollapsibleProductContextProps> = ({
 
   const addFeatureBenefit = (featureIndex: number) => {
     const updated = [...features];
-    updated[featureIndex].benefits.push('');
+    if (!updated[featureIndex].benefits) {
+      updated[featureIndex].benefits = [];
+    }
+    updated[featureIndex].benefits!.push('');
     setFeatures(updated);
   };
 
   const removeFeatureBenefit = (featureIndex: number, benefitIndex: number) => {
     const updated = [...features];
-    if (updated[featureIndex].benefits.length > 1) {
-      updated[featureIndex].benefits.splice(benefitIndex, 1);
+    if (updated[featureIndex].benefits && updated[featureIndex].benefits!.length > 1) {
+      updated[featureIndex].benefits!.splice(benefitIndex, 1);
       setFeatures(updated);
     }
   };
 
   const updateFeatureBenefit = (featureIndex: number, benefitIndex: number, value: string) => {
     const updated = [...features];
-    updated[featureIndex].benefits[benefitIndex] = value;
+    if (!updated[featureIndex].benefits) {
+      updated[featureIndex].benefits = [];
+    }
+    updated[featureIndex].benefits![benefitIndex] = value;
     setFeatures(updated);
   };
 
@@ -279,7 +286,7 @@ const CollapsibleProductContext: FC<CollapsibleProductContextProps> = ({
                           
                           <div className="space-y-2">
                             <Label className="text-xs">Benefits</Label>
-                            {feature.benefits.map((benefit, benefitIndex) => (
+                            {(feature.benefits || []).map((benefit, benefitIndex) => (
                               <div key={benefitIndex} className="flex gap-1">
                                 <Input
                                   value={benefit}
@@ -292,7 +299,7 @@ const CollapsibleProductContext: FC<CollapsibleProductContextProps> = ({
                                   variant="outline"
                                   size="icon"
                                   onClick={() => removeFeatureBenefit(index, benefitIndex)}
-                                  disabled={feature.benefits.length === 1}
+                                  disabled={(feature.benefits || []).length === 1}
                                   className="h-8 w-8"
                                 >
                                   <Trash className="h-3 w-3" />
@@ -335,12 +342,12 @@ const CollapsibleProductContext: FC<CollapsibleProductContextProps> = ({
                 </>
               ) : (
                 <>
-                  {productContext.features.length > 0 ? (
-                    productContext.features.map((feature, index) => (
+                  {(productContext.features || []).length > 0 ? (
+                    (productContext.features || []).map((feature, index) => (
                       <div key={feature.id} className="bg-gray-50 p-3 rounded space-y-2">
                         <h5 className="font-medium text-sm">{feature.name}</h5>
                         <div className="space-y-1">
-                          {feature.benefits.map((benefit, benefitIndex) => (
+                          {(feature.benefits || []).map((benefit, benefitIndex) => (
                             <p key={benefitIndex} className="text-xs text-gray-600">• {benefit}</p>
                           ))}
                         </div>
@@ -387,13 +394,13 @@ const CollapsibleProductContext: FC<CollapsibleProductContextProps> = ({
                             className="text-sm"
                           />
                           <Input
-                            value={useCase.userRole}
+                            value={useCase.userRole || ''}
                             onChange={(e) => updateUseCase(index, 'userRole', e.target.value)}
                             placeholder="Target user role/persona"
                             className="text-sm"
                           />
                           <Textarea
-                            value={useCase.description}
+                            value={useCase.description || ''}
                             onChange={(e) => updateUseCase(index, 'description', e.target.value)}
                             placeholder="Description of how the company solves this problem"
                             rows={2}
@@ -424,12 +431,12 @@ const CollapsibleProductContext: FC<CollapsibleProductContextProps> = ({
                 </>
               ) : (
                 <>
-                  {productContext.useCases.length > 0 ? (
-                    productContext.useCases.map((useCase, index) => (
+                  {(productContext.useCases || []).length > 0 ? (
+                    (productContext.useCases || []).map((useCase, index) => (
                       <div key={useCase.id} className="bg-gray-50 p-3 rounded space-y-2">
                         <h5 className="font-medium text-sm">{useCase.useCase}</h5>
-                        <p className="text-xs text-gray-600"><strong>Target:</strong> {useCase.userRole}</p>
-                        <p className="text-xs text-gray-600">{useCase.description}</p>
+                        <p className="text-xs text-gray-600"><strong>Target:</strong> {useCase.userRole || 'Not specified'}</p>
+                        <p className="text-xs text-gray-600">{useCase.description || 'No description'}</p>
                         {useCase.media && useCase.media.length > 0 && (
                           <div className="mt-2">
                             <p className="text-xs text-gray-500 mb-1">{useCase.media.length} visual(s) attached</p>
@@ -480,7 +487,7 @@ const CollapsibleProductContext: FC<CollapsibleProductContextProps> = ({
                             className="text-sm"
                           />
                           <Textarea
-                            value={diff.competitorComparison}
+                            value={diff.competitorComparison || ''}
                             onChange={(e) => updateDifferentiator(index, 'competitorComparison', e.target.value)}
                             placeholder="How this compares to their closest competitors"
                             rows={2}
@@ -511,8 +518,8 @@ const CollapsibleProductContext: FC<CollapsibleProductContextProps> = ({
                 </>
               ) : (
                 <>
-                  {productContext.differentiators.length > 0 ? (
-                    productContext.differentiators.map((diff, index) => (
+                  {(productContext.differentiators || []).length > 0 ? (
+                    (productContext.differentiators || []).map((diff, index) => (
                       <div key={diff.id} className="bg-gray-50 p-3 rounded space-y-2">
                         <h5 className="font-medium text-sm">{diff.name}</h5>
                         <p className="text-xs text-gray-600">{diff.description}</p>

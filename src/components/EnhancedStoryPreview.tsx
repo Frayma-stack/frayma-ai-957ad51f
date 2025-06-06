@@ -43,7 +43,7 @@ const EnhancedStoryPreview: FC<EnhancedStoryPreviewProps> = ({
 
   // Get the full ICP script object based on the brief's targetAudience ID
   const getTargetScript = () => {
-    if (!selectedBrief) return null;
+    if (!selectedBrief?.targetAudience) return null;
     return scripts.find(script => script.id === selectedBrief.targetAudience) || null;
   };
 
@@ -84,13 +84,13 @@ const EnhancedStoryPreview: FC<EnhancedStoryPreviewProps> = ({
         anchoringItem = targetScript.coreBeliefs.find(item => item.id === element.itemId);
         break;
       case 'pain': 
-        anchoringItem = targetScript.internalPains.find(item => item.id === element.itemId);
+        anchoringItem = targetScript.internalPains?.find(item => item.id === element.itemId);
         break;
       case 'struggle': 
-        anchoringItem = targetScript.externalStruggles.find(item => item.id === element.itemId);
+        anchoringItem = targetScript.externalStruggles?.find(item => item.id === element.itemId);
         break;
       case 'transformation': 
-        anchoringItem = targetScript.desiredTransformations.find(item => item.id === element.itemId);
+        anchoringItem = targetScript.desiredTransformations?.find(item => item.id === element.itemId);
         break;
     }
     
@@ -226,9 +226,9 @@ const EnhancedStoryPreview: FC<EnhancedStoryPreviewProps> = ({
         
         // Add selected writing tone if available
         if (selectedWritingTone) {
-          const tone = selectedAuthorData.tones.find(t => t.id === selectedWritingTone);
+          const tone = selectedAuthorData.tones?.find(t => t.id === selectedWritingTone);
           if (tone) {
-            fullDraft += `\n\n_Written in ${tone.tone} style with ${tone.description}_`;
+            fullDraft += `\n\n_Written in ${tone.tone} style${tone.description ? ` with ${tone.description}` : ''}_`;
           }
         }
       }
@@ -243,7 +243,7 @@ ${selectedBrief.successStory ? `${selectedBrief.successStory}\n\n` : ''}`;
 
       // Add selected experience if available
       if (selectedAuthorData && selectedExperience) {
-        const experience = selectedAuthorData.experiences.find(e => e.id === selectedExperience);
+        const experience = selectedAuthorData.experiences?.find(e => e.id === selectedExperience);
         if (experience) {
           fullDraft += `\nDuring my time as a ${experience.title}, ${experience.description} This perspective has shaped how I approach these challenges.\n\n`;
         }
@@ -277,15 +277,16 @@ ${getStepTitle(selectedBrief.outlineSteps?.[4] || '')}`;
 
       // Product context section if available
       if (productContext) {
-        if (productContext.features.length > 0) {
+        if (productContext.features && productContext.features.length > 0) {
           fullDraft += `\n\n### Key Features That Make The Difference:`;
           productContext.features.slice(0, 3).forEach((feature, index) => {
-            fullDraft += `\n\n${index + 1}. **${feature.name}**: ${feature.benefits.join('; ')}`;
+            const benefits = feature.benefits || [];
+            fullDraft += `\n\n${index + 1}. **${feature.name}**: ${benefits.join('; ')}`;
           });
         }
         
         // Add a differentiator if available
-        if (productContext.differentiators.length > 0) {
+        if (productContext.differentiators && productContext.differentiators.length > 0) {
           const differentiator = productContext.differentiators[0];
           fullDraft += `\n\n### What Makes Us Different\n\n${differentiator.name}: ${differentiator.description}`;
           
@@ -297,9 +298,9 @@ ${getStepTitle(selectedBrief.outlineSteps?.[4] || '')}`;
       
       // Add product belief if selected
       if (selectedAuthorData && selectedBelief) {
-        const belief = selectedAuthorData.beliefs.find(b => b.id === selectedBelief);
+        const belief = selectedAuthorData.beliefs?.find(b => b.id === selectedBelief);
         if (belief) {
-          fullDraft += `\n\n## My Professional Perspective\n\n${belief.belief}. ${belief.description}`;
+          fullDraft += `\n\n## My Professional Perspective\n\n${belief.belief}${belief.description ? `. ${belief.description}` : ''}`;
         }
       }
 

@@ -120,6 +120,10 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
             quotes: [],
             features: [],
             createdAt: '',
+            clientId: '',
+            authorId: '',
+            icpScriptId: '',
+            productContextId: ''
           }}
           onUpdate={onSuccessStoryUpdated}
           onDelete={onSuccessStoryDeleted}

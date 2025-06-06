@@ -7,7 +7,7 @@ import { FileText, Mail, MessageSquare, Users, Lightbulb, Plus, Sparkles } from 
 import { GeneratedIdea } from '@/types/ideas';
 import SavedIdeaCard from './SavedIdeaCard';
 
-export type ContentType = 'article' | 'linkedin' | 'email' | 'custom' | 'success-story';
+export type ContentType = 'article' | 'linkedin' | 'email' | 'custom' | 'success-story' | 'mint-ideas';
 export type ArticleSubType = 'thought_leadership' | 'newsletter';
 
 interface ContentTypeSelectorProps {
