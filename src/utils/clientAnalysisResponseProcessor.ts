@@ -1,3 +1,4 @@
+
 import { ProductContext, ProductFeature, ProductUseCase, ProductDifferentiator, CompanyLink } from '@/types/storytelling';
 import { parseClientAnalysisContent } from '@/utils/clientAnalysisUtils';
 import { AnalysisServiceResponse } from '@/types/clientAnalysis';
@@ -48,7 +49,7 @@ export class ClientAnalysisResponseProcessor {
     const extractedCompanyMission = parsedData.companyMission || '';
     const extractedUniqueInsight = parsedData.uniqueInsight || '';
     
-    const companyLinks = validLinks.filter(link => link.name === 'Client Analysis');
+    const companyLinks = validLinks.filter(link => link.type === 'website');
     
     const productContext: ProductContext = {
       id: crypto.randomUUID(),

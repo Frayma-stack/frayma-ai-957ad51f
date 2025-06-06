@@ -23,13 +23,15 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
     initialBrief || {
       id: crypto.randomUUID(),
       title: '',
+      description: '',
+      clientId: '',
       contentType: articleSubType || 'thought_leadership',
       
       // Strategic Alignment
       goal: '',
       targetKeyword: '',
       purposeStatement: '',
-      businessObjectives: '',
+      businessObjectives: [''],
       callToAction: '',
       
       // Target Reader Resonance
@@ -256,7 +258,8 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
       ...brief,
       relatedKeywords: brief.relatedKeywords.filter(k => k.trim() !== ''),
       searchQueries: brief.searchQueries.filter(q => q.trim() !== ''),
-      problemStatements: brief.problemStatements.filter(p => p.trim() !== '')
+      problemStatements: brief.problemStatements.filter(p => p.trim() !== ''),
+      businessObjectives: brief.businessObjectives.filter(o => o.trim() !== '')
     };
 
     onSave(cleanedBrief);
@@ -345,12 +348,32 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
             
             <div className="space-y-2">
               <label className="text-sm font-medium">Business Objectives</label>
-              <Textarea 
-                placeholder="How does this support business objectives?"
-                value={brief.businessObjectives}
-                onChange={(e) => handleInputChange('businessObjectives', e.target.value)}
-                rows={2}
-              />
+              {brief.businessObjectives?.map((objective, index) => (
+                <div key={`objective-${index}`} className="flex gap-2 mb-2">
+                  <Textarea 
+                    placeholder={`Business objective ${index + 1}`}
+                    value={objective}
+                    onChange={(e) => handleArrayItemChange('businessObjectives', index, e.target.value)}
+                    className="flex-1"
+                    rows={2}
+                  />
+                  {index > 0 && (
+                    <Button 
+                      variant="outline" 
+                      onClick={() => removeArrayItem('businessObjectives', index)}
+                    >
+                      -
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => addArrayItem('businessObjectives')}
+              >
+                Add Business Objective
+              </Button>
             </div>
             
             <div className="space-y-2">
