@@ -1,4 +1,3 @@
-
 import { NarrativeSelection } from '@/types/storytelling';
 
 type NarrativeAnchor = 'belief' | 'pain' | 'struggle' | 'transformation';
@@ -22,7 +21,7 @@ export const useNarrativeAnchorLogic = ({
     if (isAnchorTypeSelected(type)) {
       setNarrativeSelections(narrativeSelections.filter(selection => selection.type !== type));
     } else {
-      setNarrativeSelections([...narrativeSelections, { type, items: [], anchorType: 'belief' }]);
+      setNarrativeSelections([...narrativeSelections, { type, itemId: '', content: '', items: [] }]);
     }
   };
 

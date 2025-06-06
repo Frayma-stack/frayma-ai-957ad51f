@@ -1,10 +1,10 @@
-
 import { 
   AuthorExperience, 
   AuthorToneItem, 
   AuthorBelief,
   AuthorSocialLink,
-  Author
+  Author,
+  SocialLink
 } from '@/types/storytelling';
 
 // Helper functions to create empty items with unique IDs
@@ -26,10 +26,11 @@ export const createEmptyBelief = (): AuthorBelief => ({
   description: ''
 });
 
-export const createEmptySocialLink = (): AuthorSocialLink => ({
+export const createEmptySocialLink = (): SocialLink => ({
   id: crypto.randomUUID(),
-  type: 'linkedin',
-  url: ''
+  platform: '',
+  url: '',
+  type: 'other'
 });
 
 export const createInitialAuthor = (initialAuthor?: Author | null): Author => {

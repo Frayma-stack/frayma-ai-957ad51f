@@ -1,4 +1,3 @@
-
 import { ProductContext, ProductFeature, ProductUseCase, ProductDifferentiator, CompanyLink } from '@/types/storytelling';
 import { parseClientAnalysisContent } from '@/utils/clientAnalysisUtils';
 import { AnalysisServiceResponse } from '@/types/clientAnalysis';
@@ -43,17 +42,28 @@ export class ClientAnalysisResponseProcessor {
       competitorComparison: diff.competitorComparison || ''
     }));
     
-    return {
+    const extractedName = parsedData.name || '';
+    const extractedDescription = parsedData.description || '';
+    const extractedCategoryPOV = parsedData.categoryPOV || '';
+    const extractedCompanyMission = parsedData.companyMission || '';
+    const extractedUniqueInsight = parsedData.uniqueInsight || '';
+    
+    const companyLinks = validLinks.filter(link => link.name === 'Client Analysis');
+    
+    const productContext: ProductContext = {
       id: crypto.randomUUID(),
-      name: name,
-      description: parsedData.description || '',
+      clientId: '',
+      name: extractedName,
+      description: extractedDescription,
       features,
       useCases,
       differentiators,
-      categoryPOV: parsedData.categoryPOV || '',
-      companyMission: parsedData.companyMission || '',
-      uniqueInsight: parsedData.uniqueInsight || '',
-      companyLinks: validLinks
+      categoryPOV: extractedCategoryPOV,
+      companyMission: extractedCompanyMission,
+      uniqueInsight: extractedUniqueInsight,
+      companyLinks
     };
+    
+    return productContext;
   }
 }

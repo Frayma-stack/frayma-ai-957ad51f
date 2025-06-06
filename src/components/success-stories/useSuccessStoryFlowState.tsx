@@ -95,6 +95,10 @@ export const useSuccessStoryFlowState = ({
             description: formData.useCase01Description || 'Use case description'
           }
         ].filter(useCase => useCase.useCase),
+        clientId: '',
+        authorId: '',
+        icpScriptId: '',
+        productContextId: '',
         createdAt: new Date().toISOString()
       };
 

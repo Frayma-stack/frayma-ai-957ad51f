@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { ICPStoryScript, NarrativeSelection } from '@/types/storytelling';
 
@@ -17,7 +16,7 @@ export const useNarrativeAnchors = ({
   narrativeSelections,
   setNarrativeSelections
 }: UseNarrativeAnchorsProps) => {
-  const [availableAnchors, setAvailableAnchors] = useState<{value: string, label: string}[]>([]);
+  const [availableAnchors, setAvailableAnchors<{value: string, label: string}[]>([]);
 
   // Update available narrative anchors when ICP changes
   useEffect(() => {
@@ -47,7 +46,7 @@ export const useNarrativeAnchors = ({
         if (narrativeSelections.length === 0) {
           const firstOption = options[0]?.value as NarrativeAnchor;
           if (firstOption) {
-            setNarrativeSelections([{ type: firstOption, items: [], anchorType: 'belief' }]);
+            setNarrativeSelections([{ type: firstOption, itemId: '', content: '', items: [] }]);
           }
         }
       }

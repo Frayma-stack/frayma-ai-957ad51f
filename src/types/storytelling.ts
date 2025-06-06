@@ -116,25 +116,25 @@ export interface ProductDifferentiator {
 export interface CustomerSuccessStory {
   id: string;
   clientId: string;
-  title: string;
   authorId: string;
   icpScriptId: string;
+  productContextId: string;
+  title: string;
   beforeSummary: string;
   afterSummary: string;
-  productContextId: string;
   url?: string;
-  quotes?: Array<{
+  quotes: Array<{
     id: string;
     quote: string;
     author: string;
     title: string;
   }>;
-  features?: Array<{
+  features: Array<{
     id: string;
     name: string;
     description: string;
   }>;
-  useCases?: Array<{
+  useCases: Array<{
     id: string;
     useCase: string;
     description?: string;

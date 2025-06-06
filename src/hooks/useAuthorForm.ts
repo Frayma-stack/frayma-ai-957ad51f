@@ -69,6 +69,7 @@ export const useAuthorForm = (initialAuthor?: Author | null, selectedClientId?: 
     ? author.socialLinks 
     : [{ 
         id: crypto.randomUUID(), 
+        platform: 'LinkedIn',
         type: 'linkedin' as const, 
         url: '' 
       }];

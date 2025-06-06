@@ -127,7 +127,10 @@ const AddSuccessStoryDialog: FC<AddSuccessStoryDialogProps> = ({
           useCase: uc.name,
           description: uc.description
         })),
-        clientId: selectedClientId,
+        clientId: selectedClientId || '',
+        authorId: '',
+        icpScriptId: '',
+        productContextId: '',
         createdAt: new Date().toISOString(),
       };
       
