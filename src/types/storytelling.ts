@@ -71,6 +71,9 @@ export interface Author {
   clientId?: string;
   role?: string;
   organization?: string;
+  bio?: string;
+  company?: string;
+  email?: string;
   tones?: AuthorTone[];
   experiences?: AuthorExperience[];
   beliefs?: AuthorBelief[];
@@ -130,6 +133,11 @@ export interface CustomerSuccessStory {
     id: string;
     name: string;
     description: string;
+  }>;
+  useCases?: Array<{
+    id: string;
+    useCase: string;
+    description?: string;
   }>;
   createdAt?: string;
 }
@@ -197,6 +205,7 @@ export interface NarrativeSelection {
   type: 'belief' | 'pain' | 'struggle' | 'transformation';
   itemId: string;
   content: string;
+  items: string[];
 }
 
 // Legacy alias for backward compatibility

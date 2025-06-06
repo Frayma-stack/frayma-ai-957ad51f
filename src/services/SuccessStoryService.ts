@@ -22,6 +22,9 @@ export class SuccessStoryService extends BaseSupabaseService {
       features: Array.isArray(story.features) ? story.features as any[] : [],
       useCases: Array.isArray(story.use_cases) ? story.use_cases as any[] : [],
       clientId: story.client_id,
+      authorId: story.client_id || '', // fallback for required field
+      icpScriptId: story.client_id || '', // fallback for required field
+      productContextId: story.client_id || '', // fallback for required field
       createdAt: story.created_at
     }));
   }
@@ -57,6 +60,9 @@ export class SuccessStoryService extends BaseSupabaseService {
       features: Array.isArray(data.features) ? data.features as any[] : [],
       useCases: Array.isArray(data.use_cases) ? data.use_cases as any[] : [],
       clientId: data.client_id,
+      authorId: data.client_id || '',
+      icpScriptId: data.client_id || '',
+      productContextId: data.client_id || '',
       createdAt: data.created_at
     };
   }
@@ -90,6 +96,9 @@ export class SuccessStoryService extends BaseSupabaseService {
       features: Array.isArray(data.features) ? data.features as any[] : [],
       useCases: Array.isArray(data.use_cases) ? data.use_cases as any[] : [],
       clientId: data.client_id,
+      authorId: data.client_id || '',
+      icpScriptId: data.client_id || '',
+      productContextId: data.client_id || '',
       createdAt: data.created_at
     };
   }

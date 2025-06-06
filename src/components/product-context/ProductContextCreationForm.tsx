@@ -10,11 +10,13 @@ import ProductContextForm from '../client-dialog/ProductContextForm';
 interface ProductContextCreationFormProps {
   onProductContextCreated: (productContext: ProductContext) => void;
   onCancel: () => void;
+  selectedClientId?: string;
 }
 
 const ProductContextCreationForm: FC<ProductContextCreationFormProps> = ({
   onProductContextCreated,
-  onCancel
+  onCancel,
+  selectedClientId
 }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -40,6 +42,7 @@ const ProductContextCreationForm: FC<ProductContextCreationFormProps> = ({
 
     const newProductContext: ProductContext = {
       id: crypto.randomUUID(),
+      clientId: selectedClientId || '',
       name: name.trim() || 'Product Context',
       description: description.trim() || '',
       categoryPOV: categoryPOV.trim(),

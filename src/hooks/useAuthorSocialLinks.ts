@@ -1,25 +1,35 @@
 
 import { useState } from 'react';
-import { AuthorSocialLink } from '@/types/storytelling';
+import { SocialLink } from '@/types/storytelling';
 import { createEmptySocialLink } from '@/utils/authorFormUtils';
 
-export const useAuthorSocialLinks = (initialSocialLinks: AuthorSocialLink[] = []) => {
+export const useAuthorSocialLinks = (initialSocialLinks: SocialLink[] = []) => {
   // Ensure we always have at least one LinkedIn link for new authors
-  const ensureLinkedInLink = (links: AuthorSocialLink[]) => {
+  const ensureLinkedInLink = (links: SocialLink[]) => {
     const hasLinkedIn = links.some(link => link.type === 'linkedin');
     if (!hasLinkedIn) {
-      return [{ id: crypto.randomUUID(), type: 'linkedin' as const, url: '' }, ...links];
+      return [{ 
+        id: crypto.randomUUID(), 
+        platform: 'LinkedIn',
+        type: 'linkedin' as const, 
+        url: '' 
+      }, ...links];
     }
     return links;
   };
 
   const initialLinks = initialSocialLinks.length > 0 
     ? ensureLinkedInLink(initialSocialLinks) 
-    : [{ id: crypto.randomUUID(), type: 'linkedin' as const, url: '' }];
+    : [{ 
+        id: crypto.randomUUID(), 
+        platform: 'LinkedIn',
+        type: 'linkedin' as const, 
+        url: '' 
+      }];
     
-  const [socialLinks, setSocialLinks] = useState<AuthorSocialLink[]>(initialLinks);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(initialLinks);
   
-  const handleSocialLinkChange = (id: string, field: keyof AuthorSocialLink, value: string | 'linkedin' | 'x' | 'blog' | 'website' | 'other') => {
+  const handleSocialLinkChange = (id: string, field: keyof SocialLink, value: string | 'linkedin' | 'x' | 'blog' | 'website' | 'other') => {
     setSocialLinks(prev => prev.map(link => 
       link.id === id ? { ...link, [field]: value } : link
     ));
@@ -29,6 +39,7 @@ export const useAuthorSocialLinks = (initialSocialLinks: AuthorSocialLink[] = []
     // Create new non-LinkedIn link by default
     const newLink = createEmptySocialLink();
     newLink.type = 'x'; // Default to X for additional links
+    newLink.platform = 'X';
     setSocialLinks(prev => [...prev, newLink]);
   };
   
@@ -37,7 +48,12 @@ export const useAuthorSocialLinks = (initialSocialLinks: AuthorSocialLink[] = []
       const filtered = prev.filter(link => link.id !== id);
       // Ensure we always have at least one link and it should be LinkedIn if possible
       if (filtered.length === 0) {
-        return [{ id: crypto.randomUUID(), type: 'linkedin' as const, url: '' }];
+        return [{ 
+          id: crypto.randomUUID(), 
+          platform: 'LinkedIn',
+          type: 'linkedin' as const, 
+          url: '' 
+        }];
       }
       return filtered;
     });

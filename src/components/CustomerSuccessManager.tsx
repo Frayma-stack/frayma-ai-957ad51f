@@ -74,6 +74,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
     afterSummary: '',
     quotes: [],
     features: [],
+    useCases: [],
     createdAt: '',
     clientId: '',
     authorId: '',

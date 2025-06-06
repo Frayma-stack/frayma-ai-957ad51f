@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Author } from '@/types/storytelling';
 
@@ -9,8 +10,8 @@ interface UseAuthorStateCompositionProps {
     company?: string;
     title?: string;
     email?: string;
-    role: string;
-    organization: string;
+    role?: string;
+    organization?: string;
     backstory: string;
   };
   experiences: any[];
@@ -37,11 +38,12 @@ export const useAuthorStateComposition = ({
       return initialAuthor.clientId;
     }
     // For new authors, use the selected client ID
-    return selectedClientId || null;
+    return selectedClientId || undefined;
   };
 
   const [currentAuthor, setCurrentAuthor] = useState<Author>({
     ...basicInfo,
+    title: basicInfo.title || '',
     experiences,
     tones,
     beliefs,
@@ -51,8 +53,9 @@ export const useAuthorStateComposition = ({
 
   // Update the composed author state whenever any part changes
   useEffect(() => {
-    const composedAuthor = {
+    const composedAuthor: Author = {
       ...basicInfo,
+      title: basicInfo.title || '',
       experiences,
       tones,
       beliefs,
@@ -69,10 +72,10 @@ export const useAuthorStateComposition = ({
       clientAssignment: composedAuthor.clientId ? 'assigned_to_client' : 'no_client_assignment',
       selectedClientId,
       isEditing: !!initialAuthor,
-      experiencesCount: composedAuthor.experiences.length,
-      tonesCount: composedAuthor.tones.length,
-      beliefsCount: composedAuthor.beliefs.length,
-      socialLinksCount: composedAuthor.socialLinks.length
+      experiencesCount: composedAuthor.experiences?.length || 0,
+      tonesCount: composedAuthor.tones?.length || 0,
+      beliefsCount: composedAuthor.beliefs?.length || 0,
+      socialLinksCount: composedAuthor.socialLinks?.length || 0
     });
     
     setCurrentAuthor(composedAuthor);
