@@ -16,6 +16,7 @@ interface TriggerInputFieldProps {
   selectedClientId?: string;
   selectedIdeaId?: string | null;
   onIdeaSelect?: (ideaId: string | null) => void;
+  onICPAutoSelect?: (icpId: string) => void;
 }
 
 const TriggerInputField: FC<TriggerInputFieldProps> = ({
@@ -24,7 +25,8 @@ const TriggerInputField: FC<TriggerInputFieldProps> = ({
   ideas = [],
   selectedClientId,
   selectedIdeaId,
-  onIdeaSelect
+  onIdeaSelect,
+  onICPAutoSelect
 }) => {
   const { summarizeIdeaForContent } = useIdeaSummarization();
 
@@ -34,7 +36,7 @@ const TriggerInputField: FC<TriggerInputFieldProps> = ({
     if (storedGeneratedIdea) {
       try {
         const ideaData = JSON.parse(storedGeneratedIdea);
-        console.log('🎯 Found stored generated idea data:', ideaData);
+        console.log('🎯 Found stored generated idea data with ICP:', ideaData);
         
         // Generate trigger content from the minted idea
         const triggerContent = `Title: ${ideaData.title}
@@ -46,7 +48,14 @@ Product Tie-in: ${ideaData.productTieIn}
 Call to Action: ${ideaData.cta}`;
         
         onTriggerInputChange(triggerContent);
-        toast.success('Newly minted idea loaded as trigger');
+        
+        // Auto-select the ICP if available and callback is provided
+        if (ideaData.icpId && onICPAutoSelect) {
+          console.log('🎯 Auto-selecting ICP:', ideaData.icpId);
+          onICPAutoSelect(ideaData.icpId);
+        }
+        
+        toast.success('Newly minted idea loaded with ICP auto-selected');
         
         // Clean up the stored data
         localStorage.removeItem('selectedGeneratedIdea');
@@ -55,7 +64,7 @@ Call to Action: ${ideaData.cta}`;
         localStorage.removeItem('selectedGeneratedIdea');
       }
     }
-  }, [onTriggerInputChange]);
+  }, [onTriggerInputChange, onICPAutoSelect]);
 
   // Filter ideas by selected client
   const filteredIdeas = selectedClientId 
@@ -84,7 +93,14 @@ Call to Action: ${ideaData.cta}`;
     try {
       const summary = await summarizeIdeaForContent(selectedIdea);
       onTriggerInputChange(summary);
-      toast.success('Idea summary generated and applied as trigger');
+      
+      // Auto-select ICP if available
+      if (selectedIdea.icpId && onICPAutoSelect) {
+        console.log('🎯 Auto-selecting ICP from saved idea:', selectedIdea.icpId);
+        onICPAutoSelect(selectedIdea.icpId);
+      }
+      
+      toast.success('Idea summary generated and ICP auto-selected');
     } catch (error) {
       console.error('Error processing idea:', error);
       toast.error('Failed to process idea. Please try again.');

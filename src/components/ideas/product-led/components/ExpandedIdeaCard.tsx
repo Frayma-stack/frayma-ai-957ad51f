@@ -37,6 +37,28 @@ const ExpandedIdeaCard: FC<ExpandedIdeaCardProps> = ({
     { key: 'article', label: 'GTM Article', icon: FileText },
   ];
 
+  const handleContentTypeSelect = (contentType: string) => {
+    console.log('🎯 Content type selected for generated idea:', {
+      tempId: ideaData.tempId,
+      contentType,
+      ideaTitle: ideaData.title,
+      icpId,
+      selectedClientId
+    });
+    
+    // Store the idea data with ICP and client information for the content creation flow
+    const enhancedIdeaData = {
+      ...ideaData,
+      icpId,
+      selectedClientId
+    };
+    
+    localStorage.setItem('selectedGeneratedIdea', JSON.stringify(enhancedIdeaData));
+    
+    // Pass the tempId to trigger navigation
+    onContentTypeSelect(ideaData.tempId, contentType);
+  };
+
   return (
     <Card className="w-full border-2 border-gray-200 hover:border-blue-300 transition-colors">
       <CardHeader className="pb-4">
@@ -144,7 +166,7 @@ const ExpandedIdeaCard: FC<ExpandedIdeaCardProps> = ({
                     key={type.key}
                     variant="outline"
                     size="sm"
-                    onClick={() => onContentTypeSelect(ideaData.tempId, type.key)}
+                    onClick={() => handleContentTypeSelect(type.key)}
                     className="justify-start"
                   >
                     <IconComponent className="h-4 w-4 mr-2" />

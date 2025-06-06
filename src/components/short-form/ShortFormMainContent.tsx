@@ -119,6 +119,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
         selectedClientId={selectedClientId}
         selectedIdeaId={selectedIdeaId}
         onIdeaSelect={onIdeaSelect}
+        onICPAutoSelect={onICPChange}
       />
       
       <ICPAuthorSelectors

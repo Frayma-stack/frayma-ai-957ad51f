@@ -84,29 +84,6 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
     });
   };
 
-  const handleContentTypeSelect = (tempId: string, contentType: string) => {
-    // Find the idea data for this tempId
-    const ideaData = ideasWithScores.find(idea => idea.tempId === tempId);
-    if (ideaData) {
-      console.log('🎯 Content type selected for generated idea:', {
-        tempId,
-        contentType,
-        ideaTitle: ideaData.title,
-        icpId
-      });
-      
-      // Store the idea data and ICP selection for the content creation flow
-      localStorage.setItem('selectedGeneratedIdea', JSON.stringify({
-        ...ideaData,
-        icpId,
-        selectedClientId
-      }));
-      
-      // Pass the tempId to trigger navigation
-      onContentTypeSelect(tempId, contentType);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -136,7 +113,7 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
                 onFieldUpdate={(field, value) => updateIdeaField(index, field, value)}
                 onScoreUpdate={(score) => updateIdeaScore(index, score)}
                 onSave={() => handleSaveIdea(index)}
-                onContentTypeSelect={handleContentTypeSelect}
+                onContentTypeSelect={onContentTypeSelect}
               />
             ))}
           </div>
