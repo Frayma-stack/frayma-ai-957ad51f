@@ -66,6 +66,21 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
   
   const clientInfo = getClientInfo();
 
+  // Create a default story object with all required properties
+  const defaultStory: CustomerSuccessStory = {
+    id: '',
+    title: '',
+    beforeSummary: '',
+    afterSummary: '',
+    quotes: [],
+    features: [],
+    createdAt: '',
+    clientId: '',
+    authorId: '',
+    icpScriptId: '',
+    productContextId: ''
+  };
+
   return (
     <Card className="w-full bg-white shadow-md border border-gray-100 h-full flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between flex-shrink-0">
@@ -112,19 +127,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
         <EditSuccessStoryDialog
           open={isEditDialogOpen}
           setOpen={setIsEditDialogOpen}
-          story={selectedStory || {
-            id: '',
-            title: '',
-            beforeSummary: '',
-            afterSummary: '',
-            quotes: [],
-            features: [],
-            createdAt: '',
-            clientId: '',
-            authorId: '',
-            icpScriptId: '',
-            productContextId: ''
-          }}
+          story={selectedStory || defaultStory}
           onUpdate={onSuccessStoryUpdated}
           onDelete={onSuccessStoryDeleted}
         />

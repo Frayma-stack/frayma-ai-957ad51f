@@ -36,18 +36,13 @@ const MediaUploader: FC<MediaUploaderProps> = ({ media, onMediaChange, maxFiles 
     // Convert FileList to Array and process each file
     Array.from(files).forEach(file => {
       // Check file type
-      let fileType: 'image' | 'video' | 'gif' = 'image';
+      let fileType: 'image' | 'video' | 'document' = 'image';
       if (file.type.startsWith('video/')) {
         fileType = 'video';
       } else if (file.type === 'image/gif') {
-        fileType = 'gif';
+        fileType = 'image'; // Treat GIFs as images
       } else if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Unsupported file type",
-          description: "Please upload only images, GIFs, or videos.",
-          variant: "destructive"
-        });
-        return;
+        fileType = 'document';
       }
       
       // Check file size (limit to 5MB for simplicity)
@@ -68,6 +63,7 @@ const MediaUploader: FC<MediaUploaderProps> = ({ media, onMediaChange, maxFiles 
         id: crypto.randomUUID(),
         type: fileType,
         url,
+        name: file.name,
         description: description || file.name.split('.')[0],
         fileName: file.name
       };
@@ -102,7 +98,7 @@ const MediaUploader: FC<MediaUploaderProps> = ({ media, onMediaChange, maxFiles 
 
   const startEditDescription = (item: MediaAttachment) => {
     setEditingMedia(item);
-    setDescription(item.description);
+    setDescription(item.description || '');
   };
 
   const saveDescription = () => {
@@ -166,18 +162,22 @@ const MediaUploader: FC<MediaUploaderProps> = ({ media, onMediaChange, maxFiles 
           {media.map(item => (
             <Card key={item.id} className={`overflow-hidden ${editingMedia?.id === item.id ? 'ring-2 ring-story-blue' : ''}`}>
               <div className="aspect-video bg-gray-100 relative">
-                {item.type === 'image' || item.type === 'gif' ? (
+                {item.type === 'image' ? (
                   <img 
                     src={item.url} 
-                    alt={item.description} 
+                    alt={item.description || item.name} 
                     className="w-full h-full object-contain"
                   />
-                ) : (
+                ) : item.type === 'video' ? (
                   <video 
                     src={item.url} 
                     controls
                     className="w-full h-full object-contain"
                   />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                    <span className="text-gray-600">Document</span>
+                  </div>
                 )}
                 <Button
                   variant="destructive"
@@ -200,8 +200,8 @@ const MediaUploader: FC<MediaUploaderProps> = ({ media, onMediaChange, maxFiles 
               <CardContent className="p-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm font-medium truncate">{item.fileName}</p>
-                    <p className="text-xs text-gray-500 line-clamp-2">{item.description}</p>
+                    <p className="text-sm font-medium truncate">{item.fileName || item.name}</p>
+                    <p className="text-xs text-gray-500 line-clamp-2">{item.description || 'No description'}</p>
                   </div>
                   <Button 
                     variant="ghost" 

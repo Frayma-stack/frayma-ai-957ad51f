@@ -57,7 +57,11 @@ export interface SocialLink {
   id: string;
   platform: string;
   url: string;
+  type?: 'linkedin' | 'x' | 'blog' | 'website' | 'other';
 }
+
+// Legacy alias for backward compatibility
+export type AuthorSocialLink = SocialLink;
 
 export interface Author {
   id: string;
@@ -78,6 +82,8 @@ export interface MediaAttachment {
   url: string;
   type: 'image' | 'video' | 'document';
   name: string;
+  description?: string;
+  fileName?: string;
 }
 
 export interface ProductFeature {
@@ -128,6 +134,13 @@ export interface CustomerSuccessStory {
   createdAt?: string;
 }
 
+export interface CompanyLink {
+  id: string;
+  type: 'website' | 'linkedin' | 'blog' | 'other';
+  url: string;
+  description?: string;
+}
+
 export interface ProductContext {
   id: string;
   clientId: string;
@@ -139,12 +152,15 @@ export interface ProductContext {
   features?: ProductFeature[];
   useCases?: ProductUseCase[];
   differentiators?: ProductDifferentiator[];
+  companyLinks?: CompanyLink[];
 }
 
 export interface Client {
   id: string;
   name: string;
   description: string;
+  companyLinks?: CompanyLink[];
+  createdAt?: string;
 }
 
 export interface AnchoringElement {
@@ -165,6 +181,23 @@ export interface StoryBrief {
   successStory?: string;
   callToAction?: string;
   purposeStatement?: string;
+  contentType?: ArticleSubType;
+  goal?: string;
+  relatedKeywords?: string[];
+  searchQueries?: string[];
+  businessObjectives?: string[];
+  journeyStage?: string;
+  broaderAudience?: string;
+  readingMotivation?: string;
 }
 
 export type ArticleSubType = 'thought_leadership' | 'newsletter';
+
+export interface NarrativeSelection {
+  type: 'belief' | 'pain' | 'struggle' | 'transformation';
+  itemId: string;
+  content: string;
+}
+
+// Legacy alias for backward compatibility
+export type AuthorToneItem = AuthorTone;
