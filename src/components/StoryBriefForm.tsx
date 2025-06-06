@@ -98,7 +98,7 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
     }));
   };
 
-  const handleArrayItemChange = (field: 'relatedKeywords' | 'searchQueries' | 'problemStatements' | 'outlineSteps', index: number, value: string) => {
+  const handleArrayItemChange = (field: 'relatedKeywords' | 'searchQueries' | 'problemStatements' | 'outlineSteps' | 'businessObjectives', index: number, value: string) => {
     const newArray = [...brief[field]];
     newArray[index] = value;
     
@@ -108,14 +108,14 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
     }));
   };
 
-  const addArrayItem = (field: 'relatedKeywords' | 'searchQueries' | 'problemStatements') => {
+  const addArrayItem = (field: 'relatedKeywords' | 'searchQueries' | 'problemStatements' | 'businessObjectives') => {
     setBrief(prev => ({
       ...prev,
       [field]: [...prev[field], '']
     }));
   };
 
-  const removeArrayItem = (field: 'relatedKeywords' | 'searchQueries' | 'problemStatements', index: number) => {
+  const removeArrayItem = (field: 'relatedKeywords' | 'searchQueries' | 'problemStatements' | 'businessObjectives', index: number) => {
     const newArray = [...brief[field]];
     newArray.splice(index, 1);
     
