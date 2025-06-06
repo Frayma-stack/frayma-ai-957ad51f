@@ -82,6 +82,16 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
     productContextId: ''
   };
 
+  // Ensure the story passed to EditDialog always has createdAt
+  const getStoryForEdit = (): CustomerSuccessStory => {
+    if (!selectedStory) return defaultStory;
+    
+    return {
+      ...selectedStory,
+      createdAt: selectedStory.createdAt || new Date().toISOString()
+    };
+  };
+
   return (
     <Card className="w-full bg-white shadow-md border border-gray-100 h-full flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between flex-shrink-0">
@@ -128,7 +138,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
         <EditSuccessStoryDialog
           open={isEditDialogOpen}
           setOpen={setIsEditDialogOpen}
-          story={selectedStory || defaultStory}
+          story={getStoryForEdit()}
           onUpdate={onSuccessStoryUpdated}
           onDelete={onSuccessStoryDeleted}
         />
