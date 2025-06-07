@@ -1,206 +1,242 @@
 
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Mail, MessageSquare, Users, Lightbulb, Plus, Sparkles } from 'lucide-react';
+import { FileText, MessageSquare, Mail, Lightbulb, Trophy, Wand2, Zap } from 'lucide-react';
 import { GeneratedIdea } from '@/types/ideas';
-import SavedIdeaCard from './SavedIdeaCard';
+import ProductCampaignCard from './ProductCampaignCard';
 
-export type ContentType = 'article' | 'linkedin' | 'email' | 'custom' | 'success-story' | 'mint-ideas';
-export type ArticleSubType = 'thought_leadership' | 'newsletter';
+export type ContentType = 'article' | 'linkedin' | 'email' | 'custom' | 'success-story' | 'product-campaign';
+export type ArticleSubType = 'thought-leadership' | 'product-showcase' | 'use-case-study' | 'industry-insight' | 'founder-story';
 
 interface ContentTypeSelectorProps {
   onSelect: (type: ContentType) => void;
   ideas?: GeneratedIdea[];
   selectedClientId?: string | null;
   selectedIdeaId?: string | null;
-  onIdeaSelect?: (ideaId: string) => void;
+  onIdeaSelect?: (ideaId: string | null) => void;
   onNavigateToIdeasBank?: () => void;
 }
 
-const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({ 
+const ContentTypeSelector: FC<ContentTypeSelectorProps> = ({
   onSelect,
-  ideas = [],
+  ideas,
   selectedClientId,
   selectedIdeaId,
   onIdeaSelect,
   onNavigateToIdeasBank
 }) => {
-  const [selectedIdea, setSelectedIdea] = useState<string | null>(selectedIdeaId || null);
+  const [selectedIdea, setSelectedIdea] = useState<GeneratedIdea | null>(null);
 
-  console.log('🎨 ContentTypeSelector: Rendering with:', {
-    ideasCount: ideas.length,
-    selectedClientId,
-    selectedIdeaId: selectedIdea
-  });
-
-  // Filter ideas to only show those for the selected client
-  const filteredIdeas = selectedClientId 
-    ? ideas.filter(idea => idea.clientId === selectedClientId)
-    : [];
-
-  console.log('🎨 ContentTypeSelector: Filtered ideas count:', filteredIdeas.length);
-
-  const contentTypes = [
-    {
-      type: 'article' as ContentType,
-      title: 'GTM Narrative Piece',
-      description: 'Auto-craft in-depth thought leadership content, how-to guides, and first-person newsletters that solidify your positioning and win buyers',
-      icon: FileText,
-      color: 'bg-blue-500',
-      badge: 'Premium'
-    },
-    {
-      type: 'linkedin' as ContentType,
-      title: 'LinkedIn Content',
-      description: 'Professional posts designed to engage your network and drive conversations',
-      icon: MessageSquare,
-      color: 'bg-blue-600',
-      badge: 'Social'
-    },
-    {
-      type: 'email' as ContentType,
-      title: 'Email Content',
-      description: 'Engaging email content for newsletters, sequences, and campaigns',
-      icon: Mail,
-      color: 'bg-green-500',
-      badge: 'Direct'
-    },
-    {
-      type: 'custom' as ContentType,
-      title: 'Custom Content',
-      description: 'Flexible content creation for any format or platform you need',
-      icon: Plus,
-      color: 'bg-purple-500',
-      badge: 'Flexible'
-    },
-    {
-      type: 'success-story' as ContentType,
-      title: 'Success Story',
-      description: 'Customer success stories that showcase your product\'s impact',
-      icon: Users,
-      color: 'bg-orange-500',
-      badge: 'Proof'
-    },
-    {
-      type: 'mint-ideas' as ContentType,
-      title: 'Mint New Ideas',
-      description: 'Auto-craft fresh Product-Led Storytelling ideas with different angles and perspectives',
-      icon: Sparkles,
-      color: 'bg-indigo-500',
-      badge: 'Ideas'
-    }
-  ];
-
-  const handleIdeaSelect = (ideaId: string) => {
-    console.log('💡 Idea selected:', ideaId);
-    setSelectedIdea(ideaId);
-    if (onIdeaSelect) {
-      onIdeaSelect(ideaId);
-    }
-  };
-
-  const handleUseIdeaForContent = (ideaId: string) => {
-    console.log('🚀 Using idea for content:', ideaId);
-    setSelectedIdea(ideaId);
-    if (onIdeaSelect) {
-      onIdeaSelect(ideaId);
-    }
-    // Automatically select article type when using an idea
-    onSelect('article');
-  };
-
-  const handleContentTypeSelect = (type: ContentType) => {
-    if (type === 'mint-ideas' && onNavigateToIdeasBank) {
-      onNavigateToIdeasBank();
+  useEffect(() => {
+    if (selectedIdeaId && ideas) {
+      const idea = ideas.find(i => i.id === selectedIdeaId);
+      setSelectedIdea(idea || null);
     } else {
-      onSelect(type);
+      setSelectedIdea(null);
+    }
+  }, [selectedIdeaId, ideas]);
+
+  const handleIdeaSelection = (idea: GeneratedIdea | null) => {
+    setSelectedIdea(idea);
+    if (onIdeaSelect) {
+      onIdeaSelect(idea?.id || null);
     }
   };
 
   return (
-    <div className="space-y-8">
-      {/* Saved Ideas Section */}
-      {filteredIdeas.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Lightbulb className="h-5 w-5 text-story-blue" />
-            <h2 className="text-lg font-semibold text-gray-900">
-              Or start from a saved idea:
-            </h2>
-            <Badge variant="secondary" className="text-xs">
-              {filteredIdeas.length} idea{filteredIdeas.length !== 1 ? 's' : ''} available
-            </Badge>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-            {filteredIdeas.map((idea) => (
-              <SavedIdeaCard
-                key={idea.id}
-                idea={idea}
-                onSelect={handleIdeaSelect}
-                onUseForContent={handleUseIdeaForContent}
-              />
-            ))}
-          </div>
-          
-          <div className="border-t pt-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                What Will You Auto-Craft?
-              </h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                Choose one below to start framing thoughts into sharp POVs, and auto-crafting GTM assets with narratives that win you buyers.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Show heading and copy when no saved ideas */}
-      {filteredIdeas.length === 0 && (
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            What Will You Auto-Craft?
-          </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Choose one below to start framing thoughts into sharp POVs, and auto-crafting GTM assets with narratives that win you buyers.
+    <div className="space-y-6">
+      {/* Header with Ideas Integration */}
+      <div className="text-center space-y-4">
+        <div>
+          <h1 className="text-3xl font-bold text-brand-primary mb-2">Auto-craft resonant GTM content</h1>
+          <p className="text-gray-600 text-lg">
+            Choose a content type to auto-craft with Product-Led Storytelling
           </p>
         </div>
-      )}
 
-      {/* Content Types Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {contentTypes.map((contentType) => {
-          const Icon = contentType.icon;
-          return (
-            <Card
-              key={contentType.type}
-              className="cursor-pointer hover:shadow-lg transition-all duration-200 group border-2 hover:border-story-blue"
-              onClick={() => handleContentTypeSelect(contentType.type)}
-            >
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <div className={`p-3 rounded-lg ${contentType.color} group-hover:scale-110 transition-transform duration-200`}>
-                    <Icon className="h-6 w-6 text-white" />
+        {/* Ideas Integration */}
+        {ideas && ideas.length > 0 && (
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Lightbulb className="h-5 w-5 text-blue-600" />
+                  <div className="text-left">
+                    <p className="font-medium text-blue-800">Use a Saved Idea</p>
+                    <p className="text-sm text-blue-600">
+                      {selectedIdea 
+                        ? `Selected: ${selectedIdea.title}`
+                        : 'Select an idea to auto-fill content generation'
+                      }
+                    </p>
                   </div>
-                  <Badge variant="secondary" className="text-xs">
-                    {contentType.badge}
-                  </Badge>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <CardTitle className="text-lg mb-2 group-hover:text-story-blue transition-colors">
-                  {contentType.title}
-                </CardTitle>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  {contentType.description}
-                </p>
-              </CardContent>
-            </Card>
-          );
-        })}
+                <div className="flex items-center space-x-2">
+                  {selectedIdea && (
+                    <button
+                      onClick={() => handleIdeaSelection(null)}
+                      className="text-xs text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Clear
+                    </button>
+                  )}
+                  {ideas.length > 0 && (
+                    <select
+                      value={selectedIdea?.id || ''}
+                      onChange={(e) => {
+                        const idea = ideas.find(i => i.id === e.target.value);
+                        handleIdeaSelection(idea || null);
+                      }}
+                      className="text-sm border border-blue-300 rounded px-2 py-1 bg-white"
+                    >
+                      <option value="">Select an idea...</option>
+                      {ideas
+                        .filter(idea => !selectedClientId || idea.clientId === selectedClientId)
+                        .map(idea => (
+                        <option key={idea.id} value={idea.id}>
+                          {idea.title}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  {onNavigateToIdeasBank && (
+                    <button
+                      onClick={onNavigateToIdeasBank}
+                      className="text-sm text-blue-600 hover:text-blue-800 underline"
+                    >
+                      View Ideas Bank
+                    </button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <ProductCampaignCard onClick={() => onSelect('product-campaign')} />
+        
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-brand-primary/30"
+          onClick={() => onSelect('article')}
+        >
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <FileText className="h-8 w-8 text-brand-primary" />
+              <Badge variant="secondary">Popular</Badge>
+            </div>
+            <CardTitle className="text-xl text-brand-primary">GTM Articles</CardTitle>
+            <p className="text-gray-600 text-sm">
+              Long-form thought leadership, product showcases, and use case studies
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm text-gray-600">
+              <div>• Thought Leadership</div>
+              <div>• Product Showcases</div>
+              <div>• Use Case Studies</div>
+              <div>• Industry Insights</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-brand-primary/30"
+          onClick={() => onSelect('linkedin')}
+        >
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <MessageSquare className="h-8 w-8 text-blue-600" />
+              <Badge variant="outline">Social</Badge>
+            </div>
+            <CardTitle className="text-xl text-blue-600">LinkedIn Posts</CardTitle>
+            <p className="text-gray-600 text-sm">
+              Professional posts that drive engagement and build thought leadership
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm text-gray-600">
+              <div>• Thought Leadership</div>
+              <div>• Product Updates</div>
+              <div>• Industry Commentary</div>
+              <div>• Personal Stories</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-brand-primary/30"
+          onClick={() => onSelect('email')}
+        >
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <Mail className="h-8 w-8 text-green-600" />
+              <Badge variant="outline">Direct</Badge>
+            </div>
+            <CardTitle className="text-xl text-green-600">Email Content</CardTitle>
+            <p className="text-gray-600 text-sm">
+              Newsletters, announcements, and nurture sequences
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm text-gray-600">
+              <div>• Product Announcements</div>
+              <div>• Feature Updates</div>
+              <div>• Newsletter Content</div>
+              <div>• Nurture Sequences</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-brand-primary/30"
+          onClick={() => onSelect('success-story')}
+        >
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <Trophy className="h-8 w-8 text-yellow-600" />
+              <Badge variant="outline">Proof</Badge>
+            </div>
+            <CardTitle className="text-xl text-yellow-600">Success Stories</CardTitle>
+            <p className="text-gray-600 text-sm">
+              Customer case studies and testimonials that build credibility
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm text-gray-600">
+              <div>• Customer Case Studies</div>
+              <div>• Implementation Stories</div>
+              <div>• ROI Demonstrations</div>
+              <div>• Testimonials</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-brand-primary/30"
+          onClick={() => onSelect('custom')}
+        >
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <Wand2 className="h-8 w-8 text-purple-600" />
+              <Badge variant="outline">Flexible</Badge>
+            </div>
+            <CardTitle className="text-xl text-purple-600">Custom Content</CardTitle>
+            <p className="text-gray-600 text-sm">
+              Any content type with custom prompts and specifications
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm text-gray-600">
+              <div>• Website Copy</div>
+              <div>• Sales Scripts</div>
+              <div>• Social Media</div>
+              <div>• Custom Formats</div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

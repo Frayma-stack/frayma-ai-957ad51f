@@ -1,19 +1,18 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
-import { Collaborator } from '../types';
 
 interface CollaborationContextType {
-  users: Collaborator[];
+  users: any[];
+  cursors: any[];
   isConnected: boolean;
-  sendCursorUpdate: (position: number) => void;
 }
 
 const CollaborationContext = createContext<CollaborationContextType | undefined>(undefined);
 
 interface CollaborationProviderProps {
   documentId: string;
-  editor: Editor;
+  editor: Editor | null;
   children: React.ReactNode;
 }
 
@@ -22,70 +21,36 @@ export const CollaborationProvider: React.FC<CollaborationProviderProps> = ({
   editor,
   children
 }) => {
-  const [users, setUsers] = useState<Collaborator[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
-
-  // This would integrate with your real-time collaboration service
-  // For now, simulating with mock data
-  useEffect(() => {
-    // Mock users for demonstration
-    setUsers([
-      {
-        id: 'user-1',
-        name: 'Sarah Chen',
-        email: 'sarah@example.com',
-        role: 'editor',
-        isActive: true,
-        cursor: { position: 0 }
-      },
-      {
-        id: 'user-2',
-        name: 'Mike Johnson',
-        email: 'mike@example.com',
-        role: 'viewer',
-        isActive: true,
-        cursor: { position: 150 }
-      }
-    ]);
-    setIsConnected(true);
-  }, [documentId]);
-
-  // Handle cursor updates
-  const sendCursorUpdate = (position: number) => {
-    // This would send cursor position to other collaborators
-    console.log('Cursor update:', position);
+  // Mock collaboration state
+  const collaborationState: CollaborationContextType = {
+    users: [],
+    cursors: [],
+    isConnected: false
   };
 
-  // Listen to editor selection changes
   useEffect(() => {
-    if (!editor) return;
+    if (!editor || !documentId) return;
 
-    const handleSelectionUpdate = () => {
-      const { from } = editor.state.selection;
-      sendCursorUpdate(from);
+    // Set up collaboration when editor is ready
+    console.log('Setting up collaboration for document:', documentId);
+    
+    // Cleanup function
+    return () => {
+      console.log('Cleaning up collaboration for document:', documentId);
     };
-
-    editor.on('selectionUpdate', handleSelectionUpdate);
-    return () => editor.off('selectionUpdate', handleSelectionUpdate);
-  }, [editor]);
-
-  const value = {
-    users,
-    isConnected,
-    sendCursorUpdate
-  };
+  }, [editor, documentId]);
 
   return (
-    <CollaborationContext.Provider value={value}>
+    <CollaborationContext.Provider value={collaborationState}>
       {children}
     </CollaborationContext.Provider>
   );
 };
 
-export const useCollaboration = () => {
+export const useCollaborationContext = () => {
   const context = useContext(CollaborationContext);
-  if (!context) {
-    throw new Error('useCollaboration must be used within CollaborationProvider');
+  if (context === undefined) {
+    throw new Error('useCollaborationContext must be used within a CollaborationProvider');
   }
   return context;
 };

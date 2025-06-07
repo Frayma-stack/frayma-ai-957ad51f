@@ -6,6 +6,7 @@ import ArticleTypeSelector from '@/components/ArticleTypeSelector';
 import GTMNarrativeCreator from '@/components/GTMNarrativeCreator';
 import SuccessStoryCreator from '@/components/SuccessStoryCreator';
 import ShortFormContentCreator from '@/components/ShortFormContentCreator';
+import { ProductCampaignCreator } from '@/components/product-campaign/ProductCampaignCreator';
 import { ICPStoryScript, CustomerSuccessStory, Author, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -66,6 +67,19 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
       window.removeEventListener('navigate-to-ideas-bank', handleNavigateToIdeasBank);
     };
   }, [onNavigateToIdeasBank]);
+
+  if (selectedType === 'product-campaign') {
+    return (
+      <ScrollArea className="h-[calc(100vh-200px)]">
+        <ProductCampaignCreator
+          authors={filteredAuthors}
+          scripts={filteredICPScripts}
+          selectedClientId={selectedClientId || undefined}
+          onBack={onBack}
+        />
+      </ScrollArea>
+    );
+  }
 
   if (selectedType === 'article' && !selectedArticleSubtype) {
     return (
