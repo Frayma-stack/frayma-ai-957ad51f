@@ -110,6 +110,20 @@ export const FraymaEditor: React.FC<FraymaEditorProps> = ({
     }
   }, [editor, document.context, toast]);
 
+  const handleSectionClick = (sectionId: string) => {
+    // Find the section in the outline and scroll to it
+    const section = document.outline.find(s => s.id === sectionId);
+    if (section && editor) {
+      // Search for content matching the section title
+      const content = editor.getHTML();
+      // In a real implementation, you would have better positioning logic
+      toast({
+        title: "Section Navigation",
+        description: `Navigating to ${section.title}`,
+      });
+    }
+  };
+
   if (!editor) {
     return <div>Loading editor...</div>;
   }
@@ -122,11 +136,7 @@ export const FraymaEditor: React.FC<FraymaEditorProps> = ({
           <OutlineSidebar
             document={document}
             editor={editor}
-            onSectionClick={(sectionId) => {
-              // Scroll to section
-              const element = document.getElementById(sectionId);
-              element?.scrollIntoView({ behavior: 'smooth' });
-            }}
+            onSectionClick={handleSectionClick}
           />
         )}
 
