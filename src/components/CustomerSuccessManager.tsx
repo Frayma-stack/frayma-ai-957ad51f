@@ -82,13 +82,20 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
     productContextId: ''
   };
 
-  // Ensure the story passed to EditDialog always has createdAt
-  const getStoryForEdit = (): CustomerSuccessStory => {
+  // Ensure the story passed to EditDialog always has createdAt - fix the type issue
+  const getStoryForEdit = () => {
     if (!selectedStory) return defaultStory;
     
+    // Ensure all required properties are present for the EditDialog
     return {
-      ...selectedStory,
-      // Ensure createdAt is always present
+      id: selectedStory.id,
+      title: selectedStory.title,
+      url: selectedStory.url,
+      beforeSummary: selectedStory.beforeSummary,
+      afterSummary: selectedStory.afterSummary,
+      quotes: selectedStory.quotes,
+      features: selectedStory.features,
+      clientId: selectedStory.clientId,
       createdAt: selectedStory.createdAt || new Date().toISOString()
     };
   };
@@ -136,13 +143,15 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
         />
         
         {/* Edit Dialog */}
-        <EditSuccessStoryDialog
-          open={isEditDialogOpen}
-          setOpen={setIsEditDialogOpen}
-          story={getStoryForEdit()}
-          onUpdate={onSuccessStoryUpdated}
-          onDelete={onSuccessStoryDeleted}
-        />
+        {selectedStory && (
+          <EditSuccessStoryDialog
+            open={isEditDialogOpen}
+            setOpen={setIsEditDialogOpen}
+            story={getStoryForEdit()}
+            onUpdate={onSuccessStoryUpdated}
+            onDelete={onSuccessStoryDeleted}
+          />
+        )}
       </CardContent>
     </Card>
   );
