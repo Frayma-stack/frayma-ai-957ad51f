@@ -88,6 +88,7 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
     
     return {
       ...selectedStory,
+      // Ensure createdAt is always present
       createdAt: selectedStory.createdAt || new Date().toISOString()
     };
   };
