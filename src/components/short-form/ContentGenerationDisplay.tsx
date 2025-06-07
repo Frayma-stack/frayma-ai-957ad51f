@@ -1,12 +1,13 @@
 
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Copy, Download, Save } from "lucide-react";
+import { Copy, Download, Save, Edit3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AutoSaveIndicator from '@/components/auto-save/AutoSaveIndicator';
 import DraftRestoreDialog from '@/components/auto-save/DraftRestoreDialog';
+import { ContentEditorWithFrayma } from '@/components/content-editor/ContentEditorWithFrayma';
 
 interface ContentGenerationDisplayProps {
   content: string;
@@ -40,6 +41,7 @@ const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
   onClearDraft
 }) => {
   const { toast } = useToast();
+  const [showEditor, setShowEditor] = useState(false);
 
   console.log('📺 ContentGenerationDisplay render:', {
     hasContent: !!content,
@@ -79,6 +81,27 @@ const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
       description: `Your ${contentTypeLabel.toLowerCase()} is being downloaded as a text file.`,
     });
   };
+
+  const handleOpenInEditor = () => {
+    setShowEditor(true);
+  };
+
+  const handleBackFromEditor = () => {
+    setShowEditor(false);
+  };
+
+  // If showing the Frayma Editor, render it instead
+  if (showEditor && content) {
+    return (
+      <ContentEditorWithFrayma
+        initialContent={content}
+        contentType={contentType}
+        contentTypeLabel={contentTypeLabel}
+        onBack={handleBackFromEditor}
+        onContentChange={onContentChange}
+      />
+    );
+  }
 
   // Always show the component if generating or if there's content
   if (!content && !isGenerating) {
@@ -123,6 +146,16 @@ const ContentGenerationDisplay: FC<ContentGenerationDisplayProps> = ({
           
           {content && !isGenerating && (
             <div className="flex gap-2 flex-wrap">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleOpenInEditor}
+                className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90"
+              >
+                <Edit3 className="h-4 w-4" />
+                Open in Collaborative Editor
+              </Button>
+
               <Button
                 variant="outline"
                 size="sm"

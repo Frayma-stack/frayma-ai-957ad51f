@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { 
   Card, 
@@ -66,40 +65,6 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
   
   const clientInfo = getClientInfo();
 
-  // Create a default story object with all required properties including createdAt
-  const defaultStory: CustomerSuccessStory = {
-    id: '',
-    title: '',
-    beforeSummary: '',
-    afterSummary: '',
-    quotes: [],
-    features: [],
-    useCases: [],
-    createdAt: new Date().toISOString(),
-    clientId: '',
-    authorId: '',
-    icpScriptId: '',
-    productContextId: ''
-  };
-
-  // Ensure the story passed to EditDialog always has createdAt - fix the type issue
-  const getStoryForEdit = () => {
-    if (!selectedStory) return defaultStory;
-    
-    // Ensure all required properties are present for the EditDialog
-    return {
-      id: selectedStory.id,
-      title: selectedStory.title,
-      url: selectedStory.url,
-      beforeSummary: selectedStory.beforeSummary,
-      afterSummary: selectedStory.afterSummary,
-      quotes: selectedStory.quotes,
-      features: selectedStory.features,
-      clientId: selectedStory.clientId,
-      createdAt: selectedStory.createdAt || new Date().toISOString()
-    };
-  };
-
   return (
     <Card className="w-full bg-white shadow-md border border-gray-100 h-full flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between flex-shrink-0">
@@ -147,7 +112,10 @@ const CustomerSuccessManager: FC<CustomerSuccessManagerProps> = ({
           <EditSuccessStoryDialog
             open={isEditDialogOpen}
             setOpen={setIsEditDialogOpen}
-            story={getStoryForEdit()}
+            story={{
+              ...selectedStory,
+              createdAt: selectedStory.createdAt || new Date().toISOString()
+            }}
             onUpdate={onSuccessStoryUpdated}
             onDelete={onSuccessStoryDeleted}
           />
