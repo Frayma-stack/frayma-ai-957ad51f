@@ -35,7 +35,7 @@ const SavedIdeaCard: FC<SavedIdeaCardProps> = ({
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg">{idea.title}</CardTitle>
           <Select
-            value={idea.score?.value.toString() || "__no_score__"}
+            value={idea.score?.value !== undefined ? idea.score.value.toString() : "__no_score__"}
             onValueChange={(value) => onScoreChange(idea.id, value)}
           >
             <SelectTrigger className="w-[120px]">

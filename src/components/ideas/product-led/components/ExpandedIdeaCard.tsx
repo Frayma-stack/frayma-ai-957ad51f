@@ -126,8 +126,9 @@ const ExpandedIdeaCard: FC<ExpandedIdeaCardProps> = ({
             Rate this Idea
           </Label>
           <Select
-            value={ideaData.score?.value.toString() || ''}
+            value={ideaData.score?.value !== undefined ? ideaData.score.value.toString() : '__no_score__'}
             onValueChange={(value) => {
+              if (value === '__no_score__') return;
               const score = SCORE_OPTIONS.find(s => s.value === Number(value));
               if (score) onScoreUpdate(score);
             }}
@@ -136,6 +137,7 @@ const ExpandedIdeaCard: FC<ExpandedIdeaCardProps> = ({
               <SelectValue placeholder="Select a score..." />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="__no_score__">No Score</SelectItem>
               {SCORE_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value.toString()}>
                   {option.label}
