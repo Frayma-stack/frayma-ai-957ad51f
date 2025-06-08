@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
+import { ContentType } from '@/components/ContentTypeSelector';
+import { ArticleSubType } from '@/types/storytelling';
 import { ViewType } from '@/components/layout/AppLayout';
 
 export const useIndexPageState = () => {

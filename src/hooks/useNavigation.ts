@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
-import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
+import { ContentType } from '@/components/ContentTypeSelector';
+import { ArticleSubType } from '@/types/storytelling';
 
 export type ViewType = 'home' | 'ideas' | 'clients' | 'authors' | 'icp-scripts' | 'success-stories';
 
