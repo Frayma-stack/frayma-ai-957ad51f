@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, FileText, Mail, Lightbulb } from 'lucide-react';
-import { ArticleSubType } from '@/components/ContentTypeSelector';
+import { ArticleSubType } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import SavedIdeaCard from './SavedIdeaCard';
 

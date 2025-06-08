@@ -1,8 +1,7 @@
 
 import { FC } from 'react';
-import { ICPStoryScript, CustomerSuccessStory } from '@/types/storytelling';
+import { ICPStoryScript, CustomerSuccessStory, ArticleSubType } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
-import { ArticleSubType } from '../ContentTypeSelector';
 import { FormData } from './useGTMNarrativeData';
 import StrategicAlignmentStep from './StrategicAlignmentStep';
 import TargetReaderResonanceStep from './TargetReaderResonanceStep';

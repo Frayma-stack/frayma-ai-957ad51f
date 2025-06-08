@@ -1,15 +1,14 @@
-
 import { FC, useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FileText, MessageSquare, Mail, Lightbulb, Trophy, Wand2, Zap, Sparkles } from 'lucide-react';
 import { GeneratedIdea } from '@/types/ideas';
+import { ArticleSubType } from '@/types/storytelling';
 import ProductCampaignCard from './ProductCampaignCard';
 import { useAuth } from "@/contexts/AuthContext";
 
 export type ContentType = 'article' | 'linkedin' | 'email' | 'custom' | 'success-story' | 'product-campaign';
-export type ArticleSubType = 'thought-leadership' | 'product-showcase' | 'use-case-study' | 'industry-insight' | 'founder-story';
 
 interface ContentTypeSelectorProps {
   onSelect: (type: ContentType) => void;

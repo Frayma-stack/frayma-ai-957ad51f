@@ -1,9 +1,7 @@
-
 import { FC } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { ICPStoryScript, CustomerSuccessStory } from '@/types/storytelling';
+import { ICPStoryScript, CustomerSuccessStory, ArticleSubType } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
-import { ArticleSubType } from './ContentTypeSelector';
 import IdeaSelector from './IdeaSelector';
 import ProgressIndicator from './gtm-narrative/ProgressIndicator';
 import GTMNarrativeHeader from './gtm-narrative/GTMNarrativeHeader';

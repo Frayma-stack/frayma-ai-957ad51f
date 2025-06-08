@@ -1,12 +1,12 @@
+
 import { FC, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, FileText, Pencil, Trash, Eye } from 'lucide-react';
-import { ICPStoryScript, StoryBrief } from '@/types/storytelling';
+import { ICPStoryScript, StoryBrief, ArticleSubType } from '@/types/storytelling';
 import StoryBriefForm from './StoryBriefForm';
 import { useToast } from '@/components/ui/use-toast';
-import { ArticleSubType } from './ContentTypeSelector';
 
 interface StoryBriefManagerProps {
   briefs: StoryBrief[];

@@ -6,9 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ICPStoryScript, StoryBrief } from '@/types/storytelling';
+import { ICPStoryScript, StoryBrief, ArticleSubType } from '@/types/storytelling';
 import { Plus, Trash } from 'lucide-react';
-import { ArticleSubType } from './ContentTypeSelector';
 
 interface StoryBriefFormProps {
   onSave: (brief: StoryBrief) => void;
@@ -61,6 +60,15 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
 
   // Get the content type title based on the article subtype
   const getContentTypeTitle = () => {
+    switch (articleSubType) {
+      case 'newsletter': return 'First-Person Narrative Newsletter';
+      case 'thought_leadership': return 'GTM Thought Leadership Article';
+      default: return 'Story Brief & Outline';
+    }
+  };
+
+  // Get the content type title based on the article subtype
+  const getSubtypeTitle = () => {
     switch (articleSubType) {
       case 'newsletter': return 'First-Person Narrative Newsletter';
       case 'thought_leadership': return 'GTM Thought Leadership Article';
@@ -294,7 +302,7 @@ const StoryBriefForm: FC<StoryBriefFormProps> = ({ onSave, availableScripts, ini
             <label className="text-sm font-medium">Content Type*</label>
             <Select 
               value={brief.contentType} 
-              onValueChange={(value: 'thought_leadership' | 'newsletter') => handleInputChange('contentType', value)}
+              onValueChange={(value: ArticleSubType) => handleInputChange('contentType', value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select content type" />
