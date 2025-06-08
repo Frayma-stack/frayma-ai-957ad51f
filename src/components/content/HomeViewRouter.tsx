@@ -1,6 +1,7 @@
 
 import { FC, useState, useEffect } from 'react';
-import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
+import { ContentType } from '@/components/ContentTypeSelector';
+import { ArticleSubType } from '@/types/storytelling';
 import ContentTypeSelector from '@/components/ContentTypeSelector';
 import ArticleTypeSelector from '@/components/ArticleTypeSelector';
 import GTMNarrativeCreator from '@/components/GTMNarrativeCreator';

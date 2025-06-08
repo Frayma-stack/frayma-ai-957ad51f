@@ -1,6 +1,7 @@
 
 import { FC } from 'react';
-import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
+import { ContentType } from '@/components/ContentTypeSelector';
+import { ArticleSubType } from '@/types/storytelling';
 import HomeViewRouter from '@/components/content/HomeViewRouter';
 import AssetViewRouter from '@/components/content/AssetViewRouter';
 import { useContentFiltering } from '@/hooks/useContentFiltering';

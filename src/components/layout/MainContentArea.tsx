@@ -1,6 +1,7 @@
 
 import { FC } from 'react';
-import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
+import { ContentType } from '@/components/ContentTypeSelector';
+import { ArticleSubType } from '@/types/storytelling';
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MainContentAreaProps {

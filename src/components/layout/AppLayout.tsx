@@ -8,7 +8,8 @@ import { useAppLayoutState } from '@/hooks/useAppLayoutState';
 import { useAppLayoutHandlers } from '@/hooks/useAppLayoutHandlers';
 import { Client, Author, ICPStoryScript, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
-import { ContentType, ArticleSubType } from '@/components/ContentTypeSelector';
+import { ContentType } from '@/components/ContentTypeSelector';
+import { ArticleSubType } from '@/types/storytelling';
 
 export type ViewType = 'home' | 'ideas' | 'clients' | 'authors' | 'icp-scripts' | 'success-stories' | 'product-context' | 'drafts';
 
