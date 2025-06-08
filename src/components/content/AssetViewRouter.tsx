@@ -1,3 +1,4 @@
+
 import { FC } from 'react';
 import ClientManager from '@/components/ClientManager';
 import AuthorManager from '@/components/AuthorManager';
@@ -87,67 +88,79 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
 
   if (selectedAssetType === 'clients') {
     return (
-      <ClientManager
-        clients={clients}
-        selectedClientId={selectedClientId}
-        onClientAdded={onClientAdded}
-        onClientUpdated={onClientUpdated}
-        onClientDeleted={onClientDeleted}
-        onClientSelected={() => {}}
-        onViewClientAssets={() => {}}
-        onProductContextAdded={onProductContextAdded || (() => {})}
-      />
+      <div className="p-6">
+        <ClientManager
+          clients={clients}
+          selectedClientId={selectedClientId}
+          onClientAdded={onClientAdded}
+          onClientUpdated={onClientUpdated}
+          onClientDeleted={onClientDeleted}
+          onClientSelected={() => {}}
+          onViewClientAssets={() => {}}
+          onProductContextAdded={onProductContextAdded || (() => {})}
+        />
+      </div>
     );
   }
 
   if (selectedAssetType === 'authors') {
     console.log('🎯 AssetViewRouter: Rendering AuthorManager with selectedClientId:', selectedClientId);
     return (
-      <AuthorManager
-        authors={authorsToUse}
-        selectedClientId={selectedClientId}
-        onAuthorAdded={onAuthorAdded}
-        onAuthorUpdated={onAuthorUpdated}
-        onAuthorDeleted={onAuthorDeleted}
-      />
+      <div className="p-6">
+        <AuthorManager
+          authors={authorsToUse}
+          selectedClientId={selectedClientId}
+          onAuthorAdded={onAuthorAdded}
+          onAuthorUpdated={onAuthorUpdated}
+          onAuthorDeleted={onAuthorDeleted}
+        />
+      </div>
     );
   }
 
-  if (selectedAssetType === 'icps') {
+  if (selectedAssetType === 'icp-scripts') {
     return (
-      <ICPStoryScriptManager
-        scripts={icpScriptsToUse}
-        onScriptAdded={onICPScriptAdded}
-        onScriptUpdated={onICPScriptUpdated}
-        onScriptDeleted={onICPScriptDeleted}
-        selectedClientId={selectedClientId}
-      />
+      <div className="p-6">
+        <ICPStoryScriptManager
+          scripts={icpScriptsToUse}
+          onScriptAdded={onICPScriptAdded}
+          onScriptUpdated={onICPScriptUpdated}
+          onScriptDeleted={onICPScriptDeleted}
+          selectedClientId={selectedClientId}
+        />
+      </div>
     );
   }
 
-  if (selectedAssetType === 'successStories') {
+  if (selectedAssetType === 'success-stories') {
     return (
-      <CustomerSuccessManager
-        successStories={successStoriesToUse}
-        onSuccessStoryAdded={onSuccessStoryAdded}
-        onSuccessStoryUpdated={onSuccessStoryUpdated}
-        onSuccessStoryDeleted={onSuccessStoryDeleted}
-      />
+      <div className="p-6">
+        <CustomerSuccessManager
+          successStories={successStoriesToUse}
+          onSuccessStoryAdded={onSuccessStoryAdded}
+          onSuccessStoryUpdated={onSuccessStoryUpdated}
+          onSuccessStoryDeleted={onSuccessStoryDeleted}
+        />
+      </div>
     );
   }
 
-  if (selectedAssetType === 'productContext') {
+  if (selectedAssetType === 'product-context') {
     return (
-      <ProductContextManager
-        productContext={currentProductContext}
-        onProductContextUpdated={handleProductContextCreatedOrUpdated}
-      />
+      <div className="p-6">
+        <ProductContextManager
+          productContext={currentProductContext}
+          onProductContextUpdated={handleProductContextCreatedOrUpdated}
+        />
+      </div>
     );
   }
 
   if (selectedAssetType === 'drafts') {
     return (
-      <DraftsManager selectedClientId={selectedClientId} />
+      <div className="p-6">
+        <DraftsManager selectedClientId={selectedClientId} />
+      </div>
     );
   }
 
@@ -168,9 +181,11 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
 
   // Placeholder for other asset types
   return (
-    <div className="text-center py-8">
-      <h2 className="text-2xl font-bold text-gray-700">{selectedAssetType}</h2>
-      <p className="text-gray-500 mt-2">This section is coming soon</p>
+    <div className="p-6">
+      <div className="text-center py-8">
+        <h2 className="text-2xl font-bold text-gray-700">{selectedAssetType}</h2>
+        <p className="text-gray-500 mt-2">This section is coming soon</p>
+      </div>
     </div>
   );
 };

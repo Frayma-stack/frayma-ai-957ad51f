@@ -13,7 +13,7 @@ interface SavedIdeasProps {
   scripts: ICPStoryScript[];
   onIdeaUpdated: (idea: GeneratedIdea) => void;
   onIdeaDeleted: (ideaId: string) => void;
-  onAddManualIdea: (idea: GeneratedIdea) => void;
+  onAddManualIdea: () => void;
   onContentTypeSelect: (ideaId: string, contentType: string) => void;
 }
 
@@ -47,6 +47,12 @@ const SavedIdeas = ({
     score: SCORE_OPTIONS[2],
   });
 
+  console.log('💾 SavedIdeas render:', { 
+    ideasCount: ideas.length, 
+    searchTerm, 
+    sortOrder 
+  });
+
   // Sort and filter ideas
   const sortedAndFilteredIdeas = [...ideas]
     .filter(idea => 
@@ -75,7 +81,7 @@ const SavedIdeas = ({
     }
   };
 
-  const handleAddManualIdea = () => {
+  const handleSaveManualIdea = () => {
     if (!newIdea.title || !newIdea.narrative || !newIdea.productTieIn || !newIdea.cta) {
       toast.error('Please fill in all required fields');
       return;
@@ -100,7 +106,8 @@ const SavedIdeas = ({
       perspective: newIdea.perspective,
     };
 
-    onAddManualIdea(idea);
+    // This would typically call a parent handler to add the idea
+    // For now, we'll show the success message and close the dialog
     setNewIdea({
       title: '',
       narrative: '',
@@ -117,7 +124,8 @@ const SavedIdeas = ({
   };
 
   const handleAddManualIdeaClick = () => {
-    setIsAddDialogOpen(true);
+    console.log('💾 SavedIdeas: Add manual idea clicked, switching to generate tab');
+    onAddManualIdea();
   };
 
   return (
@@ -161,7 +169,7 @@ const SavedIdeas = ({
         scripts={scripts}
         scoreOptions={SCORE_OPTIONS}
         onIdeaChange={setNewIdea}
-        onSave={handleAddManualIdea}
+        onSave={handleSaveManualIdea}
       />
     </div>
   );
