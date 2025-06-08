@@ -2,14 +2,14 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { ProductCampaignBrief } from '../types';
 import { Author, ICPStoryScript } from '@/types/storytelling';
 import { useToast } from '@/hooks/use-toast';
+import { ProductInfoSection } from '../forms/ProductInfoSection';
+import { ProductContextSection } from '../forms/ProductContextSection';
+import { TargetAudienceSection } from '../forms/TargetAudienceSection';
+import { CampaignStrategySection } from '../forms/CampaignStrategySection';
+import { AuthorSelectionSection } from '../forms/AuthorSelectionSection';
 
 interface ProductCampaignBriefFormProps {
   authors: Author[];
@@ -121,201 +121,32 @@ export const ProductCampaignBriefForm: React.FC<ProductCampaignBriefFormProps> =
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Basic Product Info */}
-          <div className="space-y-4">
-            <h3 className="font-medium text-gray-900">Product Information</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="productName">Product/Feature Name *</Label>
-                <Input
-                  id="productName"
-                  placeholder="e.g., Advanced Analytics Dashboard"
-                  value={formData.productName}
-                  onChange={(e) => handleInputChange('productName', e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="coreTransformation">Core Transformation *</Label>
-                <Input
-                  id="coreTransformation"
-                  placeholder="e.g., 10x faster insights discovery"
-                  value={formData.coreTransformation}
-                  onChange={(e) => handleInputChange('coreTransformation', e.target.value)}
-                />
-              </div>
-            </div>
+          <ProductInfoSection
+            formData={formData}
+            onInputChange={handleInputChange}
+          />
 
-            <div className="space-y-2">
-              <Label htmlFor="featureDescription">Feature Description *</Label>
-              <Textarea
-                id="featureDescription"
-                placeholder="Describe what was shipped and its key capabilities..."
-                value={formData.featureDescription}
-                onChange={(e) => handleInputChange('featureDescription', e.target.value)}
-                rows={3}
-              />
-            </div>
+          <ProductContextSection
+            formData={formData}
+            onInputChange={handleInputChange}
+          />
 
-            <div className="space-y-2">
-              <Label htmlFor="whyBuilt">Why This Was Built *</Label>
-              <Textarea
-                id="whyBuilt"
-                placeholder="What customer problem or trigger led to building this?"
-                value={formData.whyBuilt}
-                onChange={(e) => handleInputChange('whyBuilt', e.target.value)}
-                rows={3}
-              />
-            </div>
-          </div>
+          <TargetAudienceSection
+            formData={formData}
+            scripts={scripts}
+            onInputChange={handleInputChange}
+          />
 
-          {/* Product Context */}
-          <div className="space-y-4">
-            <h3 className="font-medium text-gray-900">Product Context</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="feature">Feature</Label>
-                <Input
-                  id="feature"
-                  placeholder="Core feature name"
-                  value={formData.productContext?.feature}
-                  onChange={(e) => handleInputChange('productContext.feature', e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="useCase">Use Case</Label>
-                <Input
-                  id="useCase"
-                  placeholder="Primary use case"
-                  value={formData.productContext?.useCase}
-                  onChange={(e) => handleInputChange('productContext.useCase', e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="differentiator">Differentiator</Label>
-                <Input
-                  id="differentiator"
-                  placeholder="Key differentiator"
-                  value={formData.productContext?.differentiator}
-                  onChange={(e) => handleInputChange('productContext.differentiator', e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
+          <CampaignStrategySection
+            formData={formData}
+            onInputChange={handleInputChange}
+          />
 
-          {/* Target ICPs */}
-          <div className="space-y-4">
-            <h3 className="font-medium text-gray-900">Target Audiences</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="primaryICP">Primary ICP *</Label>
-                <Select value={formData.primaryICP || "__none__"} onValueChange={(value) => handleInputChange('primaryICP', value === "__none__" ? "" : value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select primary ICP" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">Select an ICP</SelectItem>
-                    {scripts.map((script) => (
-                      <SelectItem key={script.id} value={script.id}>
-                        {script.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="secondaryICP">Secondary ICP (Optional)</Label>
-                <Select value={formData.secondaryICP || "__none__"} onValueChange={(value) => handleInputChange('secondaryICP', value === "__none__" ? "" : value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select secondary ICP" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">None</SelectItem>
-                    {scripts.map((script) => (
-                      <SelectItem key={script.id} value={script.id}>
-                        {script.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-
-          {/* Positioning & CTA */}
-          <div className="space-y-4">
-            <h3 className="font-medium text-gray-900">Campaign Strategy</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="positioningAngle">Positioning Angle *</Label>
-                <Textarea
-                  id="positioningAngle"
-                  placeholder="How this update strengthens your brand narrative..."
-                  value={formData.positioningAngle}
-                  onChange={(e) => handleInputChange('positioningAngle', e.target.value)}
-                  rows={3}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="desiredCTA">Desired CTA *</Label>
-                <Textarea
-                  id="desiredCTA"
-                  placeholder="e.g., Try it now, Book a demo, Upgrade your plan..."
-                  value={formData.desiredCTA}
-                  onChange={(e) => handleInputChange('desiredCTA', e.target.value)}
-                  rows={3}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="styleDepth">Style & Depth</Label>
-              <Select value={formData.styleDepth} onValueChange={(value: any) => handleInputChange('styleDepth', value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="punchy">Punchy - Quick, impactful messaging</SelectItem>
-                  <SelectItem value="educational">Educational - Detailed, informative</SelectItem>
-                  <SelectItem value="technical">Technical - In-depth, specification-focused</SelectItem>
-                  <SelectItem value="visual-heavy">Visual-Heavy - Story-driven with visuals</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Author Selection */}
-          <div className="space-y-4">
-            <h3 className="font-medium text-gray-900">Author Profiles *</h3>
-            <p className="text-sm text-gray-600">Select 1-3 author profiles to use for content generation</p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {authors.map((author) => (
-                <div key={author.id} className="flex items-start space-x-3 p-3 border rounded-lg">
-                  <Checkbox
-                    id={`author-${author.id}`}
-                    checked={formData.authorProfiles?.includes(author.id) || false}
-                    onCheckedChange={(checked) => handleAuthorToggle(author.id, checked as boolean)}
-                  />
-                  <div className="flex-1">
-                    <Label htmlFor={`author-${author.id}`} className="font-medium">
-                      {author.name}
-                    </Label>
-                    <p className="text-sm text-gray-600">{author.role}</p>
-                    <p className="text-xs text-gray-500">{author.organization}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <AuthorSelectionSection
+            formData={formData}
+            authors={authors}
+            onAuthorToggle={handleAuthorToggle}
+          />
 
           <Button 
             onClick={handleSubmit}
