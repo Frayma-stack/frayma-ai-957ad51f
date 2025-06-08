@@ -11,21 +11,21 @@ const ContentTypeSelectorHeader: React.FC<ContentTypeSelectorHeaderProps> = ({
   onNavigateToIdeasBank
 }) => {
   return (
-    <div className="space-y-8">
-      <div className="text-center">
+    <div className="text-center space-y-6">
+      <div>
         <h2 className="text-3xl font-bold text-gray-900 mb-4">
           Welcome, [app user's first name]
         </h2>
-        <p className="text-lg text-gray-600 mb-8">
+        <p className="text-lg text-gray-600 mb-2">
           What GTM asset do you need help auto-crafting?
         </p>
-        <p className="text-md text-gray-500 mb-6">
+        <p className="text-md text-gray-500">
           Choose or start from a Saved Idea below.
         </p>
       </div>
 
       {/* Mint New Ideas Section */}
-      <div className="text-center">
+      <div>
         <p className="text-gray-600 mb-4">
           Frame thoughts into freshly-minted GTM asset ideas…
         </p>
@@ -36,12 +36,6 @@ const ContentTypeSelectorHeader: React.FC<ContentTypeSelectorHeaderProps> = ({
           <Sparkles className="mr-2 h-5 w-5" />
           Mint New Ideas
         </Button>
-      </div>
-
-      <div className="border-t pt-8">
-        <h3 className="text-xl font-semibold text-gray-900 mb-6 text-center">
-          Or choose a GTM asset type to create directly:
-        </h3>
       </div>
     </div>
   );

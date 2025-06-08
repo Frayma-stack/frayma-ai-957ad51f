@@ -58,7 +58,9 @@ const ContentTypeSelector: React.FC<ContentTypeSelectorProps> = ({
         onNavigateToIdeasBank={handleNavigateToIdeasBank}
       />
 
-      <ContentTypesGrid onSelect={onSelect} />
+      <div className="border-t pt-8">
+        <ContentTypesGrid onSelect={onSelect} />
+      </div>
 
       {selectedIdeaId && (
         <div className="text-center">
