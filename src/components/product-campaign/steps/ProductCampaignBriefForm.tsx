@@ -214,14 +214,15 @@ export const ProductCampaignBriefForm: React.FC<ProductCampaignBriefFormProps> =
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="primaryICP">Primary ICP *</Label>
-                <Select value={formData.primaryICP} onValueChange={(value) => handleInputChange('primaryICP', value)}>
+                <Select value={formData.primaryICP || "__none__"} onValueChange={(value) => handleInputChange('primaryICP', value === "__none__" ? "" : value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select primary ICP" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="__none__">Select an ICP</SelectItem>
                     {scripts.map((script) => (
                       <SelectItem key={script.id} value={script.id}>
-                        {script.title}
+                        {script.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -230,15 +231,15 @@ export const ProductCampaignBriefForm: React.FC<ProductCampaignBriefFormProps> =
               
               <div className="space-y-2">
                 <Label htmlFor="secondaryICP">Secondary ICP (Optional)</Label>
-                <Select value={formData.secondaryICP} onValueChange={(value) => handleInputChange('secondaryICP', value)}>
+                <Select value={formData.secondaryICP || "__none__"} onValueChange={(value) => handleInputChange('secondaryICP', value === "__none__" ? "" : value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select secondary ICP" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="__none__">None</SelectItem>
                     {scripts.map((script) => (
                       <SelectItem key={script.id} value={script.id}>
-                        {script.title}
+                        {script.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
