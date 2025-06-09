@@ -5,6 +5,7 @@ import { GeneratedIdea } from '@/types/ideas';
 import ContentTypeSelectorHeader from './content-type-selector/ContentTypeSelectorHeader';
 import IdeasBankSection from './content-type-selector/IdeasBankSection';
 import ContentTypesGrid from './content-type-selector/ContentTypesGrid';
+import MintNewIdeasSection from './content-type-selector/MintNewIdeasSection';
 
 export type ContentType = 'article' | 'success-story' | 'linkedin' | 'email' | 'custom' | 'product-campaign';
 
@@ -49,7 +50,7 @@ const ContentTypeSelector: React.FC<ContentTypeSelectorProps> = ({
   return (
     <div className="space-y-6">
       {/* Greeting Section */}
-      <ContentTypeSelectorHeader onNavigateToIdeasBank={handleNavigateToIdeasBank} />
+      <ContentTypeSelectorHeader />
 
       {/* Saved Ideas Selection */}
       <IdeasBankSection
@@ -64,6 +65,9 @@ const ContentTypeSelector: React.FC<ContentTypeSelectorProps> = ({
       <div>
         <ContentTypesGrid onSelect={onSelect} />
       </div>
+
+      {/* Mint New Ideas Section - Moved to bottom */}
+      <MintNewIdeasSection onNavigateToIdeasBank={handleNavigateToIdeasBank} />
 
       {/* Selected Idea Indicator */}
       {selectedIdeaId && (
