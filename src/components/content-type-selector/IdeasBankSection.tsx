@@ -63,7 +63,10 @@ const IdeasBankSection: React.FC<IdeasBankSectionProps> = ({
         <div className="flex items-center gap-4">
           <div className="flex-1">
             {clientIdeas.length > 0 ? (
-              <Select value={selectedIdeaId || ""} onValueChange={(value) => onIdeaSelect?.(value || null)}>
+              <Select 
+                value={selectedIdeaId || undefined} 
+                onValueChange={(value) => onIdeaSelect?.(value || null)}
+              >
                 <SelectTrigger className="bg-white border-gray-300">
                   <SelectValue placeholder="Select a saved idea..." />
                 </SelectTrigger>
