@@ -1,9 +1,7 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Lightbulb } from "lucide-react";
 import { GeneratedIdea } from '@/types/ideas';
 import {
   Select,
@@ -34,28 +32,40 @@ const IdeasBankSection: React.FC<IdeasBankSectionProps> = ({
     : [];
 
   if (!selectedClientId) {
-    return null;
+    return (
+      <Card className="bg-gray-50 border border-gray-200">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="text-gray-600 text-sm mb-2">
+                Select a saved idea to get started
+              </div>
+              <div className="text-gray-400 text-sm italic">
+                Choose a client first to see saved ideas
+              </div>
+            </div>
+            <Button 
+              onClick={onNavigateToIdeasBank}
+              variant="outline" 
+              className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              View Ideas Bank
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
-    <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-yellow-800">
-          <Lightbulb className="h-5 w-5" />
-          Use a Saved Idea
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <p className="text-yellow-700">
-            Select an idea to get started
-          </p>
-          
-          <div className="space-y-3">
+    <Card className="bg-gray-50 border border-gray-200">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
             {clientIdeas.length > 0 ? (
               <Select value={selectedIdeaId || ""} onValueChange={(value) => onIdeaSelect?.(value || null)}>
-                <SelectTrigger className="bg-white border-yellow-300">
-                  <SelectValue placeholder="Select an idea…" />
+                <SelectTrigger className="bg-white border-gray-300">
+                  <SelectValue placeholder="Select a saved idea..." />
                 </SelectTrigger>
                 <SelectContent>
                   {clientIdeas.map((idea) => (
@@ -71,20 +81,19 @@ const IdeasBankSection: React.FC<IdeasBankSectionProps> = ({
                 </SelectContent>
               </Select>
             ) : (
-              <div className="bg-white border border-yellow-300 rounded-md px-3 py-2 text-yellow-600 text-sm">
+              <div className="bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-600 text-sm">
                 No ideas saved yet. Create some ideas first!
               </div>
             )}
-            
-            <Button 
-              onClick={onNavigateToIdeasBank}
-              variant="outline" 
-              className="w-full bg-white border-yellow-300 text-yellow-800 hover:bg-yellow-50"
-            >
-              <Lightbulb className="mr-2 h-4 w-4" />
-              View Ideas Bank
-            </Button>
           </div>
+          
+          <Button 
+            onClick={onNavigateToIdeasBank}
+            variant="outline" 
+            className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+          >
+            View Ideas Bank
+          </Button>
         </div>
       </CardContent>
     </Card>

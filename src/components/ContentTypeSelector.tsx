@@ -47,9 +47,11 @@ const ContentTypeSelector: React.FC<ContentTypeSelectorProps> = ({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Greeting Section */}
       <ContentTypeSelectorHeader onNavigateToIdeasBank={handleNavigateToIdeasBank} />
 
+      {/* Saved Ideas Selection */}
       <IdeasBankSection
         selectedClientId={selectedClientId}
         ideas={ideas}
@@ -58,10 +60,12 @@ const ContentTypeSelector: React.FC<ContentTypeSelectorProps> = ({
         onNavigateToIdeasBank={handleNavigateToIdeasBank}
       />
 
-      <div className="border-t pt-8">
+      {/* Content Types Grid */}
+      <div>
         <ContentTypesGrid onSelect={onSelect} />
       </div>
 
+      {/* Selected Idea Indicator */}
       {selectedIdeaId && (
         <div className="text-center">
           <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
