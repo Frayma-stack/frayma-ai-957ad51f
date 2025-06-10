@@ -1,231 +1,168 @@
+import { useState, useEffect, useCallback } from 'react';
+import { debounce } from 'lodash';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-
-interface AutoSaveConfig {
-  contentType: string;
-  clientId?: string;
-  authorId?: string;
+interface AutoSaveOptions {
+  key: string;
+  data: any;
+  enabled: boolean;
   debounceMs?: number;
-  enableAutoSave?: boolean;
 }
 
-interface DraftData {
-  title: string;
-  content: string;
-  contentType: string;
-  clientId?: string;
-  authorId?: string;
+interface SavedDraft {
+  id: string;
+  timestamp: string;
+  data: any;
+  label: string;
 }
 
-export const useAutoSave = (config: AutoSaveConfig) => {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
+export const useAutoSave = ({ key, data, enabled, debounceMs = 2000 }: AutoSaveOptions) => {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout>();
-  const { enableAutoSave = true, debounceMs = 1000 } = config; // Reduced debounce time
+  const [showRestoreDialog, setShowRestoreDialog] = useState(false);
+  const [availableDrafts, setAvailableDrafts] = useState<SavedDraft[]>([]);
 
-  // Create or update a draft
-  const saveDraft = useCallback(async (data: DraftData) => {
-    if (!user || !enableAutoSave) {
-      console.log('⚠️ Auto-save skipped:', { hasUser: !!user, enableAutoSave });
+  const getDraftsKey = (baseKey: string) => `${baseKey}_drafts`;
+  const getCurrentDraftKey = (baseKey: string) => `${baseKey}_current`;
+
+  // Safe JSON parsing function
+  const safeParse = (value: string | null): any => {
+    if (!value || value === 'undefined' || value === 'null') {
       return null;
     }
-
-    if (!data.content.trim()) {
-      console.log('⚠️ Auto-save skipped: empty content');
-      return null;
-    }
-
     try {
-      setIsSaving(true);
-      console.log('💾 Starting auto-save:', {
-        contentLength: data.content.length,
-        hasCurrentDraftId: !!currentDraftId,
-        contentType: data.contentType,
-        clientId: data.clientId,
-        authorId: data.authorId,
-        userId: user.id
-      });
-      
-      const draftPayload = {
-        title: data.title || `${data.contentType} - ${new Date().toLocaleDateString()}`,
-        content: data.content,
-        content_type: data.contentType,
-        client_id: data.clientId || null,
-        author_id: data.authorId || null,
-        user_id: user.id,
-        created_by: user.email || 'Unknown User',
-        last_edited_by: user.email || 'Unknown User',
-        status: 'draft' as const
+      return JSON.parse(value);
+    } catch (error) {
+      console.warn('Failed to parse JSON:', error);
+      return null;
+    }
+  };
+
+  // Safe JSON stringifying function
+  const safeStringify = (value: any): string => {
+    if (value === undefined || value === null) {
+      return '';
+    }
+    try {
+      return JSON.stringify(value);
+    } catch (error) {
+      console.warn('Failed to stringify JSON:', error);
+      return '';
+    }
+  };
+
+  // Load available drafts
+  const loadDrafts = useCallback(() => {
+    const draftsJson = localStorage.getItem(getDraftsKey(key));
+    const drafts = safeParse(draftsJson) || [];
+    setAvailableDrafts(Array.isArray(drafts) ? drafts : []);
+  }, [key]);
+
+  // Save current data
+  const saveData = useCallback(async () => {
+    if (!enabled || !data) return;
+
+    setIsSaving(true);
+    try {
+      // Save current draft
+      const currentDraftData = safeStringify(data);
+      if (currentDraftData) {
+        localStorage.setItem(getCurrentDraftKey(key), currentDraftData);
+      }
+
+      // Create a timestamped draft
+      const draft: SavedDraft = {
+        id: Date.now().toString(),
+        timestamp: new Date().toISOString(),
+        data: data,
+        label: `Draft ${new Date().toLocaleString()}`
       };
 
-      console.log('💾 Draft payload prepared:', {
-        title: draftPayload.title,
-        contentLength: draftPayload.content.length,
-        contentType: draftPayload.content_type,
-        hasClientId: !!draftPayload.client_id,
-        hasAuthorId: !!draftPayload.author_id,
-        userId: draftPayload.user_id
-      });
-
-      if (currentDraftId) {
-        // Update existing draft
-        console.log('🔄 Updating existing draft:', currentDraftId);
-        const { data: updatedDraft, error } = await supabase
-          .from('drafts')
-          .update({
-            ...draftPayload,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', currentDraftId)
-          .select('id')
-          .single();
-
-        if (error) {
-          console.error('❌ Auto-save update failed:', {
-            error: error.message,
-            code: error.code,
-            details: error.details,
-            hint: error.hint
-          });
-          throw new Error(`Update failed: ${error.message}`);
-        }
-        console.log('✅ Draft updated successfully:', updatedDraft?.id || currentDraftId);
-      } else {
-        // Create new draft
-        console.log('📝 Creating new draft');
-        const { data: newDraft, error } = await supabase
-          .from('drafts')
-          .insert(draftPayload)
-          .select('id')
-          .single();
-
-        if (error) {
-          console.error('❌ Auto-save insert failed:', {
-            error: error.message,
-            code: error.code,
-            details: error.details,
-            hint: error.hint,
-            payload: draftPayload
-          });
-          throw new Error(`Insert failed: ${error.message}`);
-        }
-        if (newDraft) {
-          setCurrentDraftId(newDraft.id);
-          console.log('✅ New draft created:', newDraft.id);
-        }
+      const existingDrafts = safeParse(localStorage.getItem(getDraftsKey(key))) || [];
+      const drafts = Array.isArray(existingDrafts) ? existingDrafts : [];
+      
+      // Keep only last 5 drafts
+      const updatedDrafts = [draft, ...drafts].slice(0, 5);
+      
+      const draftsJson = safeStringify(updatedDrafts);
+      if (draftsJson) {
+        localStorage.setItem(getDraftsKey(key), draftsJson);
       }
 
       setLastSaved(new Date());
-      console.log('✅ Auto-save completed successfully');
-      return currentDraftId;
+      loadDrafts();
     } catch (error) {
-      console.error('❌ Auto-save failed with error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      toast({
-        title: "Auto-save failed",
-        description: `Content could not be saved automatically: ${errorMessage}`,
-        variant: "destructive",
-      });
-      return null;
+      console.error('Auto-save error:', error);
     } finally {
       setIsSaving(false);
     }
-  }, [user, currentDraftId, enableAutoSave, toast]);
-
-  // Immediate save function (no debouncing)
-  const saveImmediately = useCallback((data: DraftData) => {
-    console.log('⚡ Immediate save triggered');
-    return saveDraft(data);
-  }, [saveDraft]);
+  }, [enabled, data, key, loadDrafts]);
 
   // Debounced save function
-  const debouncedSave = useCallback((data: DraftData) => {
-    if (!enableAutoSave || !data.content.trim()) {
-      console.log('⚠️ Debounced save skipped:', { enableAutoSave, hasContent: !!data.content.trim() });
-      return;
-    }
+  const debouncedSave = useCallback(
+    debounce(saveData, debounceMs),
+    [saveData, debounceMs]
+  );
 
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
-    timeoutRef.current = setTimeout(() => {
-      console.log('⏰ Debounced save executing...');
-      saveDraft(data);
-    }, debounceMs);
-  }, [saveDraft, debounceMs, enableAutoSave]);
-
-  // Load existing drafts for restoration
-  const loadDrafts = useCallback(async () => {
-    if (!user) return [];
-
-    try {
-      let query = supabase
-        .from('drafts')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('content_type', config.contentType)
-        .order('updated_at', { ascending: false })
-        .limit(5);
-
-      // Only add client_id filter if it's provided and not null/undefined
-      if (config.clientId) {
-        query = query.eq('client_id', config.clientId);
-      } else {
-        query = query.is('client_id', null);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Failed to load drafts:', error);
-      return [];
-    }
-  }, [user, config.contentType, config.clientId]);
-
-  // Clear current draft
-  const clearDraft = useCallback(async () => {
-    if (currentDraftId) {
-      try {
-        await supabase
-          .from('drafts')
-          .delete()
-          .eq('id', currentDraftId);
-        
-        setCurrentDraftId(null);
-        setLastSaved(null);
-        console.log('🗑️ Draft cleared successfully');
-      } catch (error) {
-        console.error('Failed to clear draft:', error);
-      }
-    }
-  }, [currentDraftId]);
-
-  // Cleanup timeout on unmount
+  // Check for existing draft on mount
   useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
+    if (!enabled) return;
+
+    const currentDraft = safeParse(localStorage.getItem(getCurrentDraftKey(key)));
+    if (currentDraft && Object.keys(currentDraft).length > 0) {
+      setShowRestoreDialog(true);
+    }
+    loadDrafts();
+  }, [enabled, key, loadDrafts]);
+
+  // Auto-save when data changes
+  useEffect(() => {
+    if (!enabled || !data) return;
+    debouncedSave();
+  }, [data, enabled, debouncedSave]);
+
+  // Restore draft
+  const handleRestoreDraft = useCallback((draftData: any) => {
+    setShowRestoreDialog(false);
+    return draftData;
   }, []);
 
+  // Delete draft
+  const handleDeleteDraft = useCallback((draftId: string) => {
+    const existingDrafts = safeParse(localStorage.getItem(getDraftsKey(key))) || [];
+    const drafts = Array.isArray(existingDrafts) ? existingDrafts : [];
+    const updatedDrafts = drafts.filter(draft => draft.id !== draftId);
+    
+    const draftsJson = safeStringify(updatedDrafts);
+    if (draftsJson) {
+      localStorage.setItem(getDraftsKey(key), draftsJson);
+    } else {
+      localStorage.removeItem(getDraftsKey(key));
+    }
+    loadDrafts();
+  }, [key, loadDrafts]);
+
+  // Clear current draft
+  const clearCurrentDraft = useCallback(() => {
+    localStorage.removeItem(getCurrentDraftKey(key));
+    setShowRestoreDialog(false);
+  }, [key]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSave.cancel();
+    };
+  }, [debouncedSave]);
+
   return {
-    saveDraft: debouncedSave,
-    saveImmediately, // Export immediate save function
-    loadDrafts,
-    clearDraft,
-    currentDraftId,
     isSaving,
     lastSaved,
-    setCurrentDraftId
+    showRestoreDialog,
+    setShowRestoreDialog,
+    availableDrafts,
+    handleRestoreDraft,
+    handleDeleteDraft,
+    clearCurrentDraft,
+    loadDrafts
   };
 };
