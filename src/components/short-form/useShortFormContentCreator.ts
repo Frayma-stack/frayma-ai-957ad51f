@@ -2,9 +2,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { useContentGeneration } from './useContentGeneration';
-import { useNarrativeAnchors } from './useNarrativeAnchors';
+import { useNarrativeAnchors } from '@/hooks/useNarrativeAnchors';
 import { ContentType, ContentGoal } from './types';
-import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
+import { ICPStoryScript, Author, CustomerSuccessStory, NarrativeSelection } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 
 interface UseShortFormContentCreatorProps {
@@ -30,9 +30,9 @@ export const useShortFormContentCreator = ({
   const [selectedAuthorTone, setSelectedAuthorTone] = useState<string>('');
   const [selectedAuthorExperience, setSelectedAuthorExperience] = useState<string>('');
   const [selectedAuthorBelief, setSelectedAuthorBelief] = useState<string>('');
-  const [narrativeSelections, setNarrativeSelections] = useState<string[]>([]);
+  const [narrativeSelections, setNarrativeSelections] = useState<NarrativeSelection[]>([]);
   const [contentGoal, setContentGoal] = useState<ContentGoal>({
-    type: 'awareness',
+    type: 'book_call',
     description: 'Build awareness and thought leadership'
   });
   const [generatedContent, setGeneratedContent] = useState<string>('');
@@ -147,7 +147,9 @@ export const useShortFormContentCreator = ({
   // Get available narrative anchors
   const { availableAnchors } = useNarrativeAnchors({
     selectedICP,
-    scripts
+    scripts,
+    narrativeSelections,
+    setNarrativeSelections
   });
 
   // Content generation
