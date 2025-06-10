@@ -1,9 +1,11 @@
 
+import { useCallback } from 'react';
 import { ICPStoryScript, Author, CustomerSuccessStory, NarrativeSelection } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { ContentType, ContentGoal } from './types';
 import { useContentDataAccess } from './useContentDataAccess';
 import { useNarrativeContent } from './useNarrativeContent';
+import { useShortFormContentGeneration } from './useShortFormContentGeneration';
 
 interface UseContentGenerationProps {
   contentType: ContentType;
@@ -31,7 +33,12 @@ export const useContentGeneration = ({
   narrativeSelections,
   selectedICP,
   selectedAuthor,
-  selectedSuccessStory
+  selectedSuccessStory,
+  contentGoal,
+  wordCount,
+  emailCount,
+  additionalContext,
+  triggerInput
 }: UseContentGenerationProps) => {
   const {
     getSelectedICPScript,
@@ -53,10 +60,30 @@ export const useContentGeneration = ({
     scripts
   });
 
+  const { generateContent: performGeneration } = useShortFormContentGeneration({
+    contentType,
+    selectedICP,
+    selectedAuthor,
+    contentGoal,
+    wordCount,
+    emailCount,
+    additionalContext,
+    triggerInput,
+    scripts,
+    authors,
+    successStories,
+    narrativeSelections
+  });
+
+  const generateContent = useCallback(async (getSelectedIdea?: () => GeneratedIdea | null) => {
+    return await performGeneration(getSelectedIdea);
+  }, [performGeneration]);
+
   return {
     getSelectedICPScript,
     getSelectedAuthor,
     getSelectedSuccessStory,
-    getSelectedNarrativeContents
+    getSelectedNarrativeContents,
+    generateContent
   };
 };

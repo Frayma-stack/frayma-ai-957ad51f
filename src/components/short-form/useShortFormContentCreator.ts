@@ -1,8 +1,11 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { useContentGeneration } from './useContentGeneration';
 import { useNarrativeAnchors } from '@/hooks/useNarrativeAnchors';
+import { useShortFormValidation } from './useShortFormValidation';
+import { useSelectedIdea } from './useSelectedIdea';
+import { useContentTypeLabel } from './useContentTypeLabel';
 import { ContentType, ContentGoal } from './types';
 import { ICPStoryScript, Author, CustomerSuccessStory, NarrativeSelection } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
@@ -50,20 +53,12 @@ export const useShortFormContentCreator = ({
     customPOV: ''
   });
 
-  // Get content type label
-  const getContentTypeLabel = useCallback(() => {
-    switch (contentType) {
-      case 'linkedin':
-        return 'LinkedIn Post';
-      case 'email':
-        return 'Email Sequence';
-      case 'custom':
-      default:
-        return 'Custom Content';
-    }
-  }, [contentType]);
+  // Hooks
+  const { getContentTypeLabel } = useContentTypeLabel(contentType);
+  const { getSelectedIdea } = useSelectedIdea({ selectedIdeaId, ideas });
+  const { isFormValid } = useShortFormValidation({ selectedICP, triggerInput, selectedIdeaId });
 
-  // Auto-save configuration - only save if there's meaningful content
+  // Auto-save configuration
   const autoSaveData = {
     selectedICP,
     selectedAuthor,
@@ -84,7 +79,6 @@ export const useShortFormContentCreator = ({
     selectedClientId
   };
 
-  // Only enable auto-save if there's meaningful content
   const hasContent = Boolean(
     selectedICP || 
     selectedAuthor || 
@@ -118,7 +112,6 @@ export const useShortFormContentCreator = ({
     
     const data = draft.data;
     
-    // Safely restore each field with fallbacks
     if (data.selectedICP) setSelectedICP(data.selectedICP);
     if (data.selectedAuthor) setSelectedAuthor(data.selectedAuthor);
     if (data.selectedAuthorTone) setSelectedAuthorTone(data.selectedAuthorTone);
@@ -137,12 +130,6 @@ export const useShortFormContentCreator = ({
     
     originalHandleRestoreDraft(data);
   }, [originalHandleRestoreDraft]);
-
-  // Get selected idea
-  const getSelectedIdea = useCallback(() => {
-    if (!selectedIdeaId) return null;
-    return ideas.find(idea => idea.id === selectedIdeaId) || null;
-  }, [selectedIdeaId, ideas]);
 
   // Get available narrative anchors
   const { availableAnchors } = useNarrativeAnchors({
@@ -183,13 +170,6 @@ export const useShortFormContentCreator = ({
       setIsGenerating(false);
     }
   }, [performGeneration, getSelectedIdea]);
-
-  // Form validation
-  const isFormValid = useCallback(() => {
-    if (!selectedICP) return false;
-    if (!triggerInput && !selectedIdeaId) return false;
-    return true;
-  }, [selectedICP, triggerInput, selectedIdeaId]);
 
   return {
     // State
