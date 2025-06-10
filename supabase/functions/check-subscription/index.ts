@@ -14,17 +14,17 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
-// Subscription tier mapping based on price amounts
-const determineSubscriptionTier = (amount: number): { tier: string; maxUsers: number } => {
-  // Convert to dollars for easier comparison (Stripe amounts are in cents)
-  const dollarAmount = amount / 100;
-  
-  if (dollarAmount >= 150) {
-    return { tier: "Narrative Pro", maxUsers: 5 };
-  } else if (dollarAmount >= 39) {
-    return { tier: "Narrative Starter", maxUsers: 1 };
-  } else {
-    return { tier: "free", maxUsers: 1 };
+// Subscription tier mapping based on price IDs
+const determineSubscriptionTier = (priceId: string): { tier: string; maxUsers: number } => {
+  switch (priceId) {
+    case 'price_1RY9IYFFhonlvCNPCETa7mf8':
+      return { tier: "Narrative Starter", maxUsers: 1 };
+    case 'price_1RY9POFFhonlvCNP19G6kPAt':
+      return { tier: "Narrative Pro", maxUsers: 3 };
+    case 'price_1RY9TWFFhonlvCNPK6MB1khI':
+      return { tier: "Narrative Scale", maxUsers: 25 };
+    default:
+      return { tier: "free", maxUsers: 1 };
   }
 };
 
@@ -108,16 +108,14 @@ serve(async (req) => {
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
       
-      // Determine subscription tier from price
+      // Determine subscription tier from price ID
       const priceId = subscription.items.data[0].price.id;
-      const price = await stripe.prices.retrieve(priceId);
-      const amount = price.unit_amount || 0;
       
-      const tierInfo = determineSubscriptionTier(amount);
+      const tierInfo = determineSubscriptionTier(priceId);
       subscriptionTier = tierInfo.tier;
       maxUsers = tierInfo.maxUsers;
       
-      logStep("Determined subscription tier", { priceId, amount, subscriptionTier, maxUsers });
+      logStep("Determined subscription tier", { priceId, subscriptionTier, maxUsers });
     } else {
       logStep("No active subscription found");
     }
