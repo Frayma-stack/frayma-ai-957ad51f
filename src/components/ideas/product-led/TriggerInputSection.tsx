@@ -28,7 +28,7 @@ const TriggerInputSection: FC<TriggerInputSectionProps> = ({
   ideas = [],
   selectedClientId
 }) => {
-  const [selectedIdeaId, setSelectedIdeaId] = useState<string>('');
+  const [selectedIdeaId, setSelectedIdeaId] = useState<string>('none');
   const [isProcessingIdea, setIsProcessingIdea] = useState(false);
   const { summarizeIdeaForContent } = useIdeaSummarization();
 
@@ -38,8 +38,8 @@ const TriggerInputSection: FC<TriggerInputSectionProps> = ({
     : ideas;
 
   const handleIdeaSelection = async (ideaId: string) => {
-    if (!ideaId) {
-      setSelectedIdeaId('');
+    if (!ideaId || ideaId === 'none') {
+      setSelectedIdeaId('none');
       return;
     }
 
@@ -85,7 +85,7 @@ const TriggerInputSection: FC<TriggerInputSectionProps> = ({
                 <SelectValue placeholder="Select a saved idea to use as trigger..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None - Create custom trigger</SelectItem>
+                <SelectItem value="none">None - Create custom trigger</SelectItem>
                 {filteredIdeas.map((idea) => (
                   <SelectItem key={idea.id} value={idea.id}>
                     {idea.title}
@@ -134,7 +134,7 @@ const TriggerInputSection: FC<TriggerInputSectionProps> = ({
         <div>
           <Label>Trigger/Thesis/Anti-thesis</Label>
           <Textarea
-            placeholder={selectedIdeaId 
+            placeholder={selectedIdeaId !== 'none'
               ? "Your saved idea summary will appear here..." 
               : "What triggered you to mint new ideas? Paste text, describe an image, or explain file content..."
             }
@@ -143,7 +143,7 @@ const TriggerInputSection: FC<TriggerInputSectionProps> = ({
             className="min-h-[200px] mt-2"
             disabled={isProcessingIdea}
           />
-          {selectedIdeaId && (
+          {selectedIdeaId !== 'none' && (
             <p className="text-sm text-gray-500 mt-1">
               Trigger generated from saved idea. You can edit it above if needed.
             </p>
