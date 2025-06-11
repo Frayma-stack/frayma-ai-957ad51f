@@ -1,13 +1,15 @@
 
-import { useState, useCallback } from 'react';
-import { useAutoSave } from '@/hooks/useAutoSave';
+import { useCallback } from 'react';
 import { useContentGeneration } from './useContentGeneration';
 import { useNarrativeAnchors } from '@/hooks/useNarrativeAnchors';
 import { useShortFormValidation } from './useShortFormValidation';
 import { useSelectedIdea } from './useSelectedIdea';
 import { useContentTypeLabel } from './useContentTypeLabel';
-import { ContentType, ContentGoal } from './types';
-import { ICPStoryScript, Author, CustomerSuccessStory, NarrativeSelection } from '@/types/storytelling';
+import { useShortFormState } from './useShortFormState';
+import { useShortFormAutoSave } from './useShortFormAutoSave';
+import { useShortFormDraftRestore } from './useShortFormDraftRestore';
+import { ContentType } from './types';
+import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 
 interface UseShortFormContentCreatorProps {
@@ -27,39 +29,60 @@ export const useShortFormContentCreator = ({
   ideas,
   selectedClientId
 }: UseShortFormContentCreatorProps) => {
-  // State management
-  const [selectedICP, setSelectedICP] = useState<string>('');
-  const [selectedAuthor, setSelectedAuthor] = useState<string>('');
-  const [selectedAuthorTone, setSelectedAuthorTone] = useState<string>('');
-  const [selectedAuthorExperience, setSelectedAuthorExperience] = useState<string>('');
-  const [selectedAuthorBelief, setSelectedAuthorBelief] = useState<string>('');
-  const [narrativeSelections, setNarrativeSelections] = useState<NarrativeSelection[]>([]);
-  const [contentGoal, setContentGoal] = useState<ContentGoal>({
-    type: 'book_call',
-    description: 'Build awareness and thought leadership'
-  });
-  const [generatedContent, setGeneratedContent] = useState<string>('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [additionalContext, setAdditionalContext] = useState<string>('');
-  const [selectedSuccessStory, setSelectedSuccessStory] = useState<string>('');
-  const [wordCount, setWordCount] = useState<number>(150);
-  const [emailCount, setEmailCount] = useState<number>(3);
-  const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(null);
-  const [triggerInput, setTriggerInput] = useState<string>('');
-  const [productInputs, setProductInputs] = useState({
-    selectedFeatures: [],
-    selectedUseCases: [],
-    selectedDifferentiators: [],
-    customPOV: ''
-  });
+  // Core state management
+  const {
+    selectedICP,
+    selectedAuthor,
+    selectedAuthorTone,
+    selectedAuthorExperience,
+    selectedAuthorBelief,
+    narrativeSelections,
+    contentGoal,
+    selectedSuccessStory,
+    wordCount,
+    emailCount,
+    additionalContext,
+    selectedIdeaId,
+    triggerInput,
+    productInputs,
+    generatedContent,
+    isGenerating,
+    setSelectedICP,
+    setSelectedAuthor,
+    setSelectedAuthorTone,
+    setSelectedAuthorExperience,
+    setSelectedAuthorBelief,
+    setNarrativeSelections,
+    setContentGoal,
+    setSelectedSuccessStory,
+    setWordCount,
+    setEmailCount,
+    setAdditionalContext,
+    setSelectedIdeaId,
+    setTriggerInput,
+    setProductInputs,
+    setGeneratedContent,
+    setIsGenerating
+  } = useShortFormState({ contentType });
 
-  // Hooks
+  // Utility hooks
   const { getContentTypeLabel } = useContentTypeLabel(contentType);
   const { getSelectedIdea } = useSelectedIdea({ selectedIdeaId, ideas });
   const { isFormValid } = useShortFormValidation({ selectedICP, triggerInput, selectedIdeaId });
 
-  // Auto-save configuration
-  const autoSaveData = {
+  // Auto-save functionality
+  const {
+    isSaving,
+    lastSaved,
+    showRestoreDialog,
+    setShowRestoreDialog,
+    availableDrafts,
+    handleRestoreDraft: originalHandleRestoreDraft,
+    handleDeleteDraft,
+    clearCurrentDraft
+  } = useShortFormAutoSave({
+    contentType,
+    selectedClientId,
     selectedICP,
     selectedAuthor,
     selectedAuthorTone,
@@ -74,64 +97,30 @@ export const useShortFormContentCreator = ({
     emailCount,
     selectedIdeaId,
     triggerInput,
-    productInputs,
-    contentType,
-    selectedClientId
-  };
-
-  const hasContent = Boolean(
-    selectedICP || 
-    selectedAuthor || 
-    additionalContext || 
-    generatedContent || 
-    triggerInput ||
-    narrativeSelections.length > 0
-  );
-
-  const autoSaveKey = `short_form_${contentType}_${selectedClientId || 'default'}`;
-  
-  const {
-    isSaving,
-    lastSaved,
-    showRestoreDialog,
-    setShowRestoreDialog,
-    availableDrafts,
-    handleRestoreDraft: originalHandleRestoreDraft,
-    handleDeleteDraft,
-    clearCurrentDraft
-  } = useAutoSave({
-    key: autoSaveKey,
-    data: autoSaveData,
-    enabled: hasContent,
-    debounceMs: 2000
+    productInputs
   });
 
-  // Enhanced restore draft handler
-  const handleRestoreDraft = useCallback((draft: any) => {
-    if (!draft || !draft.data) return;
-    
-    const data = draft.data;
-    
-    if (data.selectedICP) setSelectedICP(data.selectedICP);
-    if (data.selectedAuthor) setSelectedAuthor(data.selectedAuthor);
-    if (data.selectedAuthorTone) setSelectedAuthorTone(data.selectedAuthorTone);
-    if (data.selectedAuthorExperience) setSelectedAuthorExperience(data.selectedAuthorExperience);
-    if (data.selectedAuthorBelief) setSelectedAuthorBelief(data.selectedAuthorBelief);
-    if (Array.isArray(data.narrativeSelections)) setNarrativeSelections(data.narrativeSelections);
-    if (data.contentGoal) setContentGoal(data.contentGoal);
-    if (data.generatedContent) setGeneratedContent(data.generatedContent);
-    if (data.additionalContext) setAdditionalContext(data.additionalContext);
-    if (data.selectedSuccessStory) setSelectedSuccessStory(data.selectedSuccessStory);
-    if (typeof data.wordCount === 'number') setWordCount(data.wordCount);
-    if (typeof data.emailCount === 'number') setEmailCount(data.emailCount);
-    if (data.selectedIdeaId) setSelectedIdeaId(data.selectedIdeaId);
-    if (data.triggerInput) setTriggerInput(data.triggerInput);
-    if (data.productInputs) setProductInputs(data.productInputs);
-    
-    originalHandleRestoreDraft(data);
-  }, [originalHandleRestoreDraft]);
+  // Draft restoration
+  const { handleRestoreDraft } = useShortFormDraftRestore({
+    setSelectedICP,
+    setSelectedAuthor,
+    setSelectedAuthorTone,
+    setSelectedAuthorExperience,
+    setSelectedAuthorBelief,
+    setNarrativeSelections,
+    setContentGoal,
+    setGeneratedContent,
+    setAdditionalContext,
+    setSelectedSuccessStory,
+    setWordCount,
+    setEmailCount,
+    setSelectedIdeaId,
+    setTriggerInput,
+    setProductInputs,
+    originalHandleRestoreDraft
+  });
 
-  // Get available narrative anchors
+  // Narrative anchors
   const { availableAnchors } = useNarrativeAnchors({
     selectedICP,
     scripts,
@@ -172,7 +161,7 @@ export const useShortFormContentCreator = ({
     } finally {
       setIsGenerating(false);
     }
-  }, [performGeneration, setGeneratedContent]);
+  }, [performGeneration, setGeneratedContent, setIsGenerating]);
 
   return {
     // State

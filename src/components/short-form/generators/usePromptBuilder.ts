@@ -2,7 +2,8 @@
 import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { ContentType, ContentGoal } from '../types';
-import { useContentGeneration } from '../useContentGeneration';
+import { useContentDataAccess } from '../useContentDataAccess';
+import { useNarrativeContent } from '../useNarrativeContent';
 
 interface PromptBuilderProps {
   contentType: ContentType;
@@ -27,24 +28,21 @@ export const usePromptBuilder = (props: PromptBuilderProps) => {
   const {
     getSelectedICPScript,
     getSelectedAuthor,
-    getSelectedSuccessStory,
-    getSelectedNarrativeContents
-  } = useContentGeneration({
-    contentType: props.contentType,
+    getSelectedSuccessStory
+  } = useContentDataAccess({
     scripts: props.scripts,
     authors: props.authors,
     successStories: props.successStories,
     narrativeSelections: props.narrativeSelections,
     selectedICP: props.selectedICP,
     selectedAuthor: props.selectedAuthor,
-    selectedAuthorTone: props.selectedAuthorTone,
-    selectedAuthorExperience: props.selectedAuthorExperience,
-    selectedSuccessStory: props.selectedSuccessStory,
-    contentGoal: props.contentGoal,
-    wordCount: props.wordCount,
-    emailCount: props.emailCount,
-    additionalContext: props.additionalContext,
-    triggerInput: props.triggerInput
+    selectedSuccessStory: props.selectedSuccessStory
+  });
+
+  const { getSelectedNarrativeContents } = useNarrativeContent({
+    narrativeSelections: props.narrativeSelections,
+    selectedICP: props.selectedICP,
+    scripts: props.scripts
   });
 
   const buildPrompt = () => {
