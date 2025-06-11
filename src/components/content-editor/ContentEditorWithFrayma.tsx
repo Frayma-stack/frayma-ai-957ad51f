@@ -30,7 +30,7 @@ export const ContentEditorWithFrayma: React.FC<ContentEditorWithFraymaProps> = (
     const narrativeAnchors: NarrativeAnchor[] = [
       {
         id: 'problem-solution-fit',
-        type: 'Problem-Solution Fit',
+        type: 'pain',
         content: 'Connect customer pain points to your solution',
         strength: 0.8,
         resonanceFactors: ['pain_point', 'solution_clarity'],
@@ -38,7 +38,7 @@ export const ContentEditorWithFrayma: React.FC<ContentEditorWithFraymaProps> = (
       },
       {
         id: 'customer-journey',
-        type: 'Customer Journey Mapping', 
+        type: 'transformation', 
         content: 'Map the transformation story from before to after',
         strength: 0.7,
         resonanceFactors: ['transformation', 'journey'],
@@ -46,7 +46,7 @@ export const ContentEditorWithFrayma: React.FC<ContentEditorWithFraymaProps> = (
       },
       {
         id: 'value-demonstration',
-        type: 'Value Demonstration',
+        type: 'belief',
         content: 'Show concrete value and outcomes',
         strength: 0.9,
         resonanceFactors: ['value_prop', 'outcomes'],
@@ -54,7 +54,7 @@ export const ContentEditorWithFrayma: React.FC<ContentEditorWithFraymaProps> = (
       },
       {
         id: 'social-proof',
-        type: 'Social Proof Integration',
+        type: 'belief',
         content: 'Include testimonials and success metrics',
         strength: 0.8,
         resonanceFactors: ['credibility', 'proof'],
