@@ -1,17 +1,16 @@
-
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import AuthHeader from '@/components/auth/AuthHeader';
-import AuthCard from '@/components/auth/AuthCard';
-import AuthSignInForm from '@/components/auth/AuthSignInForm';
-import AuthSignUpForm from '@/components/auth/AuthSignUpForm';
-import { useAuthHandlers } from '@/hooks/useAuthHandlers';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import AuthHeader from "@/components/auth/AuthHeader";
+import AuthCard from "@/components/auth/AuthCard";
+import AuthSignInForm from "@/components/auth/AuthSignInForm";
+import AuthSignUpForm from "@/components/auth/AuthSignUpForm";
+import { useAuthHandlers } from "@/hooks/useAuthHandlers";
 
 const Auth = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const { user } = useAuth();
   const navigate = useNavigate();
   const { loading, handleSignIn, handleSignUp } = useAuthHandlers();
@@ -19,7 +18,7 @@ const Auth = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate("/app");
     }
   }, [user, navigate]);
 

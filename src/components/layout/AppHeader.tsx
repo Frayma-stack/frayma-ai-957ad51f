@@ -1,35 +1,42 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
-import { useSubscription } from '@/contexts/SubscriptionContext';
-import { Badge } from '@/components/ui/badge';
-import { Crown, User, LogOut, CreditCard } from 'lucide-react';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { Badge } from "@/components/ui/badge";
+import { Crown, User, LogOut, CreditCard } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const AppHeader = () => {
   const { user, signOut } = useAuth();
   const { subscription_tier, subscribed } = useSubscription();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
+  };
 
   const getTierDisplay = () => {
-    if (subscription_tier === 'free') return 'Free';
+    if (subscription_tier === "free") return "Free";
     return subscription_tier;
   };
 
   const getTierColor = () => {
     switch (subscription_tier) {
-      case 'Narrative Starter':
-        return 'bg-blue-500';
-      case 'Narrative Pro':
-        return 'bg-purple-500';
+      case "Narrative Starter":
+        return "bg-blue-500";
+      case "Narrative Pro":
+        return "bg-purple-500";
       default:
-        return 'bg-gray-500';
+        return "bg-gray-500";
     }
   };
 
@@ -41,17 +48,21 @@ export const AppHeader = () => {
             Frayma AI
           </Link>
         </div>
-        
+
         {user && (
           <div className="flex items-center gap-2">
             <Badge className={getTierColor()}>
               {subscribed && <Crown className="h-3 w-3 mr-1" />}
               {getTierDisplay()}
             </Badge>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
                   <User className="h-4 w-4" />
                   {user.email}
                 </Button>
@@ -64,7 +75,10 @@ export const AppHeader = () => {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut} className="flex items-center gap-2">
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2"
+                >
                   <LogOut className="h-4 w-4" />
                   Sign Out
                 </DropdownMenuItem>
