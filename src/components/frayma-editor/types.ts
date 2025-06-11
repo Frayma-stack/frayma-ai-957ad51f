@@ -36,6 +36,9 @@ export interface NarrativeAnchor {
   type: 'belief' | 'pain' | 'transformation';
   content: string;
   selected: boolean;
+  strength?: number;
+  resonanceFactors?: string[];
+  isLocked?: boolean;
 }
 
 export interface AuthorVoice {
