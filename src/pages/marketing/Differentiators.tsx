@@ -17,12 +17,12 @@ const Differentiators = () => {
       subtitle: 'Strategic POV Development vs. Random Prompting',
       frayma: {
         approach: 'Structured POV Framework',
-        example: 'Guide: "What's your take on buyer behavior changes?" → Narrative framework → Strategic content',
+        example: `Guide: "What's your take on buyer behavior changes?" → Narrative framework → Strategic content`,
         outcome: 'Consistent, buyer-moving narratives'
       },
       competitor: {
         approach: 'Blank Prompt Box',
-        example: 'User types: "Write a LinkedIn post about our product" → Generic AI response',
+        example: `User types: "Write a LinkedIn post about our product" → Generic AI response`,
         outcome: 'Random quality, no strategic intent'
       }
     },
@@ -36,7 +36,7 @@ const Differentiators = () => {
       },
       competitor: {
         approach: 'Generic AI Output',
-        example: 'Same robotic tone regardless of author → "I\'m excited to announce..." templates',
+        example: `Same robotic tone regardless of author → "I'm excited to announce..." templates`,
         outcome: 'Voice washing, brand dilution'
       }
     },
