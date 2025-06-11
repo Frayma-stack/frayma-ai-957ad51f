@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FraymaEditor } from '@/components/frayma-editor/FraymaEditor';
-import { FraymaDocument, UserRole } from '@/components/frayma-editor/types';
+import { FraymaDocument, UserRole, NarrativeAnchor } from '@/components/frayma-editor/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, FileText, Lightbulb } from 'lucide-react';
@@ -25,6 +25,42 @@ export const ContentEditorWithFrayma: React.FC<ContentEditorWithFraymaProps> = (
   const { toast } = useToast();
   const [document, setDocument] = useState<FraymaDocument>(() => {
     const plsInitialContent = initialContent || getPLSTemplate();
+    
+    // Create properly typed narrative anchors
+    const narrativeAnchors: NarrativeAnchor[] = [
+      {
+        id: 'problem-solution-fit',
+        type: 'Problem-Solution Fit',
+        content: 'Connect customer pain points to your solution',
+        strength: 0.8,
+        resonanceFactors: ['pain_point', 'solution_clarity'],
+        isLocked: false
+      },
+      {
+        id: 'customer-journey',
+        type: 'Customer Journey Mapping', 
+        content: 'Map the transformation story from before to after',
+        strength: 0.7,
+        resonanceFactors: ['transformation', 'journey'],
+        isLocked: false
+      },
+      {
+        id: 'value-demonstration',
+        type: 'Value Demonstration',
+        content: 'Show concrete value and outcomes',
+        strength: 0.9,
+        resonanceFactors: ['value_prop', 'outcomes'],
+        isLocked: false
+      },
+      {
+        id: 'social-proof',
+        type: 'Social Proof Integration',
+        content: 'Include testimonials and success metrics',
+        strength: 0.8,
+        resonanceFactors: ['credibility', 'proof'],
+        isLocked: false
+      }
+    ];
     
     return {
       id: `${contentType}-${Date.now()}`,
@@ -69,12 +105,7 @@ export const ContentEditorWithFrayma: React.FC<ContentEditorWithFraymaProps> = (
       ],
       context: {
         storyBrief: `PLS-focused ${contentTypeLabel.toLowerCase()} following Product-Led Storytelling principles`,
-        narrativeAnchors: [
-          'Problem-Solution Fit',
-          'Customer Journey Mapping',
-          'Value Demonstration',
-          'Social Proof Integration'
-        ],
+        narrativeAnchors: narrativeAnchors,
         targetAudience: 'Business decision makers and technical evaluators',
         authorVoice: {
           tone: 'Professional yet approachable',
@@ -101,20 +132,21 @@ export const ContentEditorWithFrayma: React.FC<ContentEditorWithFraymaProps> = (
     };
   });
 
-  // Auto-save content changes
+  // Remove auto-save to prevent automatic draft creation
+  // Auto-save only when user explicitly makes changes
   useEffect(() => {
-    if (onContentChange && document.content !== initialContent) {
+    if (onContentChange && document.content !== initialContent && document.content !== getPLSTemplate()) {
       const timeoutId = setTimeout(() => {
-        console.log('💾 Auto-saving PLS draft content');
+        console.log('💾 Manual save triggered by user content change');
         onContentChange(document.content);
-      }, 2000); // Auto-save after 2 seconds of inactivity
+      }, 3000); // Longer delay to prevent accidental saves
 
       return () => clearTimeout(timeoutId);
     }
   }, [document.content, onContentChange, initialContent]);
 
   const handleSave = (updatedDocument: FraymaDocument) => {
-    console.log('📝 PLS Editor: Document saved', { 
+    console.log('📝 PLS Editor: Document manually saved', { 
       contentLength: updatedDocument.content.length,
       wordCount: updatedDocument.metadata.wordCount 
     });
@@ -187,44 +219,44 @@ export const ContentEditorWithFrayma: React.FC<ContentEditorWithFraymaProps> = (
   );
 };
 
-// PLS Template with 3Rs Framework guidance
+// Improved PLS Template with cleaner, more polished guidance
 function getPLSTemplate(): string {
   return `# Your GTM Narrative Draft
 
 ## Hook & Context Setting
-[Start with a relatable scenario that resonates with your target audience]
+Start with a relatable scenario that resonates with your target audience. Make them think "Yes, I've been there too."
 
-**PLS Guidance:** Open with a moment your audience will recognize. Make them think "Yes, I've been there too."
+*PLS Guidance: Open with a moment your audience will recognize from their own experience.*
 
 ---
 
 ## Problem Definition & Stakes  
-[Define the real problem your audience faces and why it matters]
+Define the real problem your audience faces and why it matters now.
 
-**3Rs Framework - Real Problem:** What pain point keeps your prospects awake at night? What's the cost of inaction?
+*3Rs Framework - Real Problem: What pain point keeps your prospects awake at night? What's the cost of inaction?*
 
 ---
 
 ## Solution Presentation
-[Present your remarkable solution with clear value proposition]
+Present your remarkable solution with clear value proposition.
 
-**3Rs Framework - Remarkable Solution:** How does your product uniquely solve this problem? What makes it different?
+*3Rs Framework - Remarkable Solution: How does your product uniquely solve this problem? What makes it different from alternatives?*
 
 ---
 
 ## Results & Social Proof
-[Share specific outcomes and customer success stories]
+Share specific outcomes and customer success stories.
 
-**3Rs Framework - Results:** What measurable outcomes can customers expect? Include testimonials, metrics, and proof points.
+*3Rs Framework - Results: What measurable outcomes can customers expect? Include testimonials, metrics, and proof points.*
 
 ---
 
 ## Call to Action
-[Clear next steps for your audience]
+Clear next steps for your audience.
 
-**PLS Guidance:** Make it easy for prospects to take the next step. Remove friction and provide clear value for engaging.
+*PLS Guidance: Make it easy for prospects to take the next step. Remove friction and provide clear value for engaging.*
 
 ---
 
-*This template follows Frayma's Product-Led Storytelling approach and 3Rs Formula for maximum narrative impact.*`;
+*This template follows Product-Led Storytelling approach and 3Rs Formula for maximum narrative impact.*`;
 }

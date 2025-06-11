@@ -88,13 +88,20 @@ const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
   }, [selectedClientId, user]);
 
   const handleCreateDraft = () => {
-    // Open the PLS-focused Text Editor instead of creating empty draft
+    // Open the PLS-focused Text Editor for creating new drafts
     console.log('📝 Opening PLS-focused Text Editor for new draft');
     setShowPLSEditor(true);
   };
 
   const handlePLSEditorSave = async (updatedContent: string) => {
     if (!user || !selectedClientId) return;
+
+    // Only save if content is substantial and different from template
+    const templateStart = '# Your GTM Narrative Draft';
+    if (!updatedContent.trim() || updatedContent.startsWith(templateStart)) {
+      console.log('💾 Skipping save - content is empty or unchanged template');
+      return;
+    }
 
     try {
       const newDraftData = {
@@ -224,6 +231,37 @@ const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
     }
   };
 
+  // Function to clear all drafts for current client
+  const handleClearAllDrafts = async () => {
+    if (!user || !selectedClientId) return;
+    
+    if (!confirm('Are you sure you want to delete ALL drafts for this client? This action cannot be undone.')) return;
+
+    try {
+      const { error } = await supabase
+        .from('drafts')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('client_id', selectedClientId);
+
+      if (error) throw error;
+
+      setDrafts([]);
+      
+      toast({
+        title: "All Drafts Deleted",
+        description: "All drafts have been successfully deleted.",
+      });
+    } catch (error) {
+      console.error('Failed to delete all drafts:', error);
+      toast({
+        title: "Error Deleting Drafts",
+        description: "Failed to delete all drafts.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // If showing PLS Editor, render it
   if (showPLSEditor) {
     return (
@@ -258,7 +296,11 @@ const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
 
   return (
     <Card className="w-full bg-white shadow-md">
-      <DraftsHeader onCreateDraft={handleCreateDraft} />
+      <DraftsHeader 
+        onCreateDraft={handleCreateDraft}
+        onClearAllDrafts={handleClearAllDrafts}
+        draftsCount={drafts.length}
+      />
       <CardContent>
         <DraftsList
           drafts={drafts}
