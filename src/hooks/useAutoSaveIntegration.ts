@@ -20,10 +20,19 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
   const [availableDrafts, setAvailableDrafts] = useState<any[]>([]);
 
+  const autoSaveKey = `${config.contentType}_${config.clientId || 'default'}_${config.authorId || 'default'}`;
+  
   const autoSave = useAutoSave({
-    contentType: config.contentType,
-    clientId: config.clientId,
-    authorId: config.authorId
+    key: autoSaveKey,
+    data: {
+      title,
+      content,
+      contentType: config.contentType,
+      clientId: config.clientId,
+      authorId: config.authorId
+    },
+    enabled: Boolean(content.trim() || title.trim()),
+    debounceMs: 2000
   });
 
   // Watch for content changes from parent component
@@ -50,54 +59,20 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
     }
   }, [config.initialTitle, title]);
 
-  // Auto-save when content changes - use immediate save for generated content
-  useEffect(() => {
-    console.log('💾 Auto-save effect triggered:', {
-      hasTitle: !!title.trim(),
-      hasContent: !!content.trim(),
-      contentLength: content.length,
-      contentType: config.contentType,
-      contentPreview: content ? content.substring(0, 50) + '...' : 'empty'
-    });
-
-    if (content.trim()) {
-      // Generate a title if one doesn't exist
-      const autoTitle = title.trim() || `${config.contentType} - ${new Date().toLocaleDateString()}`;
-      
-      const draftData = {
-        title: autoTitle,
-        content,
-        contentType: config.contentType,
-        clientId: config.clientId,
-        authorId: config.authorId
-      };
-
-      console.log('💾 Triggering immediate save for generated content');
-      // Use immediate save for newly generated content to avoid delays
-      autoSave.saveImmediately(draftData).then((result) => {
-        if (result !== null) {
-          console.log('✅ Content auto-saved successfully');
-        }
-      }).catch((error) => {
-        console.error('❌ Immediate save failed:', error);
-      });
-    }
-  }, [content, title, config.contentType, config.clientId, config.authorId, autoSave]);
-
   // Load available drafts on mount
   const loadAvailableDrafts = useCallback(async () => {
     try {
-      const drafts = await autoSave.loadDrafts();
-      setAvailableDrafts(drafts);
+      console.log('📝 Loading available drafts...');
+      setAvailableDrafts(autoSave.availableDrafts || []);
       
       // Auto-show restore dialog if there are drafts and current content is empty
-      if (drafts.length > 0 && !title.trim() && !content.trim()) {
+      if (autoSave.availableDrafts && autoSave.availableDrafts.length > 0 && !title.trim() && !content.trim()) {
         setShowRestoreDialog(true);
       }
     } catch (error) {
       console.error('❌ Failed to load drafts:', error);
     }
-  }, [autoSave.loadDrafts, title, content]);
+  }, [autoSave.availableDrafts, title, content]);
 
   useEffect(() => {
     loadAvailableDrafts();
@@ -105,14 +80,13 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
 
   const handleRestoreDraft = useCallback((draft: any) => {
     console.log('🔄 Restoring draft:', { draftId: draft.id, title: draft.title });
-    setTitle(draft.title);
-    setContent(draft.content);
-    autoSave.setCurrentDraftId(draft.id);
+    setTitle(draft.title || '');
+    setContent(draft.content || '');
     
     if (config.onDraftRestored) {
-      config.onDraftRestored(draft.title, draft.content);
+      config.onDraftRestored(draft.title || '', draft.content || '');
     }
-  }, [autoSave.setCurrentDraftId, config.onDraftRestored]);
+  }, [config.onDraftRestored]);
 
   const handleDeleteDraft = useCallback(async (draftId: string) => {
     if (!user) return;
@@ -132,10 +106,10 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
 
   const clearCurrentDraft = useCallback(async () => {
     console.log('🗑️ Clearing current draft');
-    await autoSave.clearDraft();
+    autoSave.clearCurrentDraft();
     setTitle('');
     setContent('');
-  }, [autoSave.clearDraft]);
+  }, [autoSave]);
 
   return {
     title,
@@ -146,7 +120,7 @@ export const useAutoSaveIntegration = (config: AutoSaveIntegrationConfig) => {
     lastSaved: autoSave.lastSaved,
     showRestoreDialog,
     setShowRestoreDialog,
-    availableDrafts,
+    availableDrafts: autoSave.availableDrafts,
     handleRestoreDraft,
     handleDeleteDraft,
     clearCurrentDraft,

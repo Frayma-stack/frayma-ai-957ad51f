@@ -155,21 +155,24 @@ export const useShortFormContentCreator = ({
     wordCount,
     emailCount,
     additionalContext,
-    triggerInput
+    triggerInput,
+    setIsGenerating,
+    setGeneratedContent,
+    isFormValid,
+    getSelectedIdea
   });
 
   const generateContent = useCallback(async () => {
     setIsGenerating(true);
     try {
-      const content = await performGeneration(getSelectedIdea);
-      setGeneratedContent(content);
+      await performGeneration();
     } catch (error) {
       console.error('Content generation failed:', error);
       setGeneratedContent('');
     } finally {
       setIsGenerating(false);
     }
-  }, [performGeneration, getSelectedIdea]);
+  }, [performGeneration, setGeneratedContent]);
 
   return {
     // State

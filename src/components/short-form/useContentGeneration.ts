@@ -23,6 +23,10 @@ interface UseContentGenerationProps {
   emailCount: number;
   additionalContext: string;
   triggerInput: string;
+  setIsGenerating: (value: boolean) => void;
+  setGeneratedContent: (content: string) => void;
+  isFormValid: () => boolean;
+  getSelectedIdea: () => GeneratedIdea | null;
 }
 
 export const useContentGeneration = ({
@@ -33,12 +37,18 @@ export const useContentGeneration = ({
   narrativeSelections,
   selectedICP,
   selectedAuthor,
+  selectedAuthorTone,
+  selectedAuthorExperience,
   selectedSuccessStory,
   contentGoal,
   wordCount,
   emailCount,
   additionalContext,
-  triggerInput
+  triggerInput,
+  setIsGenerating,
+  setGeneratedContent,
+  isFormValid,
+  getSelectedIdea
 }: UseContentGenerationProps) => {
   const {
     getSelectedICPScript,
@@ -64,6 +74,9 @@ export const useContentGeneration = ({
     contentType,
     selectedICP,
     selectedAuthor,
+    selectedAuthorTone,
+    selectedAuthorExperience,
+    selectedSuccessStory,
     contentGoal,
     wordCount,
     emailCount,
@@ -72,11 +85,15 @@ export const useContentGeneration = ({
     scripts,
     authors,
     successStories,
-    narrativeSelections
+    narrativeSelections,
+    setIsGenerating,
+    setGeneratedContent,
+    isFormValid,
+    getSelectedIdea
   });
 
-  const generateContent = useCallback(async (getSelectedIdea?: () => GeneratedIdea | null) => {
-    return await performGeneration(getSelectedIdea);
+  const generateContent = useCallback(async () => {
+    return await performGeneration();
   }, [performGeneration]);
 
   return {
