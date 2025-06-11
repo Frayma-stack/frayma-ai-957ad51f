@@ -9,6 +9,7 @@ import DraftsHeader from './DraftsHeader';
 import DraftsList from './DraftsList';
 import ClientSelectionPrompt from './ClientSelectionPrompt';
 import LoadingState from './LoadingState';
+import { ContentEditorWithFrayma } from '@/components/content-editor/ContentEditorWithFrayma';
 
 interface Draft {
   id: string;
@@ -34,6 +35,7 @@ const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingDraft, setEditingDraft] = useState<Draft | null>(null);
+  const [showPLSEditor, setShowPLSEditor] = useState(false);
 
   // Load drafts from Supabase
   useEffect(() => {
@@ -85,14 +87,20 @@ const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
     loadDrafts();
   }, [selectedClientId, user]);
 
-  const handleCreateDraft = async () => {
+  const handleCreateDraft = () => {
+    // Open the PLS-focused Text Editor instead of creating empty draft
+    console.log('📝 Opening PLS-focused Text Editor for new draft');
+    setShowPLSEditor(true);
+  };
+
+  const handlePLSEditorSave = async (updatedContent: string) => {
     if (!user || !selectedClientId) return;
 
     try {
       const newDraftData = {
-        title: 'New Draft',
-        content_type: 'custom',
-        content: '',
+        title: `New Draft - ${new Date().toLocaleDateString()}`,
+        content_type: 'gtm-narrative',
+        content: updatedContent,
         status: 'draft',
         client_id: selectedClientId,
         user_id: user.id,
@@ -123,20 +131,23 @@ const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
       };
 
       setDrafts(prev => [newDraft, ...prev]);
-      setEditingDraft(newDraft);
 
       toast({
-        title: "Draft Created",
-        description: "New draft has been created and is ready for editing.",
+        title: "Draft Saved",
+        description: "Your draft has been created and saved successfully.",
       });
     } catch (error) {
-      console.error('Failed to create draft:', error);
+      console.error('Failed to save draft:', error);
       toast({
-        title: "Error Creating Draft",
-        description: "Failed to create a new draft.",
+        title: "Error Saving Draft",
+        description: "Failed to save your draft.",
         variant: "destructive",
       });
     }
+  };
+
+  const handleBackFromPLSEditor = () => {
+    setShowPLSEditor(false);
   };
 
   const handleEditDraft = (draftId: string) => {
@@ -212,6 +223,19 @@ const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
       });
     }
   };
+
+  // If showing PLS Editor, render it
+  if (showPLSEditor) {
+    return (
+      <ContentEditorWithFrayma
+        initialContent=""
+        contentType="gtm-narrative"
+        contentTypeLabel="GTM Narrative Draft"
+        onBack={handleBackFromPLSEditor}
+        onContentChange={handlePLSEditorSave}
+      />
+    );
+  }
 
   // If editing a draft, show the editor
   if (editingDraft) {
