@@ -1,12 +1,20 @@
 
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
-import './index.css';
+import { StrictMode, useEffect } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App.tsx";
+import "./index.css";
+import { cleanupLocalStorage } from './utils/localStorageCleanup';
 
-const container = document.getElementById('root');
-if (!container) throw new Error('Failed to find the root element');
-const root = createRoot(container);
+// Clean up localStorage on app startup
+cleanupLocalStorage();
+
+const rootElement = document.getElementById("root");
+if (!rootElement) throw new Error("Failed to find the root element");
+
+const root = createRoot(rootElement);
+
 root.render(
-  <App />
+  <StrictMode>
+    <App />
+  </StrictMode>
 );
