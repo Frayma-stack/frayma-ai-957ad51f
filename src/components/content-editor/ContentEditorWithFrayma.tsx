@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { FraymaEditor } from '@/components/frayma-editor/FraymaEditor';
 import { FraymaDocument, UserRole, NarrativeAnchor } from '@/components/frayma-editor/types';
@@ -32,6 +31,7 @@ export const ContentEditorWithFrayma: React.FC<ContentEditorWithFraymaProps> = (
         id: 'problem-solution-fit',
         type: 'pain',
         content: 'Connect customer pain points to your solution',
+        selected: false,
         strength: 0.8,
         resonanceFactors: ['pain_point', 'solution_clarity'],
         isLocked: false
@@ -40,6 +40,7 @@ export const ContentEditorWithFrayma: React.FC<ContentEditorWithFraymaProps> = (
         id: 'customer-journey',
         type: 'transformation', 
         content: 'Map the transformation story from before to after',
+        selected: false,
         strength: 0.7,
         resonanceFactors: ['transformation', 'journey'],
         isLocked: false
@@ -48,6 +49,7 @@ export const ContentEditorWithFrayma: React.FC<ContentEditorWithFraymaProps> = (
         id: 'value-demonstration',
         type: 'belief',
         content: 'Show concrete value and outcomes',
+        selected: false,
         strength: 0.9,
         resonanceFactors: ['value_prop', 'outcomes'],
         isLocked: false
@@ -56,6 +58,7 @@ export const ContentEditorWithFrayma: React.FC<ContentEditorWithFraymaProps> = (
         id: 'social-proof',
         type: 'belief',
         content: 'Include testimonials and success metrics',
+        selected: false,
         strength: 0.8,
         resonanceFactors: ['credibility', 'proof'],
         isLocked: false
