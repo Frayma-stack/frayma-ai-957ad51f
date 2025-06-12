@@ -1,38 +1,43 @@
-
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Users, Calendar, CreditCard } from 'lucide-react';
-import { useSubscription } from '@/contexts/SubscriptionContext';
-import { format } from 'date-fns';
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Users, Calendar, CreditCard } from "lucide-react";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { format } from "date-fns";
 
 export const SubscriptionStatus = () => {
-  const { 
-    subscribed, 
-    subscription_tier, 
-    subscription_end, 
-    max_users, 
+  const {
+    subscribed,
+    subscription_tier,
+    subscription_end,
+    max_users,
     openCustomerPortal,
     checkSubscription,
-    loading 
+    loading,
   } = useSubscription();
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A';
-    return format(new Date(dateString), 'PPP');
+    if (!dateString) return "N/A";
+    return format(new Date(dateString), "PPP");
   };
 
   const getTierColor = (tier: string) => {
     switch (tier) {
-      case 'Narrative Starter':
-        return 'bg-blue-500';
-      case 'Narrative Pro':
-        return 'bg-purple-500';
-      case 'Narrative Scale':
-        return 'bg-amber-500';
+      case "Narrative Starter":
+        return "bg-blue-500";
+      case "Narrative Pro":
+        return "bg-purple-500";
+      case "Narrative Scale":
+        return "bg-amber-500";
       default:
-        return 'bg-gray-500';
+        return "bg-gray-500";
     }
   };
 
@@ -55,13 +60,15 @@ export const SubscriptionStatus = () => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              Subscription Status
+              Popular Subscription
               <Badge className={getTierColor(subscription_tier)}>
-                {subscription_tier === 'free' ? 'Free' : subscription_tier}
+                {subscription_tier === "free"
+                  ? "Narrative Pro"
+                  : subscription_tier}
               </Badge>
             </CardTitle>
             <CardDescription>
-              {subscribed ? 'Active subscription' : 'Free tier'}
+              {subscribed ? "Active subscription" : "Narrative Pro"}
             </CardDescription>
           </div>
           <Button
@@ -70,7 +77,7 @@ export const SubscriptionStatus = () => {
             onClick={checkSubscription}
             disabled={loading}
           >
-            Refresh
+            Start 7-day free trial
           </Button>
         </div>
       </CardHeader>
@@ -83,17 +90,19 @@ export const SubscriptionStatus = () => {
               <p className="text-xs text-gray-600">Up to {max_users} users</p>
             </div>
           </div>
-          
+
           {subscription_end && (
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-gray-500" />
               <div>
                 <p className="text-sm font-medium">Next Billing</p>
-                <p className="text-xs text-gray-600">{formatDate(subscription_end)}</p>
+                <p className="text-xs text-gray-600">
+                  {formatDate(subscription_end)}
+                </p>
               </div>
             </div>
           )}
-          
+
           {subscribed && (
             <div className="flex items-center gap-2">
               <CreditCard className="h-4 w-4 text-gray-500" />

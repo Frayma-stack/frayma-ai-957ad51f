@@ -1,5 +1,4 @@
-
-import { FC, createContext, useContext, useState, useEffect } from 'react';
+import { FC, createContext, useContext, useState, useEffect } from "react";
 
 interface OnboardingContextType {
   isOnboarding: boolean;
@@ -11,12 +10,14 @@ interface OnboardingContextType {
   skipOnboarding: () => void;
 }
 
-const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
+const OnboardingContext = createContext<OnboardingContextType | undefined>(
+  undefined
+);
 
 export const useOnboarding = () => {
   const context = useContext(OnboardingContext);
   if (!context) {
-    throw new Error('useOnboarding must be used within an OnboardingProvider');
+    throw new Error("useOnboarding must be used within an OnboardingProvider");
   }
   return context;
 };
@@ -25,17 +26,20 @@ interface OnboardingProviderProps {
   children: React.ReactNode;
 }
 
-export const OnboardingProvider: FC<OnboardingProviderProps> = ({ children }) => {
+export const OnboardingProvider: FC<OnboardingProviderProps> = ({
+  children,
+}) => {
   const [isOnboarding, setIsOnboarding] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
 
   useEffect(() => {
     // Check if user has completed onboarding
-    const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
-    const hasAnyData = localStorage.getItem('authors') || 
-                     localStorage.getItem('clients') || 
-                     localStorage.getItem('icpScripts');
+    const hasCompletedOnboarding = localStorage.getItem("onboarding_completed");
+    const hasAnyData =
+      localStorage.getItem("authors") ||
+      localStorage.getItem("clients") ||
+      localStorage.getItem("icpScripts");
 
     // Start onboarding if user hasn't completed it and has no data
     if (!hasCompletedOnboarding && !hasAnyData) {
@@ -58,12 +62,12 @@ export const OnboardingProvider: FC<OnboardingProviderProps> = ({ children }) =>
 
   const completeOnboarding = () => {
     setIsOnboarding(false);
-    localStorage.setItem('onboarding_completed', 'true');
+    localStorage.setItem("onboarding_completed", "true");
   };
 
   const skipOnboarding = () => {
     setIsOnboarding(false);
-    localStorage.setItem('onboarding_completed', 'true');
+    localStorage.setItem("onboarding_completed", "true");
   };
 
   return (

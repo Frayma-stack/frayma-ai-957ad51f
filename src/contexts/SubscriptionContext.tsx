@@ -9,6 +9,7 @@ interface SubscriptionState {
   subscription_end: string | null;
   max_users: number;
   loading: boolean;
+  is_trial: boolean;
 }
 
 interface SubscriptionContextType extends SubscriptionState {
@@ -45,16 +46,18 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
     subscription_end: null,
     max_users: 1,
     loading: true,
+    is_trial: false,
   });
 
   const checkSubscription = async () => {
     if (!user || !session) {
       setState({
         subscribed: false,
-        subscription_tier: "free",
+        subscription_tier: "Narrative Pro",
         subscription_end: null,
         max_users: 1,
         loading: false,
+        is_trial: false,
       });
       return;
     }
@@ -79,6 +82,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
         subscription_end: data.subscription_end || null,
         max_users: data.max_users || 1,
         loading: false,
+        is_trial: data.is_trial || false,
       });
     } catch (error) {
       console.error("Error checking subscription:", error);
@@ -88,6 +92,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
         subscription_end: null,
         max_users: 1,
         loading: false,
+        is_trial: false,
       });
     }
   };
@@ -102,7 +107,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
       const { data, error } = await supabase.functions.invoke(
         "create-checkout",
         {
-          body: { priceId },
+          body: { priceId, trial_period_days: 3 },
           headers: {
             Authorization: `Bearer ${session.access_token}`,
           },
@@ -147,20 +152,22 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
 
   // Check subscription on auth state change
   useEffect(() => {
+    console.log("Calling this bastered", user);
     if (user) {
       checkSubscription();
 
       // Set up periodic check (every 30 seconds)
-      const interval = setInterval(checkSubscription, 30000);
-      return () => clearInterval(interval);
+      // const interval = setInterval(checkSubscription, 30000);
+      // return () => clearInterval(interval);
     } else {
-      setState({
-        subscribed: false,
-        subscription_tier: "free",
-        subscription_end: null,
-        max_users: 1,
-        loading: false,
-      });
+      // setState({
+      //   subscribed: false,
+      //   subscription_tier: "free",
+      //   subscription_end: null,
+      //   max_users: 5,
+      //   loading: false,
+      //   is_trial: false,
+      // });
     }
   }, [user, session]);
 
