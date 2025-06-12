@@ -1,8 +1,7 @@
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface SubscriptionState {
   subscribed: boolean;
@@ -10,6 +9,7 @@ interface SubscriptionState {
   subscription_end: string | null;
   max_users: number;
   loading: boolean;
+  is_trial: boolean;
 }
 
 interface SubscriptionContextType extends SubscriptionState {
@@ -18,12 +18,16 @@ interface SubscriptionContextType extends SubscriptionState {
   openCustomerPortal: () => Promise<void>;
 }
 
-const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
+const SubscriptionContext = createContext<SubscriptionContextType | undefined>(
+  undefined
+);
 
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (context === undefined) {
-    throw new Error('useSubscription must be used within a SubscriptionProvider');
+    throw new Error(
+      "useSubscription must be used within a SubscriptionProvider"
+    );
   }
   return context;
 };
@@ -32,135 +36,152 @@ interface SubscriptionProviderProps {
   children: React.ReactNode;
 }
 
-export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ children }) => {
+export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
+  children,
+}) => {
   const { user, session } = useAuth();
   const [state, setState] = useState<SubscriptionState>({
     subscribed: false,
-    subscription_tier: 'free',
+    subscription_tier: "free",
     subscription_end: null,
     max_users: 1,
     loading: true,
+    is_trial: false,
   });
 
   const checkSubscription = async () => {
     if (!user || !session) {
       setState({
         subscribed: false,
-        subscription_tier: 'free',
+        subscription_tier: "Narrative Pro",
         subscription_end: null,
         max_users: 1,
         loading: false,
+        is_trial: false,
       });
       return;
     }
 
-    setState(prev => ({ ...prev, loading: true }));
+    setState((prev) => ({ ...prev, loading: true }));
 
     try {
-      const { data, error } = await supabase.functions.invoke('check-subscription', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "check-subscription",
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
 
       if (error) throw error;
 
       setState({
         subscribed: data.subscribed || false,
-        subscription_tier: data.subscription_tier || 'free',
+        subscription_tier: data.subscription_tier || "free",
         subscription_end: data.subscription_end || null,
         max_users: data.max_users || 1,
         loading: false,
+        is_trial: data.is_trial || false,
       });
     } catch (error) {
-      console.error('Error checking subscription:', error);
+      console.error("Error checking subscription:", error);
       setState({
         subscribed: false,
-        subscription_tier: 'free',
+        subscription_tier: "free",
         subscription_end: null,
         max_users: 1,
         loading: false,
+        is_trial: false,
       });
     }
   };
 
   const createCheckoutSession = async (priceId: string) => {
     if (!session) {
-      toast.error('Please sign in to subscribe');
+      toast.error("Please sign in to subscribe");
       return;
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId },
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "create-checkout",
+        {
+          body: { priceId, trial_period_days: 3 },
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
 
       if (error) throw error;
 
       // Open checkout in new tab
-      window.open(data.url, '_blank');
+      window.open(data.url, "_blank");
     } catch (error) {
-      console.error('Error creating checkout session:', error);
-      toast.error('Failed to create checkout session');
+      console.error("Error creating checkout session:", error);
+      toast.error("Failed to create checkout session");
     }
   };
 
   const openCustomerPortal = async () => {
     if (!session) {
-      toast.error('Please sign in to manage subscription');
+      toast.error("Please sign in to manage subscription");
       return;
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke('customer-portal', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "customer-portal",
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
 
       if (error) throw error;
 
       // Open portal in new tab
-      window.open(data.url, '_blank');
+      window.open(data.url, "_blank");
     } catch (error) {
-      console.error('Error opening customer portal:', error);
-      toast.error('Failed to open customer portal');
+      console.error("Error opening customer portal:", error);
+      toast.error("Failed to open customer portal");
     }
   };
 
   // Check subscription on auth state change
   useEffect(() => {
+    console.log("Calling this bastered", user);
     if (user) {
       checkSubscription();
-      
+
       // Set up periodic check (every 30 seconds)
-      const interval = setInterval(checkSubscription, 30000);
-      return () => clearInterval(interval);
+      // const interval = setInterval(checkSubscription, 30000);
+      // return () => clearInterval(interval);
     } else {
-      setState({
-        subscribed: false,
-        subscription_tier: 'free',
-        subscription_end: null,
-        max_users: 1,
-        loading: false,
-      });
+      // setState({
+      //   subscribed: false,
+      //   subscription_tier: "free",
+      //   subscription_end: null,
+      //   max_users: 5,
+      //   loading: false,
+      //   is_trial: false,
+      // });
     }
   }, [user, session]);
 
   // Listen for URL changes to detect successful checkout
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('success') === 'true') {
-      toast.success('Subscription activated successfully!');
+    if (urlParams.get("success") === "true") {
+      toast.success("Subscription activated successfully!");
       checkSubscription();
       // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-    if (urlParams.get('canceled') === 'true') {
-      toast.error('Subscription was canceled');
+    if (urlParams.get("canceled") === "true") {
+      toast.error("Subscription was canceled");
       // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -173,5 +194,9 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
     openCustomerPortal,
   };
 
-  return <SubscriptionContext.Provider value={value}>{children}</SubscriptionContext.Provider>;
+  return (
+    <SubscriptionContext.Provider value={value}>
+      {children}
+    </SubscriptionContext.Provider>
+  );
 };

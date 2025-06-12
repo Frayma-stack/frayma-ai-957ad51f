@@ -44,6 +44,8 @@ export const useAuthHandlers = () => {
         options: {
           data: {
             full_name: fullName,
+            is_premium: false,
+            is_trial: false,
           },
         },
       });

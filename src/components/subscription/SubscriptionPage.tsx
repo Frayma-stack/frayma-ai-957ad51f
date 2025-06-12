@@ -1,8 +1,13 @@
-
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { SubscriptionStatus } from './SubscriptionStatus';
-import { SubscriptionPlans } from './SubscriptionPlans';
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { SubscriptionStatus } from "./SubscriptionStatus";
+import { SubscriptionPlans } from "./SubscriptionPlans";
 
 export const SubscriptionPage = () => {
   return (
@@ -10,17 +15,19 @@ export const SubscriptionPage = () => {
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold">Subscription Plans</h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Choose the perfect plan for your team's storytelling needs. 
-          Upgrade or downgrade at any time with no long-term commitments.
+          Choose the perfect plan for your team's storytelling needs. Upgrade or
+          downgrade at any time with no long-term commitments.
         </p>
       </div>
 
-      <SubscriptionStatus />
+      {/* <SubscriptionStatus /> */}
 
       <div className="space-y-4">
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-2">Available Plans</h2>
-          <p className="text-gray-600">All plans include our core storytelling features</p>
+          <p className="text-gray-600">
+            All plans include our core storytelling features
+          </p>
         </div>
         <SubscriptionPlans />
       </div>
@@ -34,10 +41,13 @@ export const SubscriptionPage = () => {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-600">
-            Contact our support team at{' '}
-            <a href="mailto:support@frayma.ai" className="text-blue-600 hover:underline">
+            Contact our support team at{" "}
+            <a
+              href="mailto:support@frayma.ai"
+              className="text-blue-600 hover:underline"
+            >
               support@frayma.ai
-            </a>{' '}
+            </a>{" "}
             for assistance with your subscription.
           </p>
         </CardContent>

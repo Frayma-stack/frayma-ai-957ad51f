@@ -1,5 +1,6 @@
-
-import { FC, createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { FC, createContext, useContext, useState, useEffect } from "react";
 
 interface OnboardingContextType {
   isOnboarding: boolean;
@@ -11,12 +12,14 @@ interface OnboardingContextType {
   skipOnboarding: () => void;
 }
 
-const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
+const OnboardingContext = createContext<OnboardingContextType | undefined>(
+  undefined
+);
 
 export const useOnboarding = () => {
   const context = useContext(OnboardingContext);
   if (!context) {
-    throw new Error('useOnboarding must be used within an OnboardingProvider');
+    throw new Error("useOnboarding must be used within an OnboardingProvider");
   }
   return context;
 };
@@ -25,45 +28,47 @@ interface OnboardingProviderProps {
   children: React.ReactNode;
 }
 
-export const OnboardingProvider: FC<OnboardingProviderProps> = ({ children }) => {
+export const OnboardingProvider: FC<OnboardingProviderProps> = ({
+  children,
+}) => {
+  const { user, getProfile, updateProfile } = useAuth();
+
   const [isOnboarding, setIsOnboarding] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
 
   useEffect(() => {
-    // Check if user has completed onboarding
-    const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
-    const hasAnyData = localStorage.getItem('authors') || 
-                     localStorage.getItem('clients') || 
-                     localStorage.getItem('icpScripts');
-
     // Start onboarding if user hasn't completed it and has no data
-    if (!hasCompletedOnboarding && !hasAnyData) {
-      setIsOnboarding(true);
-    }
-  }, []);
+    getProfile(user.email).then(({ hasCompletedOnboarding }) => {
+      if (!hasCompletedOnboarding) setIsOnboarding(true);
+    });
+  }, [user]);
 
   const startOnboarding = () => {
     setIsOnboarding(true);
     setCurrentStep(1);
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      completeOnboarding();
+      await completeOnboarding();
     }
   };
 
-  const completeOnboarding = () => {
+  const completeOnboarding = async () => {
     setIsOnboarding(false);
-    localStorage.setItem('onboarding_completed', 'true');
+    await updateProfile(user.email, {
+      hasCompletedOnboarding: true,
+    });
   };
 
-  const skipOnboarding = () => {
+  const skipOnboarding = async () => {
     setIsOnboarding(false);
-    localStorage.setItem('onboarding_completed', 'true');
+    await updateProfile(user.email, {
+      hasCompletedOnboarding: true,
+    });
   };
 
   return (

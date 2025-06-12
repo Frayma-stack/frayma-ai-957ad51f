@@ -30,6 +30,9 @@ const Auth = () => {
   const onSignUp = (e: React.FormEvent) => {
     e.preventDefault();
     handleSignUp(email, password, fullName);
+    // handleSignIn(email, password);
+    // Redirect to Subscription
+    // navigate("/subscription");
   };
 
   if (user) {
