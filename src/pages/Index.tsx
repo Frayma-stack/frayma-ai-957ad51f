@@ -115,13 +115,6 @@ const Index = () => {
 
   if (!user) return navigate("/auth");
 
-  console.log(
-    !sloading && (!subscribed || !is_trial),
-    sloading,
-    subscribed,
-    is_trial
-  );
-
   if (!sloading && (!subscribed || !is_trial)) return navigate("/subscription");
 
   return (
