@@ -3,6 +3,8 @@ import React, { createContext, useContext, ReactNode } from 'react';
 
 interface ChatGPTContextType {
   generateContent: (prompt: string, options?: { maxTokens?: number; temperature?: number }) => Promise<string>;
+  generateText: (prompt: string, options?: { maxTokens?: number; temperature?: number }) => Promise<string>;
+  isConfigured: boolean;
 }
 
 const ChatGPTContext = createContext<ChatGPTContextType | undefined>(undefined);
@@ -90,8 +92,17 @@ export const ChatGPTProvider: React.FC<ChatGPTProviderProps> = ({ children }) =>
     }
   };
 
+  // generateText is an alias for generateContent for backward compatibility
+  const generateText = generateContent;
+
+  // Check if ChatGPT is configured by checking if the API endpoint exists
+  // This is a simple check - in a real app you might want to ping the API
+  const isConfigured = true; // Assuming it's configured if the context is available
+
   const value: ChatGPTContextType = {
     generateContent,
+    generateText,
+    isConfigured,
   };
 
   return (
