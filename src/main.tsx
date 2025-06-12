@@ -3,9 +3,11 @@ import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import { cleanupLocalStorage } from './utils/localStorageCleanup';
+import { cleanupLocalStorage, forceCleanProblematicEntries } from './utils/localStorageCleanup';
 
-// Clean up localStorage on app startup
+// Comprehensive localStorage cleanup on app startup
+console.log('🚀 Application starting - performing localStorage cleanup');
+forceCleanProblematicEntries();
 cleanupLocalStorage();
 
 const rootElement = document.getElementById("root");
