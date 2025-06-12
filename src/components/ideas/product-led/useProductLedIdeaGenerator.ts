@@ -151,26 +151,60 @@ Avoid fluff. Think like a narrative strategist guiding a category-defining found
 
     setIsGenerating(true);
     try {
-      const prompt = buildPrompt();
-      const response = await generateContent(prompt);
+      console.log('💡 Starting idea generation process...');
       
-      if (response) {
-        const ideas = response.split(/(?=Title[\s\-–:]+)/i).filter(idea => idea.trim() !== '');
-        setGeneratedIdeas(ideas);
-        setShowIdeasViewer(true);
-        
-        toast({
-          title: "Ideas Generated",
-          description: `Generated ${ideas.length} Product-Led Storytelling ideas.`,
-        });
-      } else {
-        throw new Error('No response received');
+      const prompt = buildPrompt();
+      console.log('💡 Built prompt with length:', prompt.length);
+      
+      const response = await generateContent(prompt);
+      console.log('💡 Received response:', response ? 'Success' : 'Empty response');
+      
+      if (!response || typeof response !== 'string') {
+        console.error('💡 Invalid response received:', response);
+        throw new Error('Invalid response received from content generation');
       }
+
+      if (response.trim() === '') {
+        console.error('💡 Empty response content');
+        throw new Error('Empty content received from generation');
+      }
+      
+      const ideas = response.split(/(?=Title[\s\-–:]+)/i).filter(idea => idea.trim() !== '');
+      console.log('💡 Parsed ideas count:', ideas.length);
+      
+      if (ideas.length === 0) {
+        throw new Error('No valid ideas could be parsed from the response');
+      }
+      
+      setGeneratedIdeas(ideas);
+      setShowIdeasViewer(true);
+      
+      toast({
+        title: "Ideas Generated",
+        description: `Generated ${ideas.length} Product-Led Storytelling ideas.`,
+      });
+      
     } catch (error) {
-      console.error("Error generating ideas:", error);
+      console.error("💡 Error generating ideas:", error);
+      
+      // Provide specific error messages based on the error type
+      let errorMessage = "Failed to generate ideas. Please try again.";
+      
+      if (error instanceof Error) {
+        if (error.message.includes('API request failed')) {
+          errorMessage = "API connection failed. Please check your internet connection and try again.";
+        } else if (error.message.includes('Empty response')) {
+          errorMessage = "No content was generated. Please try rephrasing your trigger or reducing the complexity.";
+        } else if (error.message.includes('JSON')) {
+          errorMessage = "Response parsing failed. Please try again or contact support if the issue persists.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         title: "Generation Failed",
-        description: "Failed to generate ideas. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
