@@ -1,175 +1,290 @@
 
+import { useChatGPT } from '@/contexts/ChatGPTContext';
 import { ICPStoryScript, Author, CustomerSuccessStory } from '@/types/storytelling';
-import { GeneratedIdea } from '@/types/ideas';
 import { ContentGoal } from '../types';
 
-interface UseEmailContentGeneratorProps {
+interface EmailGeneratorProps {
+  selectedICP: string;
+  selectedAuthor: string;
   selectedAuthorTone: string;
   selectedAuthorExperience: string;
-  additionalContext: string;
-  emailCount: number;
+  selectedSuccessStory: string;
+  narrativeSelections: any[];
   contentGoal: ContentGoal;
+  emailCount: number;
+  additionalContext: string;
   triggerInput: string;
-  getAuthorTones: () => any[];
-  getAuthorExperiences: () => any[];
-  getSelectedNarrativeContents: () => string[];
+  scripts: ICPStoryScript[];
+  authors: Author[];
+  successStories: CustomerSuccessStory[];
+  setIsGenerating: (value: boolean) => void;
+  setGeneratedContent: (content: string) => void;
 }
 
-export const useEmailContentGenerator = ({
-  selectedAuthorTone,
-  selectedAuthorExperience,
-  additionalContext,
-  emailCount,
-  contentGoal,
-  triggerInput,
-  getAuthorTones,
-  getAuthorExperiences,
-  getSelectedNarrativeContents
-}: UseEmailContentGeneratorProps) => {
-  const generateEmailContent = (
-    script: ICPStoryScript | undefined, 
-    author: Author, 
-    successStory?: CustomerSuccessStory | undefined, 
-    selectedIdea?: GeneratedIdea | null,
-    customTrigger?: string
-  ) => {
-    let content = "";
-    
-    // Use custom trigger if provided, otherwise use saved idea or narrative content
-    const trigger = customTrigger || triggerInput;
-    
-    if (trigger || selectedIdea) {
-      // Enhanced email generation based on trigger or saved idea
-      const subject = selectedIdea?.title || "Insight worth sharing";
-      content = `Subject: ${subject}\n\n`;
-      content += `Hi {{First Name}},\n\n`;
-      
-      // Add personalized opening based on author context
-      if (selectedAuthorTone || selectedAuthorExperience) {
-        content += "I was reflecting on ";
-        
-        if (selectedAuthorExperience) {
-          const experience = getAuthorExperiences().find(exp => exp.id === selectedAuthorExperience);
-          if (experience) {
-            content += `my experience in ${experience.title} `;
-          }
-        }
-        
-        content += "and wanted to share an insight that might be valuable for you.\n\n";
-      }
-      
-      // Use trigger input or idea narrative
-      if (trigger) {
-        content += `${trigger}\n\n`;
-      } else if (selectedIdea?.narrative) {
-        content += `${selectedIdea.narrative}\n\n`;
-      }
-      
-      // Add ICP-specific context
-      if (script) {
-        content += `I know that as a ${script.name} professional, you're likely dealing with similar challenges.\n\n`;
-      }
-      
-      // Add product tie-in if from saved idea
-      if (selectedIdea?.productTieIn) {
-        content += `Here's what I've discovered: ${selectedIdea.productTieIn}\n\n`;
-      }
-      
-      if (successStory) {
-        content += `We've helped companies like ${successStory.title} navigate this exact situation. ${successStory.afterSummary}\n\n`;
-        
-        if (successStory.quotes.length > 0) {
-          content += `As their ${successStory.quotes[0].title} put it: "${successStory.quotes[0].quote}"\n\n`;
-        }
-      }
-      
-      // Add CTA based on saved idea or content goal
-      if (selectedIdea?.cta) {
-        content += `${selectedIdea.cta}\n\n`;
-      } else {
-        content += `${contentGoal.type === 'book_call' ? 'Would you be interested in a brief call to discuss how this might apply to your situation?' : 
-        contentGoal.type === 'learn_more' ? 'I\'d be happy to share more details about how this approach works.' : 
-        contentGoal.type === 'try_product' ? 'Would you like to see how this works in practice? I can show you a quick demo.' :
-        'I\'d love to hear your thoughts on this approach.'}\n\n`;
-      }
-    } else {
-      // Original logic for non-idea based content
-      const narrativeContent = getSelectedNarrativeContents();
-      
-      content = `Subject: Quick question about ${script?.name || 'your'} challenges\n\n`;
-      content += `Hi {{First Name}},\n\n`;
-      content += `I was looking at your recent work at {{Company}} and noticed you're focused on improving your team's ${script?.name.toLowerCase() || 'operations'}.\n\n`;
-      
-      if (selectedAuthorTone || selectedAuthorExperience) {
-        content += "As someone ";
-        
-        if (selectedAuthorExperience) {
-          const experience = getAuthorExperiences().find(exp => exp.id === selectedAuthorExperience);
-          if (experience) {
-            content += `with experience in ${experience.title}, `;
-          }
-        }
-        
-        if (selectedAuthorTone) {
-          const tone = getAuthorTones().find(t => t.id === selectedAuthorTone);
-          if (tone) {
-            content += `who communicates in a ${tone.tone} manner, `;
-          }
-        }
-        
-        content += "I wanted to reach out personally.\n\n";
-      }
-      
-      if (narrativeContent.length > 0) {
-        content += `${narrativeContent[0]}\n\n`;
-      }
+export const useEmailContentGenerator = () => {
+  const { generateContent } = useChatGPT();
 
-      if (successStory) {
-        content += `We've helped companies like ${successStory.title} overcome this exact challenge. ${successStory.afterSummary}\n\n`;
-      } else {
-        content += `We've helped dozens of ${script?.name || 'similar'} teams overcome this exact challenge. In fact, one client recently [specific result they achieved].\n\n`;
-      }
+  const buildEmailPrompt = (props: EmailGeneratorProps): string => {
+    const script = props.scripts.find(s => s.id === props.selectedICP);
+    const author = props.authors.find(a => a.id === props.selectedAuthor);
+    const successStory = props.successStories.find(s => s.id === props.selectedSuccessStory);
 
-      if (additionalContext && !additionalContext.startsWith('Based on saved idea:')) {
-        content += `${additionalContext}\n\n`;
-      }
+    // Get narrative anchors from selections
+    const beliefNarratives = props.narrativeSelections
+      .filter(sel => sel.type === 'belief')
+      .map(sel => script?.coreBeliefs.find(b => b.id === sel.itemId)?.content)
+      .filter(Boolean);
 
-      content += `Would you be open to a quick 15-minute call to explore how we might be able to help your team too?\n\n`;
+    const painNarratives = props.narrativeSelections
+      .filter(sel => sel.type === 'pain')
+      .map(sel => script?.internalPains.find(p => p.id === sel.itemId)?.content)
+      .filter(Boolean);
+
+    const struggleNarratives = props.narrativeSelections
+      .filter(sel => sel.type === 'struggle')
+      .map(sel => script?.externalStruggles.find(s => s.id === sel.itemId)?.content)
+      .filter(Boolean);
+
+    const transformationNarratives = props.narrativeSelections
+      .filter(sel => sel.type === 'transformation')
+      .map(sel => script?.desiredTransformations.find(t => t.id === sel.itemId)?.content)
+      .filter(Boolean);
+
+    let prompt = `About Product-Led Storytelling (PLS):
+PLS is a B2B content approach that crafts first-person, narrative-led GTM assets that resonate with ICPs by anchoring content on their beliefs, pains, and goals. It uses structured storytelling frameworks (like ICP StoryScripts, StoryBriefs & Outlines, and the 3Rs Formula: Resonance, Relevance, Results) to subtly show, not tell, a product's unique value. The goal is to move readers to feel, think, and act—not through generic how-to's or salesy pitches, but through compelling, point-of-view-driven narratives that match how buyers think and decide.
+
+Using the Product-Led Storytelling approach above, craft a ${props.emailCount}-part cold outbound sales email sequence targeting ${script?.name || 'the target ICP'}`;
+
+    if (script?.demographics) {
+      prompt += `, who fits this description:\nDemographics: ${script.demographics}`;
     }
-    
-    content += `Best regards,\n${author.name}\n`;
-    content += `${author.role ? `${author.role}${author.organization ? `, ${author.organization}` : ''}` : ''}\n\n`;
-    content += `P.S. If you'd prefer to learn more before chatting, here's a case study that might be helpful: [LINK]`;
-    
-    if (emailCount > 1 && !selectedIdea) {
-      const narrativeContent = getSelectedNarrativeContents();
-      for (let i = 1; i < emailCount; i++) {
-        content += `\n\n------- FOLLOW-UP EMAIL ${i} -------\n\n`;
-        
-        content += `Subject: Following up: ${script?.name || 'your'} challenges\n\n`;
-        content += `Hi {{First Name}},\n\n`;
-        
-        if (i === 1) {
-          content += `I wanted to follow up on my previous email about addressing ${script?.name.toLowerCase() || 'your'} challenges.\n\n`;
-          
-          if (narrativeContent.length > i) {
-            content += `${narrativeContent[i]}\n\n`;
-          }
-          
-          content += `I'd love to share how we've helped similar companies overcome these challenges.\n\n`;
-        } else {
-          content += `I hope you've been well since my last message.\n\n`;
-          content += `I understand you're busy, but I wanted to quickly share ${narrativeContent.length > i ? narrativeContent[i] : "another insight that might be valuable for you"}.\n\n`;
-          content += `If any of this resonates with you, I'd be happy to schedule a brief call at your convenience.\n\n`;
-        }
-        
-        content += `Best regards,\n${author.name}\n`;
-        content += `${author.role ? `${author.role}${author.organization ? `, ${author.organization}` : ''}` : ''}`;
+
+    prompt += `\n\nThe emails should resonate with this ICP by addressing the following narrative anchors:`;
+
+    if (beliefNarratives.length > 0) {
+      prompt += `\nBelief: "${beliefNarratives.join('; ')}"`;
+    }
+
+    if (painNarratives.length > 0) {
+      prompt += `\nInternal Pain: "${painNarratives.join('; ')}"`;
+    }
+
+    if (struggleNarratives.length > 0) {
+      prompt += `\nExternal Struggle: "${struggleNarratives.join('; ')}"`;
+    }
+
+    if (transformationNarratives.length > 0) {
+      prompt += `\nDesired Transformation: "${transformationNarratives.join('; ')}"`;
+    }
+
+    if (author) {
+      prompt += `\n\nUse the voice and tone of ${author.name}`;
+      if (author.title) prompt += `, a ${author.title}`;
+      
+      const selectedTone = author.tones?.find(t => t.id === props.selectedAuthorTone);
+      if (selectedTone) {
+        prompt += `, who typically writes in a ${selectedTone.tone} style.`;
+      }
+
+      const selectedExperience = author.experiences?.find(e => e.id === props.selectedAuthorExperience);
+      if (selectedExperience) {
+        prompt += `\nIncorporate the author's lived experience: ${selectedExperience.title} - ${selectedExperience.description}`;
       }
     }
-    
-    return content;
+
+    if (successStory) {
+      prompt += `\n\nUse real proof point to build trust by extracting relevant info from here:\n${successStory.title}: ${successStory.beforeSummary} to ${successStory.afterSummary}`;
+      if (successStory.quotes.length > 0) {
+        prompt += `\nQuote: "${successStory.quotes[0].quote}" - ${successStory.quotes[0].author}`;
+      }
+    }
+
+    prompt += `\n\nThe goal of this sequence is to:\n${props.contentGoal.description}`;
+
+    if (props.additionalContext && !props.additionalContext.startsWith('Based on saved idea:')) {
+      prompt += `\n\nOptional extra context to consider:\n${props.additionalContext}`;
+    }
+
+    if (props.triggerInput) {
+      prompt += `\n\nTrigger/thesis context:\n${props.triggerInput}`;
+    }
+
+    prompt += `\n\nTone + Style Guidelines:
+Keep each email below 125 words. Don't use generic openers like, as a [ICP_NAME], just go straight into the reason for the outreach with a narrative that hooks the ${script?.name || 'target ICP'}.
+Use a mix of first-person and second-person voice where it makes sense, AND always make it sound like a real human (not a marketer or salesperson).
+Each email should feel helpful, not salesy. Think: "thoughtful peer nudging a colleague."
+Start with resonance: Show you get the reader's situation before pitching anything.
+One message per email: Avoid cramming too much in. Focus on one narrative angle per email.
+Vary structure: Make use of short sentences, smart formatting, and conversational flow.
+
+Output Format:
+Return a sequence of ${props.emailCount} cold emails, clearly labeled:
+Email 1 – Subject line:
+Body...
+Email 2 – Subject line:
+Body...
+...and so on.`;
+
+    return prompt;
   };
 
-  return { generateEmailContent };
+  const buildEmailRecraftingPrompt = (
+    props: EmailGeneratorProps,
+    newDirection: string,
+    existingContent: string
+  ): string => {
+    const script = props.scripts.find(s => s.id === props.selectedICP);
+    const author = props.authors.find(a => a.id === props.selectedAuthor);
+    const successStory = props.successStories.find(s => s.id === props.selectedSuccessStory);
+
+    // Get narrative anchors from selections
+    const beliefNarratives = props.narrativeSelections
+      .filter(sel => sel.type === 'belief')
+      .map(sel => script?.coreBeliefs.find(b => b.id === sel.itemId)?.content)
+      .filter(Boolean);
+
+    const painNarratives = props.narrativeSelections
+      .filter(sel => sel.type === 'pain')
+      .map(sel => script?.internalPains.find(p => p.id === sel.itemId)?.content)
+      .filter(Boolean);
+
+    const struggleNarratives = props.narrativeSelections
+      .filter(sel => sel.type === 'struggle')
+      .map(sel => script?.externalStruggles.find(s => s.id === sel.itemId)?.content)
+      .filter(Boolean);
+
+    const transformationNarratives = props.narrativeSelections
+      .filter(sel => sel.type === 'transformation')
+      .map(sel => script?.desiredTransformations.find(t => t.id === sel.itemId)?.content)
+      .filter(Boolean);
+
+    let prompt = `You are Frayma AI, a GTM content engine trained on the Product-Led Storytelling (PLS) approach and the 3Rs Formula: Resonance, Relevance, and Results.
+
+The user previously generated a cold outbound sales email sequence but now requests a complete rewrite using a new direction or narrative point of view. Your task is to:
+
+→ Discard the original narrative framing.  
+→ Recraft the sequence from scratch using the NEW narrative/POV input provided.  
+→ Maintain all other context: ICP, Author voice, Narrative Anchors, Success Story (if provided), CTA, and Tone.  
+→ Keep the final output clear, relevant, and personal—not templated or robotic.
+
+---
+
+📚 About Product-Led Storytelling (PLS):
+PLS is a GTM narrative method that anchors content in the emotional and strategic realities of a target ICP—guiding them to action through a sharp point of view, not polished persuasion. It uses frameworks like ICP StoryScripts, StoryBriefs & Outlines, and the 3Rs Formula to help B2B companies craft GTM content that feels deeply personal.
+
+• **Resonance** = Address beliefs, internal pains, external struggles, and desired transformations.
+• **Relevance** = Educate and guide with lived insight—not tactics.
+• **Results** = End with a believable, motivating invitation to act—without forcing it.
+
+---
+
+🔁 New Narrative / POV Direction (from user):
+Use this as the narrative spine for recrafting the sequence:
+**${newDirection}**
+
+---
+
+🎯 Target ICP:
+${script?.name || 'Not specified'}`;
+
+    if (script?.demographics) {
+      prompt += `\n(Demographic summary: ${script.demographics})`;
+    }
+
+    prompt += `\n\n📍 Narrative Anchors to address:`;
+
+    if (beliefNarratives.length > 0) {
+      prompt += `\n- Belief → ${beliefNarratives.join('; ')}`;
+    }
+
+    if (painNarratives.length > 0) {
+      prompt += `\n- Internal Pain → ${painNarratives.join('; ')}`;
+    }
+
+    if (struggleNarratives.length > 0) {
+      prompt += `\n- External Struggle → ${struggleNarratives.join('; ')}`;
+    }
+
+    if (transformationNarratives.length > 0) {
+      prompt += `\n- Desired Transformation → ${transformationNarratives.join('; ')}`;
+    }
+
+    if (author) {
+      prompt += `\n\n🧑‍💼 Author Profile:
+- Name: ${author.name}`;
+      if (author.title) prompt += `\n- Role: ${author.title}`;
+      
+      const selectedExperience = author.experiences?.find(e => e.id === props.selectedAuthorExperience);
+      if (selectedExperience) {
+        prompt += `\n- Experience: ${selectedExperience.title} - ${selectedExperience.description}`;
+      }
+      
+      const selectedTone = author.tones?.find(t => t.id === props.selectedAuthorTone);
+      if (selectedTone) {
+        prompt += `\n- Writing Tone: ${selectedTone.tone} - ${selectedTone.description}`;
+      }
+    }
+
+    if (successStory) {
+      prompt += `\n\n📎 Success Story for Proof:
+**${successStory.title}**
+Before: ${successStory.beforeSummary}
+After: ${successStory.afterSummary}`;
+      if (successStory.quotes.length > 0) {
+        prompt += `\nQuote: "${successStory.quotes[0].quote}" - ${successStory.quotes[0].author}`;
+      }
+    }
+
+    prompt += `\n\n🎯 Content Goal / CTA:
+${props.contentGoal.description}
+
+📝 Email Sequence Length:
+${props.emailCount} emails
+
+---
+
+✅ Tone + Style Guidelines:
+Keep each email below 125 words. Don't use generic openers like, as a [ICP_NAME], just go straight into the reason for the outreach with a narrative that hooks the ${script?.name || 'target ICP'}.
+Use a mix of first-person and second-person voice where it makes sense, AND always make it sound like a real human (not a marketer or salesperson).
+Emails should feel like messages from a thoughtful peer who "gets it."
+Start with empathy and insight—only then weave in product relevance.
+One strong message per email. Don't cram too much.
+Vary structure and format across emails for rhythm and readability.
+Where relevant, weave in subtle references to the author's product, proof points, or unique insight—but **never pitch first**.
+
+---
+
+📤 Output Format:
+Return a cold outbound sequence of ${props.emailCount} emails.
+
+Label each like this:
+**Email 1 – Subject line:**  
+Body...  
+**Email 2 – Subject line:**  
+Body...  
+...and so on.`;
+
+    return prompt;
+  };
+
+  const generateEmailContent = async (props: EmailGeneratorProps): Promise<string> => {
+    const prompt = buildEmailPrompt(props);
+    return await generateContent(prompt);
+  };
+
+  const generateEmailRecrafting = async (
+    props: EmailGeneratorProps,
+    newDirection: string,
+    existingContent: string
+  ): Promise<string> => {
+    const prompt = buildEmailRecraftingPrompt(props, newDirection, existingContent);
+    return await generateContent(prompt);
+  };
+
+  return {
+    generateEmailContent,
+    generateEmailRecrafting,
+    buildEmailPrompt,
+    buildEmailRecraftingPrompt
+  };
 };

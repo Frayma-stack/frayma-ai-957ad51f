@@ -26,6 +26,8 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedIdeas, setGeneratedIdeas] = useState<string[]>([]);
   const [showIdeasViewer, setShowIdeasViewer] = useState(false);
+  const [showRegenerationDialog, setShowRegenerationDialog] = useState(false);
+  const [regenerationDirection, setRegenerationDirection] = useState('');
 
   const [triggerInput, setTriggerInput] = useState<TriggerInput>({
     type: 'text',
@@ -45,7 +47,7 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
 
   const selectedICP = icpScripts.find(icp => icp.id === productInputs.targetICP);
 
-  const buildPrompt = (): string => {
+  const buildInitialPrompt = (): string => {
     const narrativeTypeContents = productInputs.selectedNarrativeTypes.map(typeId => {
       const narrativeTypes = selectedICP ? (() => {
         switch (productInputs.narrativeAnchor) {
@@ -66,9 +68,8 @@ You are a world-class narrative strategist helping B2B SaaS teams craft compelli
 
 Trigger/thesis/anti-thesis: ${triggerInput.content}
 Target audience: ${selectedICP?.name || 'Not specified'}
-Narrative angles to address: ${productInputs.narrativeAnchor} — "${narrativeTypeContents.join('; ')}"`;
+Narrative angle to address: ${productInputs.narrativeAnchor} — "${narrativeTypeContents.join('; ')}"`;
 
-    // Add product context based on selected type
     if (productInputs.productContextType === 'features' && productInputs.selectedFeatures.length > 0) {
       prompt += `\nProduct features and/or benefits:\n`;
       productInputs.selectedFeatures.forEach(feature => {
@@ -83,13 +84,6 @@ Narrative angles to address: ${productInputs.narrativeAnchor} — "${narrativeTy
       });
     }
 
-    if (productInputs.productContextType === 'differentiators' && productInputs.selectedDifferentiators.length > 0) {
-      prompt += `\nProduct differentiators to weave in:\n`;
-      productInputs.selectedDifferentiators.forEach(diff => {
-        prompt += `• ${diff.name}: ${diff.description}\n`;
-      });
-    }
-
     if (productInputs.customPOV.trim()) {
       prompt += `\nThe user's personal POV or perspective to shape the tone of ideas:\nPOV: ${productInputs.customPOV}`;
     }
@@ -100,8 +94,93 @@ Narrative – what's the tension or belief this idea challenges or advances?
 Product Tie-in – how can this idea naturally surface the selected product's unique value?
 CTA – one specific, low-friction action the reader would be compelled to take.
 
-Make each idea smart, strategic, and tailored to ${selectedICP?.name || 'the target ICP'}—as if you're helping them see themselves in the story.
-Avoid fluff. Think like a narrative strategist guiding a category-defining founder or Head of Marketing.`;
+Make each idea smart, thoughtful strategic, and tailored to ${selectedICP?.name || 'the target ICP'}—as if you're helping them see themselves in the story.
+Avoid generic fluff. Think like a narrative strategist trying to flag down and guide a category-defining founder or Head of Marketing toward achieving their goals.`;
+
+    return prompt;
+  };
+
+  const buildRegenerationPrompt = (): string => {
+    const narrativeTypeContents = productInputs.selectedNarrativeTypes.map(typeId => {
+      const narrativeTypes = selectedICP ? (() => {
+        switch (productInputs.narrativeAnchor) {
+          case 'belief': return selectedICP.coreBeliefs;
+          case 'pain': return selectedICP.internalPains;
+          case 'struggle': return selectedICP.externalStruggles;
+          case 'transformation': return selectedICP.desiredTransformations;
+          default: return [];
+        }
+      })() : [];
+      return narrativeTypes.find(n => n.id === typeId)?.content || '';
+    }).filter(content => content);
+
+    let prompt = `You are Frayma AI, a strategic GTM content engine trained on the Product-Led Storytelling (PLS) approach.
+
+The user previously generated GTM narrative ideas but has requested a **complete regeneration** using **a new POV, narrative direction, or lens** they've just provided.
+
+Your task is to:
+• Discard the prior angle or direction  
+• Use the new guidance to reframe the content ideas  
+• Ensure each idea subtly shows product value in a first-person, narrative-driven way
+
+---
+
+📚 About Product-Led Storytelling (PLS):
+PLS is a GTM storytelling approach that crafts content grounded in how real buyers think and decide. It starts with narrative resonance (anchored in the ICP's beliefs, internal pains, external struggles, and desired transformations), delivers relevance (by weaving in lived product value, not sales pitches), and ends in real results (a CTA that aligns with the reader's journey).
+
+PLS avoids generic tactics. It frames each piece through a specific author's voice and POV—so it resonates more deeply and feels more trustworthy.
+
+---
+
+🔁 NEW Narrative Direction from the user:
+**${regenerationDirection}**
+
+---
+
+🎯 Target ICP:
+${selectedICP?.name || 'Not specified'}
+${selectedICP?.demographics ? `ICP description: ${selectedICP.demographics}` : ''}
+
+🧠 Narrative Anchor to address:
+${productInputs.narrativeAnchor} → "${narrativeTypeContents.join('; ')}"
+
+💡 Product elements to tie in:`;
+
+    if (productInputs.productContextType === 'features' && productInputs.selectedFeatures.length > 0) {
+      prompt += `\n- Product Features & Benefits: `;
+      productInputs.selectedFeatures.forEach(feature => {
+        prompt += `${feature.name}: ${feature.benefits.join(', ')}; `;
+      });
+    }
+
+    if (productInputs.productContextType === 'usecases' && productInputs.selectedUseCases.length > 0) {
+      prompt += `\n- Use Cases: `;
+      productInputs.selectedUseCases.forEach(useCase => {
+        prompt += `${useCase.useCase} (${useCase.userRole}): ${useCase.description}; `;
+      });
+    }
+
+    if (productInputs.customPOV.trim()) {
+      prompt += `\n\n🧑‍💼 Author POV or unique belief to shape voice:\n"${productInputs.customPOV}"`;
+    }
+
+    prompt += `\n\n---
+
+🎨 For Each of the 15 Ideas, Return:
+• **Title** – punchy and specific, never generic
+• **Narrative** – the belief tension or story hook that frames the idea
+• **Product Tie-In** – how this idea can naturally surface product value
+• **CTA** – a clear, low-friction action that matches the stage of awareness
+
+---
+
+🔍 Style Guidelines:
+• Be sharp, original, and ICP-specific
+• Think like a founder or GTM strategist trying to stand out in a noisy, lookalike market
+• Each idea should feel like the seed of a category-defining point of view—not a recycled marketing angle
+
+Return the ideas as a list titled:  
+**"Regenerated GTM Narrative Ideas Based on New Direction"**`;
 
     return prompt;
   };
@@ -134,15 +213,6 @@ Avoid fluff. Think like a narrative strategist guiding a category-defining found
       return false;
     }
 
-    if (!productInputs.productContextType) {
-      toast({
-        title: "Missing Product Context",
-        description: "Please choose either Product Features, Use Cases, or Differentiators.",
-        variant: "destructive",
-      });
-      return false;
-    }
-
     return true;
   };
 
@@ -153,7 +223,7 @@ Avoid fluff. Think like a narrative strategist guiding a category-defining found
     try {
       console.log('💡 Starting idea generation process...');
       
-      const prompt = buildPrompt();
+      const prompt = buildInitialPrompt();
       console.log('💡 Built prompt with length:', prompt.length);
       
       const response = await generateContent(prompt);
@@ -187,7 +257,6 @@ Avoid fluff. Think like a narrative strategist guiding a category-defining found
     } catch (error) {
       console.error("💡 Error generating ideas:", error);
       
-      // Provide specific error messages based on the error type
       let errorMessage = "Failed to generate ideas. Please try again.";
       
       if (error instanceof Error) {
@@ -212,16 +281,86 @@ Avoid fluff. Think like a narrative strategist guiding a category-defining found
     }
   };
 
+  const handleRegenerateWithDirection = async () => {
+    if (!regenerationDirection.trim()) {
+      toast({
+        title: "Missing Direction",
+        description: "Please provide a new direction or angle for regeneration.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    setShowRegenerationDialog(false);
+    
+    try {
+      console.log('💡 Starting idea regeneration with new direction...');
+      
+      const prompt = buildRegenerationPrompt();
+      console.log('💡 Built regeneration prompt with length:', prompt.length);
+      
+      const response = await generateContent(prompt);
+      console.log('💡 Received regeneration response:', response ? 'Success' : 'Empty response');
+      
+      if (!response || typeof response !== 'string') {
+        console.error('💡 Invalid response received:', response);
+        throw new Error('Invalid response received from content regeneration');
+      }
+
+      if (response.trim() === '') {
+        console.error('💡 Empty response content');
+        throw new Error('Empty content received from regeneration');
+      }
+      
+      const ideas = response.split(/(?=Title[\s\-–:]+)/i).filter(idea => idea.trim() !== '');
+      console.log('💡 Parsed regenerated ideas count:', ideas.length);
+      
+      if (ideas.length === 0) {
+        throw new Error('No valid ideas could be parsed from the regeneration response');
+      }
+      
+      setGeneratedIdeas(ideas);
+      setRegenerationDirection(''); // Clear the direction input
+      
+      toast({
+        title: "Ideas Regenerated",
+        description: `Generated ${ideas.length} new ideas based on your direction.`,
+      });
+      
+    } catch (error) {
+      console.error("💡 Error regenerating ideas:", error);
+      
+      let errorMessage = "Failed to regenerate ideas. Please try again.";
+      
+      if (error instanceof Error) {
+        if (error.message.includes('API request failed')) {
+          errorMessage = "API connection failed. Please check your internet connection and try again.";
+        } else if (error.message.includes('Empty response')) {
+          errorMessage = "No content was generated. Please try rephrasing your direction.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      toast({
+        title: "Regeneration Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const handleBackToGeneration = () => {
     setShowIdeasViewer(false);
+    setShowRegenerationDialog(false);
+    setRegenerationDirection('');
   };
 
   const handleGenerateNewIdeas = async () => {
-    setShowIdeasViewer(false);
-    // Small delay to show transition
-    setTimeout(() => {
-      handleGenerateIdeas();
-    }, 100);
+    setShowRegenerationDialog(true);
   };
 
   return {
@@ -231,11 +370,16 @@ Avoid fluff. Think like a narrative strategist guiding a category-defining found
     setProductInputs,
     generatedIdeas,
     showIdeasViewer,
+    showRegenerationDialog,
+    regenerationDirection,
+    setRegenerationDirection,
     isGenerating,
     selectedICP,
     handleGenerateIdeas,
     handleBackToGeneration,
     handleGenerateNewIdeas,
+    handleRegenerateWithDirection,
+    setShowRegenerationDialog,
     validateInputs
   };
 };

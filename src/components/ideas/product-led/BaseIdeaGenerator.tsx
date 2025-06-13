@@ -9,6 +9,7 @@ import TriggerInputSection from './TriggerInputSection';
 import ProductContextSection from './ProductContextSection';
 import GenerationControls from './GenerationControls';
 import GeneratedIdeasViewer from './GeneratedIdeasViewer';
+import RegenerationDirectionDialog from './RegenerationDirectionDialog';
 import { useProductLedIdeaGenerator } from './useProductLedIdeaGenerator';
 
 interface BaseIdeaGeneratorProps {
@@ -37,24 +38,40 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
     setProductInputs,
     generatedIdeas,
     showIdeasViewer,
+    showRegenerationDialog,
+    regenerationDirection,
+    setRegenerationDirection,
     isGenerating,
     selectedICP,
     handleGenerateIdeas,
     handleBackToGeneration,
-    handleGenerateNewIdeas
+    handleGenerateNewIdeas,
+    handleRegenerateWithDirection,
+    setShowRegenerationDialog
   } = useProductLedIdeaGenerator(icpScripts);
 
   if (showIdeasViewer) {
     return (
-      <GeneratedIdeasViewer
-        generatedIdeas={generatedIdeas}
-        onBackToGeneration={handleBackToGeneration}
-        onSaveIdea={onIdeaAdded}
-        onGenerateNewIdeas={handleGenerateNewIdeas}
-        onContentTypeSelect={onContentTypeSelect}
-        selectedClientId={selectedClientId}
-        icpId={selectedICP?.id || ''}
-      />
+      <>
+        <GeneratedIdeasViewer
+          generatedIdeas={generatedIdeas}
+          onBackToGeneration={handleBackToGeneration}
+          onSaveIdea={onIdeaAdded}
+          onGenerateNewIdeas={handleGenerateNewIdeas}
+          onContentTypeSelect={onContentTypeSelect}
+          selectedClientId={selectedClientId}
+          icpId={selectedICP?.id || ''}
+        />
+        
+        <RegenerationDirectionDialog
+          isOpen={showRegenerationDialog}
+          isGenerating={isGenerating}
+          regenerationDirection={regenerationDirection}
+          onRegenerationDirectionChange={setRegenerationDirection}
+          onRegenerate={handleRegenerateWithDirection}
+          onClose={() => setShowRegenerationDialog(false)}
+        />
+      </>
     );
   }
 
