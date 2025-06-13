@@ -14,25 +14,25 @@ const GenerateNewIdeasCTA: FC<GenerateNewIdeasCTAProps> = ({
   isGenerating = false 
 }) => {
   return (
-    <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-dashed border-blue-300">
+    <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 shadow-sm">
       <CardContent className="p-8 text-center">
-        <h4 className="text-lg font-semibold text-gray-800 mb-2">Need More Ideas?</h4>
-        <p className="text-gray-600 mb-4">Auto-craft a fresh batch of Product-Led Storytelling ideas with different angles and perspectives.</p>
+        <h4 className="text-lg font-medium text-gray-800 mb-2">Need More Ideas?</h4>
+        <p className="text-gray-600 mb-6 font-light">Auto-craft a fresh batch of Product-Led Storytelling ideas with different angles and perspectives.</p>
         <Button 
           onClick={onGenerateNewIdeas}
-          className="bg-brand-primary hover:bg-brand-primary/90 text-white"
+          className="bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-sm"
           size="lg"
           disabled={isGenerating}
         >
           {isGenerating ? (
             <>
               <Loader className="h-5 w-5 mr-2 animate-spin" />
-              Minting Fresh Product-Led Ideas
+              Generating Fresh Ideas
             </>
           ) : (
             <>
               <RefreshCw className="h-5 w-5 mr-2" />
-              Mint New Product-Led Ideas
+              Generate New Ideas
             </>
           )}
         </Button>
