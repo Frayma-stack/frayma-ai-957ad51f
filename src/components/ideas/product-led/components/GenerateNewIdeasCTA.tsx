@@ -2,13 +2,17 @@
 import { FC } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Loader } from 'lucide-react';
 
 interface GenerateNewIdeasCTAProps {
   onGenerateNewIdeas: () => void;
+  isGenerating?: boolean;
 }
 
-const GenerateNewIdeasCTA: FC<GenerateNewIdeasCTAProps> = ({ onGenerateNewIdeas }) => {
+const GenerateNewIdeasCTA: FC<GenerateNewIdeasCTAProps> = ({ 
+  onGenerateNewIdeas, 
+  isGenerating = false 
+}) => {
   return (
     <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-dashed border-blue-300">
       <CardContent className="p-8 text-center">
@@ -18,9 +22,19 @@ const GenerateNewIdeasCTA: FC<GenerateNewIdeasCTAProps> = ({ onGenerateNewIdeas 
           onClick={onGenerateNewIdeas}
           className="bg-brand-primary hover:bg-brand-primary/90 text-white"
           size="lg"
+          disabled={isGenerating}
         >
-          <RefreshCw className="h-5 w-5 mr-2" />
-          Mint Fresh Ideas
+          {isGenerating ? (
+            <>
+              <Loader className="h-5 w-5 mr-2 animate-spin" />
+              Minting Fresh Product-Led Ideas
+            </>
+          ) : (
+            <>
+              <RefreshCw className="h-5 w-5 mr-2" />
+              Mint New Product-Led Ideas
+            </>
+          )}
         </Button>
       </CardContent>
     </Card>
