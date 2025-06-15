@@ -18,6 +18,8 @@ export async function POST(request: Request) {
       });
     }
 
+    console.log('🤖 Making OpenAI API request with prompt length:', prompt?.length || 0);
+
     // Make request to OpenAI API
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -26,7 +28,7 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'user',
@@ -38,12 +40,15 @@ export async function POST(request: Request) {
       }),
     });
 
+    console.log('🤖 OpenAI API response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error('🤖 OpenAI API error:', response.status, errorText);
       return new Response(JSON.stringify({ 
         error: 'API request failed',
-        content: 'Failed to generate content. Please try again later.' 
+        content: 'Failed to generate content. Please try again later.',
+        details: errorText
       }), {
         status: response.status,
         headers: { 'Content-Type': 'application/json' }
@@ -53,6 +58,8 @@ export async function POST(request: Request) {
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || 'No content generated';
 
+    console.log('🤖 OpenAI API success, content length:', content.length);
+
     return new Response(JSON.stringify({ content }), {
       headers: { 'Content-Type': 'application/json' }
     });
@@ -61,7 +68,8 @@ export async function POST(request: Request) {
     console.error('🤖 Chat API error:', error);
     return new Response(JSON.stringify({ 
       error: 'Internal server error',
-      content: 'An unexpected error occurred. Please try again.' 
+      content: 'An unexpected error occurred. Please try again.',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }

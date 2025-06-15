@@ -14,6 +14,10 @@ export const useIdeaGeneration = () => {
     try {
       console.log('💡 Starting idea generation process...');
       
+      if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
+        throw new Error('Invalid prompt provided for idea generation');
+      }
+
       console.log('💡 Built prompt with length:', prompt.length);
       
       const response = await generateContent(prompt);
@@ -33,6 +37,16 @@ export const useIdeaGeneration = () => {
       console.log('💡 Parsed ideas count:', ideas.length);
       
       if (ideas.length === 0) {
+        // If no ideas were parsed with the title pattern, try splitting by double newlines
+        const fallbackIdeas = response.split(/\n\s*\n/).filter(idea => idea.trim() !== '');
+        if (fallbackIdeas.length > 0) {
+          setGeneratedIdeas(fallbackIdeas);
+          toast({
+            title: "Ideas Generated",
+            description: `Generated ${fallbackIdeas.length} Product-Led Storytelling ideas.`,
+          });
+          return fallbackIdeas;
+        }
         throw new Error('No valid ideas could be parsed from the response');
       }
       
@@ -51,12 +65,14 @@ export const useIdeaGeneration = () => {
       let errorMessage = "Failed to generate ideas. Please try again.";
       
       if (error instanceof Error) {
-        if (error.message.includes('API request failed')) {
-          errorMessage = "API connection failed. Please check your internet connection and try again.";
-        } else if (error.message.includes('Empty response')) {
-          errorMessage = "No content was generated. Please try rephrasing your trigger or reducing the complexity.";
+        if (error.message.includes('API key')) {
+          errorMessage = "OpenAI API key is not configured properly. Please check your API key settings.";
+        } else if (error.message.includes('Invalid prompt')) {
+          errorMessage = "Invalid input provided. Please check your trigger and context information.";
         } else if (error.message.includes('JSON')) {
-          errorMessage = "Response parsing failed. Please try again or contact support if the issue persists.";
+          errorMessage = "Response parsing failed. Please try again.";
+        } else if (error.message.includes('Empty')) {
+          errorMessage = "No content was generated. Please try rephrasing your trigger or reducing the complexity.";
         } else {
           errorMessage = error.message;
         }
@@ -80,6 +96,10 @@ export const useIdeaGeneration = () => {
     try {
       console.log('💡 Starting idea regeneration with new direction...');
       
+      if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
+        throw new Error('Invalid prompt provided for idea regeneration');
+      }
+
       console.log('💡 Built regeneration prompt with length:', prompt.length);
       
       const response = await generateContent(prompt);
@@ -99,6 +119,16 @@ export const useIdeaGeneration = () => {
       console.log('💡 Parsed regenerated ideas count:', ideas.length);
       
       if (ideas.length === 0) {
+        // If no ideas were parsed with the title pattern, try splitting by double newlines
+        const fallbackIdeas = response.split(/\n\s*\n/).filter(idea => idea.trim() !== '');
+        if (fallbackIdeas.length > 0) {
+          setGeneratedIdeas(fallbackIdeas);
+          toast({
+            title: "Ideas Regenerated",
+            description: `Generated ${fallbackIdeas.length} new ideas based on your direction.`,
+          });
+          return fallbackIdeas;
+        }
         throw new Error('No valid ideas could be parsed from the regeneration response');
       }
       
@@ -117,9 +147,11 @@ export const useIdeaGeneration = () => {
       let errorMessage = "Failed to regenerate ideas. Please try again.";
       
       if (error instanceof Error) {
-        if (error.message.includes('API request failed')) {
-          errorMessage = "API connection failed. Please check your internet connection and try again.";
-        } else if (error.message.includes('Empty response')) {
+        if (error.message.includes('API key')) {
+          errorMessage = "OpenAI API key configuration issue. Please check your settings.";
+        } else if (error.message.includes('Invalid prompt')) {
+          errorMessage = "Invalid regeneration direction provided.";
+        } else if (error.message.includes('Empty')) {
           errorMessage = "No content was generated. Please try rephrasing your direction.";
         } else {
           errorMessage = error.message;
