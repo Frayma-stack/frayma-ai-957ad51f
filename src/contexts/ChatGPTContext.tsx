@@ -68,8 +68,9 @@ export const ChatGPTProvider: React.FC<ChatGPTProviderProps> = ({ children }) =>
   // generateText is an alias for generateContent for backward compatibility
   const generateText = generateContent;
 
-  // Check if API key is configured
-  const isConfigured = !!import.meta.env.VITE_OPENAI_API_KEY;
+  // Since we're using edge functions, we assume it's configured
+  // The edge function will handle the API key validation
+  const isConfigured = true;
 
   const value: ChatGPTContextType = {
     generateContent,
