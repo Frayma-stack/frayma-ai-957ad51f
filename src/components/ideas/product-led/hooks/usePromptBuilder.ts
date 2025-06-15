@@ -50,7 +50,7 @@ Narrative angle to address: ${productInputs.narrativeAnchor} — "${narrativeTyp
 
     prompt += `\n\nFor each idea, return the following structure:
 Title – punchy and specific (not generic, not clickbait).
-Narrative – what's the tension or belief this idea challenges or advances?
+Narrative – what's the tension or belief this idea challenges or advances? This should be at least two sentences that provide clear direction on the narrative angle and storytelling approach the user should take.
 Product Tie-in – how can this idea naturally surface the selected product's unique value?
 CTA – one specific, low-friction action the reader would be compelled to take.
 
@@ -133,7 +133,7 @@ ${productInputs.narrativeAnchor} → "${narrativeTypeContents.join('; ')}"
 
 🎨 For Each of the 15 Ideas, Return:
 • **Title** – punchy and specific, never generic
-• **Narrative** – the belief tension or story hook that frames the idea
+• **Narrative** – the belief tension or story hook that frames the idea. This should be at least two sentences that provide clear direction on the narrative angle and storytelling approach the user should take.
 • **Product Tie-In** – how this idea can naturally surface product value
 • **CTA** – a clear, low-friction action that matches the stage of awareness
 

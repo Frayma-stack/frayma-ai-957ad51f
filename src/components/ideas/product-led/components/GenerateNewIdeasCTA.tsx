@@ -27,12 +27,12 @@ const GenerateNewIdeasCTA: FC<GenerateNewIdeasCTAProps> = ({
           {isGenerating ? (
             <>
               <Loader className="h-5 w-5 mr-2 animate-spin" />
-              Generating Fresh Ideas
+              Minting Fresh Product-Led Ideas
             </>
           ) : (
             <>
               <RefreshCw className="h-5 w-5 mr-2" />
-              Generate New Ideas
+              Mint New, Product-Led Ideas
             </>
           )}
         </Button>

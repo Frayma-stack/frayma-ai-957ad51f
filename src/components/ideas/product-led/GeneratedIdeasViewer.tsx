@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -8,6 +7,7 @@ import { parseIdeas, IdeaWithScore, ParsedIdea } from './utils/IdeaParsingUtils'
 import ExpandedIdeaCard from './components/ExpandedIdeaCard';
 import EmptyIdeasState from './components/EmptyIdeasState';
 import GenerateNewIdeasCTA from './components/GenerateNewIdeasCTA';
+import IdeasIntroCard from './components/IdeasIntroCard';
 
 interface GeneratedIdeasViewerProps {
   generatedIdeas: string[];
@@ -102,6 +102,8 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
         <EmptyIdeasState onGenerateNewIdeas={onGenerateNewIdeas} />
       ) : (
         <>
+          <IdeasIntroCard />
+          
           <div className="max-h-[700px] overflow-y-auto space-y-6 pr-2">
             {ideasWithScores.map((ideaData, index) => (
               <ExpandedIdeaCard

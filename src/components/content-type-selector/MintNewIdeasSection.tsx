@@ -20,7 +20,7 @@ const MintNewIdeasSection: React.FC<MintNewIdeasSectionProps> = ({
         className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium shadow-sm"
       >
         <Sparkles className="mr-2 h-4 w-4" />
-        Generate New Ideas
+        Mint New, Product-Led Ideas
       </Button>
     </div>
   );

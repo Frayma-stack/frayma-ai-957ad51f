@@ -24,12 +24,12 @@ const GenerationControls: FC<GenerationControlsProps> = ({
           {isGenerating ? (
             <>
               <Loader className="mr-2 h-4 w-4 animate-spin" />
-              Generating Fresh Ideas...
+              Minting Fresh Product-Led Ideas...
             </>
           ) : (
             <>
               <Sparkles className="mr-2 h-4 w-4" />
-              Generate New Ideas
+              Mint New, Product-Led Ideas
             </>
           )}
         </Button>
