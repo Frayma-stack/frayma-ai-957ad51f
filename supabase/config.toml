@@ -1,6 +1,9 @@
 
 project_id = "rrltvtuuzljqkbdavzyw"
 
+[functions.openai-chat]
+verify_jwt = false
+
 [functions.check-subscription]
 verify_jwt = true
 

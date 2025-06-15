@@ -4,11 +4,13 @@ export class ChatService {
     console.log('🤖 Making request to edge function with prompt length:', prompt?.length || 0);
 
     try {
-      // Make request to our Supabase edge function
-      const response = await fetch('/functions/v1/openai-chat', {
+      // Use the full Supabase project URL for the edge function
+      const supabaseUrl = 'https://rrltvtuuzljqkbdavzyw.supabase.co';
+      const response = await fetch(`${supabaseUrl}/functions/v1/openai-chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJybHR2dHV1emxqcWtiZGF2enl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxMDg4ODIsImV4cCI6MjA2MzY4NDg4Mn0.V04fIdJirow_P0GiI6pDiA8eYClkGwL7GHlQNNDsekY`
         },
         body: JSON.stringify({
           prompt,
