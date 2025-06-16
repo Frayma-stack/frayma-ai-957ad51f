@@ -21,38 +21,47 @@ export const useNarrativeAnchors = ({
 
   // Update available narrative anchors when ICP changes
   useEffect(() => {
+    console.log('🎯 useNarrativeAnchors - Updating available anchors for ICP:', selectedICP);
+    
     if (selectedICP) {
       const script = scripts.find(script => script.id === selectedICP);
       if (script) {
         const options = [];
         
-        if (script.coreBeliefs.some(item => item.content.trim())) {
-          options.push({value: 'belief', label: 'Core Belief'});
+        if (script.coreBeliefs && script.coreBeliefs.some(item => item.content && item.content.trim())) {
+          options.push({value: 'coreBeliefs', label: 'Core Belief'});
         }
         
-        if (script.internalPains && script.internalPains.some(item => item.content.trim())) {
-          options.push({value: 'pain', label: 'Internal Pain'});
+        if (script.internalPains && script.internalPains.some(item => item.content && item.content.trim())) {
+          options.push({value: 'internalPains', label: 'Internal Pain'});
         }
         
-        if (script.externalStruggles && script.externalStruggles.some(item => item.content.trim())) {
-          options.push({value: 'struggle', label: 'External Struggle'});
+        if (script.externalStruggles && script.externalStruggles.some(item => item.content && item.content.trim())) {
+          options.push({value: 'externalStruggles', label: 'External Struggle'});
         }
         
-        if (script.desiredTransformations && script.desiredTransformations.some(item => item.content.trim())) {
-          options.push({value: 'transformation', label: 'Desired Transformation'});
+        if (script.desiredTransformations && script.desiredTransformations.some(item => item.content && item.content.trim())) {
+          options.push({value: 'desiredTransformations', label: 'Desired Transformation'});
         }
         
+        console.log('🎯 useNarrativeAnchors - Available options:', options);
         setAvailableAnchors(options);
         
-        if (narrativeSelections.length === 0) {
-          const firstOption = options[0]?.value as NarrativeAnchor;
-          if (firstOption) {
-            setNarrativeSelections([{ type: firstOption, itemId: '', content: '', items: [] }]);
-          }
+        // Only auto-select if no selections exist and we have options
+        if (narrativeSelections.length === 0 && options.length > 0) {
+          console.log('🎯 useNarrativeAnchors - Auto-selecting first option');
+          // Don't auto-select, let user choose
+          // setNarrativeSelections([{ type: 'belief', itemId: '', content: '', items: [] }]);
         }
+      } else {
+        console.log('🎯 useNarrativeAnchors - No script found, clearing anchors');
+        setAvailableAnchors([]);
       }
+    } else {
+      console.log('🎯 useNarrativeAnchors - No ICP selected, clearing anchors');
+      setAvailableAnchors([]);
     }
-  }, [selectedICP, scripts, narrativeSelections.length, setNarrativeSelections]);
+  }, [selectedICP, scripts]); // Removed narrativeSelections.length and setNarrativeSelections from deps
 
   return { availableAnchors };
 };

@@ -1,3 +1,5 @@
+
+import { useCallback } from 'react';
 import { NarrativeSelection } from '@/types/storytelling';
 
 type NarrativeAnchor = 'belief' | 'pain' | 'struggle' | 'transformation';
@@ -11,36 +13,60 @@ export const useNarrativeAnchorLogic = ({
   narrativeSelections,
   setNarrativeSelections
 }: UseNarrativeAnchorLogicProps) => {
-  // Check if a narrative anchor type is selected
-  const isAnchorTypeSelected = (type: NarrativeAnchor) => {
-    return narrativeSelections.some(selection => selection.type === type);
-  };
   
-  // Add or remove a narrative anchor type
-  const toggleAnchorType = (type: NarrativeAnchor) => {
-    if (isAnchorTypeSelected(type)) {
-      setNarrativeSelections(narrativeSelections.filter(selection => selection.type !== type));
+  const toggleAnchorType = useCallback((type: NarrativeAnchor) => {
+    console.log('🎯 Toggling anchor type:', type);
+    console.log('🎯 Current selections:', narrativeSelections);
+    
+    const existingSelectionIndex = narrativeSelections.findIndex(s => s.type === type);
+    
+    if (existingSelectionIndex >= 0) {
+      // Remove existing selection
+      const updatedSelections = narrativeSelections.filter(s => s.type !== type);
+      console.log('🎯 Removing selection, new array:', updatedSelections);
+      setNarrativeSelections(updatedSelections);
     } else {
-      setNarrativeSelections([...narrativeSelections, { type, itemId: '', content: '', items: [] }]);
+      // Add new selection
+      const newSelection: NarrativeSelection = {
+        type,
+        itemId: '', // Keep for compatibility but items array is primary
+        content: '', // Keep for compatibility 
+        items: [] // This is what we actually use
+      };
+      const updatedSelections = [...narrativeSelections, newSelection];
+      console.log('🎯 Adding selection, new array:', updatedSelections);
+      setNarrativeSelections(updatedSelections);
     }
-  };
+  }, [narrativeSelections, setNarrativeSelections]);
 
-  // Toggle an item selection for a specific narrative anchor type
-  const toggleItemSelection = (type: NarrativeAnchor, itemId: string) => {
-    setNarrativeSelections(narrativeSelections.map(selection => {
+  const toggleItemSelection = useCallback((type: NarrativeAnchor, itemId: string) => {
+    console.log('🎯 Toggling item selection:', { type, itemId });
+    console.log('🎯 Current selections:', narrativeSelections);
+    
+    const updatedSelections = narrativeSelections.map(selection => {
       if (selection.type === type) {
-        if (selection.items.includes(itemId)) {
-          return { ...selection, items: selection.items.filter(id => id !== itemId) };
-        } else {
-          return { ...selection, items: [...selection.items, itemId] };
-        }
+        const currentItems = selection.items || [];
+        const isCurrentlySelected = currentItems.includes(itemId);
+        
+        const newItems = isCurrentlySelected
+          ? currentItems.filter(id => id !== itemId)
+          : [...currentItems, itemId];
+          
+        console.log('🎯 Updated items for type', type, ':', newItems);
+        
+        return {
+          ...selection,
+          items: newItems
+        };
       }
       return selection;
-    }));
-  };
+    });
+    
+    console.log('🎯 Updated selections:', updatedSelections);
+    setNarrativeSelections(updatedSelections);
+  }, [narrativeSelections, setNarrativeSelections]);
 
   return {
-    isAnchorTypeSelected,
     toggleAnchorType,
     toggleItemSelection
   };
