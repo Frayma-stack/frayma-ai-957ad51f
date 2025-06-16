@@ -3,7 +3,7 @@ import { FC, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Sparkles } from "lucide-react";
 import { ICPStoryScript } from '@/types/storytelling';
-import TranscriptBasedICPCreator from '@/components/icp-scripts/TranscriptBasedICPCreator';
+import ICPStoryScriptForm from '@/components/ICPStoryScriptForm';
 
 interface EnforcedOnboardingStepICPProps {
   onICPAdded: (script: ICPStoryScript) => void;
@@ -38,29 +38,25 @@ const EnforcedOnboardingStepICP: FC<EnforcedOnboardingStepICPProps> = ({
             <h4 className="font-medium text-green-800">Frayma AI Audience Analysis</h4>
           </div>
           <p className="text-green-700 text-sm">
-            Upload customer interview transcripts, sales calls, or feedback sessions. 
-            Frayma AI will analyze them to identify your audience's core beliefs, pain points, 
+            Define your ideal customer profile by identifying their core beliefs, pain points, 
             and desired transformations for highly targeted content.
           </p>
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-lg font-medium">Upload Transcripts For Analysis:</h3>
+          <h3 className="text-lg font-medium">Define Your ICP:</h3>
           <ul className="space-y-2 text-sm text-gray-600">
-            <li>• Customer interview transcripts</li>
-            <li>• Sales call recordings (transcribed)</li>
-            <li>• User feedback sessions</li>
-            <li>• Support conversation logs</li>
-            <li>• Market research interviews</li>
+            <li>• Target audience demographics and role</li>
+            <li>• Core beliefs they hold</li>
+            <li>• Internal pains they experience</li>
+            <li>• External struggles they face</li>
+            <li>• Desired transformations they seek</li>
           </ul>
         </div>
 
         <div className="border rounded-lg p-6">
-          <TranscriptBasedICPCreator
+          <ICPStoryScriptForm
             onSave={handleICPCreated}
-            onCancel={() => {}}
-            isLoading={isCreating}
-            enforceCompletion={true}
           />
         </div>
       </CardContent>

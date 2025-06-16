@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -41,7 +40,16 @@ export const useOnboardingProgress = () => {
         throw error;
       }
 
-      setProgress(data || null);
+      if (data) {
+        // Convert Json type to number[] for completed_steps
+        const transformedData: OnboardingProgress = {
+          ...data,
+          completed_steps: Array.isArray(data.completed_steps) ? data.completed_steps as number[] : []
+        };
+        setProgress(transformedData);
+      } else {
+        setProgress(null);
+      }
     } catch (error) {
       console.error('Error loading onboarding progress:', error);
       toast.error('Failed to load onboarding progress');
@@ -63,8 +71,13 @@ export const useOnboardingProgress = () => {
 
       if (error) throw error;
 
-      setProgress(data);
-      return data;
+      // Convert Json type to number[] for completed_steps
+      const transformedData: OnboardingProgress = {
+        ...data,
+        completed_steps: Array.isArray(data.completed_steps) ? data.completed_steps as number[] : []
+      };
+      setProgress(transformedData);
+      return transformedData;
     } catch (error) {
       console.error('Error updating onboarding progress:', error);
       toast.error('Failed to update progress');

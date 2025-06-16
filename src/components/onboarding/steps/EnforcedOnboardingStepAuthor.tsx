@@ -63,8 +63,6 @@ const EnforcedOnboardingStepAuthor: FC<EnforcedOnboardingStepAuthorProps> = ({
           <AuthorForm 
             onSave={handleAuthorCreated}
             onCancel={() => {}}
-            isLoading={isCreating}
-            enforceCompletion={true}
           />
         </div>
       </CardContent>

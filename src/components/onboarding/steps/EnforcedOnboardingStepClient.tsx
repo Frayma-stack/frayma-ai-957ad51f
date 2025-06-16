@@ -55,7 +55,6 @@ const EnforcedOnboardingStepClient: FC<EnforcedOnboardingStepClientProps> = ({
           isOpen={dialogOpen}
           onClose={() => setDialogOpen(false)}
           onClientCreated={handleClientCreated}
-          enforceCompletion={true}
         />
       </CardContent>
     </Card>

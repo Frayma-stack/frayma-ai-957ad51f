@@ -9,15 +9,17 @@ interface EnforcedOnboardingStepSubscriptionProps {
   onSubscriptionCompleted: () => void;
 }
 
+type PlanType = 'free' | 'pro';
+
 const EnforcedOnboardingStepSubscription: FC<EnforcedOnboardingStepSubscriptionProps> = ({
   onSubscriptionCompleted,
 }) => {
   const { subscribed, createCheckoutSession, loading } = useSubscription();
-  const [selectedPlan, setSelectedPlan] = useState<'free' | 'pro'>('free');
+  const [selectedPlan, setSelectedPlan] = useState<PlanType>('free');
 
   const plans = [
     {
-      id: 'free',
+      id: 'free' as PlanType,
       name: 'Free Plan',
       price: '$0',
       period: 'forever',
@@ -31,7 +33,7 @@ const EnforcedOnboardingStepSubscription: FC<EnforcedOnboardingStepSubscriptionP
       recommended: false
     },
     {
-      id: 'pro',
+      id: 'pro' as PlanType,
       name: 'Pro Plan',
       price: '$29',
       period: 'per month',
@@ -48,7 +50,7 @@ const EnforcedOnboardingStepSubscription: FC<EnforcedOnboardingStepSubscriptionP
     }
   ];
 
-  const handleSelectPlan = async (planId: 'free' | 'pro') => {
+  const handleSelectPlan = async (planId: PlanType) => {
     if (planId === 'free') {
       // Free plan - continue directly
       onSubscriptionCompleted();
