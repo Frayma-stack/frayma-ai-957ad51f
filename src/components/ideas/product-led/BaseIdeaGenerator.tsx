@@ -42,6 +42,7 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
     regenerationDirection,
     setRegenerationDirection,
     isGenerating,
+    isRegenerating,
     selectedICP,
     handleGenerateIdeas,
     handleBackToGeneration,
@@ -61,6 +62,7 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
           onContentTypeSelect={onContentTypeSelect}
           selectedClientId={selectedClientId}
           icpId={selectedICP?.id || ''}
+          isRegenerating={isRegenerating}
         />
         
         <RegenerationDirectionDialog

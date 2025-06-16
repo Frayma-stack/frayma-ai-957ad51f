@@ -10,6 +10,7 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
   const [showIdeasViewer, setShowIdeasViewer] = useState(false);
   const [showRegenerationDialog, setShowRegenerationDialog] = useState(false);
   const [regenerationDirection, setRegenerationDirection] = useState('');
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const [triggerInput, setTriggerInput] = useState<TriggerInput>({
     type: 'text',
@@ -49,6 +50,7 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
     if (!validateRegenerationDirection(regenerationDirection)) return;
 
     setShowRegenerationDialog(false);
+    setIsRegenerating(true); // Start regeneration loading state
     
     try {
       const prompt = buildRegenerationPrompt(triggerInput, productInputs, selectedICP, regenerationDirection);
@@ -56,6 +58,8 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
       setRegenerationDirection(''); // Clear the direction input
     } catch (error) {
       // Error handling is done in the generation hook
+    } finally {
+      setIsRegenerating(false); // End regeneration loading state
     }
   };
 
@@ -63,6 +67,7 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
     setShowIdeasViewer(false);
     setShowRegenerationDialog(false);
     setRegenerationDirection('');
+    setIsRegenerating(false);
   };
 
   const handleGenerateNewIdeas = async () => {
@@ -80,6 +85,7 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
     regenerationDirection,
     setRegenerationDirection,
     isGenerating,
+    isRegenerating,
     selectedICP,
     handleGenerateIdeas,
     handleBackToGeneration,
