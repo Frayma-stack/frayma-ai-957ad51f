@@ -14,22 +14,22 @@ const GenerationControls: FC<GenerationControlsProps> = ({
   onGenerateIdeas
 }) => {
   return (
-    <Card>
+    <Card className="border-0 shadow-sm">
       <CardContent className="pt-6">
         <Button 
-          className="w-full bg-story-blue hover:bg-story-light-blue"
+          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-sm"
           onClick={onGenerateIdeas}
           disabled={isGenerating}
         >
           {isGenerating ? (
             <>
               <Loader className="mr-2 h-4 w-4 animate-spin" />
-              Generating Ideas...
+              Minting Fresh Product-Led Ideas...
             </>
           ) : (
             <>
               <Sparkles className="mr-2 h-4 w-4" />
-              Generate Product-Led Ideas
+              Mint New, Product-Led Ideas
             </>
           )}
         </Button>

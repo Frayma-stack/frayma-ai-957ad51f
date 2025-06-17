@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSupabaseData } from "@/hooks/useSupabaseData";
 import { useIndexPageState } from "@/hooks/useIndexPageState";
-import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
-import OnboardingOverlay from "@/components/onboarding/OnboardingOverlay";
+import { EnforcedOnboardingProvider } from "@/components/onboarding/EnforcedOnboardingProvider";
+import EnforcedOnboardingOverlay from "@/components/onboarding/EnforcedOnboardingOverlay";
 import AppLayout from "@/components/layout/AppLayout";
 import {
   Author,
@@ -113,64 +113,63 @@ const Index = () => {
     handleAssetTypeChange(assetType);
   };
 
-  if (!user) return navigate("/auth");
+  if (!user) {
+    return <div>Please log in to access the application.</div>;
+  }
 
-  if (!sloading && (!subscribed || !is_trial))
-    //return navigate("/subscription");
+  return (
+    <EnforcedOnboardingProvider>
+      <div className="min-h-screen bg-gray-50">
+        <AppLayout
+          clients={clients}
+          authors={authors}
+          ideas={ideas}
+          icpScripts={icpScripts}
+          successStories={successStories}
+          productContexts={productContexts}
+          selectedContentType={selectedContentType}
+          selectedArticleSubtype={selectedArticleSubtype}
+          selectedAssetType={selectedAssetType}
+          selectedClientId={selectedClientId}
+          currentView={currentView}
+          onContentTypeSelect={handleContentTypeSelect}
+          onArticleSubtypeSelect={handleArticleSubtypeSelect}
+          onAssetTypeChange={handleAssetTypeChange}
+          onClientSelected={handleClientSelected}
+          onIdeasBankSelected={handleIdeasBankSelected}
+          onHomeSelected={handleHomeSelected}
+          onBack={handleBack}
+          onIdeaContentTypeSelect={handleIdeaContentTypeSelect}
+          onClientAdded={handleClientAdded}
+          onClientUpdated={handleClientUpdated}
+          onClientDeleted={handleClientDeleted}
+          onAuthorAdded={handleAuthorAdded}
+          onAuthorUpdated={handleAuthorUpdated}
+          onAuthorDeleted={handleAuthorDeleted}
+          onIdeaAdded={handleIdeaAdded}
+          onIdeaUpdated={handleIdeaUpdated}
+          onIdeaDeleted={handleIdeaDeleted}
+          onICPScriptAdded={handleICPScriptAdded}
+          onICPScriptUpdated={handleICPScriptUpdated}
+          onICPScriptDeleted={handleICPScriptDeleted}
+          onSuccessStoryAdded={handleSuccessStoryAdded}
+          onSuccessStoryUpdated={handleSuccessStoryUpdated}
+          onSuccessStoryDeleted={handleSuccessStoryDeleted}
+          onProductContextAdded={handleProductContextAdded}
+          onProductContextUpdated={handleProductContextUpdated}
+          onProductContextDeleted={handleProductContextDeleted}
+          loading={loading}
+        />
 
-    return (
-      <OnboardingProvider>
-        <div className="min-h-screen bg-gray-50">
-          <AppLayout
-            clients={clients}
-            authors={authors}
-            ideas={ideas}
-            icpScripts={icpScripts}
-            successStories={successStories}
-            productContexts={productContexts}
-            selectedContentType={selectedContentType}
-            selectedArticleSubtype={selectedArticleSubtype}
-            selectedAssetType={selectedAssetType}
-            selectedClientId={selectedClientId}
-            currentView={currentView}
-            onContentTypeSelect={handleContentTypeSelect}
-            onArticleSubtypeSelect={handleArticleSubtypeSelect}
-            onAssetTypeChange={handleAssetTypeChange}
-            onClientSelected={handleClientSelected}
-            onIdeasBankSelected={handleIdeasBankSelected}
-            onHomeSelected={handleHomeSelected}
-            onBack={handleBack}
-            onIdeaContentTypeSelect={handleIdeaContentTypeSelect}
-            onClientAdded={handleClientAdded}
-            onClientUpdated={handleClientUpdated}
-            onClientDeleted={handleClientDeleted}
-            onAuthorAdded={handleAuthorAdded}
-            onAuthorUpdated={handleAuthorUpdated}
-            onAuthorDeleted={handleAuthorDeleted}
-            onIdeaAdded={handleIdeaAdded}
-            onIdeaUpdated={handleIdeaUpdated}
-            onIdeaDeleted={handleIdeaDeleted}
-            onICPScriptAdded={handleICPScriptAdded}
-            onICPScriptUpdated={handleICPScriptUpdated}
-            onICPScriptDeleted={handleICPScriptDeleted}
-            onSuccessStoryAdded={handleSuccessStoryAdded}
-            onSuccessStoryUpdated={handleSuccessStoryUpdated}
-            onSuccessStoryDeleted={handleSuccessStoryDeleted}
-            onProductContextAdded={handleProductContextAdded}
-            onProductContextUpdated={handleProductContextUpdated}
-            onProductContextDeleted={handleProductContextDeleted}
-            loading={loading}
-          />
-
-          <OnboardingOverlay
-            onAuthorAdded={handleAuthorAdded}
-            onClientAdded={handleOnboardingClientAdded}
-            onICPScriptAdded={handleICPScriptAdded}
-            onNavigateToIdeasBank={handleNavigateToIdeasBank}
-          />
-        </div>
-      </OnboardingProvider>
-    );
+        <EnforcedOnboardingOverlay
+          onAuthorAdded={handleAuthorAdded}
+          onClientAdded={handleOnboardingClientAdded}
+          onICPScriptAdded={handleICPScriptAdded}
+          onNavigateToIdeasBank={handleNavigateToIdeasBank}
+        />
+      </div>
+    </EnforcedOnboardingProvider>
+  );
 };
 
 export default Index;

@@ -252,6 +252,51 @@ export type Database = {
           }
         ];
       };
+      onboarding_progress: {
+        Row: {
+          author_created: boolean;
+          client_created: boolean;
+          completed_steps: Json;
+          created_at: string;
+          current_step: number;
+          email: string;
+          icp_script_created: boolean;
+          id: string;
+          onboarding_completed: boolean;
+          subscription_completed: boolean;
+          updated_at: string;
+          user_id: string | null;
+        };
+        Insert: {
+          author_created?: boolean;
+          client_created?: boolean;
+          completed_steps?: Json;
+          created_at?: string;
+          current_step?: number;
+          email: string;
+          icp_script_created?: boolean;
+          id?: string;
+          onboarding_completed?: boolean;
+          subscription_completed?: boolean;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Update: {
+          author_created?: boolean;
+          client_created?: boolean;
+          completed_steps?: Json;
+          created_at?: string;
+          current_step?: number;
+          email?: string;
+          icp_script_created?: boolean;
+          id?: string;
+          onboarding_completed?: boolean;
+          subscription_completed?: boolean;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
       product_contexts: {
         Row: {
           category_pov: string;
@@ -317,27 +362,27 @@ export type Database = {
           created_at: string;
           email: string | null;
           full_name: string | null;
+          hasCompletedOnboarding: boolean | null;
           id: string;
           updated_at: string;
-          hasCompletedOnboarding?: boolean;
         };
         Insert: {
           avatar_url?: string | null;
           created_at?: string;
           email?: string | null;
           full_name?: string | null;
+          hasCompletedOnboarding?: boolean | null;
           id: string;
           updated_at?: string;
-          hasCompletedOnboarding?: boolean;
         };
         Update: {
           avatar_url?: string | null;
           created_at?: string;
           email?: string | null;
           full_name?: string | null;
+          hasCompletedOnboarding?: boolean | null;
           id?: string;
           updated_at?: string;
-          hasCompletedOnboarding?: boolean;
         };
         Relationships: [];
       };
@@ -346,6 +391,7 @@ export type Database = {
           created_at: string;
           email: string;
           id: string;
+          is_trial: boolean | null;
           stripe_customer_id: string | null;
           subscribed: boolean;
           subscription_end: string | null;
@@ -357,6 +403,7 @@ export type Database = {
           created_at?: string;
           email: string;
           id?: string;
+          is_trial?: boolean | null;
           stripe_customer_id?: string | null;
           subscribed?: boolean;
           subscription_end?: string | null;
@@ -368,6 +415,7 @@ export type Database = {
           created_at?: string;
           email?: string;
           id?: string;
+          is_trial?: boolean | null;
           stripe_customer_id?: string | null;
           subscribed?: boolean;
           subscription_end?: string | null;
@@ -426,6 +474,47 @@ export type Database = {
             columns: ["client_id"];
             isOneToOne: false;
             referencedRelation: "clients";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      transcript_uploads: {
+        Row: {
+          analysis_result: Json | null;
+          analyzed: boolean;
+          file_content: string;
+          file_name: string;
+          id: string;
+          onboarding_progress_id: string | null;
+          upload_timestamp: string;
+          user_id: string | null;
+        };
+        Insert: {
+          analysis_result?: Json | null;
+          analyzed?: boolean;
+          file_content: string;
+          file_name: string;
+          id?: string;
+          onboarding_progress_id?: string | null;
+          upload_timestamp?: string;
+          user_id?: string | null;
+        };
+        Update: {
+          analysis_result?: Json | null;
+          analyzed?: boolean;
+          file_content?: string;
+          file_name?: string;
+          id?: string;
+          onboarding_progress_id?: string | null;
+          upload_timestamp?: string;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "transcript_uploads_onboarding_progress_id_fkey";
+            columns: ["onboarding_progress_id"];
+            isOneToOne: false;
+            referencedRelation: "onboarding_progress";
             referencedColumns: ["id"];
           }
         ];

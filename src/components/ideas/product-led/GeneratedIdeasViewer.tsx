@@ -8,6 +8,8 @@ import { parseIdeas, IdeaWithScore, ParsedIdea } from './utils/IdeaParsingUtils'
 import ExpandedIdeaCard from './components/ExpandedIdeaCard';
 import EmptyIdeasState from './components/EmptyIdeasState';
 import GenerateNewIdeasCTA from './components/GenerateNewIdeasCTA';
+import IdeasIntroCard from './components/IdeasIntroCard';
+import RegenerationLoadingState from './components/RegenerationLoadingState';
 
 interface GeneratedIdeasViewerProps {
   generatedIdeas: string[];
@@ -17,6 +19,7 @@ interface GeneratedIdeasViewerProps {
   onContentTypeSelect: (ideaId: string, contentType: string) => void;
   selectedClientId?: string;
   icpId: string;
+  isRegenerating?: boolean;
 }
 
 const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
@@ -26,7 +29,8 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
   onGenerateNewIdeas,
   onContentTypeSelect,
   selectedClientId,
-  icpId
+  icpId,
+  isRegenerating = false
 }) => {
   const { toast } = useToast();
   const [ideasWithScores, setIdeasWithScores] = useState<IdeaWithScore[]>(
@@ -100,8 +104,12 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
 
       {ideasWithScores.length === 0 ? (
         <EmptyIdeasState onGenerateNewIdeas={onGenerateNewIdeas} />
+      ) : isRegenerating ? (
+        <RegenerationLoadingState />
       ) : (
         <>
+          <IdeasIntroCard />
+          
           <div className="max-h-[700px] overflow-y-auto space-y-6 pr-2">
             {ideasWithScores.map((ideaData, index) => (
               <ExpandedIdeaCard

@@ -1,31 +1,16 @@
 
 import { useState } from 'react';
-import { useToast } from "@/components/ui/use-toast";
-import { useChatGPT } from '@/contexts/ChatGPTContext';
-import { ICPStoryScript, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
-
-interface TriggerInput {
-  type: 'text' | 'image' | 'file';
-  content: string;
-}
-
-interface ProductContextInputs {
-  targetICP: string;
-  narrativeAnchor: 'belief' | 'pain' | 'struggle' | 'transformation';
-  selectedNarrativeTypes: string[];
-  selectedFeatures: ProductFeature[];
-  selectedUseCases: ProductUseCase[];
-  selectedDifferentiators: ProductDifferentiator[];
-  productContextType: 'features' | 'usecases' | 'differentiators' | '';
-  customPOV: string;
-}
+import { ICPStoryScript } from '@/types/storytelling';
+import { TriggerInput, ProductContextInputs } from './hooks/types';
+import { usePromptBuilder } from './hooks/usePromptBuilder';
+import { useIdeaValidation } from './hooks/useIdeaValidation';
+import { useIdeaGeneration } from './hooks/useIdeaGeneration';
 
 export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
-  const { toast } = useToast();
-  const { generateContent } = useChatGPT();
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedIdeas, setGeneratedIdeas] = useState<string[]>([]);
   const [showIdeasViewer, setShowIdeasViewer] = useState(false);
+  const [showRegenerationDialog, setShowRegenerationDialog] = useState(false);
+  const [regenerationDirection, setRegenerationDirection] = useState('');
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const [triggerInput, setTriggerInput] = useState<TriggerInput>({
     type: 'text',
@@ -45,149 +30,48 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
 
   const selectedICP = icpScripts.find(icp => icp.id === productInputs.targetICP);
 
-  const buildPrompt = (): string => {
-    const narrativeTypeContents = productInputs.selectedNarrativeTypes.map(typeId => {
-      const narrativeTypes = selectedICP ? (() => {
-        switch (productInputs.narrativeAnchor) {
-          case 'belief': return selectedICP.coreBeliefs;
-          case 'pain': return selectedICP.internalPains;
-          case 'struggle': return selectedICP.externalStruggles;
-          case 'transformation': return selectedICP.desiredTransformations;
-          default: return [];
-        }
-      })() : [];
-      return narrativeTypes.find(n => n.id === typeId)?.content || '';
-    }).filter(content => content);
-    
-    let prompt = `About Product-Led Storytelling (PLS):
-PLS is a B2B content approach that crafts first-person, narrative-led GTM assets that resonate with ICPs by anchoring content on their beliefs, pains, and goals. It uses structured storytelling frameworks (like ICP StoryScripts, StoryBriefs & Outlines, and the 3Rs Formula: Resonance, Relevance, Results) to subtly show, not tell, a product's unique value. The goal is to move readers to feel, think, and act—not through generic how-to's, but through compelling, point-of-view-driven narratives that match how buyers think and decide.
-
-You are a world-class narrative strategist helping B2B SaaS teams craft compelling, resonant GTM narratives. Using the Product-Led Storytelling approach above, generate 15 rare, non-obvious content ideas (for articles, newsletters, sales emails, and LinkedIn posts) that subtly weave in product value without sounding salesy.
-
-Trigger/thesis/anti-thesis: ${triggerInput.content}
-Target audience: ${selectedICP?.name || 'Not specified'}
-Narrative angles to address: ${productInputs.narrativeAnchor} — "${narrativeTypeContents.join('; ')}"`;
-
-    // Add product context based on selected type
-    if (productInputs.productContextType === 'features' && productInputs.selectedFeatures.length > 0) {
-      prompt += `\nProduct features and/or benefits:\n`;
-      productInputs.selectedFeatures.forEach(feature => {
-        prompt += `• ${feature.name}: ${feature.benefits.join(', ')}\n`;
-      });
-    }
-
-    if (productInputs.productContextType === 'usecases' && productInputs.selectedUseCases.length > 0) {
-      prompt += `\nSpecific use cases to subtly highlight:\n`;
-      productInputs.selectedUseCases.forEach(useCase => {
-        prompt += `• ${useCase.useCase} (${useCase.userRole}): ${useCase.description}\n`;
-      });
-    }
-
-    if (productInputs.productContextType === 'differentiators' && productInputs.selectedDifferentiators.length > 0) {
-      prompt += `\nProduct differentiators to weave in:\n`;
-      productInputs.selectedDifferentiators.forEach(diff => {
-        prompt += `• ${diff.name}: ${diff.description}\n`;
-      });
-    }
-
-    if (productInputs.customPOV.trim()) {
-      prompt += `\nThe user's personal POV or perspective to shape the tone of ideas:\nPOV: ${productInputs.customPOV}`;
-    }
-
-    prompt += `\n\nFor each idea, return the following structure:
-Title – punchy and specific (not generic, not clickbait).
-Narrative – what's the tension or belief this idea challenges or advances?
-Product Tie-in – how can this idea naturally surface the selected product's unique value?
-CTA – one specific, low-friction action the reader would be compelled to take.
-
-Make each idea smart, strategic, and tailored to ${selectedICP?.name || 'the target ICP'}—as if you're helping them see themselves in the story.
-Avoid fluff. Think like a narrative strategist guiding a category-defining founder or Head of Marketing.`;
-
-    return prompt;
-  };
-
-  const validateInputs = (): boolean => {
-    if (!triggerInput.content.trim()) {
-      toast({
-        title: "Missing Trigger",
-        description: "Please provide a trigger/thesis to generate ideas.",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    if (!productInputs.targetICP) {
-      toast({
-        title: "Missing Target ICP",
-        description: "Please select a target ICP.",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    if (productInputs.selectedNarrativeTypes.length === 0) {
-      toast({
-        title: "Missing Narrative Types",
-        description: "Please select at least one narrative type.",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    if (!productInputs.productContextType) {
-      toast({
-        title: "Missing Product Context",
-        description: "Please choose either Product Features, Use Cases, or Differentiators.",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    return true;
-  };
+  const { buildInitialPrompt, buildRegenerationPrompt } = usePromptBuilder();
+  const { validateInputs, validateRegenerationDirection } = useIdeaValidation();
+  const { isGenerating, generatedIdeas, setGeneratedIdeas, generateIdeas, regenerateIdeas } = useIdeaGeneration();
 
   const handleGenerateIdeas = async () => {
-    if (!validateInputs()) return;
+    if (!validateInputs(triggerInput, productInputs)) return;
 
-    setIsGenerating(true);
     try {
-      const prompt = buildPrompt();
-      const response = await generateContent(prompt);
-      
-      if (response) {
-        const ideas = response.split(/(?=Title[\s\-–:]+)/i).filter(idea => idea.trim() !== '');
-        setGeneratedIdeas(ideas);
-        setShowIdeasViewer(true);
-        
-        toast({
-          title: "Ideas Generated",
-          description: `Generated ${ideas.length} Product-Led Storytelling ideas.`,
-        });
-      } else {
-        throw new Error('No response received');
-      }
+      const prompt = buildInitialPrompt(triggerInput, productInputs, selectedICP);
+      await generateIdeas(prompt);
+      setShowIdeasViewer(true);
     } catch (error) {
-      console.error("Error generating ideas:", error);
-      toast({
-        title: "Generation Failed",
-        description: "Failed to generate ideas. Please try again.",
-        variant: "destructive",
-      });
+      // Error handling is done in the generation hook
+    }
+  };
+
+  const handleRegenerateWithDirection = async () => {
+    if (!validateRegenerationDirection(regenerationDirection)) return;
+
+    setShowRegenerationDialog(false);
+    setIsRegenerating(true); // Start regeneration loading state
+    
+    try {
+      const prompt = buildRegenerationPrompt(triggerInput, productInputs, selectedICP, regenerationDirection);
+      await regenerateIdeas(prompt);
+      setRegenerationDirection(''); // Clear the direction input
+    } catch (error) {
+      // Error handling is done in the generation hook
     } finally {
-      setIsGenerating(false);
+      setIsRegenerating(false); // End regeneration loading state
     }
   };
 
   const handleBackToGeneration = () => {
     setShowIdeasViewer(false);
+    setShowRegenerationDialog(false);
+    setRegenerationDirection('');
+    setIsRegenerating(false);
   };
 
   const handleGenerateNewIdeas = async () => {
-    setShowIdeasViewer(false);
-    // Small delay to show transition
-    setTimeout(() => {
-      handleGenerateIdeas();
-    }, 100);
+    setShowRegenerationDialog(true);
   };
 
   return {
@@ -197,11 +81,17 @@ Avoid fluff. Think like a narrative strategist guiding a category-defining found
     setProductInputs,
     generatedIdeas,
     showIdeasViewer,
+    showRegenerationDialog,
+    regenerationDirection,
+    setRegenerationDirection,
     isGenerating,
+    isRegenerating,
     selectedICP,
     handleGenerateIdeas,
     handleBackToGeneration,
     handleGenerateNewIdeas,
-    validateInputs
+    handleRegenerateWithDirection,
+    setShowRegenerationDialog,
+    validateInputs: () => validateInputs(triggerInput, productInputs)
   };
 };

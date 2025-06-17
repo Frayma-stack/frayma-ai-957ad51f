@@ -1,85 +1,86 @@
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, ReactNode } from 'react';
+import { ChatService } from '@/services/ChatService';
 
 interface ChatGPTContextType {
-  apiKey: string;
+  generateContent: (prompt: string, options?: { maxTokens?: number; temperature?: number }) => Promise<string>;
+  generateText: (prompt: string, options?: { maxTokens?: number; temperature?: number }) => Promise<string>;
   isConfigured: boolean;
-  generateContent: (prompt: string, options?: GenerateOptions) => Promise<string>;
-  generateText: (prompt: string, options?: GenerateOptions) => Promise<string>; // Add alias for compatibility
 }
-
-interface GenerateOptions {
-  maxTokens?: number;
-  temperature?: number;
-  model?: string;
-}
-
-// Updated with your ChatGPT API key
-const CHATGPT_API_KEY = "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";
 
 const ChatGPTContext = createContext<ChatGPTContextType | undefined>(undefined);
 
-export const ChatGPTProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [apiKey] = useState<string>(CHATGPT_API_KEY);
-  
-  // API is configured when we have a valid key
-  const isConfigured = apiKey !== "YOUR_CHATGPT_API_KEY_HERE" && apiKey.trim() !== "";
-
-  const generateContent = async (prompt: string, options: GenerateOptions = {}): Promise<string> => {
-    if (!isConfigured) {
-      throw new Error('ChatGPT API is not configured');
-    }
-
-    try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: options.model || 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are an expert GTM narrative writer that creates compelling, resonant content for B2B audiences. Focus on clear, engaging storytelling that drives action.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          max_tokens: options.maxTokens || 2000,
-          temperature: options.temperature || 0.7,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.choices[0]?.message?.content || 'No content generated';
-    } catch (error) {
-      console.error('Error generating content:', error);
-      throw new Error('Failed to generate content');
-    }
-  };
-
-  // Add alias for backward compatibility
-  const generateText = generateContent;
-
-  return (
-    <ChatGPTContext.Provider value={{ apiKey, isConfigured, generateContent, generateText }}>
-      {children}
-    </ChatGPTContext.Provider>
-  );
-};
-
-export const useChatGPT = (): ChatGPTContextType => {
+export const useChatGPT = () => {
   const context = useContext(ChatGPTContext);
   if (context === undefined) {
     throw new Error('useChatGPT must be used within a ChatGPTProvider');
   }
   return context;
+};
+
+interface ChatGPTProviderProps {
+  children: ReactNode;
+}
+
+export const ChatGPTProvider: React.FC<ChatGPTProviderProps> = ({ children }) => {
+  const generateContent = async (prompt: string, options?: { maxTokens?: number; temperature?: number }): Promise<string> => {
+    try {
+      console.log('🤖 ChatGPT: Starting content generation with prompt length:', prompt?.length || 0);
+      
+      if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
+        throw new Error('Invalid prompt provided');
+      }
+      
+      const content = await ChatService.generateContent(prompt.trim(), options);
+      
+      if (!content || typeof content !== 'string') {
+        throw new Error('Invalid response received from content generation service');
+      }
+
+      if (content.trim() === '') {
+        throw new Error('Empty content received from generation service');
+      }
+
+      console.log('🤖 ChatGPT: Successfully generated content, length:', content.length);
+      return content;
+      
+    } catch (error) {
+      console.error('🤖 ChatGPT: Error generating content:', error);
+      
+      let errorMessage = 'Failed to generate content. Please check your configuration and try again.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('API key')) {
+          errorMessage = 'OpenAI API key is not configured or invalid. Please check your API key configuration.';
+        } else if (error.message.includes('Invalid response')) {
+          errorMessage = 'Invalid response format from API. Please try again.';
+        } else if (error.message.includes('Empty content')) {
+          errorMessage = 'No response received from API. Please try again.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      throw new Error(errorMessage);
+    }
+  };
+
+  // generateText is an alias for generateContent for backward compatibility
+  const generateText = generateContent;
+
+  // Since we're using edge functions, we assume it's configured
+  // The edge function will handle the API key validation
+  const isConfigured = true;
+
+  const value: ChatGPTContextType = {
+    generateContent,
+    generateText,
+    isConfigured,
+  };
+
+  return (
+    <ChatGPTContext.Provider value={value}>
+      {children}
+    </ChatGPTContext.Provider>
+  );
 };

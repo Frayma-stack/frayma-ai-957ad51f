@@ -39,7 +39,7 @@ const NarrativeAnchorSelector: FC<NarrativeAnchorSelectorProps> = ({
     return narrativeSelections.some(selection => selection.type === type);
   };
 
-  // Fix the narrative type mapping
+  // Fix the narrative type mapping - now correctly maps anchor values to narrative types
   const getNarrativeItems = (type: NarrativeAnchor) => {
     const script = getSelectedICPScript();
     if (!script) {
