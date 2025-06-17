@@ -1,7 +1,10 @@
-
-import { FC, createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useOnboardingProgress, OnboardingProgress } from '@/hooks/useOnboardingProgress';
+import { FC, createContext, useContext, useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  useOnboardingProgress,
+  OnboardingProgress,
+} from "@/hooks/useOnboardingProgress";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 interface EnforcedOnboardingContextType {
   progress: OnboardingProgress | null;
@@ -19,12 +22,16 @@ interface EnforcedOnboardingContextType {
   loading: boolean;
 }
 
-const EnforcedOnboardingContext = createContext<EnforcedOnboardingContextType | undefined>(undefined);
+const EnforcedOnboardingContext = createContext<
+  EnforcedOnboardingContextType | undefined
+>(undefined);
 
 export const useEnforcedOnboarding = () => {
   const context = useContext(EnforcedOnboardingContext);
   if (!context) {
-    throw new Error('useEnforcedOnboarding must be used within an EnforcedOnboardingProvider');
+    throw new Error(
+      "useEnforcedOnboarding must be used within an EnforcedOnboardingProvider"
+    );
   }
   return context;
 };
@@ -33,7 +40,9 @@ interface EnforcedOnboardingProviderProps {
   children: React.ReactNode;
 }
 
-export const EnforcedOnboardingProvider: FC<EnforcedOnboardingProviderProps> = ({ children }) => {
+export const EnforcedOnboardingProvider: FC<
+  EnforcedOnboardingProviderProps
+> = ({ children }) => {
   const { user } = useAuth();
   const {
     progress,
@@ -45,17 +54,15 @@ export const EnforcedOnboardingProvider: FC<EnforcedOnboardingProviderProps> = (
     markSubscriptionCompleted: progressMarkSubscriptionCompleted,
     completeOnboarding: progressCompleteOnboarding,
     canAccessStep: progressCanAccessStep,
-    isStepCompleted: progressIsStepCompleted
+    isStepCompleted: progressIsStepCompleted,
   } = useOnboardingProgress();
 
   const totalSteps = 7;
   const currentStep = progress?.current_step || 1;
-  
+
   // Determine if onboarding is required
   const isOnboardingRequired = Boolean(
-    user && 
-    progress && 
-    !progress.onboarding_completed
+    user && progress && !progress.onboarding_completed
   );
 
   const completeStep = async (step: number) => {
@@ -105,7 +112,7 @@ export const EnforcedOnboardingProvider: FC<EnforcedOnboardingProviderProps> = (
         markICPScriptCreated,
         markSubscriptionCompleted,
         completeOnboarding,
-        loading
+        loading,
       }}
     >
       {children}

@@ -1,20 +1,25 @@
-
-import { FC } from 'react';
-import { 
+import { FC } from "react";
+import {
   DialogContent,
   DialogDescription,
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Client, CompanyLink, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
-import ClientBasicInfoForm from './ClientBasicInfoForm';
-import ProductContextForm from './ProductContextForm';
+import {
+  Client,
+  CompanyLink,
+  ProductFeature,
+  ProductUseCase,
+  ProductDifferentiator,
+} from "@/types/storytelling";
+import ClientBasicInfoForm from "./ClientBasicInfoForm";
+import ProductContextForm from "./ProductContextForm";
 
 interface EnhancedClientDialogContentProps {
   editingClient?: Client | null;
-  
+
   // Form state
   name: string;
   description: string;
@@ -25,7 +30,7 @@ interface EnhancedClientDialogContentProps {
   features: ProductFeature[];
   useCases: ProductUseCase[];
   differentiators: ProductDifferentiator[];
-  
+
   // Form handlers
   onNameChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
@@ -36,10 +41,10 @@ interface EnhancedClientDialogContentProps {
   onFeaturesChange: (features: ProductFeature[]) => void;
   onUseCasesChange: (useCases: ProductUseCase[]) => void;
   onDifferentiatorsChange: (differentiators: ProductDifferentiator[]) => void;
-  
+
   // Analysis state
   isAnalyzing: boolean;
-  
+
   // Actions
   onAnalyze: () => void;
   onCreateClient: () => void;
@@ -69,16 +74,17 @@ const EnhancedClientDialogContent: FC<EnhancedClientDialogContentProps> = ({
   isAnalyzing,
   onAnalyze,
   onCreateClient,
-  onClose
+  onClose,
 }) => {
   return (
     <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>
-          {editingClient ? 'Edit Client' : 'Add New Client'}
+          {editingClient ? "Edit Client" : "Add New Client"}
         </DialogTitle>
         <DialogDescription>
-          Provide company information and URLs for automated analysis of product context
+          Provide company information and URLs for automated analysis of product
+          context
         </DialogDescription>
       </DialogHeader>
 
@@ -120,8 +126,11 @@ const EnhancedClientDialogContent: FC<EnhancedClientDialogContentProps> = ({
         <Button type="button" variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={onCreateClient} className="bg-story-blue hover:bg-story-light-blue">
-          {editingClient ? 'Update Client' : 'Create Client'}
+        <Button
+          onClick={onCreateClient}
+          className="bg-story-blue hover:bg-story-light-blue"
+        >
+          {editingClient ? "Update Client" : "Create Client"}
         </Button>
       </DialogFooter>
     </DialogContent>

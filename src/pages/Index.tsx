@@ -16,7 +16,7 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 
 const Index = () => {
   const { user } = useAuth();
-  const { subscribed, is_trial, loading: sloading } = useSubscription();
+
   const navigate = useNavigate();
   const {
     clients,

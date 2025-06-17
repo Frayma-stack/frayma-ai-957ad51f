@@ -14,11 +14,12 @@ export interface SubscriptionTier {
   id: string;
   name: string;
   priceId: string | null;
-  monthlyPrice: number;
+  price: number;
   limits: SubscriptionTierLimits;
   features: string[];
   description: string;
-  popular?: boolean;
+  recommended?: boolean;
+  period?: string;
 }
 
 export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
@@ -26,7 +27,7 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
   //   id: 'free',
   //   name: 'Free',
   //   priceId: null,
-  //   monthlyPrice: 0,
+  //   price: 0,
   //   limits: {
   //     users: 1,
   //     clients: 1,
@@ -47,7 +48,8 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     id: "Narrative Starter",
     name: "Narrative Starter",
     priceId: "price_1RY9IYFFhonlvCNPCETa7mf8",
-    monthlyPrice: 39,
+    price: 39,
+    period: "per month",
     limits: {
       users: 1,
       clients: 2,
@@ -68,13 +70,14 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       "Email Support",
     ],
     description: "For individuals getting started with GTM execution",
-    popular: false,
+    recommended: false,
   },
   "Narrative Pro": {
     id: "Narrative Pro",
     name: "Narrative Pro",
     priceId: "price_1RY9POFFhonlvCNP19G6kPAt",
-    monthlyPrice: 150,
+    price: 150,
+    period: "per month",
     limits: {
       users: 3,
       clients: 12,
@@ -102,13 +105,14 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       "Support Channel",
     ],
     description: "Better value for GTM execution teams",
-    popular: true,
+    recommended: true,
   },
   "Narrative Scale": {
     id: "Narrative Scale",
     name: "Narrative Scale",
     priceId: "price_1RY9TWFFhonlvCNPK6MB1khI",
-    monthlyPrice: 750,
+    price: 750,
+    period: "per month",
     limits: {
       users: 25,
       clients: 999, // Unlimited (using high number)

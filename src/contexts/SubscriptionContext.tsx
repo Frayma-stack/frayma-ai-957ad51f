@@ -117,7 +117,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
       if (error) throw error;
 
       // Open checkout in new tab
-      window.open(data.url, "_blank");
+      window.open(data.url);
     } catch (error) {
       console.error("Error creating checkout session:", error);
       toast.error("Failed to create checkout session");

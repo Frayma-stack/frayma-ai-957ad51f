@@ -160,12 +160,12 @@ export const useProfileAnalysis = () => {
         //   }
         // );
 
-        const scrapeResponse = awaitnew ContentScraper(
-          "https://rrltvtuuzljqkbdavzyw.supabase.co",
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJybHR2dHV1emxqcWtiZGF2enl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxMDg4ODIsImV4cCI6MjA2MzY4NDg4Mn0.V04fIdJirow_P0GiI6pDiA8eYClkGwL7GHlQNNDsekY"
-        ).scrapeLinkedinContent2(urls);
+        // const scrapeResponse = await new ContentScraper(
+        //   "https://rrltvtuuzljqkbdavzyw.supabase.co",
+        //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJybHR2dHV1emxqcWtiZGF2enl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxMDg4ODIsImV4cCI6MjA2MzY4NDg4Mn0.V04fIdJirow_P0GiI6pDiA8eYClkGwL7GHlQNNDsekY"
+        // ).scrapeLinkedinContent2(urls);
 
-        console.log(scrapeResponse, "HERE");
+        // console.log(scrapeResponse, "HERE");
 
         // if (!data?.ok) {
         //   throw new Error(`Scraping failed: ${data?.status}`);

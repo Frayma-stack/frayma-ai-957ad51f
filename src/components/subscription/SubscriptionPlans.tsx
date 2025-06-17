@@ -33,10 +33,10 @@ export const SubscriptionPlans = () => {
         <Card
           key={plan.id}
           className={`relative ${
-            plan.popular ? "border-blue-500 shadow-lg" : ""
+            plan.recommended ? "border-blue-500 shadow-lg" : ""
           }`}
         >
-          {plan.popular && (
+          {plan.recommended && (
             <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-blue-500">
               Most Popular
             </Badge>
@@ -47,9 +47,9 @@ export const SubscriptionPlans = () => {
               {plan.description}
             </CardDescription>
             <div className="mt-4">
-              <span className="text-3xl font-bold">${plan.monthlyPrice}</span>
+              <span className="text-3xl font-bold">${plan.price}</span>
               <span className="text-gray-600">
-                /{plan.monthlyPrice === 0 ? "forever" : "month"}
+                /{plan.price === 0 ? "forever" : "month"}
               </span>
             </div>
           </CardHeader>
@@ -72,7 +72,7 @@ export const SubscriptionPlans = () => {
                 onClick={() => handleSelectPlan(plan.priceId)}
                 disabled={loading || !plan.priceId}
                 className="w-full"
-                variant={plan.popular ? "default" : "outline"}
+                variant={plan.recommended ? "default" : "outline"}
               >
                 {plan.priceId ? "Start 3-days free trial" : "Current Plan"}
               </Button>
