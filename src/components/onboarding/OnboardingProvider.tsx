@@ -33,7 +33,7 @@ export const OnboardingProvider: FC<OnboardingProviderProps> = ({
 }) => {
   const { user, getProfile, updateProfile } = useAuth();
 
-  const [isOnboarding, setIsOnboarding] = useState(false);
+  const [isOnboarding, setIsOnboarding] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
 

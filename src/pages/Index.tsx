@@ -115,61 +115,62 @@ const Index = () => {
 
   if (!user) return navigate("/auth");
 
-  if (!sloading && (!subscribed || !is_trial)) return navigate("/subscription");
+  if (!sloading && (!subscribed || !is_trial))
+    //return navigate("/subscription");
 
-  return (
-    <OnboardingProvider>
-      <div className="min-h-screen bg-gray-50">
-        <AppLayout
-          clients={clients}
-          authors={authors}
-          ideas={ideas}
-          icpScripts={icpScripts}
-          successStories={successStories}
-          productContexts={productContexts}
-          selectedContentType={selectedContentType}
-          selectedArticleSubtype={selectedArticleSubtype}
-          selectedAssetType={selectedAssetType}
-          selectedClientId={selectedClientId}
-          currentView={currentView}
-          onContentTypeSelect={handleContentTypeSelect}
-          onArticleSubtypeSelect={handleArticleSubtypeSelect}
-          onAssetTypeChange={handleAssetTypeChange}
-          onClientSelected={handleClientSelected}
-          onIdeasBankSelected={handleIdeasBankSelected}
-          onHomeSelected={handleHomeSelected}
-          onBack={handleBack}
-          onIdeaContentTypeSelect={handleIdeaContentTypeSelect}
-          onClientAdded={handleClientAdded}
-          onClientUpdated={handleClientUpdated}
-          onClientDeleted={handleClientDeleted}
-          onAuthorAdded={handleAuthorAdded}
-          onAuthorUpdated={handleAuthorUpdated}
-          onAuthorDeleted={handleAuthorDeleted}
-          onIdeaAdded={handleIdeaAdded}
-          onIdeaUpdated={handleIdeaUpdated}
-          onIdeaDeleted={handleIdeaDeleted}
-          onICPScriptAdded={handleICPScriptAdded}
-          onICPScriptUpdated={handleICPScriptUpdated}
-          onICPScriptDeleted={handleICPScriptDeleted}
-          onSuccessStoryAdded={handleSuccessStoryAdded}
-          onSuccessStoryUpdated={handleSuccessStoryUpdated}
-          onSuccessStoryDeleted={handleSuccessStoryDeleted}
-          onProductContextAdded={handleProductContextAdded}
-          onProductContextUpdated={handleProductContextUpdated}
-          onProductContextDeleted={handleProductContextDeleted}
-          loading={loading}
-        />
+    return (
+      <OnboardingProvider>
+        <div className="min-h-screen bg-gray-50">
+          <AppLayout
+            clients={clients}
+            authors={authors}
+            ideas={ideas}
+            icpScripts={icpScripts}
+            successStories={successStories}
+            productContexts={productContexts}
+            selectedContentType={selectedContentType}
+            selectedArticleSubtype={selectedArticleSubtype}
+            selectedAssetType={selectedAssetType}
+            selectedClientId={selectedClientId}
+            currentView={currentView}
+            onContentTypeSelect={handleContentTypeSelect}
+            onArticleSubtypeSelect={handleArticleSubtypeSelect}
+            onAssetTypeChange={handleAssetTypeChange}
+            onClientSelected={handleClientSelected}
+            onIdeasBankSelected={handleIdeasBankSelected}
+            onHomeSelected={handleHomeSelected}
+            onBack={handleBack}
+            onIdeaContentTypeSelect={handleIdeaContentTypeSelect}
+            onClientAdded={handleClientAdded}
+            onClientUpdated={handleClientUpdated}
+            onClientDeleted={handleClientDeleted}
+            onAuthorAdded={handleAuthorAdded}
+            onAuthorUpdated={handleAuthorUpdated}
+            onAuthorDeleted={handleAuthorDeleted}
+            onIdeaAdded={handleIdeaAdded}
+            onIdeaUpdated={handleIdeaUpdated}
+            onIdeaDeleted={handleIdeaDeleted}
+            onICPScriptAdded={handleICPScriptAdded}
+            onICPScriptUpdated={handleICPScriptUpdated}
+            onICPScriptDeleted={handleICPScriptDeleted}
+            onSuccessStoryAdded={handleSuccessStoryAdded}
+            onSuccessStoryUpdated={handleSuccessStoryUpdated}
+            onSuccessStoryDeleted={handleSuccessStoryDeleted}
+            onProductContextAdded={handleProductContextAdded}
+            onProductContextUpdated={handleProductContextUpdated}
+            onProductContextDeleted={handleProductContextDeleted}
+            loading={loading}
+          />
 
-        <OnboardingOverlay
-          onAuthorAdded={handleAuthorAdded}
-          onClientAdded={handleOnboardingClientAdded}
-          onICPScriptAdded={handleICPScriptAdded}
-          onNavigateToIdeasBank={handleNavigateToIdeasBank}
-        />
-      </div>
-    </OnboardingProvider>
-  );
+          <OnboardingOverlay
+            onAuthorAdded={handleAuthorAdded}
+            onClientAdded={handleOnboardingClientAdded}
+            onICPScriptAdded={handleICPScriptAdded}
+            onNavigateToIdeasBank={handleNavigateToIdeasBank}
+          />
+        </div>
+      </OnboardingProvider>
+    );
 };
 
 export default Index;

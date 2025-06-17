@@ -1,5 +1,4 @@
-
-import { AuthorSocialLink } from '@/types/storytelling';
+import { AuthorSocialLink } from "@/types/storytelling";
 
 export const buildAnalysisPrompt = (urls: string[]) => {
   const systemPrompt = `You are an expert professional profile analyzer. Your task is to extract and structure professional information from any available content (LinkedIn profiles, social media bios, personal websites, etc.).
@@ -76,7 +75,7 @@ RESPONSE FORMAT:
 
   const userPrompt = `Analyze the following professional profile content and extract information in the required JSON format.
 
-URLs analyzed: ${urls.join(', ')}
+URLs analyzed: ${urls.join(", ")}
 
 CONTENT TO ANALYZE:
 The scraped content will be provided below. 
@@ -96,6 +95,49 @@ Extract:
 5. Exactly 4 product beliefs with one-sentence summaries
 
 Return only the JSON object with no additional text.`;
+
+  return { systemPrompt, userPrompt };
+};
+
+export const buildAuthorAnalysisPrompt = (urls: string[]) => {
+  const systemPrompt = `You are an expert data extraction agent specialized in analyzing social profiles and related web content. Your task is to visit the provided URLs—including LinkedIn, X (Twitter), and specified blog posts—and extract detailed, structured information about the person's current title/role, career backstory, experiences, writing tones, and product beliefs. Return ONLY a JSON string with the following fields and structure, without any additional commentary or explanation:
+
+  Format:
+  {
+    "currentTitle": "string (current job title/role)",
+    "careerBackstory": "string (summary in seven sentences or less, first-person, reflecting at least 5–7 key experiences)",
+    "experiences": [
+      {
+        "title": "string (job title/role)",
+        "company": "string",
+        "duration": "string (time spent at company)",
+        "summary": "string (what was done in the role, five sentences or less, first-person)"
+      }
+    ],
+    "writingTones": [
+      {
+        "toneTitle": "string (succinct title of the writing tone)",
+        "toneSummary": "string (summary of writing tone, five sentences or less, first-person)"
+      }
+    ],
+    "productBeliefs": [
+      {
+        "beliefTitle": "string (succinct title of the product belief)",
+        "beliefSummary": "string (summary of product belief, five sentences or less, first-person)"
+      }
+    ]
+  }
+
+- Extract and include at least 5 to 7 distinct professional experiences in the experiences array.
+- Ensure the careerBackstory summary reflects and integrates these multiple experiences to provide a coherent first-person narrative.
+- Use first-person language as if the person is telling someone about themselves.
+- Do NOT include any text outside the JSON string.
+- Do NOT explain your process or add commentary.
+- Extract data only from the URLs provided by the user.
+`;
+
+  const userPrompt = `Analyze the following URLs and extract information in the required JSON format. 
+  URLs analyzed: [${urls.join(", ")}]`;
 
   return { systemPrompt, userPrompt };
 };
