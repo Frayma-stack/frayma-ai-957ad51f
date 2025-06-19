@@ -10,7 +10,7 @@ export interface OutlineSection {
   context?: string;
   linkedAssetType?: 'success_story' | 'feature' | 'use_case' | 'differentiator';
   linkedAssetId?: string;
-  phase: 'attract' | 'filter' | 'engage' | 'results' | 'resonance' | 'relevance' | 'results';
+  phase: 'resonance' | 'relevance' | 'results';
   plsSteps: string;
 }
 
@@ -18,6 +18,14 @@ export interface HeadlineOption {
   id: string;
   text: string;
   isGenerated: boolean;
+}
+
+export interface NarrativeAnchor {
+  id: string;
+  name: string;
+  type: 'belief' | 'pain' | 'struggle' | 'transformation';
+  itemId: string;
+  content: string;
 }
 
 export interface FormData {
@@ -36,7 +44,7 @@ export interface FormData {
   journeyStage: string;
   broaderAudience: string;
   readingPrompt: string;
-  narrativeAnchors: string[];
+  narrativeAnchors: NarrativeAnchor[];
   successStory: string;
 
   // Step 3: Content Discovery Triggers

@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import { ICPStoryScript, CustomerSuccessStory, ArticleSubType, Author } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
@@ -118,7 +117,7 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
             journeyStage: formData.journeyStage as '' | 'TOFU' | 'MOFU' | 'BOFU',
             broaderAudience: formData.broaderAudience,
             readingPrompt: formData.readingPrompt,
-            narrativeAnchors: formData.narrativeAnchors.map(anchor => typeof anchor === 'string' ? { id: anchor, name: anchor } : anchor),
+            narrativeAnchors: formData.narrativeAnchors || [],
             successStory: formData.successStory
           }}
           scripts={scripts}
@@ -155,10 +154,8 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
             introPOV: formData.introPOV || '',
             outlineSections: (formData.outlineSections || []).map(section => ({
               ...section,
-              plsSteps: section.plsSteps || 'PLS Steps',
-              phase: section.phase === 'attract' ? 'resonance' : 
-                     section.phase === 'filter' ? 'resonance' :
-                     section.phase === 'engage' ? 'relevance' : 'results'
+              plsSteps: section.plsSteps || getPlsStepsForPhase(section.phase),
+              phase: mapLegacyPhaseToNew(section.phase)
             }))
           }}
           articleSubType={articleSubType}
@@ -183,6 +180,36 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
           <p className="text-gray-500">Unknown step: {currentStep}</p>
         </div>
       );
+  }
+};
+
+// Helper function to map legacy phase values to new 3Rs system
+const mapLegacyPhaseToNew = (phase: string): 'resonance' | 'relevance' | 'results' => {
+  switch (phase) {
+    case 'attract':
+    case 'filter':
+      return 'resonance';
+    case 'engage':
+      return 'relevance';
+    case 'results':
+      return 'results';
+    default:
+      return 'relevance';
+  }
+};
+
+// Helper function to get PLS steps for phase
+const getPlsStepsForPhase = (phase: string): string => {
+  const mappedPhase = mapLegacyPhaseToNew(phase);
+  switch (mappedPhase) {
+    case 'resonance':
+      return 'PLS Steps 2-3';
+    case 'relevance':
+      return 'PLS Steps 4-6';
+    case 'results':
+      return 'PLS Steps 7-9';
+    default:
+      return 'PLS Steps';
   }
 };
 

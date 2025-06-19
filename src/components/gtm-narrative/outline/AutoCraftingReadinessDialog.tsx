@@ -87,7 +87,7 @@ const AutoCraftingReadinessDialog: FC<AutoCraftingReadinessDialogProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                   {selectedAuthor.experiences.map((experience, index) => {
-                    const experienceText = typeof experience === 'string' ? experience : experience.experience || 'Experience';
+                    const experienceText = typeof experience === 'string' ? experience : experience.title || experience.description || 'Experience';
                     const experienceValue = typeof experience === 'string' ? experience : `${index}`;
                     return (
                       <SelectItem key={index} value={experienceValue}>

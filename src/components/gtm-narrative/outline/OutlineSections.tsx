@@ -1,20 +1,11 @@
+
 import { FC } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2, FileText } from 'lucide-react';
 import { CustomerSuccessStory, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
+import { OutlineSection } from '../useGTMNarrativeData';
 import OutlineSectionComponent from './OutlineSection';
-
-interface OutlineSection {
-  id: string;
-  type: 'H2' | 'H3' | 'H4';
-  title: string;
-  context?: string;
-  plsSteps?: string;
-  linkedAssetType?: 'success_story' | 'feature' | 'use_case' | 'differentiator';
-  linkedAssetId?: string;
-  phase: 'attract' | 'filter' | 'engage' | 'results';
-}
 
 interface OutlineSectionsProps {
   sections: OutlineSection[];
@@ -56,7 +47,7 @@ const OutlineSections: FC<OutlineSectionsProps> = ({
       type: 'H3',
       title: 'New Section',
       context: '',
-      phase: 'engage',
+      phase: 'relevance',
       plsSteps: 'PLS Steps 4-6',
       linkedAssetType: undefined,
       linkedAssetId: undefined
