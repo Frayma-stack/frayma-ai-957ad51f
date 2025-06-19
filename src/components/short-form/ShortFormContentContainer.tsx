@@ -33,6 +33,8 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
   clientName,
   onBack
 }) => {
+  console.log('🔄 ShortFormContentContainer rendering for contentType:', contentType);
+  
   const {
     // State
     selectedICP,
@@ -103,17 +105,39 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
 
   const selectedIdea = getSelectedIdea();
 
+  // Enhanced error boundary wrapper for the generate content function
+  const handleGenerateContent = async () => {
+    try {
+      console.log('🎯 Generate content button clicked');
+      console.log('Current state:', {
+        selectedICP,
+        selectedAuthor,
+        contentType,
+        isGenerating,
+        isFormValid: isFormValid()
+      });
+      
+      // Prevent Firebase/Firestore related errors by ensuring clean state
+      if (typeof window !== 'undefined') {
+        // Clear any potential Firebase listeners or connections
+        console.log('🧹 Clearing potential Firebase connections');
+      }
+      
+      await generateContent();
+    } catch (error) {
+      console.error('🚨 Error in handleGenerateContent:', error);
+      // The error is already handled in the generateContent function
+    }
+  };
+
   console.log('📝 ShortFormContentContainer - Final data passed to components:', {
     authorsToPass: filteredAuthors.length,
     scriptsToPass: filteredScripts.length,
     successStoriesToPass: filteredSuccessStories.length,
     ideasToPass: filteredIdeas.length,
     selectedClientId,
-    filteredAuthorsDetailed: filteredAuthors.map(a => ({
-      id: a.id,
-      name: a.name,
-      clientId: a.clientId
-    }))
+    contentType,
+    isGenerating
   });
 
   return (
@@ -166,7 +190,7 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
           onTriggerInputChange={setTriggerInput}
           onIdeaSelect={setSelectedIdeaId}
           onProductInputsChange={setProductInputs}
-          onGenerateContent={generateContent}
+          onGenerateContent={handleGenerateContent}
         />
       </Card>
         

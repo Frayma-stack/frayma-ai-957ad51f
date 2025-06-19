@@ -1,9 +1,10 @@
 
-import { useToast } from "@/components/ui/use-toast";
-import { useChatGPT } from '@/contexts/ChatGPTContext';
+import { useCallback } from 'react';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import { ContentType } from '../types';
 
-interface ContentOrchestratorProps {
+interface UseContentOrchestratorProps {
   contentType: ContentType;
   setIsGenerating: (value: boolean) => void;
   setGeneratedContent: (content: string) => void;
@@ -21,72 +22,86 @@ export const useContentOrchestrator = ({
   getValidationMessage,
   buildPrompt,
   getContentTypeLabel
-}: ContentOrchestratorProps) => {
-  const { toast } = useToast();
-  const { generateContent: generateWithChatGPT, isConfigured } = useChatGPT();
-
-  const generateContent = async () => {
-    console.log('🔄 Starting AI-powered content generation...');
+}: UseContentOrchestratorProps) => {
+  const generateContent = useCallback(async () => {
+    console.log('🚀 Starting content generation for:', contentType);
     
-    if (!isFormValid()) {
-      toast({
-        title: "Missing information",
-        description: getValidationMessage(),
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!isConfigured) {
-      toast({
-        title: "ChatGPT not configured",
-        description: "Please configure your ChatGPT API key to generate content.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsGenerating(true);
-    console.log('🎯 AI content generation started');
-
     try {
-      const prompt = buildPrompt();
-      console.log('📝 Generated prompt for AI:', prompt.substring(0, 200) + '...');
-      
-      const generatedContent = await generateWithChatGPT(prompt, {
-        maxTokens: contentType === 'email' ? 3000 : 2000,
-        temperature: 0.7
-      });
-      
-      console.log('✅ AI content generated successfully:', {
-        contentLength: generatedContent.length,
-        contentPreview: generatedContent.substring(0, 100) + '...'
-      });
-      
-      if (!generatedContent || generatedContent.trim().length === 0) {
-        throw new Error('Generated content was empty');
+      if (!isFormValid()) {
+        const validationMessage = getValidationMessage();
+        console.log('❌ Form validation failed:', validationMessage);
+        toast.error(validationMessage);
+        return;
       }
+
+      setIsGenerating(true);
+      setGeneratedContent('');
       
-      setGeneratedContent(generatedContent);
+      console.log('✅ Form validation passed, building prompt...');
+      const prompt = buildPrompt();
       
-      toast({
-        title: `${getContentTypeLabel()} generated successfully!`,
-        description: "Your AI-powered content is ready for editing. It will be automatically saved as a draft.",
+      if (!prompt) {
+        console.log('❌ No prompt generated');
+        toast.error('Failed to generate prompt for content creation');
+        return;
+      }
+
+      console.log('📝 Prompt built, making API call...');
+      console.log('Prompt length:', prompt.length);
+
+      const { data, error } = await supabase.functions.invoke('openai-chat', {
+        body: { 
+          prompt,
+          maxTokens: 1500,
+          temperature: 0.7
+        }
       });
+
+      if (error) {
+        console.error('❌ Supabase function error:', error);
+        throw new Error(error.message || 'Failed to generate content');
+      }
+
+      if (!data?.content) {
+        console.error('❌ No content in response:', data);
+        throw new Error('No content received from AI service');
+      }
+
+      console.log('✅ Content generated successfully');
+      console.log('Content length:', data.content.length);
+      
+      setGeneratedContent(data.content);
+      toast.success(`${getContentTypeLabel()} generated successfully!`);
       
     } catch (error) {
-      console.error('❌ AI content generation error:', error);
-      toast({
-        title: "Generation failed",
-        description: error instanceof Error ? error.message : "There was an error generating your content. Please try again.",
-        variant: "destructive"
-      });
+      console.error('❌ Content generation error:', error);
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'Failed to generate content. Please try again.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('OpenAI API key')) {
+          errorMessage = 'OpenAI API key not configured. Please contact support.';
+        } else if (error.message.includes('rate limit') || error.message.includes('quota')) {
+          errorMessage = 'API rate limit reached. Please try again in a few minutes.';
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        }
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [
+    contentType,
+    isFormValid,
+    getValidationMessage,
+    buildPrompt,
+    getContentTypeLabel,
+    setIsGenerating,
+    setGeneratedContent
+  ]);
 
-  return {
-    generateContent
-  };
+  return { generateContent };
 };

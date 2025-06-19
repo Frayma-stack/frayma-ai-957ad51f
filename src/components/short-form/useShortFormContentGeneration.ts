@@ -29,6 +29,8 @@ interface UseShortFormContentGenerationProps {
 }
 
 export const useShortFormContentGeneration = (props: UseShortFormContentGenerationProps) => {
+  console.log('🔧 useShortFormContentGeneration initialized for:', props.contentType);
+  
   const { buildPrompt } = usePromptBuilder(props);
   
   const { isFormValid: validateForm, getValidationMessage } = useContentValidator({
