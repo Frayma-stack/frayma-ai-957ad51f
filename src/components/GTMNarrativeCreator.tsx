@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { ICPStoryScript, CustomerSuccessStory, ArticleSubType, Author } from '@/types/storytelling';
@@ -79,6 +78,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     formData,
     scripts,
     successStories,
+    authors,
     onDataChange: handleInputChange
   });
 
@@ -102,8 +102,11 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     console.log('🚀 Proceeding to auto-crafting with config:', config);
     // Store the auto-crafting configuration
     handleInputChange('autoCraftingConfig', config);
-    // Proceed to intro generation phase
-    handleContentPhaseNext();
+    // Start by generating the intro
+    generatePhaseContent('intro').then(() => {
+      // Proceed to intro generation phase
+      handleContentPhaseNext();
+    });
   };
 
   const canProceedFromCurrentStep = (): boolean => {

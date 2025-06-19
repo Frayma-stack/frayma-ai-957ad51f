@@ -2,19 +2,21 @@
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { useChatGPT } from '@/contexts/ChatGPTContext';
-import { ICPStoryScript } from '@/types/storytelling';
+import { ICPStoryScript, Author } from '@/types/storytelling';
 import { FormData } from './useGTMNarrativeData';
 import { usePromptConfig } from './usePromptConfig';
 
 interface UsePhaseContentGenerationProps {
   formData: FormData;
   scripts: ICPStoryScript[];
+  authors?: Author[];
   onDataChange: (field: keyof FormData, value: any) => void;
 }
 
 export const usePhaseContentGeneration = ({
   formData,
   scripts,
+  authors = [],
   onDataChange
 }: UsePhaseContentGenerationProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -37,8 +39,40 @@ export const usePhaseContentGeneration = ({
     try {
       const selectedScript = scripts.find(s => s.id === formData.mainTargetICP);
       const selectedHeadline = formData.headlineOptions.find(h => h.id === formData.selectedHeadline);
+      const selectedAuthor = formData.autoCraftingConfig?.selectedAuthor;
+      const authorData = authors.find(a => a.id === selectedAuthor);
       
-      let variables: Record<string, any> = {};
+      let variables: Record<string, any> = {
+        // Common variables for all phases
+        selected_headline: selectedHeadline?.text || 'Compelling Article Title',
+        main_icp: selectedScript?.name || 'Professional audience',
+        target_icp: selectedScript?.name || 'Professional audience',
+        trigger_or_thesis: formData.ideaTrigger || 'Strategic content initiative',
+        why_publish: formData.publishReason || 'Establish thought leadership',
+        story_cta: formData.callToAction || 'Contact us to learn more',
+        cta: formData.callToAction || 'Contact us to learn more',
+        main_keyword: formData.targetKeyword || 'product-led growth',
+        cluster: formData.contentCluster || 'GTM strategy',
+        journey_stage: formData.journeyStage || 'MOFU',
+        narrative_anchors_and_types: formData.narrativeAnchors?.map(a => `${a.name} (${a.type}): ${a.content}`).join('; ') || 'Key messaging points',
+        narrative_anchors: formData.narrativeAnchors?.map(a => `${a.name} (${a.type}): ${a.content}`).join('; ') || 'Key messaging points',
+        selected_success_story_summary: formData.successStory || 'Customer transformation example',
+        related_keywords: formData.relatedKeywords?.join(', ') || 'product-led growth, customer success',
+        search_queries: formData.searchQueries?.join(', ') || 'How to implement product-led growth',
+        problem_statements: formData.problemStatements?.join(', ') || 'Scaling challenges',
+        // Author information
+        author_name: authorData?.name || 'Industry Expert',
+        author_summary: authorData?.backstory || 'Experienced professional',
+        selected_writing_tone: formData.autoCraftingConfig?.selectedTone || 'Professional',
+        author_writing_tone: formData.autoCraftingConfig?.selectedTone || 'Professional',
+        relevant_author_experiences: formData.autoCraftingConfig?.selectedExperiences?.join('; ') || 'Industry experience',
+        product_beliefs: authorData?.beliefs?.map(b => b.belief).join('; ') || 'Strategic insights',
+        // Configuration
+        selected_intro_length: formData.autoCraftingConfig?.wordCount?.toString() || '300',
+        word_count_range: formData.autoCraftingConfig?.wordCount?.toString() || '300',
+        user_selected_word_count_range: formData.autoCraftingConfig?.wordCount?.toString() || '300'
+      };
+      
       let promptCategory: 'intro_generation' | 'body_generation' | 'conclusion_generation';
       let contentKey: keyof FormData;
       
@@ -47,9 +81,10 @@ export const usePhaseContentGeneration = ({
           promptCategory = 'intro_generation';
           contentKey = 'generatedIntro';
           variables = {
-            selectedHeadline: selectedHeadline?.text || 'Compelling Article Title',
-            mainTargetICP: selectedScript?.name || 'Professional audience',
-            ideaTrigger: formData.ideaTrigger
+            ...variables,
+            next_section_heading: formData.outlineSections.find(s => s.phase === 'resonance')?.title || 'Introduction',
+            mutual_goal: formData.mutualGoal || 'Drive engagement',
+            prompt_to_read: formData.readingPrompt || 'Looking for insights'
           };
           break;
           
@@ -57,8 +92,11 @@ export const usePhaseContentGeneration = ({
           promptCategory = 'body_generation';
           contentKey = 'generatedBody';
           variables = {
-            outlineSections: formData.outlineSections.filter(s => s.phase === 'relevance').map(s => s.title).join(', '),
-            outlineContext: formData.outlineSections.filter(s => s.phase === 'relevance' && s.context).map(s => s.context).join('; ')
+            ...variables,
+            intro_text: formData.generatedIntro || 'Introduction content',
+            approved_intro: formData.generatedIntro || 'Introduction content',
+            queries: formData.searchQueries?.join(', ') || 'Key questions to address',
+            problems: formData.problemStatements?.join(', ') || 'Problems to solve'
           };
           break;
           
@@ -66,8 +104,11 @@ export const usePhaseContentGeneration = ({
           promptCategory = 'conclusion_generation';
           contentKey = 'generatedConclusion';
           variables = {
-            outlineSections: formData.outlineSections.filter(s => s.phase === 'results').map(s => s.title).join(', '),
-            callToAction: formData.callToAction
+            ...variables,
+            approved_intro: formData.generatedIntro || 'Introduction content',
+            approved_main_body: formData.generatedBody || 'Main body content',
+            persuade_h2: formData.outlineSections.find(s => s.phase === 'results')?.title || 'Results',
+            convert_h2_or_h3: 'Take Action Now'
           };
           break;
       }
@@ -75,7 +116,10 @@ export const usePhaseContentGeneration = ({
       const prompt = interpolateTemplate(promptCategory, variables);
       console.log(`Generated ${phase} prompt:`, prompt);
       
-      const response = await generateContent(prompt);
+      const response = await generateContent(prompt, {
+        maxTokens: phase === 'body' ? 2000 : 1000,
+        temperature: 0.7
+      });
       console.log(`Raw ${phase} response:`, response);
       
       onDataChange(contentKey, response);

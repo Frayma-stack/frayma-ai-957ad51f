@@ -1,5 +1,5 @@
 
-import { ICPStoryScript, CustomerSuccessStory } from '@/types/storytelling';
+import { ICPStoryScript, CustomerSuccessStory, Author } from '@/types/storytelling';
 import { FormData } from './useGTMNarrativeData';
 import { useContentTriggersGeneration } from './useContentTriggersGeneration';
 import { useHeadlinesGeneration } from './useHeadlinesGeneration';
@@ -9,6 +9,7 @@ interface UseGTMNarrativeGenerationProps {
   formData: FormData;
   scripts: ICPStoryScript[];
   successStories: CustomerSuccessStory[];
+  authors?: Author[];
   onDataChange: (field: keyof FormData, value: any) => void;
 }
 
@@ -16,6 +17,7 @@ export const useGTMNarrativeGeneration = ({
   formData,
   scripts,
   successStories,
+  authors = [],
   onDataChange
 }: UseGTMNarrativeGenerationProps) => {
   const {
@@ -40,6 +42,7 @@ export const useGTMNarrativeGeneration = ({
   } = usePhaseContentGeneration({
     formData,
     scripts,
+    authors,
     onDataChange
   });
 
