@@ -23,8 +23,6 @@ export const useGTMNarrativeGeneration = ({
     generateContentTriggers
   } = useContentTriggersGeneration({
     formData,
-    scripts,
-    successStories,
     onDataChange
   });
 
@@ -33,7 +31,6 @@ export const useGTMNarrativeGeneration = ({
     generateHeadlines
   } = useHeadlinesGeneration({
     formData,
-    scripts,
     onDataChange
   });
 

@@ -57,8 +57,8 @@ export const usePhaseContentGeneration = ({
           promptCategory = 'body_generation';
           contentKey = 'generatedBody';
           variables = {
-            outlineSections: formData.outlineSections.filter(s => s.phase === 'engage').map(s => s.title).join(', '),
-            outlineContext: formData.outlineSections.filter(s => s.phase === 'engage' && s.context).map(s => s.context).join('; ')
+            outlineSections: formData.outlineSections.filter(s => s.phase === 'relevance').map(s => s.title).join(', '),
+            outlineContext: formData.outlineSections.filter(s => s.phase === 'relevance' && s.context).map(s => s.context).join('; ')
           };
           break;
           
