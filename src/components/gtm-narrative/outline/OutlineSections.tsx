@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ interface OutlineSection {
   type: 'H2' | 'H3' | 'H4';
   title: string;
   context?: string;
+  plsSteps?: string;
   linkedAssetType?: 'success_story' | 'feature' | 'use_case' | 'differentiator';
   linkedAssetId?: string;
   phase: 'attract' | 'filter' | 'engage' | 'results';
@@ -57,6 +57,7 @@ const OutlineSections: FC<OutlineSectionsProps> = ({
       title: 'New Section',
       context: '',
       phase: 'engage',
+      plsSteps: 'PLS Steps 4-6',
       linkedAssetType: undefined,
       linkedAssetId: undefined
     };

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { AutoCraftingConfig } from './outline/AutoCraftingReadinessDialog';
 
-interface OutlineSection {
+export interface OutlineSection {
   id: string;
   type: 'H2' | 'H3' | 'H4';
   title: string;
@@ -11,10 +11,10 @@ interface OutlineSection {
   linkedAssetType?: 'success_story' | 'feature' | 'use_case' | 'differentiator';
   linkedAssetId?: string;
   phase: 'attract' | 'filter' | 'engage' | 'results' | 'resonance' | 'relevance' | 'results';
-  plsSteps?: string;
+  plsSteps: string;
 }
 
-interface HeadlineOption {
+export interface HeadlineOption {
   id: string;
   text: string;
   isGenerated: boolean;

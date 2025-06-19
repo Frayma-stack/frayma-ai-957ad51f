@@ -105,6 +105,7 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
           scripts={filteredICPScripts}
           successStories={filteredSuccessStories}
           ideas={ideas}
+          authors={filteredAuthors}
           selectedIdeaId={selectedIdeaId}
           onBack={onBack}
         />

@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -87,11 +86,15 @@ const AutoCraftingReadinessDialog: FC<AutoCraftingReadinessDialogProps> = ({
                   <SelectValue placeholder="Choose relevant experience" />
                 </SelectTrigger>
                 <SelectContent>
-                  {selectedAuthor.experiences.map((experience, index) => (
-                    <SelectItem key={index} value={experience}>
-                      {experience.length > 100 ? `${experience.substring(0, 100)}...` : experience}
-                    </SelectItem>
-                  ))}
+                  {selectedAuthor.experiences.map((experience, index) => {
+                    const experienceText = typeof experience === 'string' ? experience : experience.experience || 'Experience';
+                    const experienceValue = typeof experience === 'string' ? experience : `${index}`;
+                    return (
+                      <SelectItem key={index} value={experienceValue}>
+                        {experienceText.length > 100 ? `${experienceText.substring(0, 100)}...` : experienceText}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -106,11 +109,15 @@ const AutoCraftingReadinessDialog: FC<AutoCraftingReadinessDialogProps> = ({
                   <SelectValue placeholder="Choose writing tone" />
                 </SelectTrigger>
                 <SelectContent>
-                  {selectedAuthor.tones.map((tone, index) => (
-                    <SelectItem key={index} value={tone}>
-                      {tone}
-                    </SelectItem>
-                  ))}
+                  {selectedAuthor.tones.map((tone, index) => {
+                    const toneText = typeof tone === 'string' ? tone : tone.tone || 'Tone';
+                    const toneValue = typeof tone === 'string' ? tone : `${index}`;
+                    return (
+                      <SelectItem key={index} value={toneValue}>
+                        {toneText}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>

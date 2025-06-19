@@ -115,10 +115,10 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
         <TargetReaderResonanceStep
           data={{
             mainTargetICP: formData.mainTargetICP,
-            journeyStage: formData.journeyStage,
+            journeyStage: formData.journeyStage as '' | 'TOFU' | 'MOFU' | 'BOFU',
             broaderAudience: formData.broaderAudience,
             readingPrompt: formData.readingPrompt,
-            narrativeAnchors: formData.narrativeAnchors,
+            narrativeAnchors: formData.narrativeAnchors.map(anchor => typeof anchor === 'string' ? { id: anchor, name: anchor } : anchor),
             successStory: formData.successStory
           }}
           scripts={scripts}
@@ -155,6 +155,7 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
             introPOV: formData.introPOV || '',
             outlineSections: (formData.outlineSections || []).map(section => ({
               ...section,
+              plsSteps: section.plsSteps || 'PLS Steps',
               phase: section.phase === 'attract' ? 'resonance' : 
                      section.phase === 'filter' ? 'resonance' :
                      section.phase === 'engage' ? 'relevance' : 'results'
