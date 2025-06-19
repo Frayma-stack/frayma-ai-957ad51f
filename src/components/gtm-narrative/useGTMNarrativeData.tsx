@@ -104,7 +104,7 @@ const initialFormData: FormData = {
 };
 
 export const useGTMNarrativeData = () => {
-  const [formData, setFormData] = useLocalStorage('gtm-narrative-form', initialFormData);
+  const [formData, setFormData] = useState<FormData>(initialFormData);
 
   const handleInputChange = (field: keyof FormData, value: any) => {
     setFormData(prev => ({
