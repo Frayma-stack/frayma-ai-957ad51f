@@ -44,7 +44,11 @@ const DraftRestoreDialog: FC<DraftRestoreDialogProps> = ({
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   };
 
-  const getContentPreview = (content: string) => {
+  const getContentPreview = (content: string | undefined | null) => {
+    // Handle undefined, null, or empty content
+    if (!content || typeof content !== 'string') {
+      return 'No content available';
+    }
     return content.length > 100 ? content.substring(0, 100) + '...' : content;
   };
 
@@ -86,7 +90,7 @@ const DraftRestoreDialog: FC<DraftRestoreDialogProps> = ({
                     >
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-medium text-sm truncate">
-                          {draft.title}
+                          {draft.title || 'Untitled Draft'}
                         </h4>
                         <Button
                           variant="ghost"
@@ -121,7 +125,7 @@ const DraftRestoreDialog: FC<DraftRestoreDialogProps> = ({
             {selectedDraft ? (
               <div className="h-full flex flex-col">
                 <div className="mb-4">
-                  <h3 className="font-semibold mb-2">{selectedDraft.title}</h3>
+                  <h3 className="font-semibold mb-2">{selectedDraft.title || 'Untitled Draft'}</h3>
                   <div className="flex gap-2 mb-4">
                     <Badge variant="secondary">{selectedDraft.content_type}</Badge>
                     <Badge variant="outline">
@@ -131,7 +135,7 @@ const DraftRestoreDialog: FC<DraftRestoreDialogProps> = ({
                 </div>
                 <ScrollArea className="flex-1 border rounded p-3">
                   <pre className="whitespace-pre-wrap text-sm">
-                    {selectedDraft.content}
+                    {selectedDraft.content || 'No content available'}
                   </pre>
                 </ScrollArea>
               </div>
