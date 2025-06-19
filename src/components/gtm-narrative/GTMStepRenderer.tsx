@@ -1,6 +1,6 @@
 
 import { FC } from 'react';
-import { ICPStoryScript, CustomerSuccessStory, ArticleSubType } from '@/types/storytelling';
+import { ICPStoryScript, CustomerSuccessStory, ArticleSubType, Author } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { FormData } from './useGTMNarrativeData';
 import StrategicAlignmentStep from './StrategicAlignmentStep';
@@ -8,6 +8,7 @@ import TargetReaderResonanceStep from './TargetReaderResonanceStep';
 import ContentDiscoveryTriggersStep from './ContentDiscoveryTriggersStep';
 import EnhancedContentOutlineStep from './EnhancedContentOutlineStep';
 import ContentGenerationEditor from './ContentGenerationEditor';
+import { AutoCraftingConfig } from './outline/AutoCraftingReadinessDialog';
 
 interface GTMStepRendererProps {
   currentStep: number;
@@ -18,11 +19,13 @@ interface GTMStepRendererProps {
   ideas: GeneratedIdea[];
   selectedIdea?: GeneratedIdea | null;
   articleSubType: ArticleSubType;
+  authors: Author[];
   isGenerating: boolean;
   onDataChange: (field: keyof FormData, value: any) => void;
   onContentPhaseNext: () => Promise<void>;
   onBackToOutline: () => void;
   onRegenerate: (phase: 'intro' | 'body' | 'conclusion') => Promise<void>;
+  onProceedToAutoCrafting?: (config: AutoCraftingConfig) => void;
 }
 
 const GTMStepRenderer: FC<GTMStepRendererProps> = ({
@@ -34,11 +37,13 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
   ideas,
   selectedIdea,
   articleSubType,
+  authors = [],
   isGenerating,
   onDataChange,
   onContentPhaseNext,
   onBackToOutline,
-  onRegenerate
+  onRegenerate,
+  onProceedToAutoCrafting
 }) => {
   if (contentPhase !== 'outline') {
     const getContentTypeLabel = () => {
@@ -138,6 +143,7 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
         headlineOptions: formData.headlineOptions?.length || 0,
         outlineSections: formData.outlineSections?.length || 0,
         successStoriesCount: successStories.length,
+        authorsCount: authors.length,
         articleSubType
       });
       
@@ -146,19 +152,27 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
           data={{
             headlineOptions: formData.headlineOptions || [],
             selectedHeadline: formData.selectedHeadline || '',
-            outlineSections: formData.outlineSections || []
+            introPOV: formData.introPOV || '',
+            outlineSections: (formData.outlineSections || []).map(section => ({
+              ...section,
+              phase: section.phase === 'attract' ? 'resonance' : 
+                     section.phase === 'filter' ? 'resonance' :
+                     section.phase === 'engage' ? 'relevance' : 'results'
+            }))
           }}
           articleSubType={articleSubType}
           successStories={successStories}
           productFeatures={[]}
           productUseCases={[]}
           productDifferentiators={[]}
+          authors={authors}
           isGeneratingHeadlines={isGenerating}
           isGeneratingOutline={isGenerating}
           onDataChange={onDataChange}
           onAddHeadline={() => {
             console.log('Add headline triggered');
           }}
+          onProceedToAutoCrafting={onProceedToAutoCrafting!}
         />
       );
     default:

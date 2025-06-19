@@ -17,7 +17,8 @@ interface OutlineSection {
   context?: string;
   linkedAssetType?: 'success_story' | 'feature' | 'use_case' | 'differentiator';
   linkedAssetId?: string;
-  phase: 'attract' | 'filter' | 'engage' | 'results';
+  phase: 'resonance' | 'relevance' | 'results';
+  plsSteps: string;
 }
 
 interface OutlineSectionProps {
@@ -49,33 +50,26 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
 }) => {
   const getPhaseInfo = (phase: string) => {
     switch (phase) {
-      case 'attract':
+      case 'resonance':
         return {
           color: 'bg-blue-100 text-blue-800',
           icon: Target,
-          label: 'ATTRACT (Resonance)',
-          description: 'Hook & capture attention'
+          label: 'RESONANCE',
+          description: 'Filter & build rapport with target ICP'
         };
-      case 'filter':
-        return {
-          color: 'bg-yellow-100 text-yellow-800',
-          icon: Target,
-          label: 'FILTER (Resonance)',
-          description: 'Qualify target audience'
-        };
-      case 'engage':
+      case 'relevance':
         return {
           color: 'bg-purple-100 text-purple-800',
           icon: Lightbulb,
-          label: 'ENGAGE (Relevance)',
-          description: 'Deliver value & insights'
+          label: 'RELEVANCE',
+          description: 'Engage with valuable insights'
         };
       case 'results':
         return {
           color: 'bg-green-100 text-green-800',
           icon: TrendingUp,
-          label: 'RESULTS (Results)',
-          description: 'Drive action & conversion'
+          label: 'RESULTS',
+          description: 'Persuade & drive conversion'
         };
       default:
         return {
@@ -141,6 +135,9 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
           <Badge className={`text-xs ${phaseInfo.color}`}>
             <PhaseIcon className="h-3 w-3 mr-1" />
             {phaseInfo.label}
+          </Badge>
+          <Badge variant="outline" className="text-xs">
+            {section.plsSteps}
           </Badge>
           <Tooltip>
             <TooltipTrigger>
@@ -227,16 +224,16 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
         
       {/* POV/Context Section */}
       <div>
-        <Label className="text-xs text-gray-500 mb-1 block">Your POV/Direction (Optional)</Label>
+        <Label className="text-xs text-gray-500 mb-1 block">Your POV/Direction/Narrative (Optional)</Label>
         <Textarea
           value={section.context || ''}
           onChange={(e) => onUpdateSection('context', e.target.value)}
-          placeholder="Add your perspective, specific direction, or key points you want Frayma AI to focus on when generating this section..."
+          placeholder="Add your perspective, specific direction, narrative angle, or key points you want Frayma AI to focus on when generating this section..."
           rows={3}
           className="text-sm"
         />
         <p className="text-xs text-gray-400 mt-1">
-          This helps guide the AI to generate content aligned with your vision for this section.
+          This helps guide the AI to generate content aligned with your vision for this section and the overall PLS approach.
         </p>
       </div>
       
@@ -287,7 +284,7 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
       {/* Asset linking explanation */}
       {section.linkedAssetType && section.linkedAssetId && (
         <div className="bg-blue-50 p-3 rounded text-xs text-blue-700">
-          This section will reference your selected {section.linkedAssetType.replace('_', ' ')} to provide specific, relevant content.
+          This section will reference your selected {section.linkedAssetType.replace('_', ' ')} to provide specific, relevant content that supports the PLS approach.
         </div>
       )}
     </div>

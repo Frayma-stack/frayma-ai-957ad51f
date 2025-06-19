@@ -1,6 +1,7 @@
+
 import { FC } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { ICPStoryScript, CustomerSuccessStory, ArticleSubType } from '@/types/storytelling';
+import { ICPStoryScript, CustomerSuccessStory, ArticleSubType, Author } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import IdeaSelector from './IdeaSelector';
 import ProgressIndicator from './gtm-narrative/ProgressIndicator';
@@ -11,12 +12,14 @@ import { useGTMNarrativeData } from './gtm-narrative/useGTMNarrativeData';
 import { useGTMNarrativeGeneration } from './gtm-narrative/useGTMNarrativeGeneration';
 import { useGTMNavigation } from './gtm-narrative/useGTMNavigation';
 import { useIdeaSummarization } from '@/hooks/useIdeaSummarization';
+import { AutoCraftingConfig } from './gtm-narrative/outline/AutoCraftingReadinessDialog';
 
 interface GTMNarrativeCreatorProps {
   articleSubType: ArticleSubType;
   scripts: ICPStoryScript[];
   successStories: CustomerSuccessStory[];
   ideas: GeneratedIdea[];
+  authors: Author[];
   selectedIdeaId?: string | null;
   selectedClientId?: string | null;
   onBack: () => void;
@@ -27,6 +30,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
   scripts,
   successStories,
   ideas,
+  authors = [],
   selectedIdeaId,
   selectedClientId,
   onBack
@@ -94,6 +98,14 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     generatePhaseContent
   });
 
+  const handleProceedToAutoCrafting = (config: AutoCraftingConfig) => {
+    console.log('🚀 Proceeding to auto-crafting with config:', config);
+    // Store the auto-crafting configuration
+    handleInputChange('autoCraftingConfig', config);
+    // Proceed to intro generation phase
+    handleContentPhaseNext();
+  };
+
   const canProceedFromCurrentStep = (): boolean => {
     if (currentStep === 1) {
       return canProceedFromStep1();
@@ -144,11 +156,13 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
               ideas={ideas}
               selectedIdea={selectedIdea}
               articleSubType={articleSubType}
+              authors={authors}
               isGenerating={isGenerating}
               onDataChange={handleInputChange}
               onContentPhaseNext={handleContentPhaseNext}
               onBackToOutline={handleBackToOutline}
               onRegenerate={generatePhaseContent}
+              onProceedToAutoCrafting={handleProceedToAutoCrafting}
             />
           </div>
 
