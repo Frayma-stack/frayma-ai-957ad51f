@@ -1,5 +1,4 @@
-
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -103,7 +102,9 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
 
   const updateSection = (index: number, field: keyof OutlineSection, value: any) => {
     const newSections = [...data.outlineSections];
-    newSections[index] = { ...newSections[index], [field]: value };
+    // Handle special "__none__" values by converting them to undefined
+    const processedValue = value === "__none__" ? undefined : value;
+    newSections[index] = { ...newSections[index], [field]: processedValue };
     onDataChange('outlineSections', newSections);
   };
 
@@ -365,14 +366,14 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
                           <div>
                             <Label className="text-xs text-gray-500 mb-1 block">Link Asset Type</Label>
                             <Select 
-                              value={section.linkedAssetType || ''} 
+                              value={section.linkedAssetType || '__none__'} 
                               onValueChange={(value) => updateSection(index, 'linkedAssetType', value)}
                             >
                               <SelectTrigger className="text-sm">
                                 <SelectValue placeholder="Optional asset" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="">None</SelectItem>
+                                <SelectItem value="__none__">None</SelectItem>
                                 <SelectItem value="success_story">Success Story</SelectItem>
                                 <SelectItem value="feature">Product Feature</SelectItem>
                                 <SelectItem value="use_case">Use Case</SelectItem>
@@ -385,13 +386,14 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
                             <div>
                               <Label className="text-xs text-gray-500 mb-1 block">Select Asset</Label>
                               <Select 
-                                value={section.linkedAssetId || ''} 
+                                value={section.linkedAssetId || '__none__'} 
                                 onValueChange={(value) => updateSection(index, 'linkedAssetId', value)}
                               >
                                 <SelectTrigger className="text-sm">
                                   <SelectValue placeholder="Choose asset" />
                                 </SelectTrigger>
                                 <SelectContent>
+                                  <SelectItem value="__none__">None</SelectItem>
                                   {getAssetOptions(section.linkedAssetType).map((asset: any) => (
                                     <SelectItem key={asset.id} value={asset.id}>
                                       {getAssetDisplayName(section.linkedAssetType!, asset.id)}
