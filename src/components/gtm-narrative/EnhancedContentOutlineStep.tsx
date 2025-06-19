@@ -1,3 +1,4 @@
+
 import { FC, useState, useEffect } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, X, Loader2, FileText, HelpCircle, Sparkles, Lightbulb, Target, TrendingUp } from 'lucide-react';
+import { Plus, X, Loader2, FileText, HelpCircle, Sparkles, Lightbulb, Target, TrendingUp, MoveUp, MoveDown } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CustomerSuccessStory, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
 
@@ -108,22 +109,39 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
     onDataChange('outlineSections', newSections);
   };
 
-  const addSection = () => {
+  const addSection = (afterIndex?: number) => {
     const newSection: OutlineSection = {
       id: `custom_${Date.now()}`,
-      type: 'H2',
+      type: 'H3',
       title: 'New Section',
       context: '',
       phase: 'engage',
       linkedAssetType: undefined,
       linkedAssetId: undefined
     };
-    onDataChange('outlineSections', [...data.outlineSections, newSection]);
+    
+    const newSections = [...data.outlineSections];
+    if (afterIndex !== undefined) {
+      newSections.splice(afterIndex + 1, 0, newSection);
+    } else {
+      newSections.push(newSection);
+    }
+    onDataChange('outlineSections', newSections);
   };
 
   const removeSection = (index: number) => {
     const newSections = data.outlineSections.filter((_, i) => i !== index);
     onDataChange('outlineSections', newSections);
+  };
+
+  const moveSection = (index: number, direction: 'up' | 'down') => {
+    const newSections = [...data.outlineSections];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    
+    if (targetIndex >= 0 && targetIndex < newSections.length) {
+      [newSections[index], newSections[targetIndex]] = [newSections[targetIndex], newSections[index]];
+      onDataChange('outlineSections', newSections);
+    }
   };
 
   const addCustomHeadline = () => {
@@ -173,6 +191,19 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
     return articleSubType === 'newsletter' 
       ? 'First-Person Narrative Newsletter'
       : 'Thought Leadership & How-to Guide';
+  };
+
+  const getHeadingStylePreview = (type: 'H2' | 'H3' | 'H4', title: string) => {
+    const styles = {
+      H2: 'text-xl font-bold text-gray-900',
+      H3: 'text-lg font-semibold text-gray-800',
+      H4: 'text-base font-medium text-gray-700'
+    };
+    return (
+      <div className={`${styles[type]} mb-1`}>
+        {title}
+      </div>
+    );
   };
 
   return (
@@ -300,7 +331,7 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
               )}
             </div>
             <p className="text-sm text-gray-600">
-              AI-generated outline using your content discovery triggers. Edit sections, add your POV, and link assets.
+              AI-generated outline using your content discovery triggers. Edit sections, change heading levels, add your POV, and link assets.
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -311,12 +342,10 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
                   const PhaseIcon = phaseInfo.icon;
                   
                   return (
-                    <div key={section.id} className="border rounded-lg p-4 space-y-3">
+                    <div key={section.id} className="border rounded-lg p-4 space-y-4 bg-gray-50">
+                      {/* Section Header with Controls */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            {section.type}
-                          </Badge>
                           <Badge className={`text-xs ${phaseInfo.color}`}>
                             <PhaseIcon className="h-3 w-3 mr-1" />
                             {phaseInfo.label}
@@ -330,18 +359,64 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
                             </TooltipContent>
                           </Tooltip>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeSection(index)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => moveSection(index, 'up')}
+                            disabled={index === 0}
+                            className="h-8 w-8 p-0"
+                          >
+                            <MoveUp className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => moveSection(index, 'down')}
+                            disabled={index === data.outlineSections.length - 1}
+                            className="h-8 w-8 p-0"
+                          >
+                            <MoveDown className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => addSection(index)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeSection(index)}
+                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
                       
-                      <div className="grid grid-cols-1 gap-3">
+                      {/* Heading Level and Title */}
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                         <div>
+                          <Label className="text-xs text-gray-500 mb-1 block">Heading Level</Label>
+                          <Select 
+                            value={section.type} 
+                            onValueChange={(value: 'H2' | 'H3' | 'H4') => updateSection(index, 'type', value)}
+                          >
+                            <SelectTrigger className="text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="H2">H2 - Major Section</SelectItem>
+                              <SelectItem value="H3">H3 - Subsection</SelectItem>
+                              <SelectItem value="H4">H4 - Minor Section</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="lg:col-span-2">
                           <Label className="text-xs text-gray-500 mb-1 block">Section Title</Label>
                           <Input
                             value={section.title}
@@ -350,72 +425,90 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
                             className="font-medium"
                           />
                         </div>
+                      </div>
+
+                      {/* Preview of how the heading will look */}
+                      <div className="bg-white p-3 border rounded">
+                        <Label className="text-xs text-gray-500 mb-2 block">Preview</Label>
+                        {getHeadingStylePreview(section.type, section.title)}
+                      </div>
                         
+                      {/* POV/Context Section */}
+                      <div>
+                        <Label className="text-xs text-gray-500 mb-1 block">Your POV/Direction (Optional)</Label>
+                        <Textarea
+                          value={section.context || ''}
+                          onChange={(e) => updateSection(index, 'context', e.target.value)}
+                          placeholder="Add your perspective, specific direction, or key points you want Frayma AI to focus on when generating this section..."
+                          rows={3}
+                          className="text-sm"
+                        />
+                        <p className="text-xs text-gray-400 mt-1">
+                          This helps guide the AI to generate content aligned with your vision for this section.
+                        </p>
+                      </div>
+                      
+                      {/* Asset Linking */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div>
-                          <Label className="text-xs text-gray-500 mb-1 block">Your POV/Context (Optional)</Label>
-                          <Textarea
-                            value={section.context || ''}
-                            onChange={(e) => updateSection(index, 'context', e.target.value)}
-                            placeholder="Add your perspective, direction, or specific points to guide AI generation..."
-                            rows={2}
-                            className="text-sm"
-                          />
+                          <Label className="text-xs text-gray-500 mb-1 block">Link Asset Type</Label>
+                          <Select 
+                            value={section.linkedAssetType || '__none__'} 
+                            onValueChange={(value) => updateSection(index, 'linkedAssetType', value)}
+                          >
+                            <SelectTrigger className="text-sm">
+                              <SelectValue placeholder="Optional asset" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="__none__">None</SelectItem>
+                              <SelectItem value="success_story">Success Story</SelectItem>
+                              <SelectItem value="feature">Product Feature</SelectItem>
+                              <SelectItem value="use_case">Use Case</SelectItem>
+                              <SelectItem value="differentiator">Differentiator</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-2">
+                        {section.linkedAssetType && (
                           <div>
-                            <Label className="text-xs text-gray-500 mb-1 block">Link Asset Type</Label>
+                            <Label className="text-xs text-gray-500 mb-1 block">Select Asset</Label>
                             <Select 
-                              value={section.linkedAssetType || '__none__'} 
-                              onValueChange={(value) => updateSection(index, 'linkedAssetType', value)}
+                              value={section.linkedAssetId || '__none__'} 
+                              onValueChange={(value) => updateSection(index, 'linkedAssetId', value)}
                             >
                               <SelectTrigger className="text-sm">
-                                <SelectValue placeholder="Optional asset" />
+                                <SelectValue placeholder="Choose asset" />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="__none__">None</SelectItem>
-                                <SelectItem value="success_story">Success Story</SelectItem>
-                                <SelectItem value="feature">Product Feature</SelectItem>
-                                <SelectItem value="use_case">Use Case</SelectItem>
-                                <SelectItem value="differentiator">Differentiator</SelectItem>
+                                {getAssetOptions(section.linkedAssetType).map((asset: any) => (
+                                  <SelectItem key={asset.id} value={asset.id}>
+                                    {getAssetDisplayName(section.linkedAssetType!, asset.id)}
+                                  </SelectItem>
+                                ))}
                               </SelectContent>
                             </Select>
                           </div>
-                          
-                          {section.linkedAssetType && (
-                            <div>
-                              <Label className="text-xs text-gray-500 mb-1 block">Select Asset</Label>
-                              <Select 
-                                value={section.linkedAssetId || '__none__'} 
-                                onValueChange={(value) => updateSection(index, 'linkedAssetId', value)}
-                              >
-                                <SelectTrigger className="text-sm">
-                                  <SelectValue placeholder="Choose asset" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="__none__">None</SelectItem>
-                                  {getAssetOptions(section.linkedAssetType).map((asset: any) => (
-                                    <SelectItem key={asset.id} value={asset.id}>
-                                      {getAssetDisplayName(section.linkedAssetType!, asset.id)}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          )}
-                        </div>
+                        )}
                       </div>
+
+                      {/* Asset linking explanation */}
+                      {section.linkedAssetType && section.linkedAssetId && (
+                        <div className="bg-blue-50 p-3 rounded text-xs text-blue-700">
+                          This section will reference your selected {section.linkedAssetType.replace('_', ' ')} to provide specific, relevant content.
+                        </div>
+                      )}
                     </div>
                   );
                 })}
                 
                 <Button 
                   variant="outline" 
-                  onClick={addSection}
+                  onClick={() => addSection()}
                   className="w-full"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Section
+                  Add New Section
                 </Button>
               </>
             ) : (
