@@ -6,50 +6,73 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, RefreshCw, ArrowRight, Edit3, CheckCircle } from 'lucide-react';
-import { useChatGPT } from '@/contexts/ChatGPTContext';
-
-interface ContentSection {
-  id: string;
-  title: string;
-  content: string;
-  isGenerated: boolean;
-}
+import { FormData } from './useGTMNarrativeData';
 
 interface ContentGenerationEditorProps {
-  currentPhase: 'intro' | 'body' | 'conclusion';
-  phaseTitle: string;
-  phaseDescription: string;
-  generatedContent: string;
-  onContentChange: (content: string) => void;
-  onRegenerate: () => void;
-  onContinue: () => void;
-  onBack: () => void;
+  contentPhase: 'intro' | 'body' | 'conclusion';
+  formData: FormData;
   isGenerating: boolean;
-  canContinue: boolean;
+  onContentPhaseNext: () => void;
+  onBackToOutline: () => void;
+  onRegenerate: (phase: 'intro' | 'body' | 'conclusion') => Promise<void>;
+  onDataChange: (field: keyof FormData, value: any) => void;
 }
 
 const ContentGenerationEditor: FC<ContentGenerationEditorProps> = ({
-  currentPhase,
-  phaseTitle,
-  phaseDescription,
-  generatedContent,
-  onContentChange,
-  onRegenerate,
-  onContinue,
-  onBack,
+  contentPhase,
+  formData,
   isGenerating,
-  canContinue
+  onContentPhaseNext,
+  onBackToOutline,
+  onRegenerate,
+  onDataChange
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
 
   const getPhaseColor = () => {
-    switch (currentPhase) {
+    switch (contentPhase) {
       case 'intro': return 'bg-blue-100 text-blue-800';
       case 'body': return 'bg-purple-100 text-purple-800';
       case 'conclusion': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const getPhaseTitle = () => {
+    switch (contentPhase) {
+      case 'intro': return 'Introduction';
+      case 'body': return 'Body Content';
+      case 'conclusion': return 'Conclusion';
+      default: return 'Content';
+    }
+  };
+
+  const getPhaseDescription = () => {
+    switch (contentPhase) {
+      case 'intro': return 'Craft an engaging introduction that sets up your narrative';
+      case 'body': return 'Develop the main content following your outline structure';
+      case 'conclusion': return 'Create a compelling conclusion with clear call-to-action';
+      default: return 'Generate content for this phase';
+    }
+  };
+
+  const getCurrentContent = () => {
+    switch (contentPhase) {
+      case 'intro': return formData.introContent || '';
+      case 'body': return formData.bodyContent || '';
+      case 'conclusion': return formData.conclusionContent || '';
+      default: return '';
+    }
+  };
+
+  const handleContentChange = (content: string) => {
+    const fieldMap = {
+      intro: 'introContent',
+      body: 'bodyContent',
+      conclusion: 'conclusionContent'
+    };
+    onDataChange(fieldMap[contentPhase] as keyof FormData, content);
   };
 
   const handleSave = () => {
@@ -60,15 +83,21 @@ const ContentGenerationEditor: FC<ContentGenerationEditorProps> = ({
     });
   };
 
+  const handleRegenerate = () => {
+    onRegenerate(contentPhase);
+  };
+
+  const canContinue = getCurrentContent().trim().length > 0;
+
   return (
     <div className="space-y-6">
       {/* Phase Header */}
       <div className="text-center space-y-2">
         <Badge className={`px-3 py-1 ${getPhaseColor()}`}>
-          {phaseTitle}
+          {getPhaseTitle()}
         </Badge>
         <h2 className="text-xl font-semibold text-story-blue">AI Content Generation</h2>
-        <p className="text-sm text-gray-600 max-w-2xl mx-auto">{phaseDescription}</p>
+        <p className="text-sm text-gray-600 max-w-2xl mx-auto">{getPhaseDescription()}</p>
       </div>
 
       {/* Content Editor */}
@@ -82,7 +111,7 @@ const ContentGenerationEditor: FC<ContentGenerationEditorProps> = ({
                   variant="outline"
                   size="sm"
                   onClick={() => setIsEditing(true)}
-                  disabled={isGenerating || !generatedContent}
+                  disabled={isGenerating || !getCurrentContent()}
                 >
                   <Edit3 className="h-4 w-4 mr-2" />
                   Edit
@@ -100,7 +129,7 @@ const ContentGenerationEditor: FC<ContentGenerationEditorProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={onRegenerate}
+                onClick={handleRegenerate}
                 disabled={isGenerating}
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
@@ -117,8 +146,8 @@ const ContentGenerationEditor: FC<ContentGenerationEditorProps> = ({
             </div>
           ) : (
             <Textarea
-              value={generatedContent}
-              onChange={(e) => onContentChange(e.target.value)}
+              value={getCurrentContent()}
+              onChange={(e) => handleContentChange(e.target.value)}
               readOnly={!isEditing}
               className={`min-h-[300px] ${!isEditing ? 'bg-gray-50' : ''}`}
               placeholder="Generated content will appear here..."
@@ -129,16 +158,16 @@ const ContentGenerationEditor: FC<ContentGenerationEditorProps> = ({
 
       {/* Navigation */}
       <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={onBack}>
+        <Button variant="outline" onClick={onBackToOutline}>
           Back to Outline
         </Button>
         
         <Button 
-          onClick={onContinue}
+          onClick={onContentPhaseNext}
           disabled={!canContinue || isGenerating}
           className="bg-story-blue hover:bg-story-light-blue"
         >
-          {currentPhase === 'conclusion' ? 'Complete Draft' : 'Continue to Next Phase'}
+          {contentPhase === 'conclusion' ? 'Complete Draft' : 'Continue to Next Phase'}
           <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
       </div>
