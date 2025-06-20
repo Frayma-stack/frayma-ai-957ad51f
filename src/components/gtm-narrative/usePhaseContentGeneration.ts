@@ -39,7 +39,8 @@ export const usePhaseContentGeneration = ({
     try {
       const selectedScript = scripts.find(s => s.id === formData.mainTargetICP);
       const selectedHeadline = formData.headlineOptions.find(h => h.id === formData.selectedHeadline);
-      const selectedAuthor = formData.autoCraftingConfig?.selectedAuthor;
+      const autoCraftingConfig = formData.autoCraftingConfig;
+      const selectedAuthor = autoCraftingConfig?.authorId;
       const authorData = authors.find(a => a.id === selectedAuthor);
       
       let variables: Record<string, any> = {
@@ -63,14 +64,14 @@ export const usePhaseContentGeneration = ({
         // Author information
         author_name: authorData?.name || 'Industry Expert',
         author_summary: authorData?.backstory || 'Experienced professional',
-        selected_writing_tone: formData.autoCraftingConfig?.selectedTone || 'Professional',
-        author_writing_tone: formData.autoCraftingConfig?.selectedTone || 'Professional',
-        relevant_author_experiences: formData.autoCraftingConfig?.selectedExperiences?.join('; ') || 'Industry experience',
+        selected_writing_tone: autoCraftingConfig?.writingTone || 'Professional',
+        author_writing_tone: autoCraftingConfig?.writingTone || 'Professional',
+        relevant_author_experiences: autoCraftingConfig?.experiences?.join('; ') || 'Industry experience',
         product_beliefs: authorData?.beliefs?.map(b => b.belief).join('; ') || 'Strategic insights',
         // Configuration
-        selected_intro_length: formData.autoCraftingConfig?.wordCount?.toString() || '300',
-        word_count_range: formData.autoCraftingConfig?.wordCount?.toString() || '300',
-        user_selected_word_count_range: formData.autoCraftingConfig?.wordCount?.toString() || '300'
+        selected_intro_length: autoCraftingConfig?.wordCount?.toString() || '300',
+        word_count_range: autoCraftingConfig?.wordCount?.toString() || '300',
+        user_selected_word_count_range: autoCraftingConfig?.wordCount?.toString() || '300'
       };
       
       let promptCategory: 'intro_generation' | 'body_generation' | 'conclusion_generation';
@@ -122,7 +123,10 @@ export const usePhaseContentGeneration = ({
       });
       console.log(`Raw ${phase} response:`, response);
       
-      onDataChange(contentKey, response);
+      // Clean up the content formatting
+      const cleanedContent = cleanContentFormatting(response);
+      
+      onDataChange(contentKey, cleanedContent);
       
       toast({
         title: "Content generated",
@@ -138,6 +142,16 @@ export const usePhaseContentGeneration = ({
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  // Clean up formatting for better readability
+  const cleanContentFormatting = (content: string): string => {
+    return content
+      .replace(/#{1,6}\s*/g, '') // Remove markdown headers
+      .replace(/\*\*/g, '') // Remove bold markdown
+      .replace(/\*/g, '') // Remove italic markdown
+      .replace(/\n{3,}/g, '\n\n') // Replace multiple line breaks with double
+      .trim();
   };
 
   return {

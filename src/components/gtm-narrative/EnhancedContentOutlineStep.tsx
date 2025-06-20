@@ -4,11 +4,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { CustomerSuccessStory, ProductFeature, ProductUseCase, ProductDifferentiator, Author } from '@/types/storytelling';
 import OutlineStepHeader from './outline/OutlineStepHeader';
+import SelectedHeadlineDisplay from './outline/SelectedHeadlineDisplay';
 import ThreeRsFormulaCard from './outline/ThreeRsFormulaCard';
 import HeadlinePLSSection from './outline/HeadlinePLSSection';
+import ResonancePLSSection from './outline/ResonancePLSSection';
 import PLSPhaseSection from './outline/PLSPhaseSection';
 import AutoCraftingReadinessDialog, { AutoCraftingConfig } from './outline/AutoCraftingReadinessDialog';
-import { Target, Lightbulb, TrendingUp } from 'lucide-react';
+import { Lightbulb, TrendingUp } from 'lucide-react';
 
 interface HeadlineOption {
   id: string;
@@ -69,18 +71,10 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
     onDataChange('headlineOptions', [...data.headlineOptions, headline]);
   };
 
-  // Organize sections by PLS phases
+  // Organize sections by PLS phases - separate resonance from others
+  const resonanceSections = data.outlineSections.filter(s => s.phase === 'resonance');
+  
   const plsPhases = [
-    {
-      id: 'resonance' as const,
-      title: 'Resonance',
-      subtitle: 'Filter & Build Rapport',
-      plsSteps: 'PLS Steps 2-3',
-      description: 'After the headline attracts attention, filter for your target ICP and build initial rapport.',
-      icon: Target,
-      color: 'bg-blue-100 text-blue-800',
-      sections: data.outlineSections.filter(s => s.phase === 'resonance')
-    },
     {
       id: 'relevance' as const,
       title: 'Relevance',
@@ -110,7 +104,7 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
     onDataChange('outlineSections', newSections);
   };
 
-  const addSection = (phase: 'resonance' | 'relevance' | 'results') => {
+  const addSectionToPhase = (phase: 'resonance' | 'relevance' | 'results', afterSectionId?: string) => {
     const plsStepsMap = {
       resonance: 'PLS Steps 2-3',
       relevance: 'PLS Steps 4-6', 
@@ -120,7 +114,7 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
     const newSection: OutlineSection = {
       id: `custom_${Date.now()}`,
       type: 'H3',
-      title: 'New Section',
+      title: 'New Headline',
       context: '',
       phase,
       plsSteps: plsStepsMap[phase],
@@ -128,7 +122,16 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
       linkedAssetId: undefined
     };
     
-    onDataChange('outlineSections', [...data.outlineSections, newSection]);
+    if (afterSectionId) {
+      // Insert after specific section
+      const sections = [...data.outlineSections];
+      const insertIndex = sections.findIndex(s => s.id === afterSectionId) + 1;
+      sections.splice(insertIndex, 0, newSection);
+      onDataChange('outlineSections', sections);
+    } else {
+      // Add to end of sections
+      onDataChange('outlineSections', [...data.outlineSections, newSection]);
+    }
   };
 
   const removeSection = (sectionId: string) => {
@@ -157,13 +160,19 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
   const canProceedToAutoCrafting = () => {
     return data.selectedHeadline && 
            authors.length > 0 && 
-           plsPhases.some(phase => phase.sections.length > 0);
+           (resonanceSections.length > 0 || plsPhases.some(phase => phase.sections.length > 0));
   };
 
   return (
     <TooltipProvider>
       <div className="space-y-6">
         <OutlineStepHeader articleSubType={articleSubType} />
+
+        {/* Show Selected Headline */}
+        <SelectedHeadlineDisplay 
+          selectedHeadline={data.selectedHeadline}
+          headlineOptions={data.headlineOptions}
+        />
         
         <ThreeRsFormulaCard />
 
@@ -177,6 +186,22 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
           onAddHeadline={handleAddHeadline}
         />
 
+        {/* Resonance Section (PLS Steps 2-3) */}
+        <ResonancePLSSection
+          introPOV={data.introPOV || ''}
+          resonanceSections={resonanceSections}
+          successStories={successStories}
+          productFeatures={productFeatures}
+          productUseCases={productUseCases}
+          productDifferentiators={productDifferentiators}
+          onIntroPOVChange={(value) => onDataChange('introPOV', value)}
+          onUpdateSection={updateSection}
+          onAddSection={(afterSectionId) => addSectionToPhase('resonance', afterSectionId)}
+          onRemoveSection={removeSection}
+          onMoveSectionUp={moveSectionUp}
+          onMoveSectionDown={moveSectionDown}
+        />
+
         {plsPhases.map((phase) => (
           <PLSPhaseSection
             key={phase.id}
@@ -186,7 +211,7 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
             productUseCases={productUseCases}
             productDifferentiators={productDifferentiators}
             onUpdateSection={updateSection}
-            onAddSection={addSection}
+            onAddSection={(afterSectionId) => addSectionToPhase(phase.id, afterSectionId)}
             onRemoveSection={removeSection}
             onMoveSectionUp={moveSectionUp}
             onMoveSectionDown={moveSectionDown}
