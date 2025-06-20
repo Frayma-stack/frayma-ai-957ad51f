@@ -97,12 +97,16 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
         <StrategicAlignmentStep
           data={{
             ideaTrigger: formData.ideaTrigger,
+            selectedIdeaId: formData.selectedIdeaId || '',
+            mutualGoal: formData.mutualGoal || '',
             publishReason: formData.publishReason,
             targetKeyword: formData.targetKeyword,
             contentCluster: formData.contentCluster,
-            callToAction: formData.callToAction
+            callToAction: formData.callToAction,
+            strategicSuccessStory: formData.strategicSuccessStory || ''
           }}
-          selectedIdea={selectedIdea}
+          successStories={successStories}
+          ideas={ideas}
           onDataChange={onDataChange}
         />
       );
@@ -112,8 +116,8 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
         <TargetReaderResonanceStep
           data={{
             mainTargetICP: formData.mainTargetICP,
-            journeyStage: formData.journeyStage,
-            mutualGoal: formData.mutualGoal,
+            journeyStage: formData.journeyStage as 'TOFU' | 'MOFU' | 'BOFU' | '',
+            mutualGoal: formData.mutualGoal || '',
             readingPrompt: formData.readingPrompt,
             narrativeAnchors: formData.narrativeAnchors,
             successStory: formData.successStory,
