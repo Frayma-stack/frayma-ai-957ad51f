@@ -5,7 +5,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Lightbulb, HelpCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CustomerSuccessStory } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 
 interface StrategicAlignmentData {
@@ -16,19 +15,16 @@ interface StrategicAlignmentData {
   contentCluster: string;
   publishReason: string;
   callToAction: string;
-  strategicSuccessStory: string;
 }
 
 interface StrategicAlignmentStepProps {
   data: StrategicAlignmentData;
-  successStories: CustomerSuccessStory[];
   ideas: GeneratedIdea[];
   onDataChange: (field: keyof StrategicAlignmentData, value: string) => void;
 }
 
 const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
   data,
-  successStories,
   ideas,
   onDataChange
 }) => {
@@ -204,32 +200,6 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
               rows={2}
               className="mt-1"
             />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="text-sm font-medium flex items-center">
-              Success Story Guide
-              <Tooltip>
-                <TooltipTrigger>
-                  <HelpCircle className="h-3 w-3 ml-1 text-gray-400" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-xs">Select a success story to guide AI with real-life insights</p>
-                </TooltipContent>
-              </Tooltip>
-            </label>
-            <Select value={data.strategicSuccessStory} onValueChange={(value) => onDataChange('strategicSuccessStory', value)}>
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Choose a success story..." />
-              </SelectTrigger>
-              <SelectContent>
-                {successStories.map((story) => (
-                  <SelectItem key={story.id} value={story.id}>
-                    {story.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </div>

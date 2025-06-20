@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import { ICPStoryScript, CustomerSuccessStory, ArticleSubType, Author, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
@@ -102,10 +101,8 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
             publishReason: formData.publishReason,
             targetKeyword: formData.targetKeyword,
             contentCluster: formData.contentCluster,
-            callToAction: formData.callToAction,
-            strategicSuccessStory: formData.strategicSuccessStory || ''
+            callToAction: formData.callToAction
           }}
-          successStories={successStories}
           ideas={ideas}
           onDataChange={onDataChange}
         />
@@ -146,7 +143,6 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
           isGeneratingHeadlines={isGenerating}
           isGeneratingOutline={isGenerating}
           onDataChange={onDataChange}
-          onAddHeadline={() => {}}
           onProceedToAutoCrafting={onProceedToAutoCrafting}
         />
       );
