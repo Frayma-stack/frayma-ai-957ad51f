@@ -1,3 +1,4 @@
+
 import { FC } from 'react';
 import { ICPStoryScript, CustomerSuccessStory, ArticleSubType, Author, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
@@ -90,6 +91,13 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
     );
   }
 
+  // Add a handler for adding headlines
+  const handleAddHeadline = () => {
+    // This is a placeholder function that could trigger headline generation
+    // For now, it's just an empty function to satisfy the prop requirement
+    console.log('Add headline triggered');
+  };
+
   switch (currentStep) {
     case 1:
       return (
@@ -143,6 +151,7 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
           isGeneratingHeadlines={isGenerating}
           isGeneratingOutline={isGenerating}
           onDataChange={onDataChange}
+          onAddHeadline={handleAddHeadline}
           onProceedToAutoCrafting={onProceedToAutoCrafting}
         />
       );
