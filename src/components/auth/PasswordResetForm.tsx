@@ -1,4 +1,3 @@
-
 import { FC, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,8 +20,13 @@ const PasswordResetForm: FC<PasswordResetFormProps> = ({ onBackToSignIn }) => {
     setLoading(true);
 
     try {
+      // Use the actual app URL instead of localhost
+      const redirectUrl = window.location.hostname === 'localhost' 
+        ? 'https://rrltvtuuzljqkbdavzyw.supabase.co/auth/v1/callback'
+        : `${window.location.origin}/auth`;
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth`,
+        redirectTo: redirectUrl,
       });
 
       if (error) throw error;
