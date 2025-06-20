@@ -66,12 +66,12 @@ export const usePhaseContentGeneration = ({
         author_summary: authorData?.backstory || 'Experienced professional',
         selected_writing_tone: autoCraftingConfig?.writingTone || 'Professional',
         author_writing_tone: autoCraftingConfig?.writingTone || 'Professional',
-        relevant_author_experiences: autoCraftingConfig?.experiences?.join('; ') || 'Industry experience',
+        relevant_author_experiences: autoCraftingConfig?.experienceId ? [autoCraftingConfig.experienceId] : [],
         product_beliefs: authorData?.beliefs?.map(b => b.belief).join('; ') || 'Strategic insights',
         // Configuration
-        selected_intro_length: autoCraftingConfig?.wordCount?.toString() || '300',
-        word_count_range: autoCraftingConfig?.wordCount?.toString() || '300',
-        user_selected_word_count_range: autoCraftingConfig?.wordCount?.toString() || '300'
+        selected_intro_length: '300',
+        word_count_range: '300',
+        user_selected_word_count_range: '300'
       };
       
       let promptCategory: 'intro_generation' | 'body_generation' | 'conclusion_generation';

@@ -104,9 +104,7 @@ const PLSPhaseSection: FC<PLSPhaseSectionProps> = ({
           <>
             {phase.sections.map((section, index) => (
               <div key={section.id} className="space-y-4">
-                <Out
-
-Section
+                <OutlineSectionComponent
                   section={section}
                   index={index}
                   totalSections={phase.sections.length}
