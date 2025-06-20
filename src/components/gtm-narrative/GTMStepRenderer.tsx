@@ -118,10 +118,7 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
             journeyStage: formData.journeyStage as 'TOFU' | 'MOFU' | 'BOFU' | '',
             readingPrompt: formData.readingPrompt,
             narrativeAnchors: formData.narrativeAnchors,
-            successStory: formData.successStory,
-            relatedKeywords: formData.relatedKeywords,
-            searchQueries: formData.searchQueries,
-            problemStatements: formData.problemStatements
+            successStory: formData.successStory
           }}
           scripts={scripts}
           successStories={successStories}
@@ -147,7 +144,7 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
           isGeneratingHeadlines={isGenerating}
           isGeneratingOutline={isGenerating}
           onDataChange={onDataChange}
-          onAddHeadline={() => {}} // This is handled within the component
+          onAddHeadline={() => {}}
           onProceedToAutoCrafting={onProceedToAutoCrafting}
         />
       );
