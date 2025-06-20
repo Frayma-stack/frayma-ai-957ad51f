@@ -59,18 +59,18 @@ const ContentGenerationEditor: FC<ContentGenerationEditorProps> = ({
 
   const getCurrentContent = () => {
     switch (contentPhase) {
-      case 'intro': return formData.introContent || '';
-      case 'body': return formData.bodyContent || '';
-      case 'conclusion': return formData.conclusionContent || '';
+      case 'intro': return formData.generatedIntro || '';
+      case 'body': return formData.generatedBody || '';
+      case 'conclusion': return formData.generatedConclusion || '';
       default: return '';
     }
   };
 
   const handleContentChange = (content: string) => {
     const fieldMap = {
-      intro: 'introContent',
-      body: 'bodyContent',
-      conclusion: 'conclusionContent'
+      intro: 'generatedIntro',
+      body: 'generatedBody',
+      conclusion: 'generatedConclusion'
     };
     onDataChange(fieldMap[contentPhase] as keyof FormData, content);
   };
