@@ -1,3 +1,4 @@
+
 import { FC } from 'react';
 import { ICPStoryScript, CustomerSuccessStory, ArticleSubType, Author, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
@@ -116,6 +117,7 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
           data={{
             mainTargetICP: formData.mainTargetICP,
             journeyStage: formData.journeyStage as 'TOFU' | 'MOFU' | 'BOFU' | '',
+            broaderAudience: formData.broaderAudience || '',
             readingPrompt: formData.readingPrompt,
             narrativeAnchors: formData.narrativeAnchors,
             successStory: formData.successStory
