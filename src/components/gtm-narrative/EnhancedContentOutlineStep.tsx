@@ -1,8 +1,8 @@
-
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { CustomerSuccessStory, ProductFeature, ProductUseCase, ProductDifferentiator, Author } from '@/types/storytelling';
+import { CustomerSuccessStory, ProductFeature, ProductUseCase, ProductDifferentiator, Author, ProductContext } from '@/types/storytelling';
+import { supabaseDataService } from '@/services/SupabaseDataService';
 import OutlineStepHeader from './outline/OutlineStepHeader';
 import SelectedHeadlineDisplay from './outline/SelectedHeadlineDisplay';
 import ThreeRsFormulaCard from './outline/ThreeRsFormulaCard';
@@ -55,9 +55,9 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
   data,
   articleSubType,
   successStories,
-  productFeatures,
-  productUseCases,
-  productDifferentiators,
+  productFeatures: initialProductFeatures,
+  productUseCases: initialProductUseCases,
+  productDifferentiators: initialProductDifferentiators,
   authors = [],
   isGeneratingHeadlines = false,
   isGeneratingOutline = false,
@@ -66,6 +66,52 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
   onProceedToAutoCrafting
 }) => {
   const [showAutoCraftingDialog, setShowAutoCraftingDialog] = useState(false);
+  const [productContexts, setProductContexts] = useState<ProductContext[]>([]);
+  const [allProductFeatures, setAllProductFeatures] = useState<ProductFeature[]>(initialProductFeatures);
+  const [allProductUseCases, setAllProductUseCases] = useState<ProductUseCase[]>(initialProductUseCases);
+  const [allProductDifferentiators, setAllProductDifferentiators] = useState<ProductDifferentiator[]>(initialProductDifferentiators);
+
+  // Load additional product context data
+  useEffect(() => {
+    const loadProductContextData = async () => {
+      try {
+        const contexts = await supabaseDataService.getProductContexts();
+        setProductContexts(contexts);
+        
+        // Aggregate all features, use cases, and differentiators from product contexts
+        const allFeatures: ProductFeature[] = [...initialProductFeatures];
+        const allUseCases: ProductUseCase[] = [...initialProductUseCases];
+        const allDifferentiators: ProductDifferentiator[] = [...initialProductDifferentiators];
+        
+        contexts.forEach(context => {
+          if (context.features) {
+            allFeatures.push(...context.features);
+          }
+          if (context.useCases) {
+            allUseCases.push(...context.useCases);
+          }
+          if (context.differentiators) {
+            allDifferentiators.push(...context.differentiators);
+          }
+        });
+        
+        setAllProductFeatures(allFeatures);
+        setAllProductUseCases(allUseCases);
+        setAllProductDifferentiators(allDifferentiators);
+        
+        console.log('Asset data loaded:', {
+          features: allFeatures.length,
+          useCases: allUseCases.length,
+          differentiators: allDifferentiators.length,
+          successStories: successStories.length
+        });
+      } catch (error) {
+        console.error('Error loading product context data:', error);
+      }
+    };
+
+    loadProductContextData();
+  }, [initialProductFeatures, initialProductUseCases, initialProductDifferentiators, successStories]);
 
   const handleAddHeadline = (headline: HeadlineOption) => {
     onDataChange('headlineOptions', [...data.headlineOptions, headline]);
@@ -191,9 +237,9 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
           introPOV={data.introPOV || ''}
           resonanceSections={resonanceSections}
           successStories={successStories}
-          productFeatures={productFeatures}
-          productUseCases={productUseCases}
-          productDifferentiators={productDifferentiators}
+          productFeatures={allProductFeatures}
+          productUseCases={allProductUseCases}
+          productDifferentiators={allProductDifferentiators}
           onIntroPOVChange={(value) => onDataChange('introPOV', value)}
           onUpdateSection={updateSection}
           onAddSection={(afterSectionId) => addSectionToPhase('resonance', afterSectionId)}
@@ -207,9 +253,9 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
             key={phase.id}
             phase={phase}
             successStories={successStories}
-            productFeatures={productFeatures}
-            productUseCases={productUseCases}
-            productDifferentiators={productDifferentiators}
+            productFeatures={allProductFeatures}
+            productUseCases={allProductUseCases}
+            productDifferentiators={allProductDifferentiators}
             onUpdateSection={updateSection}
             onAddSection={(afterSectionId) => addSectionToPhase(phase.id, afterSectionId)}
             onRemoveSection={removeSection}

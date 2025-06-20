@@ -1,7 +1,9 @@
-import { FC } from 'react';
+
+import { FC, useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { ICPStoryScript, CustomerSuccessStory, ArticleSubType, Author } from '@/types/storytelling';
+import { ICPStoryScript, CustomerSuccessStory, ArticleSubType, Author, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
+import { supabaseDataService } from '@/services/SupabaseDataService';
 import IdeaSelector from './IdeaSelector';
 import ProgressIndicator from './gtm-narrative/ProgressIndicator';
 import GTMNarrativeHeader from './gtm-narrative/GTMNarrativeHeader';
@@ -35,6 +37,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
   onBack
 }) => {
   const { summarizeIdeaForContent } = useIdeaSummarization();
+  const [productContexts, setProductContexts] = useState<ProductContext[]>([]);
   
   const {
     formData,
@@ -42,6 +45,21 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     canProceedFromStep1,
     canProceedFromStep2
   } = useGTMNarrativeData();
+
+  // Load product contexts to get all available assets
+  useEffect(() => {
+    const loadProductContexts = async () => {
+      try {
+        const contexts = await supabaseDataService.getProductContexts();
+        setProductContexts(contexts);
+        console.log('GTMNarrativeCreator: Loaded product contexts:', contexts.length);
+      } catch (error) {
+        console.error('Error loading product contexts:', error);
+      }
+    };
+
+    loadProductContexts();
+  }, []);
 
   // Enhanced handler for when an idea is selected
   const handleIdeaSelection = async (ideaId: string) => {
@@ -57,7 +75,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
           handleInputChange('callToAction', idea.cta);
         }
       } catch (error) {
-        console.error('Error summarizing idea for GTM narrative:', error);
+        console.error('Error summarizing idea for GTM narrative:',);
         // Fallback to basic summary
         const basicSummary = `Based on saved idea "${idea.title}": ${idea.narrative || 'Core concept to be expanded for content creation.'}`;
         handleInputChange('selectedIdeaId', idea.id);
@@ -156,6 +174,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
               formData={formData}
               scripts={scripts}
               successStories={successStories}
+              productContexts={productContexts}
               ideas={ideas}
               selectedIdea={selectedIdea}
               articleSubType={articleSubType}

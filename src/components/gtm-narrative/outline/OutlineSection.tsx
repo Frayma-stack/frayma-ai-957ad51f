@@ -1,5 +1,5 @@
 
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,6 +48,19 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
   onAddSection,
   onRemoveSection
 }) => {
+  // Debug logging for asset data
+  useEffect(() => {
+    console.log('OutlineSection assets received:', {
+      sectionId: section.id,
+      successStories: successStories?.length || 0,
+      productFeatures: productFeatures?.length || 0,
+      productUseCases: productUseCases?.length || 0,
+      productDifferentiators: productDifferentiators?.length || 0,
+      currentAssetType: section.linkedAssetType,
+      currentAssetId: section.linkedAssetId
+    });
+  }, [section.id, successStories, productFeatures, productUseCases, productDifferentiators, section.linkedAssetType, section.linkedAssetId]);
+
   const getPhaseInfo = (phase: string) => {
     switch (phase) {
       case 'resonance':
@@ -83,10 +96,10 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
 
   const getAssetOptions = (type: string) => {
     switch (type) {
-      case 'success_story': return successStories;
-      case 'feature': return productFeatures;
-      case 'use_case': return productUseCases;
-      case 'differentiator': return productDifferentiators;
+      case 'success_story': return successStories || [];
+      case 'feature': return productFeatures || [];
+      case 'use_case': return productUseCases || [];
+      case 'differentiator': return productDifferentiators || [];
       default: return [];
     }
   };
@@ -124,8 +137,27 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
     );
   };
 
+  const handleAssetTypeChange = (value: string) => {
+    if (value === '__none__') {
+      onUpdateSection('linkedAssetType', undefined);
+      onUpdateSection('linkedAssetId', undefined);
+    } else {
+      onUpdateSection('linkedAssetType', value as 'success_story' | 'feature' | 'use_case' | 'differentiator');
+      onUpdateSection('linkedAssetId', undefined); // Reset asset selection when type changes
+    }
+  };
+
+  const handleAssetIdChange = (value: string) => {
+    if (value === '__none__') {
+      onUpdateSection('linkedAssetId', undefined);
+    } else {
+      onUpdateSection('linkedAssetId', value);
+    }
+  };
+
   const phaseInfo = getPhaseInfo(section.phase);
   const PhaseIcon = phaseInfo.icon;
+  const currentAssetOptions = section.linkedAssetType ? getAssetOptions(section.linkedAssetType) : [];
 
   return (
     <div className="border rounded-lg p-4 space-y-4 bg-gray-50">
@@ -243,38 +275,46 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
           <Label className="text-xs text-gray-500 mb-1 block">Link Asset Type</Label>
           <Select 
             value={section.linkedAssetType || '__none__'} 
-            onValueChange={(value) => onUpdateSection('linkedAssetType', value)}
+            onValueChange={handleAssetTypeChange}
           >
             <SelectTrigger className="text-sm">
               <SelectValue placeholder="Optional asset" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="__none__">None</SelectItem>
-              <SelectItem value="success_story">Success Story</SelectItem>
-              <SelectItem value="feature">Product Feature</SelectItem>
-              <SelectItem value="use_case">Use Case</SelectItem>
-              <SelectItem value="differentiator">Differentiator</SelectItem>
+              <SelectItem value="success_story">Success Story ({successStories?.length || 0})</SelectItem>
+              <SelectItem value="feature">Product Feature ({productFeatures?.length || 0})</SelectItem>
+              <SelectItem value="use_case">Use Case ({productUseCases?.length || 0})</SelectItem>
+              <SelectItem value="differentiator">Differentiator ({productDifferentiators?.length || 0})</SelectItem>
             </SelectContent>
           </Select>
         </div>
         
         {section.linkedAssetType && (
           <div>
-            <Label className="text-xs text-gray-500 mb-1 block">Select Asset</Label>
+            <Label className="text-xs text-gray-500 mb-1 block">
+              Select Asset ({currentAssetOptions.length} available)
+            </Label>
             <Select 
               value={section.linkedAssetId || '__none__'} 
-              onValueChange={(value) => onUpdateSection('linkedAssetId', value)}
+              onValueChange={handleAssetIdChange}
             >
               <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Choose asset" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="__none__">None</SelectItem>
-                {getAssetOptions(section.linkedAssetType).map((asset: any) => (
-                  <SelectItem key={asset.id} value={asset.id}>
-                    {getAssetDisplayName(section.linkedAssetType!, asset.id)}
+                {currentAssetOptions.length === 0 ? (
+                  <SelectItem value="__empty__" disabled>
+                    No {section.linkedAssetType.replace('_', ' ')}s available
                   </SelectItem>
-                ))}
+                ) : (
+                  currentAssetOptions.map((asset: any) => (
+                    <SelectItem key={asset.id} value={asset.id}>
+                      {getAssetDisplayName(section.linkedAssetType!, asset.id)}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -285,6 +325,13 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
       {section.linkedAssetType && section.linkedAssetId && (
         <div className="bg-blue-50 p-3 rounded text-xs text-blue-700">
           This section will reference your selected {section.linkedAssetType.replace('_', ' ')} to provide specific, relevant content that supports the PLS approach.
+        </div>
+      )}
+
+      {/* Debug info - remove in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="bg-gray-100 p-2 rounded text-xs text-gray-600">
+          Debug: Assets loaded - Stories: {successStories?.length || 0}, Features: {productFeatures?.length || 0}, Use Cases: {productUseCases?.length || 0}, Differentiators: {productDifferentiators?.length || 0}
         </div>
       )}
     </div>
