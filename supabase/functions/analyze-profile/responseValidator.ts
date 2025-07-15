@@ -14,14 +14,14 @@ export class ResponseValidator {
     }
   }
 
-  static validateRequestBody(body: any): { systemPrompt: string; userPrompt: string } {
-    const { systemPrompt, userPrompt } = body;
+  static validateRequestBody(body: any): { systemPrompt: string; userPrompt: string; urls?: string[] } {
+    const { systemPrompt, userPrompt, urls } = body;
     
     if (!systemPrompt || !userPrompt) {
       throw new Error('Missing required parameters: systemPrompt and userPrompt');
     }
     
-    return { systemPrompt, userPrompt };
+    return { systemPrompt, userPrompt, urls };
   }
 
   static extractUrls(userPrompt: string): string[] {

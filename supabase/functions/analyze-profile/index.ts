@@ -24,22 +24,22 @@ serve(async (req) => {
 
     // Parse and validate request body
     const requestBody = await req.json();
-    const { systemPrompt, userPrompt } = ResponseValidator.validateRequestBody(requestBody);
+    const { systemPrompt, userPrompt, urls } = ResponseValidator.validateRequestBody(requestBody);
 
-    console.log('Starting LinkedIn profile analysis with enhanced content scraping...');
+    console.log('Starting client analysis with enhanced content scraping...');
     
-    // Extract URLs and scrape content if needed
-    const urlMatches = ResponseValidator.extractUrls(userPrompt);
+    // Use URLs from request body if provided, otherwise extract from userPrompt
+    const urlsToScrape = urls && urls.length > 0 ? urls : ResponseValidator.extractUrls(userPrompt);
     let enhancedUserPrompt = userPrompt;
     
-    if (urlMatches.length > 0) {
+    if (urlsToScrape.length > 0) {
       try {
         const scraper = new ContentScraper(
           Deno.env.get('SUPABASE_URL')!,
           Deno.env.get('SUPABASE_ANON_KEY')!
         );
         
-        const scrapedData = await scraper.scrapeLinkedInContent(urlMatches);
+        const scrapedData = await scraper.scrapeLinkedInContent(urlsToScrape);
         enhancedUserPrompt = scraper.buildEnhancedPrompt(userPrompt, scrapedData);
         
       } catch (scrapeError) {
