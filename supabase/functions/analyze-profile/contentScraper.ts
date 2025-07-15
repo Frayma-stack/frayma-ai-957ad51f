@@ -19,23 +19,34 @@ export class ContentScraper {
   async scrapeLinkedInContent(urls: string[]): Promise<ScrapedContent> {
     console.log('Scraping LinkedIn content from URLs:', urls);
     
-    const scrapeResponse = await fetch(`${this.supabaseUrl}/functions/v1/scrape-content`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.supabaseAnonKey}`
-      },
-      body: JSON.stringify({ urls })
-    });
-    
-    if (!scrapeResponse.ok) {
-      throw new Error(`LinkedIn scraping failed: ${scrapeResponse.status} ${scrapeResponse.statusText}`);
+    try {
+      const scrapeResponse = await fetch(`${this.supabaseUrl}/functions/v1/scrape-content`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.supabaseAnonKey}`
+        },
+        body: JSON.stringify({ urls }),
+        signal: AbortSignal.timeout(45000) // 45 second timeout
+      });
+      
+      if (!scrapeResponse.ok) {
+        const errorText = await scrapeResponse.text();
+        console.error(`Scrape function failed: ${scrapeResponse.status} ${scrapeResponse.statusText}`, errorText);
+        throw new Error(`LinkedIn scraping failed: ${scrapeResponse.status} ${scrapeResponse.statusText}. ${errorText}`);
+      }
+      
+      const scrapedData = await scrapeResponse.json();
+      console.log('Successfully scraped LinkedIn content from', scrapedData.scrapedContent?.length || 0, 'URLs');
+      
+      return scrapedData;
+    } catch (error) {
+      console.error('Error calling scrape-content function:', error);
+      if (error.name === 'AbortError') {
+        throw new Error('Scraping timeout - the request took too long to complete');
+      }
+      throw error;
     }
-    
-    const scrapedData = await scrapeResponse.json();
-    console.log('Successfully scraped LinkedIn content from', scrapedData.scrapedContent?.length || 0, 'URLs');
-    
-    return scrapedData;
   }
 
   buildEnhancedPrompt(userPrompt: string, scrapedData: ScrapedContent): string {
