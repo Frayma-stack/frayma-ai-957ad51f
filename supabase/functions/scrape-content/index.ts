@@ -7,6 +7,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const SCRAPINGBEE_API_KEY = Deno.env.get('SCRAPINGBEE_API_KEY');
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -37,51 +39,52 @@ serve(async (req) => {
       try {
         console.log(`Fetching content from: ${url}`);
         
-        // Use different user agents for different platforms
-        let userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36';
+        let response;
+        let html;
         
-        if (url.includes('linkedin.com')) {
-          // LinkedIn-specific headers
-          userAgent = 'LinkedInBot/1.0 (compatible; Mozilla/5.0; +http://www.linkedin.com/static?key=LinkedInBot)';
-        } else if (url.includes('twitter.com') || url.includes('x.com')) {
-          // Twitter/X-specific headers
-          userAgent = 'Twitterbot/1.0';
-        }
-        
-        const response = await fetch(url, {
-          headers: {
-            'User-Agent': userAgent,
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Accept-Encoding': 'gzip, deflate',
-            'DNT': '1',
-            'Connection': 'keep-alive'
-          },
-          // Longer timeout for potentially slow responses
-          signal: AbortSignal.timeout(15000)
-        });
-
-        if (!response.ok) {
-          console.error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
+        // Use ScrapingBee for LinkedIn and other challenging sites
+        if (SCRAPINGBEE_API_KEY && (url.includes('linkedin.com') || url.includes('twitter.com') || url.includes('x.com'))) {
+          console.log(`Using ScrapingBee for ${url}`);
           
-          // For LinkedIn, provide a helpful error message
-          if (url.includes('linkedin.com')) {
-            scrapedContent.push({
-              url,
-              content: '',
-              error: `LinkedIn blocking detected (${response.status}). Please provide the LinkedIn profile information manually or use a different professional URL.`
-            });
+          const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${SCRAPINGBEE_API_KEY}&url=${encodeURIComponent(url)}&render_js=false&premium_proxy=true&country_code=us`;
+          
+          response = await fetch(scrapingBeeUrl, {
+            method: 'GET',
+            signal: AbortSignal.timeout(30000) // Longer timeout for ScrapingBee
+          });
+          
+          if (response.ok) {
+            html = await response.text();
+            console.log(`ScrapingBee successfully scraped ${url}`);
           } else {
-            scrapedContent.push({
-              url,
-              content: '',
-              error: `HTTP ${response.status}: ${response.statusText}`
-            });
+            console.log(`ScrapingBee failed for ${url}, falling back to direct scraping`);
+            throw new Error(`ScrapingBee failed: ${response.status}`);
           }
-          continue;
+        } else {
+          // Fallback to direct scraping for other sites or when ScrapingBee is not available
+          console.log(`Using direct scraping for ${url}`);
+          
+          let userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
+          
+          response = await fetch(url, {
+            headers: {
+              'User-Agent': userAgent,
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.5',
+              'Accept-Encoding': 'gzip, deflate',
+              'DNT': '1',
+              'Connection': 'keep-alive'
+            },
+            signal: AbortSignal.timeout(15000)
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          html = await response.text();
         }
 
-        const html = await response.text();
         const doc = new DOMParser().parseFromString(html, 'text/html');
         
         if (!doc) {
