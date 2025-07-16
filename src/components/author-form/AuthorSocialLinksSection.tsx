@@ -11,13 +11,15 @@ interface AuthorSocialLinksSectionProps {
   onSocialLinkChange: (id: string, field: keyof AuthorSocialLink, value: string | 'linkedin' | 'x' | 'blog' | 'website' | 'other') => void;
   onAddSocialLink: () => void;
   onRemoveSocialLink: (id: string) => void;
+  onAnalysisComplete?: (results: any) => void;
 }
 
 const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
   socialLinks,
   onSocialLinkChange,
   onAddSocialLink,
-  onRemoveSocialLink
+  onRemoveSocialLink,
+  onAnalysisComplete
 }) => {
   const { isAnalyzing, analyzeProfile } = useProfileAnalysis();
   const [manualMode, setManualMode] = useState(false);
@@ -38,7 +40,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
       socialLinks, 
       '', 
       '',
-      () => {}
+      onAnalysisComplete || (() => {})
     );
   };
 

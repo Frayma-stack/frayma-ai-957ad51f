@@ -50,6 +50,7 @@ const AuthorForm: FC<AuthorFormProps> = ({
     handleSocialLinkChange,
     addSocialLink,
     removeSocialLink,
+    handleAuthorAnalysisResult,
     validateAndCleanAuthor,
     clearPersistedData
   } = useAuthorForm(initialAuthor, selectedClientId);
@@ -96,8 +97,8 @@ const AuthorForm: FC<AuthorFormProps> = ({
     onCancel();
   };
 
-  // Show warning if no client is selected for new authors
-  const showClientWarning = !initialAuthor && !selectedClientId;
+  // Show warning if no client is selected for new authors (but allow manual creation)
+  const showClientWarning = false; // Allow creation without client selection
 
   return (
     <Card className="max-w-4xl mx-auto">
@@ -167,6 +168,7 @@ const AuthorForm: FC<AuthorFormProps> = ({
           onSocialLinkChange={handleSocialLinkChange}
           onAddSocialLink={addSocialLink}
           onRemoveSocialLink={removeSocialLink}
+          onAnalysisComplete={handleAuthorAnalysisResult}
         />
         
         <div className="flex gap-4 pt-6">
