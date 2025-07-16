@@ -29,7 +29,7 @@ export const SubscriptionStatus = () => {
         return 'bg-blue-500';
       case 'Narrative Pro':
         return 'bg-purple-500';
-      case 'Narrative Scale':
+      case 'Full-Scale Narrative':
         return 'bg-amber-500';
       default:
         return 'bg-gray-500';

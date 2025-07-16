@@ -64,7 +64,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="font-medium text-story-blue">Social Links & Profile Analysis</h3>
+        <h3 className="font-medium text-story-blue">Author Content Analysis</h3>
         <Button 
           variant="outline" 
           size="sm" 
@@ -75,7 +75,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
       </div>
 
       <p className="text-sm text-gray-600">
-        Add your LinkedIn profile, X (Twitter), blog, or website URLs to auto-fill author information, or add author details manually.
+        Add 2-5 URLs of content written by this author (blog posts, articles, LinkedIn posts, etc.) for automatic analysis, or add author details manually.
       </p>
 
       <div className="space-y-4">
@@ -86,14 +86,13 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
               value={link.type}
               onChange={(e) => onSocialLinkChange(link.id, 'type', e.target.value as 'linkedin' | 'x' | 'blog' | 'website' | 'other')}
             >
-              <option value="linkedin">LinkedIn</option>
-              <option value="x">X (Twitter)</option>
-              <option value="blog">Blog</option>
-              <option value="website">Website</option>
-              <option value="other">Other</option>
+              <option value="blog">Blog Post</option>
+              <option value="linkedin">LinkedIn Post</option>
+              <option value="website">Article/Website</option>
+              <option value="other">Other Content</option>
             </select>
             <Input 
-              placeholder="Enter profile or content URL"
+              placeholder="Enter URL of content written by this author"
               value={link.url}
               onChange={(e) => onSocialLinkChange(link.id, 'url', e.target.value)}
               className="flex-1"
@@ -147,7 +146,7 @@ const AuthorSocialLinksSection: FC<AuthorSocialLinksSectionProps> = ({
 
       {!hasAnyUrls && (
         <p className="text-sm text-amber-600 text-center">
-          Please add at least one social link or URL to analyze the profile.
+          Please add 2-5 URLs of content written by this author for automatic analysis.
         </p>
       )}
     </div>

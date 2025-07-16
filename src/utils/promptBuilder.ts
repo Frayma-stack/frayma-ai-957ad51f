@@ -2,9 +2,9 @@
 import { AuthorSocialLink } from '@/types/storytelling';
 
 export const buildAnalysisPrompt = (urls: string[]) => {
-  const systemPrompt = `You are an expert professional profile analyzer. Your task is to extract and structure professional information from any available content (LinkedIn profiles, social media bios, personal websites, etc.).
+  const systemPrompt = `You are an expert author content analyzer. Your task is to analyze written content by an author to extract their writing style, expertise, and professional beliefs from their published work.
 
-IMPORTANT: If content extraction is limited (e.g., due to LinkedIn access restrictions), work with whatever information is available and make reasonable professional inferences to create a complete profile.
+IMPORTANT: Focus on analyzing the actual content written by the author - their writing style, thought patterns, expertise areas, and professional perspectives as demonstrated through their published content.
 
 CRITICAL OUTPUT REQUIREMENTS:
 You MUST return a valid JSON object with this EXACT structure:
@@ -59,13 +59,14 @@ You MUST return a valid JSON object with this EXACT structure:
 }
 
 EXTRACTION GUIDELINES:
-1. IF professional content is available: Extract actual experiences in "Title @Company | Duration" format
-2. IF content is severely limited: Make reasonable professional inferences based on any available context (domain names, URL patterns, etc.)
-3. IF LinkedIn is blocked: Use alternative strategies - analyze domain names, social media bios, website content, or any available text
-4. ALWAYS provide exactly 4 writing tones and 4 product beliefs with meaningful summaries tailored to the professional context
-5. Career backstory should be 2-3 sentences maximum highlighting key progression
-6. Focus on creating VALUE even from minimal information - better to have thoughtful defaults than empty fields
-7. If specific company/role info isn't available, use generic but professional language
+1. ANALYZE the author's actual writing to identify their unique voice, style, and expertise
+2. EXTRACT writing tones based on how they communicate (professional, conversational, analytical, passionate, etc.)
+3. IDENTIFY product/business beliefs from their content themes and perspectives
+4. INFER current role and organization from author bio sections or content context
+5. CREATE career backstory based on expertise demonstrated in their writing
+6. For experiences: Look for mentioned roles, projects, or professional background in the content
+7. Focus on QUALITY insights from content rather than assumptions
+8. If role/company info isn't in content, make reasonable inferences from their expertise area
 
 RESPONSE FORMAT:
 - Return ONLY the JSON object
@@ -74,26 +75,26 @@ RESPONSE FORMAT:
 - Each summary should be exactly one descriptive sentence
 - Make reasonable assumptions to provide complete, useful information`;
 
-  const userPrompt = `Analyze the following professional profile content and extract information in the required JSON format.
+  const userPrompt = `Analyze the author's written content from the following URLs to extract their professional profile and writing characteristics.
 
-URLs analyzed: ${urls.join(', ')}
+Content URLs analyzed: ${urls.join(', ')}
 
 CONTENT TO ANALYZE:
-The scraped content will be provided below. 
+The scraped written content from these URLs will be provided below.
 
-IMPORTANT: If content extraction was limited due to access restrictions (especially LinkedIn), work with whatever information you can gather from:
-- URL patterns and domain names
-- Any partial content that was extracted
-- Social media profile information
-- Website headers or meta information
-- Make reasonable professional inferences to create a complete, useful profile
+FOCUS ON:
+- The author's writing style and communication patterns
+- Professional expertise and knowledge areas demonstrated in their content
+- Business/product perspectives and beliefs expressed in their writing
+- Any mentioned current role, company, or background information
+- Thought leadership topics and areas of focus
 
 Extract:
-1. Current role and organization (or infer from available info)
-2. Career backstory (2-3 sentences maximum)
-3. Professional experiences in "Title @Company | Duration" format
-4. Exactly 4 writing tones with one-sentence summaries
-5. Exactly 4 product beliefs with one-sentence summaries
+1. Current role and organization (from author bio or content context)
+2. Career backstory based on expertise shown in their writing (2-3 sentences)
+3. Professional experiences mentioned or inferred from content
+4. Exactly 4 writing tones that reflect their actual communication style
+5. Exactly 4 product/business beliefs demonstrated through their content themes
 
 Return only the JSON object with no additional text.`;
 

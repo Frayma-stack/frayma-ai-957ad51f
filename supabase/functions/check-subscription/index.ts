@@ -22,7 +22,7 @@ const determineSubscriptionTier = (priceId: string): { tier: string; maxUsers: n
     case 'price_1RY9POFFhonlvCNP19G6kPAt':
       return { tier: "Narrative Pro", maxUsers: 3 };
     case 'price_1RY9TWFFhonlvCNPK6MB1khI':
-      return { tier: "Narrative Scale", maxUsers: 25 };
+      return { tier: "Full-Scale Narrative", maxUsers: 25 };
     default:
       return { tier: "free", maxUsers: 1 };
   }

@@ -5,7 +5,10 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from 'lucide-react';
 import { GeneratedIdea, IdeaScore } from '@/types/ideas';
 import { parseIdeas, IdeaWithScore, ParsedIdea } from './utils/IdeaParsingUtils';
+import { useSubscriptionLimits } from '@/hooks/useSubscriptionLimits';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import ExpandedIdeaCard from './components/ExpandedIdeaCard';
+import BlurredIdeaCard from './components/BlurredIdeaCard';
 import EmptyIdeasState from './components/EmptyIdeasState';
 import GenerateNewIdeasCTA from './components/GenerateNewIdeasCTA';
 import IdeasIntroCard from './components/IdeasIntroCard';
@@ -33,9 +36,15 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
   isRegenerating = false
 }) => {
   const { toast } = useToast();
+  const { subscription_tier } = useSubscription();
+  const { createCheckoutSession } = useSubscription();
   const [ideasWithScores, setIdeasWithScores] = useState<IdeaWithScore[]>(
     parseIdeas(generatedIdeas)
   );
+
+  // For free users, only show first 6 ideas fully, blur the rest
+  const isFreeTier = subscription_tier === 'free';
+  const maxVisibleIdeas = isFreeTier ? 6 : ideasWithScores.length;
 
   const updateIdeaField = (index: number, field: keyof ParsedIdea, value: string) => {
     setIdeasWithScores(prev => prev.map((idea, i) => 
@@ -88,6 +97,18 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
     });
   };
 
+  const handleUpgrade = async () => {
+    try {
+      await createCheckoutSession('price_1RY9IYFFhonlvCNPCETa7mf8'); // Narrative Starter plan
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to start checkout process. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -111,7 +132,8 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
           <IdeasIntroCard />
           
           <div className="max-h-[700px] overflow-y-auto space-y-6 pr-2">
-            {ideasWithScores.map((ideaData, index) => (
+            {/* Visible ideas for all users */}
+            {ideasWithScores.slice(0, maxVisibleIdeas).map((ideaData, index) => (
               <ExpandedIdeaCard
                 key={ideaData.tempId}
                 ideaData={ideaData}
@@ -122,6 +144,15 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
                 onScoreUpdate={(score) => updateIdeaScore(index, score)}
                 onSave={() => handleSaveIdea(index)}
                 onContentTypeSelect={onContentTypeSelect}
+              />
+            ))}
+            
+            {/* Blurred ideas for free users */}
+            {isFreeTier && ideasWithScores.slice(maxVisibleIdeas).map((_, index) => (
+              <BlurredIdeaCard
+                key={`blurred-${index}`}
+                index={maxVisibleIdeas + index}
+                onUpgrade={handleUpgrade}
               />
             ))}
           </div>
