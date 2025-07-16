@@ -9,7 +9,7 @@ export class ResponseValidator {
 
   static validateApiKey(apiKey: string | undefined): void {
     if (!apiKey) {
-      console.error('PERPLEXITY_API_KEY not found in environment');
+      console.error('OPENAI_API_KEY not found in environment');
       throw new Error('API key not configured. Please contact support.');
     }
   }

@@ -42,15 +42,15 @@ serve(async (req) => {
         let response;
         let html;
         
-        // Use ScrapingBee for LinkedIn and other challenging sites
-        if (SCRAPINGBEE_API_KEY && (url.includes('linkedin.com') || url.includes('twitter.com') || url.includes('x.com'))) {
+        // Use ScrapingBee for all URLs when available
+        if (SCRAPINGBEE_API_KEY) {
           console.log(`Using ScrapingBee for ${url}`);
           
-          const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${SCRAPINGBEE_API_KEY}&url=${encodeURIComponent(url)}&render_js=false&premium_proxy=true&country_code=us`;
+          const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${SCRAPINGBEE_API_KEY}&url=${encodeURIComponent(url)}&render_js=true&premium_proxy=true&country_code=us&wait=2000`;
           
           response = await fetch(scrapingBeeUrl, {
             method: 'GET',
-            signal: AbortSignal.timeout(30000) // Longer timeout for ScrapingBee
+            signal: AbortSignal.timeout(45000) // Longer timeout for ScrapingBee
           });
           
           if (response.ok) {
@@ -131,12 +131,25 @@ serve(async (req) => {
           }
         }
         
-        // Fallback to general content extraction
+        // Enhanced content extraction for company websites
         if (!content || content.trim().length < 50) {
-          const mainContent = doc.querySelector('main, article, .content, .main-content, #content, #main, .container');
-          if (mainContent) {
-            content = mainContent.textContent || '';
-          } else {
+          // Try different content selectors for company websites
+          const contentSelectors = [
+            'main', 'article', '.content', '.main-content', '#content', '#main', '.container',
+            '.about', '.about-us', '.company', '.services', '.products', '.hero', '.intro',
+            'section', '.section', 'p', 'h1', 'h2', 'h3', '.description', '.text'
+          ];
+          
+          for (const selector of contentSelectors) {
+            const element = doc.querySelector(selector);
+            if (element && element.textContent && element.textContent.trim().length > 50) {
+              content = element.textContent;
+              break;
+            }
+          }
+          
+          // If still no content, get all text from body
+          if (!content || content.trim().length < 50) {
             const body = doc.querySelector('body');
             content = body?.textContent || '';
           }

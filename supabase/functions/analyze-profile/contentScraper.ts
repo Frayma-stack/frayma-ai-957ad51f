@@ -16,8 +16,8 @@ export class ContentScraper {
     this.supabaseAnonKey = supabaseAnonKey;
   }
 
-  async scrapeLinkedInContent(urls: string[]): Promise<ScrapedContent> {
-    console.log('Scraping LinkedIn content from URLs:', urls);
+  async scrapeCompanyContent(urls: string[]): Promise<ScrapedContent> {
+    console.log('Scraping company content from URLs:', urls);
     
     try {
       const scrapeResponse = await fetch(`${this.supabaseUrl}/functions/v1/scrape-content`, {
@@ -33,11 +33,11 @@ export class ContentScraper {
       if (!scrapeResponse.ok) {
         const errorText = await scrapeResponse.text();
         console.error(`Scrape function failed: ${scrapeResponse.status} ${scrapeResponse.statusText}`, errorText);
-        throw new Error(`LinkedIn scraping failed: ${scrapeResponse.status} ${scrapeResponse.statusText}. ${errorText}`);
+        throw new Error(`Company content scraping failed: ${scrapeResponse.status} ${scrapeResponse.statusText}. ${errorText}`);
       }
       
       const scrapedData = await scrapeResponse.json();
-      console.log('Successfully scraped LinkedIn content from', scrapedData.scrapedContent?.length || 0, 'URLs');
+      console.log('Successfully scraped company content from', scrapedData.scrapedContent?.length || 0, 'URLs');
       
       return scrapedData;
     } catch (error) {
@@ -54,23 +54,19 @@ export class ContentScraper {
       return userPrompt;
     }
 
-    const linkedinContent = scrapedData.scrapedContent
+    const companyContent = scrapedData.scrapedContent
       .filter(item => item.content && item.content.trim().length > 0)
       .map((item, index) => {
-        return `--- LinkedIn Content from ${item.url} ---\n${item.content}\n`;
+        return `--- Company Content from ${item.url} ---\n${item.content}\n`;
       })
       .join('\n');
     
-    if (linkedinContent) {
-      return `${userPrompt}\n\nBELOW IS THE ACTUAL LINKEDIN PROFILE CONTENT. Please analyze this real LinkedIn data to extract professional experiences in the exact format "Title @Company | Duration":\n\n${linkedinContent}`;
+    if (companyContent) {
+      return `${userPrompt}\n\nBELOW IS THE ACTUAL COMPANY WEBSITE CONTENT. Please analyze this real company data to extract business information:\n\n${companyContent}`;
     }
 
-    // If no content was successfully scraped, throw an error
-    const errors = scrapedData.scrapedContent
-      .filter(item => item.error)
-      .map(item => `${item.url}: ${item.error}`)
-      .join(', ');
-    
-    throw new Error(`Could not extract content from the LinkedIn URLs. LinkedIn scraping errors: ${errors}`);
+    // If no content was successfully scraped, return the original prompt for fallback analysis
+    console.warn('No content was scraped, proceeding with original prompt for basic analysis');
+    return userPrompt;
   }
 }

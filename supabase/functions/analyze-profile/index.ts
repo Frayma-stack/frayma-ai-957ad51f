@@ -2,7 +2,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { ContentScraper } from './contentScraper.ts';
-import { PerplexityClient } from './perplexityClient.ts';
+import { CompanyAnalysisClient } from './companyAnalysisClient.ts';
 import { ErrorHandler, ProfileAnalysisError } from './errorHandler.ts';
 import { ResponseValidator } from './responseValidator.ts';
 
@@ -19,8 +19,8 @@ serve(async (req) => {
 
   try {
     // Validate environment variables
-    const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
-    ResponseValidator.validateApiKey(perplexityApiKey);
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    ResponseValidator.validateApiKey(openaiApiKey);
 
     // Parse and validate request body
     const requestBody = await req.json();
@@ -39,21 +39,22 @@ serve(async (req) => {
           Deno.env.get('SUPABASE_ANON_KEY')!
         );
         
-        const scrapedData = await scraper.scrapeLinkedInContent(urlsToScrape);
+        const scrapedData = await scraper.scrapeCompanyContent(urlsToScrape);
         enhancedUserPrompt = scraper.buildEnhancedPrompt(userPrompt, scrapedData);
         
       } catch (scrapeError) {
-        console.error('LinkedIn content scraping failed:', scrapeError);
-        const error = ErrorHandler.handleScrapeError(scrapeError as Error);
-        return ErrorHandler.createErrorResponse(error, corsHeaders);
+        console.error('Company content scraping failed:', scrapeError);
+        // Don't fail the entire request, just use the original prompt
+        console.log('Continuing with original prompt due to scraping failure');
+        enhancedUserPrompt = userPrompt;
       }
     }
 
-    // Analyze profile using Perplexity
-    const perplexityClient = new PerplexityClient(perplexityApiKey!);
+    // Analyze company using OpenAI
+    const companyAnalysisClient = new CompanyAnalysisClient(openaiApiKey!);
     
     try {
-      const data = await perplexityClient.analyzeProfile(systemPrompt, enhancedUserPrompt);
+      const data = await companyAnalysisClient.analyzeCompany(systemPrompt, enhancedUserPrompt);
       
       // Validate response structure
       ResponseValidator.validatePerplexityResponse(data);
@@ -62,9 +63,9 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
       
-    } catch (perplexityError) {
-      console.error('Perplexity API error:', perplexityError);
-      const error = ErrorHandler.handlePerplexityError(500, perplexityError.message);
+    } catch (analysisError) {
+      console.error('Company analysis API error:', analysisError);
+      const error = ErrorHandler.handlePerplexityError(500, analysisError.message);
       return ErrorHandler.createErrorResponse(error, corsHeaders);
     }
 
