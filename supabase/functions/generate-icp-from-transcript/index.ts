@@ -6,12 +6,12 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const getSystemPrompt = (callType: string) => {
+const getSystemPrompt = () => {
   return `You are an expert B2B narrative analyst trained in the Product-Led Storytelling (PLS) approach and the 3Rs Formula: Resonance, Relevance, Results.
 
-Analyze the following ${callType.toUpperCase()} call between a company representative and a customer or prospect. The transcript may have originated from a sales call, onboarding session, customer support interaction, or user feedback discovery. Use this context to extract only what's necessary to auto-fill a structured ICP StoryScript inside the Frayma AI system.
+You will receive multiple call transcripts involving the SAME ICP. These may include sales, onboarding, customer success, or product feedback calls.
 
-Return the output ONLY in the format below:
+Your task is to extract a comprehensive, structured, first-person-style ICP StoryScript for this ICP using insights from ALL the provided transcripts. Return only the JSON below, nothing else.
 
 {
   "ICPName": "Descriptive title of ICP (e.g., Growth Marketing Lead at Seed-Stage SaaS Startup)",
@@ -31,10 +31,10 @@ Return the output ONLY in the format below:
 }
 
 📌 Guidelines:
-- Use first-person phrasing as if the ICP was speaking.
-- Do not include headings or explanations outside the JSON format.
-- Summarize only what's stated or clearly implied in the transcript.
-- Structure responses to drive narrative-rich GTM asset creation.
+- Use first-person framing as if the ICP was describing themselves and their worldview.
+- Avoid generic fluff—base summaries only on what was directly stated or clearly implied in the transcripts.
+- Do NOT output anything outside of the JSON block.
+- Assume all transcripts describe the same ICP, and combine signals across all to generate a more complete profile.
 - Ensure each array has at least 4 meaningful items.
 - Focus on extracting insights that would be valuable for creating targeted marketing content.`;
 };
@@ -51,19 +51,41 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    const { transcript, callType } = await req.json();
+    const { calls, transcript, callType, icpName } = await req.json();
     
-    if (!transcript) {
-      throw new Error('No transcript provided');
+    let userContent = '';
+
+    // Handle new multi-call format
+    if (calls && Array.isArray(calls)) {
+      console.log('🧠 Generating ICP from multiple calls:', {
+        callCount: calls.length,
+        icpName,
+        callTypes: calls.map(c => c.callType)
+      });
+
+      // Combine all transcripts with call type labels
+      const callSections = calls.map(call => {
+        const callTypeLabel = call.callType.charAt(0).toUpperCase() + call.callType.slice(1);
+        return `[${callTypeLabel} Call]: ${call.transcript}`;
+      });
+
+      userContent = `Call Transcripts:\n${callSections.join('\n\n')}`;
+    } 
+    // Handle legacy single call format
+    else if (transcript) {
+      console.log('🧠 Generating ICP from single transcript:', {
+        transcriptLength: transcript.length,
+        callType: callType || 'sales',
+        preview: transcript.substring(0, 100) + '...'
+      });
+
+      userContent = `Transcript:\n${transcript}`;
+    } 
+    else {
+      throw new Error('No transcript or calls provided');
     }
 
-    console.log('🧠 Generating ICP from transcript:', {
-      transcriptLength: transcript.length,
-      callType: callType || 'sales',
-      preview: transcript.substring(0, 100) + '...'
-    });
-
-    const systemPrompt = getSystemPrompt(callType || 'sales');
+    const systemPrompt = getSystemPrompt();
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -75,10 +97,10 @@ serve(async (req) => {
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Transcript:\n${transcript}` }
+          { role: 'user', content: userContent }
         ],
         temperature: 0.7,
-        max_tokens: 2000,
+        max_tokens: 2500,
       }),
     });
 

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Sparkles, Edit } from "lucide-react";
 import { ICPStoryScript } from '@/types/storytelling';
-import TranscriptBasedICPCreator from '@/components/icp-scripts/TranscriptBasedICPCreator';
+import MultiCallICPCreator from '@/components/icp-scripts/MultiCallICPCreator';
 
 interface OnboardingStepICPProps {
   onICPAdded: (script: ICPStoryScript) => void;
@@ -51,9 +51,8 @@ const OnboardingStepICP: FC<OnboardingStepICPProps> = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <TranscriptBasedICPCreator
-            onSave={handleICPCreated}
-            onCancel={() => setShowEditMode(false)}
+          <MultiCallICPCreator
+            onScriptGenerated={handleICPCreated}
             selectedClientId={selectedClientId}
           />
         </CardContent>
@@ -130,9 +129,8 @@ const OnboardingStepICP: FC<OnboardingStepICPProps> = ({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <TranscriptBasedICPCreator
-          onSave={handleICPCreated}
-          onCancel={() => {}}
+        <MultiCallICPCreator
+          onScriptGenerated={handleICPCreated}
           selectedClientId={selectedClientId}
         />
       </CardContent>

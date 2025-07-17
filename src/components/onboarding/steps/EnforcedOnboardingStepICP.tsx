@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Users, Sparkles, FileText, Mic } from "lucide-react";
 import { ICPStoryScript } from '@/types/storytelling';
 import ICPStoryScriptForm from '@/components/ICPStoryScriptForm';
-import ICPAudioUploadForm from '@/components/icp-scripts/ICPAudioUploadForm';
+import MultiCallICPCreator from '@/components/icp-scripts/MultiCallICPCreator';
 
 interface EnforcedOnboardingStepICPProps {
   onICPAdded: (script: ICPStoryScript) => void;
@@ -77,7 +77,7 @@ const EnforcedOnboardingStepICP: FC<EnforcedOnboardingStepICPProps> = ({
 
         <div className="border rounded-lg p-6">
           {creationMethod === 'upload' ? (
-            <ICPAudioUploadForm
+            <MultiCallICPCreator
               onScriptGenerated={handleICPCreated}
             />
           ) : (

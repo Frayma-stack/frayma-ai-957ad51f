@@ -6,7 +6,7 @@ import { Plus } from 'lucide-react';
 import { ICPStoryScript, Client } from '@/types/storytelling';
 import ICPStoryScriptForm from '../ICPStoryScriptForm';
 import ICPCreationModeSelector from './ICPCreationModeSelector';
-import TranscriptBasedICPCreator from './TranscriptBasedICPCreator';
+import MultiCallICPCreator from './MultiCallICPCreator';
 
 interface ICPScriptDialogsProps {
   isAddDialogOpen: boolean;
@@ -112,9 +112,8 @@ const ICPScriptDialogs: FC<ICPScriptDialogsProps> = ({
               )}
             </DialogDescription>
           </DialogHeader>
-          <TranscriptBasedICPCreator
-            onSave={handleScriptSaved}
-            onCancel={handleCancel}
+          <MultiCallICPCreator
+            onScriptGenerated={handleScriptSaved}
             selectedClientId={selectedClientId}
           />
         </>
