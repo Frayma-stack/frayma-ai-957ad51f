@@ -11,16 +11,36 @@ const Pricing = () => {
 
   const plans = [
     {
+      name: 'Free',
+      price: { monthly: 0, yearly: 0 },
+      description: 'Perfect for exploring Frayma\'s GTM idea generation',
+      features: [
+        '2 Client/Company Accounts',
+        '2 ICP StoryScripts',
+        '20 GTM Ideas per Month (6 visible)',
+        'Audio transcription for ICP analysis',
+        'Ideas Bank access',
+        'Basic templates',
+        'Email support'
+      ],
+      cta: 'Start Generating Ideas',
+      highlighted: false
+    },
+    {
       name: 'Narrative Starter',
       price: { monthly: 39, yearly: 390 },
       description: 'Perfect for individual creators and small teams getting started with strategic content',
       features: [
+        'Everything in Free',
+        '4 Client/Company accounts',
         '10 long-form GTM assets per month',
-        '1 author profile',
-        'Basic narrative frameworks',
+        '100 short-form GTM content',
+        '2 author profiles',
+        'All narrative frameworks',
+        'StoryBrief & Outline builder',
         'Ideas Bank (100 ideas)',
         'Email support',
-        'Core tone controls'
+        'Core Author tone controls'
       ],
       cta: 'Start Your GTM Journey',
       highlighted: false
@@ -30,11 +50,14 @@ const Pricing = () => {
       price: { monthly: 150, yearly: 1500 },
       description: 'Ideal for growing teams that need advanced GTM intelligence and collaboration',
       features: [
-        '50 long-form GTM assets per month',
-        '5 author profiles',
+        'Everything in Narrative Starter',
+        '30 long-form GTM assets per month',
+        '600 short-form GTM content',
+        '15 Client/Company accounts',
+        '10 Product/Feature Update campaigns',
+        '6 author profiles',
         'Advanced narrative frameworks',
-        'Ideas Bank (500 ideas)',
-        'ICP StoryScripts builder',
+        'Ideas Bank (600 ideas)',
         'Resonance Mirror scoring',
         'Priority support',
         'Team collaboration tools'
@@ -292,15 +315,15 @@ const Pricing = () => {
       <section className="py-20 bg-gray-900 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold mb-6">
-            Start with Your First Strategic POV
+            Start Generating GTM Ideas Today
           </h2>
           <p className="text-xl text-gray-300 mb-8">
-            No credit card required. Start creating buyer-moving content in minutes.
+            No credit card required. Generate 20 rare GTM ideas and start moving buyers in minutes.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/app">
               <Button size="lg" className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600">
-                Start Free Trial
+                Generate Ideas Now - Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>

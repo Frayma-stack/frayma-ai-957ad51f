@@ -48,7 +48,7 @@ export const EnforcedOnboardingProvider: FC<EnforcedOnboardingProviderProps> = (
     isStepCompleted: progressIsStepCompleted
   } = useOnboardingProgress();
 
-  const totalSteps = 7;
+  const totalSteps = 5; // Reduced from 7 - removed author step and product context
   const currentStep = progress?.current_step || 1;
   
   // Determine if onboarding is required

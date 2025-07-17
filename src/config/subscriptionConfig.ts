@@ -39,14 +39,14 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     },
     features: [
       '2 Client/Company Accounts',
-      '2 Authors',
-      '20 New Ideas per Month (6 visible)',
-      '6 Short-form LinkedIn content per month',
+      '2 ICP StoryScripts',
+      '20 GTM Ideas per Month (6 visible)',
+      'Audio transcription for ICP analysis',
       'Ideas Bank access',
       'Basic templates',
       'Email support',
     ],
-    description: 'Perfect for exploring Frayma\'s contextual GTM idea generation',
+    description: 'Start generating rare GTM ideas that move buyers - no payment required',
   },
   'Narrative Starter': {
     id: 'Narrative Starter',

@@ -82,22 +82,15 @@ const EnforcedOnboardingOverlay: FC<EnforcedOnboardingOverlayProps> = ({
     },
     {
       id: 4,
-      title: "Author Profile",
-      description: "Set up your professional author profile",
-      icon: User,
-      required: true
-    },
-    {
-      id: 5,
       title: "Target Audience",
       description: "Define your ICP through transcript analysis",
       icon: Users,
       required: true
     },
     {
-      id: 6,
-      title: "Setup Complete",
-      description: "Ready to generate content ideas!",
+      id: 5,
+      title: "Start Generating Ideas",
+      description: "Ready to generate rare GTM ideas!",
       icon: Lightbulb,
       required: false
     }
@@ -119,19 +112,11 @@ const EnforcedOnboardingOverlay: FC<EnforcedOnboardingOverlayProps> = ({
     setActiveStep(4);
   };
 
-  const handleAuthorAdded = async (author: Author) => {
-    await markAuthorCreated();
-    const savedAuthor = await onAuthorAdded(author);
-    await completeStep(4);
-    setActiveStep(5);
-    return savedAuthor;
-  };
-
   const handleICPAdded = async (script: ICPStoryScript) => {
     await markICPScriptCreated();
     onICPScriptAdded(script);
-    await completeStep(5);
-    setActiveStep(6);
+    await completeStep(4);
+    setActiveStep(5);
   };
 
   const handleSubscriptionCompleted = async () => {
@@ -159,10 +144,8 @@ const EnforcedOnboardingOverlay: FC<EnforcedOnboardingOverlayProps> = ({
       case 3:
         return <EnforcedOnboardingStepClient onClientAdded={handleClientAdded} />;
       case 4:
-        return <EnforcedOnboardingStepAuthor onAuthorAdded={handleAuthorAdded} />;
-      case 5:
         return <EnforcedOnboardingStepICP onICPAdded={handleICPAdded} />;
-      case 6:
+      case 5:
         return <EnforcedOnboardingStepComplete onComplete={handleOnboardingComplete} />;
       default:
         return null;
@@ -197,7 +180,7 @@ const EnforcedOnboardingOverlay: FC<EnforcedOnboardingOverlayProps> = ({
           </div>
 
           {/* Step Navigation */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mt-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 mt-6">
             {steps.map((step) => {
               const isCompleted = isStepCompleted(step.id);
               const isAccessible = canAccessStep(step.id);

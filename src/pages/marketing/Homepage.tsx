@@ -62,19 +62,19 @@ const Homepage = () => {
         <div className="max-w-6xl mx-auto px-6 py-24 lg:py-32">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-5xl lg:text-6xl font-light text-gray-900 mb-8 leading-tight">
-              Auto-craft GTM content that{' '}
+              Generate rare GTM ideas that{' '}
               <span className="font-medium bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">
-                moves buyers
+                move buyers
               </span>
             </h1>
             <p className="text-xl text-gray-600 mb-12 font-light leading-relaxed">
-              By framing ideas, not just prompting AI. Transform your strategic insights into compelling narratives with structured story logic.
+              Start free with Frayma's AI-powered narrative engine. Turn your insights into buyer-moving content strategies.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
               <Link to="/app">
                 <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 text-lg font-medium rounded-lg shadow-sm">
-                  Try the Narrative Engine
+                  Start Generating Ideas - Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -248,14 +248,14 @@ const Homepage = () => {
       <section className="py-24 bg-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-light text-gray-900 mb-6">
-            Ready to Transform Your GTM Content?
+            Ready to Generate Your First GTM Ideas?
           </h2>
           <p className="text-xl text-gray-600 mb-12 font-light">
-            Join the narrative revolution. Start framing your ideas into buyer-moving stories today.
+            Start free today. Generate 20 rare GTM ideas and discover strategies that move buyers.
           </p>
           <Link to="/app">
             <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white px-12 py-4 text-lg font-medium rounded-lg shadow-sm">
-              Get Started with Frayma
+              Generate Ideas Now - Free
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
