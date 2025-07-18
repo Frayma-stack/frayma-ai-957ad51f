@@ -14,13 +14,19 @@ import {
 } from '@/utils/supabaseTypeUtils';
 
 export class AuthorService extends BaseSupabaseService {
-  async getAuthors(): Promise<Author[]> {
-    console.log('💾 AuthorService.getAuthors called');
+  async getAuthors(clientId?: string): Promise<Author[]> {
+    console.log('💾 AuthorService.getAuthors called with clientId:', clientId);
     
-    const { data, error } = await supabase
+    let query = supabase
       .from('authors')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select('*');
+    
+    // Filter by client_id if provided
+    if (clientId) {
+      query = query.eq('client_id', clientId);
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: false });
     
     if (error) {
       console.error('💾 Error fetching authors:', error);

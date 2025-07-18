@@ -6,10 +6,10 @@ import { toast } from 'sonner';
 export const useAuthorData = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
 
-  const loadAuthors = async () => {
+  const loadAuthors = async (clientId?: string) => {
     try {
-      console.log('📚 useAuthorData.loadAuthors called');
-      const data = await authorService.getAuthors();
+      console.log('📚 useAuthorData.loadAuthors called with clientId:', clientId);
+      const data = await authorService.getAuthors(clientId);
       console.log('📚 Authors loaded successfully:', data?.length || 0);
       setAuthors(data);
       return data;

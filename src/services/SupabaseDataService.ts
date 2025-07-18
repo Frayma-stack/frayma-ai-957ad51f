@@ -14,7 +14,7 @@ export class SupabaseDataService {
   deleteClient = clientService.deleteClient.bind(clientService);
 
   // Author operations
-  getAuthors = authorService.getAuthors.bind(authorService);
+  getAuthors = (clientId?: string) => authorService.getAuthors(clientId);
   createAuthor = authorService.createAuthor.bind(authorService);
   updateAuthor = authorService.updateAuthor.bind(authorService);
   deleteAuthor = authorService.deleteAuthor.bind(authorService);

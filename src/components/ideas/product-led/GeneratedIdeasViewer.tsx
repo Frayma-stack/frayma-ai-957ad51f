@@ -45,6 +45,7 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
   // For free users, only show first 6 ideas fully, blur the rest
   const isFreeTier = subscription_tier === 'free';
   const maxVisibleIdeas = isFreeTier ? 6 : ideasWithScores.length;
+  const maxTotalIdeas = isFreeTier ? 15 : ideasWithScores.length; // Limit total to 15 for free users
 
   const updateIdeaField = (index: number, field: keyof ParsedIdea, value: string) => {
     setIdeasWithScores(prev => prev.map((idea, i) => 
@@ -147,8 +148,8 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
               />
             ))}
             
-            {/* Blurred ideas for free users */}
-            {isFreeTier && ideasWithScores.slice(maxVisibleIdeas).map((_, index) => (
+            {/* Blurred ideas for free users - show remaining up to total limit */}
+            {isFreeTier && ideasWithScores.slice(maxVisibleIdeas, maxTotalIdeas).map((_, index) => (
               <BlurredIdeaCard
                 key={`blurred-${index}`}
                 index={maxVisibleIdeas + index}

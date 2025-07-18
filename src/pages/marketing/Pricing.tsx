@@ -17,7 +17,7 @@ const Pricing = () => {
       features: [
         '2 Client/Company Accounts',
         '2 ICP StoryScripts',
-        '20 GTM Ideas per Month (6 visible)',
+        'Mint 20 New GTM Ideas per Month',
         'Audio transcription for ICP analysis',
         'Ideas Bank access',
         'Basic templates',

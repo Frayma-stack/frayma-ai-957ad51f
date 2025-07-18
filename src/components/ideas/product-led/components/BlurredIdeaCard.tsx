@@ -41,7 +41,7 @@ const BlurredIdeaCard: FC<BlurredIdeaCardProps> = ({ index, onUpgrade }) => {
             Unlock Idea #{index + 1}
           </h3>
           <p className="text-sm text-gray-600 mb-4">
-            Upgrade to see all {20} generated ideas with full details, scoring, and unlimited access.
+            Upgrade to see all generated ideas with full details, scoring, and unlimited access.
           </p>
           <Button
             onClick={onUpgrade}

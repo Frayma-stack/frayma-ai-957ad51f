@@ -19,7 +19,7 @@ const FeatureUsageSection: FC<FeatureUsageSectionProps> = ({
   onDataChange 
 }) => {
   const handleVisualUpload = (field: keyof SuccessStoryFlowData) => {
-    // TODO: Implement file upload functionality
+    // File upload functionality will be implemented in future versions
     console.log('Upload visuals for:', field);
   };
 
