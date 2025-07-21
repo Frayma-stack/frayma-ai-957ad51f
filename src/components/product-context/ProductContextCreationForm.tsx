@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Package } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import { useProductContextData } from '@/hooks/data/useProductContextData';
 import ProductContextForm from '../client-dialog/ProductContextForm';
 
 interface ProductContextCreationFormProps {
@@ -26,10 +27,12 @@ const ProductContextCreationForm: FC<ProductContextCreationFormProps> = ({
   const [features, setFeatures] = useState<ProductFeature[]>([]);
   const [useCases, setUseCases] = useState<ProductUseCase[]>([]);
   const [differentiators, setDifferentiators] = useState<ProductDifferentiator[]>([]);
+  const [isCreating, setIsCreating] = useState(false);
   
   const { toast } = useToast();
+  const { handleProductContextAdded } = useProductContextData();
 
-  const handleCreateProductContext = () => {
+  const handleCreateProductContext = async () => {
     if (!name.trim() && !categoryPOV.trim() && !companyMission.trim() && !uniqueInsight.trim() && 
         features.length === 0 && useCases.length === 0 && differentiators.length === 0) {
       toast({
@@ -53,12 +56,20 @@ const ProductContextCreationForm: FC<ProductContextCreationFormProps> = ({
       differentiators
     };
 
-    onProductContextCreated(newProductContext);
-    
-    toast({
-      title: "Success",
-      description: "Product context created successfully"
-    });
+    try {
+      setIsCreating(true);
+      const createdContext = await handleProductContextAdded(newProductContext);
+      onProductContextCreated(createdContext);
+    } catch (error) {
+      console.error('Error creating product context:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create product context. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const handleCancel = () => {
@@ -80,6 +91,28 @@ const ProductContextCreationForm: FC<ProductContextCreationFormProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Product Context Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter product context name"
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-story-blue focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Brief description of the product context"
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-story-blue focus:border-transparent"
+              rows={2}
+            />
+          </div>
+        </div>
         <ProductContextForm
           categoryPOV={categoryPOV}
           companyMission={companyMission}
@@ -97,9 +130,10 @@ const ProductContextCreationForm: FC<ProductContextCreationFormProps> = ({
         <div className="flex gap-2 mt-4">
           <Button 
             onClick={handleCreateProductContext}
+            disabled={isCreating}
             className="bg-story-blue hover:bg-story-light-blue"
           >
-            Create Product Context
+            {isCreating ? 'Creating...' : 'Create Product Context'}
           </Button>
           <Button 
             variant="outline"

@@ -121,7 +121,15 @@ serve(async (req) => {
     // Parse the JSON response
     let icpData;
     try {
-      icpData = JSON.parse(generatedContent);
+      // Clean the generated content to remove markdown code fences if present
+      let cleanedContent = generatedContent.trim();
+      if (cleanedContent.startsWith('```json')) {
+        cleanedContent = cleanedContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+      } else if (cleanedContent.startsWith('```')) {
+        cleanedContent = cleanedContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
+      }
+      
+      icpData = JSON.parse(cleanedContent);
     } catch (parseError) {
       console.error('Failed to parse generated JSON:', parseError);
       console.error('Generated content:', generatedContent);
