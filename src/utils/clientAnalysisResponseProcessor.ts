@@ -1,5 +1,5 @@
 
-import { ProductContext, ProductFeature, ProductUseCase, ProductDifferentiator, CompanyLink } from '@/types/storytelling';
+import { BusinessContext, ProductFeature, ProductUseCase, ProductDifferentiator, CompanyLink } from '@/types/storytelling';
 import { parseClientAnalysisContent } from '@/utils/clientAnalysisUtils';
 import { AnalysisServiceResponse } from '@/types/clientAnalysis';
 
@@ -18,7 +18,7 @@ export class ClientAnalysisResponseProcessor {
     }
   }
 
-  static transformToProductContext(parsedData: any, validLinks: CompanyLink[], name: string = 'Product Context'): ProductContext {
+  static transformToProductContext(parsedData: any, validLinks: CompanyLink[], name: string = 'Business Context'): BusinessContext {
     // Transform parsed data into ProductContext with enhanced mapping
     const features: ProductFeature[] = (parsedData.features || []).map((feature: any) => ({
       id: crypto.randomUUID(),
@@ -51,11 +51,9 @@ export class ClientAnalysisResponseProcessor {
     
     const companyLinks = validLinks.filter(link => link.type === 'website');
     
-    const productContext: ProductContext = {
+    const productContext: BusinessContext = {
       id: crypto.randomUUID(),
       clientId: '',
-      name: extractedName,
-      description: extractedDescription,
       features,
       useCases,
       differentiators,

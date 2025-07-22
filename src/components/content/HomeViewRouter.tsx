@@ -50,7 +50,7 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
     selectedArticleSubtype,
     filteredICPScriptsCount: filteredICPScripts.length,
     filteredAuthorsCount: filteredAuthors.length,
-    currentProductContext: currentProductContext?.name || 'none',
+    currentProductContext: currentProductContext ? 'Business Context' : 'none',
     selectedClientId
   });
 

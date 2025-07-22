@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { ProductContext } from '@/types/storytelling';
+import { BusinessContext } from '@/types/storytelling';
 import { BaseSupabaseService } from './base/BaseSupabaseService';
 import {
   convertToProductFeatures,
@@ -14,7 +14,7 @@ import {
 } from '@/utils/supabaseTypeUtils';
 
 export class ProductContextService extends BaseSupabaseService {
-  async getProductContexts(): Promise<ProductContext[]> {
+  async getProductContexts(): Promise<BusinessContext[]> {
     const { data, error } = await supabase
       .from('product_contexts')
       .select('*')
@@ -24,8 +24,6 @@ export class ProductContextService extends BaseSupabaseService {
     
     return (data || []).map(context => ({
       id: context.id,
-      name: context.name || 'Product Context',
-      description: context.description || '',
       features: convertToProductFeatures(context.features),
       useCases: convertToProductUseCases(context.use_cases),
       differentiators: convertToProductDifferentiators(context.differentiators),
@@ -37,15 +35,15 @@ export class ProductContextService extends BaseSupabaseService {
     }));
   }
 
-  async createProductContext(context: Omit<ProductContext, 'id'>): Promise<ProductContext> {
+  async createProductContext(context: Omit<BusinessContext, 'id'>): Promise<BusinessContext> {
     const userId = await this.getCurrentUserId();
     
     const { data, error } = await supabase
       .from('product_contexts')
       .insert({
         user_id: userId,
-        name: context.name,
-        description: context.description,
+        name: 'Business Context',
+        description: '',
         features: convertFromProductFeatures(context.features || []),
         use_cases: convertFromProductUseCases(context.useCases || []),
         differentiators: convertFromProductDifferentiators(context.differentiators || []),
@@ -62,8 +60,6 @@ export class ProductContextService extends BaseSupabaseService {
     
     return {
       id: data.id,
-      name: data.name || 'Product Context',
-      description: data.description || '',
       features: convertToProductFeatures(data.features),
       useCases: convertToProductUseCases(data.use_cases),
       differentiators: convertToProductDifferentiators(data.differentiators),
@@ -75,12 +71,10 @@ export class ProductContextService extends BaseSupabaseService {
     };
   }
 
-  async updateProductContext(context: ProductContext): Promise<ProductContext> {
+  async updateProductContext(context: BusinessContext): Promise<BusinessContext> {
     const { data, error } = await supabase
       .from('product_contexts')
       .update({
-        name: context.name,
-        description: context.description,
         features: convertFromProductFeatures(context.features || []),
         use_cases: convertFromProductUseCases(context.useCases || []),
         differentiators: convertFromProductDifferentiators(context.differentiators || []),
@@ -98,8 +92,6 @@ export class ProductContextService extends BaseSupabaseService {
     
     return {
       id: data.id,
-      name: data.name || 'Product Context',
-      description: data.description || '',
       features: convertToProductFeatures(data.features),
       useCases: convertToProductUseCases(data.use_cases),
       differentiators: convertToProductDifferentiators(data.differentiators),

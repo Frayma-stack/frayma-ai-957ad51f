@@ -149,19 +149,20 @@ export interface CompanyLink {
   description?: string;
 }
 
-export interface ProductContext {
+export interface BusinessContext {
   id: string;
   clientId: string;
   categoryPOV: string;
   companyMission: string;
-  name?: string;
-  description?: string;
   uniqueInsight?: string;
   features?: ProductFeature[];
   useCases?: ProductUseCase[];
   differentiators?: ProductDifferentiator[];
   companyLinks?: CompanyLink[];
 }
+
+// Legacy alias for backward compatibility
+export type ProductContext = BusinessContext;
 
 export interface Client {
   id: string;

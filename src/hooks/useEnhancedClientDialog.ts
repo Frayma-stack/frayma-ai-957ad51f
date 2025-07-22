@@ -1,7 +1,7 @@
 
 
 import { useState } from 'react';
-import { Client, CompanyLink, ProductContext, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
+import { Client, CompanyLink, BusinessContext, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
 import { useToast } from "@/components/ui/use-toast";
 import { useClientAnalysis } from '@/hooks/useClientAnalysis';
 
@@ -74,7 +74,7 @@ export const useEnhancedClientDialog = (editingClient?: Client | null) => {
     }
   };
 
-  const createClientData = (): { client: Client; productContext?: ProductContext } => {
+  const createClientData = (): { client: Client; productContext?: BusinessContext } => {
     const clientData: Client = {
       id: editingClient?.id || crypto.randomUUID(),
       name: name.trim(),
@@ -83,12 +83,10 @@ export const useEnhancedClientDialog = (editingClient?: Client | null) => {
       createdAt: editingClient?.createdAt || new Date().toISOString()
     };
 
-    let productContext: ProductContext | undefined;
+    let productContext: BusinessContext | undefined;
     if (categoryPOV || companyMission || uniqueInsight || features.length > 0 || useCases.length > 0 || differentiators.length > 0) {
       productContext = {
         id: crypto.randomUUID(),
-        name: name.trim() || 'Product Context',
-        description: description.trim() || '',
         categoryPOV: categoryPOV.trim(),
         companyMission: companyMission.trim(),
         uniqueInsight: uniqueInsight.trim(),

@@ -36,7 +36,7 @@ const IdeasBank = ({
     selectedClientId,
     ideasCount: ideas.length,
     scriptsCount: scripts.length,
-    productContext: productContext?.name || 'none',
+    productContext: productContext ? 'Business Context' : 'none',
     activeTab
   });
 

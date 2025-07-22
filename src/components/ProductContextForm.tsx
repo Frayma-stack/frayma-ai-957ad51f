@@ -4,15 +4,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ProductContext, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
+import { BusinessContext, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
 import { Plus, Trash } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 
 interface ProductContextFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onProductContextCreated: (productContext: ProductContext) => void;
-  editingProductContext?: ProductContext | null;
+  onProductContextCreated: (productContext: BusinessContext) => void;
+  editingProductContext?: BusinessContext | null;
   selectedClientId?: string | null;
 }
 
@@ -23,8 +23,6 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
   editingProductContext,
   selectedClientId
 }) => {
-  const [name, setName] = useState(editingProductContext?.name || '');
-  const [description, setDescription] = useState(editingProductContext?.description || '');
   const [categoryPOV, setCategoryPOV] = useState(editingProductContext?.categoryPOV || '');
   const [companyMission, setCompanyMission] = useState(editingProductContext?.companyMission || '');
   const [uniqueInsight, setUniqueInsight] = useState(editingProductContext?.uniqueInsight || '');
@@ -35,8 +33,6 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
   const { toast } = useToast();
 
   const resetForm = () => {
-    setName('');
-    setDescription('');
     setCategoryPOV('');
     setCompanyMission('');
     setUniqueInsight('');
@@ -51,33 +47,33 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
   };
 
   const handleSubmit = () => {
-    if (!name.trim()) {
+    if (!categoryPOV.trim() && !companyMission.trim() && !uniqueInsight.trim() && 
+        features.length === 0 && useCases.length === 0 && differentiators.length === 0) {
       toast({
         title: "Error",
-        description: "Please provide a name for the product context",
+        description: "Please fill in at least one field to create business context",
         variant: "destructive"
       });
       return;
     }
 
-    const productContext: ProductContext = {
+    const businessContext: BusinessContext = {
       id: editingProductContext?.id || crypto.randomUUID(),
-      name: name.trim(),
-      description: description.trim(),
+      clientId: selectedClientId || editingProductContext?.clientId || '',
       categoryPOV: categoryPOV.trim(),
       companyMission: companyMission.trim(),
       uniqueInsight: uniqueInsight.trim(),
       features,
       useCases,
       differentiators,
-      clientId: selectedClientId || editingProductContext?.clientId
+      companyLinks: []
     };
 
-    onProductContextCreated(productContext);
+    onProductContextCreated(businessContext);
     
     toast({
       title: "Success",
-      description: editingProductContext ? "Product context updated successfully" : "Product context created successfully"
+      description: editingProductContext ? "Business context updated successfully" : "Business context created successfully"
     });
 
     handleClose();
@@ -150,36 +146,15 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {editingProductContext ? 'Edit Product Context' : 'Add Product Context'}
+            {editingProductContext ? 'Edit Business Context' : 'Add Business Context'}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Core Product Narrative Section */}
+          {/* Core Business Narrative Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Core Product Narrative</h3>
+            <h3 className="text-lg font-semibold">Core Business Narrative</h3>
             
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Name of the product context"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Description of the product context"
-                rows={3}
-              />
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="categoryPOV">Category Point of View</Label>
               <Textarea
@@ -381,7 +356,7 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
             Cancel
           </Button>
           <Button onClick={handleSubmit} className="bg-story-blue hover:bg-story-light-blue">
-            {editingProductContext ? 'Update' : 'Create'} Product Context
+            {editingProductContext ? 'Update' : 'Create'} Business Context
           </Button>
         </DialogFooter>
       </DialogContent>
