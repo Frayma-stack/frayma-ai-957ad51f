@@ -27,7 +27,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
   if (!productContext) {
     return (
       <div className="text-center py-4 text-gray-500 text-sm">
-        No product context available for this client
+        No business context available for this client
       </div>
     );
   }
@@ -86,11 +86,11 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
   return (
     <Card className="border-brand-primary/20">
       <CardHeader>
-        <CardTitle className="text-brand-primary text-sm">Product Context</CardTitle>
+        <CardTitle className="text-brand-primary text-sm">Business Context</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <Label className="text-sm font-medium">Product Context Type</Label>
+          <Label className="text-sm font-medium">Business Context Type</Label>
           <div className="flex flex-col space-y-2 mt-2">
             {productContext.features && productContext.features.length > 0 && (
               <div className="flex items-center space-x-2">

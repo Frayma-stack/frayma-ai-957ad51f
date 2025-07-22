@@ -126,7 +126,7 @@ const ClientCard: FC<ClientCardProps> = ({
               onClick={() => onViewClientAssets(client.id, 'product-context')}
             >
               <Package className="h-3.5 w-3.5 mr-1" />
-              Product Context
+              Business Context
             </Button>
             <Button 
               variant="outline" 

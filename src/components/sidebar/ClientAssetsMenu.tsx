@@ -59,7 +59,7 @@ const ClientAssetsMenu: FC<ClientAssetsMenuProps> = ({
         onClick={() => handleAssetClick('product-context')}
       >
         <Package className="h-3 w-3 mr-2 text-brand-primary" />
-        Product Context
+        Business Context
       </Button>
       <Button 
         variant="ghost" 

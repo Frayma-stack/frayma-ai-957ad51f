@@ -33,7 +33,7 @@ const ProductContextHeader: FC<ProductContextHeaderProps> = ({
         onClick={onToggleExpand}
       >
         <Package className="h-5 w-5 mr-2" />
-        <span className="text-2xl font-semibold leading-none tracking-tight">Product Context</span>
+        <span className="text-2xl font-semibold leading-none tracking-tight">Business Context</span>
         {productContext && (
           <span className="ml-2 text-sm font-normal text-gray-500">
             ({getTotalItems()} items)

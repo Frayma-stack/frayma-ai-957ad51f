@@ -107,7 +107,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-story-blue">Product Context</CardTitle>
+        <CardTitle className="text-story-blue">Business Context</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
@@ -175,7 +175,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
 
         {productContext && (
           <div>
-            <Label>Product Context Type * (choose one primary)</Label>
+            <Label>Business Context Type * (choose one primary)</Label>
             <div className="flex flex-col space-y-2 mt-2">
               {productContext.features.length > 0 && (
                 <div className="flex items-center space-x-2">

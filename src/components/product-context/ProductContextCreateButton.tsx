@@ -16,22 +16,22 @@ const ProductContextCreateButton: FC<ProductContextCreateButtonProps> = ({
       <CardHeader>
         <CardTitle className="text-story-blue flex items-center">
           <Package className="h-5 w-5 mr-2" />
-          Product Context
+          Business Context
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="text-center py-8 border border-dashed rounded-md">
           <Package className="h-10 w-10 mx-auto text-gray-400 mb-2" />
-          <p className="text-gray-500 mb-2">No product context found</p>
+          <p className="text-gray-500 mb-2">No business context found</p>
           <p className="text-gray-400 text-sm mb-4">
-            Create product context to enhance content generation with features, use cases, and differentiators
+            Create business context to enhance content generation with features, use cases, and differentiators
           </p>
           <Button 
             onClick={onCreateClick}
             className="bg-story-blue hover:bg-story-light-blue"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Create Product Context
+            Create Business Context
           </Button>
         </div>
       </CardContent>

@@ -149,7 +149,7 @@ const IdeaGenerationForm: FC<IdeaGenerationFormProps> = ({
           </div>
         </div>
         <div>
-          <Label htmlFor="productContextId">Product Context (Relevance)</Label>
+          <Label htmlFor="productContextId">Business Context (Relevance)</Label>
           <select
             id="productContextId"
             name="productContextId"
@@ -157,7 +157,7 @@ const IdeaGenerationForm: FC<IdeaGenerationFormProps> = ({
             value={prompt.productContextId}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
-            <option value="">Select Product Context</option>
+            <option value="">Select Business Context</option>
             {productContexts.map(product => (
               <option key={product.id} value={product.id}>{product.categoryPOV}</option>
             ))}

@@ -15,7 +15,7 @@ export const ProductContextSection: React.FC<ProductContextSectionProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <h3 className="font-medium text-gray-900">Product Context</h3>
+      <h3 className="font-medium text-gray-900">Business Context</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">

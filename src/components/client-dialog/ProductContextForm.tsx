@@ -40,7 +40,7 @@ const ProductContextForm: FC<ProductContextFormProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Product Context</CardTitle>
+        <CardTitle className="text-lg">Business Context</CardTitle>
         <CardDescription>
           This section will be populated after analysis, but you can also fill it manually
         </CardDescription>

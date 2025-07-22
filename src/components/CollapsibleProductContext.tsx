@@ -71,7 +71,7 @@ const CollapsibleProductContext: FC<CollapsibleProductContextProps> = ({
     
     toast({
       title: "Success",
-      description: "Product context updated successfully"
+      description: "Business context updated successfully"
     });
   };
 
@@ -169,7 +169,7 @@ const CollapsibleProductContext: FC<CollapsibleProductContextProps> = ({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-story-blue flex items-center">
-            Product Context
+            Business Context
           </CardTitle>
           <div className="flex items-center gap-2">
             {isEditing ? (
