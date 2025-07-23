@@ -66,6 +66,7 @@ const MainContentViewRouter: FC<MainContentViewRouterProps> = (props) => {
   if (currentView === 'product-context') {
     return (
       <ProductContextView
+        selectedClientId={props.selectedClientId}
         currentProductContext={props.currentProductContext}
         onProductContextUpdated={props.onProductContextUpdated}
       />

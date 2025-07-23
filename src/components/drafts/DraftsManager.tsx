@@ -90,7 +90,7 @@ const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
   const handleCreateDraft = () => {
     // Redirect to GTM asset creation instead of opening PLS editor
     console.log('🎯 Redirecting to GTM asset creation');
-    window.location.hash = 'gtm-narrative';
+    window.location.href = '/app#gtm-narrative';
   };
 
   const handlePLSEditorSave = async (updatedContent: string) => {

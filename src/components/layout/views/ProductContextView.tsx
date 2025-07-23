@@ -4,9 +4,10 @@ import ProductContextManager from '@/components/ProductContextManager';
 import { MainContentViewRouterProps } from '../types/MainContentViewRouterTypes';
 
 interface ProductContextViewProps extends Pick<MainContentViewRouterProps, 
-  'currentProductContext' | 'onProductContextUpdated'> {}
+  'selectedClientId' | 'currentProductContext' | 'onProductContextUpdated'> {}
 
 const ProductContextView: FC<ProductContextViewProps> = ({
+  selectedClientId,
   currentProductContext,
   onProductContextUpdated,
 }) => {
@@ -14,6 +15,7 @@ const ProductContextView: FC<ProductContextViewProps> = ({
     <div className="p-6">
       <ProductContextManager
         productContext={currentProductContext}
+        selectedClientId={selectedClientId}
         onProductContextUpdated={onProductContextUpdated}
       />
     </div>

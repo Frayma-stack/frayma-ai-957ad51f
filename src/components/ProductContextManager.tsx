@@ -7,11 +7,13 @@ import ProductContextCreateButton from './product-context/ProductContextCreateBu
 
 interface ProductContextManagerProps {
   productContext: ProductContext | null;
+  selectedClientId?: string;
   onProductContextUpdated: (productContext: ProductContext) => void;
 }
 
 const ProductContextManager: FC<ProductContextManagerProps> = ({ 
   productContext, 
+  selectedClientId,
   onProductContextUpdated 
 }) => {
   const [isCreating, setIsCreating] = useState(false);
@@ -43,6 +45,7 @@ const ProductContextManager: FC<ProductContextManagerProps> = ({
         <ProductContextCreationForm
           onProductContextCreated={handleProductContextCreated}
           onCancel={handleCancelCreate}
+          selectedClientId={selectedClientId}
         />
       </div>
     );
