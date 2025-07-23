@@ -54,7 +54,7 @@ export const useSupabaseData = () => {
     try {
       await Promise.all([
         clientData.loadClients(),
-        // Authors will be loaded client-specifically when needed
+        authorData.loadAuthors(), // Load all authors on initial load
         ideaData.loadIdeas(),
         icpScriptData.loadICPScripts(),
         successStoryData.loadSuccessStories(),

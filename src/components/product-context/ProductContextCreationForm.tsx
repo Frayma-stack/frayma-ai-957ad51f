@@ -1,12 +1,14 @@
 
 import { FC, useState } from 'react';
-import { BusinessContext, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
+import { BusinessContext, ProductFeature, ProductUseCase, ProductDifferentiator, CompanyLink } from '@/types/storytelling';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Package } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { useProductContextData } from '@/hooks/data/useProductContextData';
+import { useClientAnalysis } from '@/hooks/useClientAnalysis';
 import ProductContextForm from '../client-dialog/ProductContextForm';
+import CompanyLinksSection from '../client-dialog/CompanyLinksSection';
 
 interface ProductContextCreationFormProps {
   onProductContextCreated: (productContext: BusinessContext) => void;
@@ -25,10 +27,14 @@ const ProductContextCreationForm: FC<ProductContextCreationFormProps> = ({
   const [features, setFeatures] = useState<ProductFeature[]>([]);
   const [useCases, setUseCases] = useState<ProductUseCase[]>([]);
   const [differentiators, setDifferentiators] = useState<ProductDifferentiator[]>([]);
+  const [companyLinks, setCompanyLinks] = useState<CompanyLink[]>([
+    { id: crypto.randomUUID(), type: 'website', url: '' }
+  ]);
   const [isCreating, setIsCreating] = useState(false);
   
   const { toast } = useToast();
   const { handleProductContextAdded } = useProductContextData();
+  const { isAnalyzing, analyzeClient } = useClientAnalysis();
 
   const handleCreateBusinessContext = async () => {
     if (!categoryPOV.trim() && !companyMission.trim() && !uniqueInsight.trim() && 
@@ -68,6 +74,36 @@ const ProductContextCreationForm: FC<ProductContextCreationFormProps> = ({
     }
   };
 
+  const handleAnalyzeAndComplete = async () => {
+    const validLinks = companyLinks.filter(link => link.url.trim() !== '');
+    if (validLinks.length === 0) {
+      toast({
+        title: "Error",
+        description: "At least one company URL is required for analysis",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      await analyzeClient(validLinks, 'Business Context Analysis', (productContext) => {
+        setCategoryPOV(productContext.categoryPOV || '');
+        setCompanyMission(productContext.companyMission || '');
+        setUniqueInsight(productContext.uniqueInsight || '');
+        setFeatures(productContext.features || []);
+        setUseCases(productContext.useCases || []);
+        setDifferentiators(productContext.differentiators || []);
+
+        toast({
+          title: "Analysis Complete",
+          description: "Business context has been populated with analyzed data. Review and edit as needed.",
+        });
+      });
+    } catch (error) {
+      console.error('Analysis failed:', error);
+    }
+  };
+
   const handleCancel = () => {
     setCategoryPOV('');
     setCompanyMission('');
@@ -75,6 +111,7 @@ const ProductContextCreationForm: FC<ProductContextCreationFormProps> = ({
     setFeatures([]);
     setUseCases([]);
     setDifferentiators([]);
+    setCompanyLinks([{ id: crypto.randomUUID(), type: 'website', url: '' }]);
     onCancel();
   };
 
@@ -87,21 +124,31 @@ const ProductContextCreationForm: FC<ProductContextCreationFormProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <ProductContextForm
-          categoryPOV={categoryPOV}
-          companyMission={companyMission}
-          uniqueInsight={uniqueInsight}
-          features={features}
-          useCases={useCases}
-          differentiators={differentiators}
-          onCategoryPOVChange={setCategoryPOV}
-          onCompanyMissionChange={setCompanyMission}
-          onUniqueInsightChange={setUniqueInsight}
-          onFeaturesChange={setFeatures}
-          onUseCasesChange={setUseCases}
-          onDifferentiatorsChange={setDifferentiators}
-        />
-        <div className="flex gap-2 mt-4">
+        <div className="space-y-6">
+          <CompanyLinksSection
+            companyLinks={companyLinks}
+            onUpdateCompanyLinks={setCompanyLinks}
+            onAnalyze={handleAnalyzeAndComplete}
+            isAnalyzing={isAnalyzing}
+            canAnalyze={companyLinks.some(link => link.url.trim() !== '')}
+          />
+          
+          <ProductContextForm
+            categoryPOV={categoryPOV}
+            companyMission={companyMission}
+            uniqueInsight={uniqueInsight}
+            features={features}
+            useCases={useCases}
+            differentiators={differentiators}
+            onCategoryPOVChange={setCategoryPOV}
+            onCompanyMissionChange={setCompanyMission}
+            onUniqueInsightChange={setUniqueInsight}
+            onFeaturesChange={setFeatures}
+            onUseCasesChange={setUseCases}
+            onDifferentiatorsChange={setDifferentiators}
+          />
+        </div>
+        <div className="flex gap-2 mt-6">
           <Button 
             onClick={handleCreateBusinessContext}
             disabled={isCreating}

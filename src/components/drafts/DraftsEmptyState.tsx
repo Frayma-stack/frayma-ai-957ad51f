@@ -13,7 +13,7 @@ const DraftsEmptyState: FC<DraftsEmptyStateProps> = ({ onCreateDraft }) => {
       <FileText className="h-10 w-10 mx-auto text-gray-400 mb-2" />
       <p className="text-gray-500 mb-2">No drafts yet</p>
       <p className="text-gray-400 text-sm mb-4">
-        Drafts will be automatically saved here when you start creating content
+        Create a GTM asset that you can save as a draft for further editing
       </p>
       <Button 
         variant="outline" 
@@ -21,7 +21,7 @@ const DraftsEmptyState: FC<DraftsEmptyStateProps> = ({ onCreateDraft }) => {
         className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white"
       >
         <Plus className="h-4 w-4 mr-2" />
-        Create First Draft
+        Create GTM Asset
       </Button>
     </div>
   );

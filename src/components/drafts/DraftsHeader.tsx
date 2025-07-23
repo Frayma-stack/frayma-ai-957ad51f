@@ -35,7 +35,7 @@ const DraftsHeader: React.FC<DraftsHeaderProps> = ({
           )}
           <Button onClick={onCreateDraft} size="sm">
             <Plus className="h-4 w-4 mr-2" />
-            New Draft
+            Create GTM Asset
           </Button>
         </div>
       </div>
