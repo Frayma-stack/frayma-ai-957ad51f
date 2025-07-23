@@ -56,7 +56,7 @@ const ClientAssetsMenu: FC<ClientAssetsMenuProps> = ({
         variant="ghost" 
         size="sm" 
         className="w-full justify-start text-xs font-normal py-1 h-auto"
-        onClick={() => handleAssetClick('product-context')}
+        onClick={() => handleAssetClick('business-context')}
       >
         <Package className="h-3 w-3 mr-2 text-brand-primary" />
         Business Context
