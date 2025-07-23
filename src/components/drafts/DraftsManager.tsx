@@ -88,9 +88,9 @@ const DraftsManager: FC<DraftsManagerProps> = ({ selectedClientId }) => {
   }, [selectedClientId, user]);
 
   const handleCreateDraft = () => {
-    // Open the PLS-focused Text Editor for creating new drafts
-    console.log('📝 Opening PLS-focused Text Editor for new draft');
-    setShowPLSEditor(true);
+    // Redirect to GTM asset creation instead of opening PLS editor
+    console.log('🎯 Redirecting to GTM asset creation');
+    window.location.hash = 'gtm-narrative';
   };
 
   const handlePLSEditorSave = async (updatedContent: string) => {

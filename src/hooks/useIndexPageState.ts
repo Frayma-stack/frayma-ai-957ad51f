@@ -58,6 +58,7 @@ export const useIndexPageState = () => {
       'authors': 'authors',
       'icp-scripts': 'icp-scripts',
       'success-stories': 'success-stories',
+      'business-context': 'product-context',
       'product-context': 'product-context',
       'drafts': 'drafts',
       'ideas': 'ideas'

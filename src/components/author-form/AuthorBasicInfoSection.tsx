@@ -38,15 +38,6 @@ const AuthorBasicInfoSection: FC<AuthorBasicInfoSectionProps> = ({
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Organization</label>
-        <Input 
-          placeholder="Company or organization name"
-          value={author.organization}
-          onChange={(e) => onInputChange('organization', e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
         <label className="text-sm font-medium">Professional Background</label>
         <Textarea 
           placeholder="Brief description of professional background and expertise"
