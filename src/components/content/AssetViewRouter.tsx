@@ -89,7 +89,7 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
   if (selectedAssetType === 'clients') {
     return (
       <div className="p-6">
-        <AccountManager
+        <ClientManager
           clients={clients}
           selectedClientId={selectedClientId}
           onClientAdded={onClientAdded}

@@ -4,7 +4,7 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGrou
 import { Home, Lightbulb } from 'lucide-react';
 import { Client } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
-import AccountSection from './sidebar/AccountSection';
+import ClientSection from './sidebar/ClientSection';
 
 interface AppSidebarProps {
   ideas: GeneratedIdea[];
@@ -76,7 +76,7 @@ const AppSidebar: FC<AppSidebarProps> = ({
 
         <SidebarGroup>
           <SidebarGroupContent>
-            <AccountSection
+            <ClientSection
               clients={clients}
               ideas={ideas}
               selectedClientId={selectedClientId}

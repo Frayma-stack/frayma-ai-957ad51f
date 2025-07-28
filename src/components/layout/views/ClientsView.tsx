@@ -19,7 +19,7 @@ const ClientsView: FC<ClientsViewProps> = ({
 }) => {
   return (
     <div className="p-6">
-      <AccountManager
+      <ClientManager
         clients={clients}
         selectedClientId={selectedClientId}
         onClientAdded={onClientAdded}

@@ -160,7 +160,7 @@ const ClientSection: FC<ClientSectionProps> = ({
                   </div>
                   
                   {expandedClients.has(client.id) && (
-                    <AccountAssetsMenu
+                    <ClientAssetsMenu
                       client={client}
                       ideas={ideas}
                       onAssetClick={onClientAssetClick}
