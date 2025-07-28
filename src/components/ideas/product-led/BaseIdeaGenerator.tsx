@@ -97,12 +97,12 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
         <CardHeader>
           <CardTitle className="text-story-blue flex items-center space-x-2">
             <Sparkles className="h-6 w-6" />
-            <span>Product-Led Storytelling Idea Generator</span>
+            <span>Mint Fresh Product-Led Ideas</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-gray-600 mb-6">
-            Generate compelling B2B content ideas that subtly showcase your product's value through narrative-driven storytelling.
+            Frame random thoughts or idea triggers into fresh ideas to power auto-crafting ICP-moving GTM assets.
           </p>
         </CardContent>
       </Card>

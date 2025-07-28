@@ -1,18 +1,22 @@
 
-import { FC, useState } from 'react';
+import { FC, useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Lightbulb, Upload, FileText, Image, Sparkles } from 'lucide-react';
+import { Lightbulb, Upload, FileText, X, File, Loader2, Sparkles } from 'lucide-react';
 import { GeneratedIdea } from '@/types/ideas';
 import { useIdeaSummarization } from '@/hooks/useIdeaSummarization';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TriggerInput {
   type: 'text' | 'file';
   content: string;
+  fileName?: string;
+  fileDescription?: string;
 }
 
 interface TriggerInputSectionProps {
@@ -30,6 +34,8 @@ const TriggerInputSection: FC<TriggerInputSectionProps> = ({
 }) => {
   const [selectedIdeaId, setSelectedIdeaId] = useState<string>('none');
   const [isProcessingIdea, setIsProcessingIdea] = useState(false);
+  const [isProcessingFile, setIsProcessingFile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { summarizeIdeaForContent } = useIdeaSummarization();
 
   // Filter ideas by selected client
@@ -61,6 +67,83 @@ const TriggerInputSection: FC<TriggerInputSectionProps> = ({
       toast.error('Failed to process idea. Please try again.');
     } finally {
       setIsProcessingIdea(false);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain',
+      'text/csv',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Please upload a PDF, Word document, Excel file, or text file');
+      return;
+    }
+
+    setIsProcessingFile(true);
+
+    try {
+      // Create form data for file upload
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Call edge function to extract text
+      const { data, error } = await supabase.functions.invoke('extract-document-text', {
+        body: formData,
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Failed to extract text from file');
+      }
+
+      if (data?.extractedText) {
+        onTriggerInputChange({
+          ...triggerInput,
+          content: data.extractedText,
+          fileName: file.name,
+          fileDescription: ''
+        });
+        toast.success(`Text extracted from ${file.name}`);
+      } else {
+        throw new Error('No text could be extracted from the file');
+      }
+    } catch (error) {
+      console.error('Error processing file:', error);
+      toast.error(`Failed to process file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsProcessingFile(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleFileDescriptionChange = (description: string) => {
+    onTriggerInputChange({
+      ...triggerInput,
+      fileDescription: description
+    });
+  };
+
+  const clearFile = () => {
+    onTriggerInputChange({
+      ...triggerInput,
+      content: '',
+      fileName: undefined,
+      fileDescription: undefined
+    });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -123,21 +206,83 @@ const TriggerInputSection: FC<TriggerInputSectionProps> = ({
           </div>
         </div>
 
+        {/* File Upload Section */}
+        {triggerInput.type === 'file' && (
+          <div className="space-y-4">
+            <div>
+              <Label>Upload Document</Label>
+              <div className="mt-2">
+                <Input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.txt,.csv,.xls,.xlsx"
+                  onChange={handleFileUpload}
+                  disabled={isProcessingFile}
+                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/80"
+                />
+                {isProcessingFile && (
+                  <div className="flex items-center mt-2 text-sm text-gray-600">
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Extracting text from file...
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {triggerInput.fileName && (
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                <div className="flex items-center space-x-2">
+                  <File className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm font-medium">{triggerInput.fileName}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFile}
+                  className="h-6 w-6 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+
+            {triggerInput.fileName && (
+              <div>
+                <Label>Describe the file content (optional)</Label>
+                <Textarea
+                  placeholder="Briefly describe what this file contains or its relevance to your idea trigger..."
+                  value={triggerInput.fileDescription || ''}
+                  onChange={(e) => handleFileDescriptionChange(e.target.value)}
+                  className="mt-2"
+                  rows={3}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
         <div>
           <Label>Trigger/Thesis/Anti-thesis</Label>
           <Textarea
             placeholder={selectedIdeaId !== 'none'
               ? "Your saved idea summary will appear here..." 
-              : "What triggered you to mint new ideas? Paste text, describe an image, or explain file content..."
+              : triggerInput.type === 'file' 
+                ? "Extracted text from your uploaded file will appear here..."
+                : "Type or paste text on what triggered you to mint new GTM asset ideas"
             }
             value={triggerInput.content}
             onChange={(e) => onTriggerInputChange({ ...triggerInput, content: e.target.value })}
             className="min-h-[200px] mt-2"
-            disabled={isProcessingIdea}
+            disabled={isProcessingIdea || isProcessingFile}
           />
           {selectedIdeaId !== 'none' && (
             <p className="text-sm text-gray-500 mt-1">
               Trigger generated from saved idea. You can edit it above if needed.
+            </p>
+          )}
+          {triggerInput.type === 'file' && triggerInput.fileName && (
+            <p className="text-sm text-gray-500 mt-1">
+              Text extracted from {triggerInput.fileName}. You can edit it above if needed.
             </p>
           )}
         </div>

@@ -2,6 +2,8 @@
 export interface TriggerInput {
   type: 'text' | 'file';
   content: string;
+  fileName?: string;
+  fileDescription?: string;
 }
 
 export interface ProductContextInputs {

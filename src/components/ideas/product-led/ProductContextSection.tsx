@@ -108,7 +108,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-story-blue">Manual Business Context Mapping (Optional)</CardTitle>
+        <CardTitle className="text-story-blue">Business Context Mapping (Optional)</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-gray-600 mb-4">
