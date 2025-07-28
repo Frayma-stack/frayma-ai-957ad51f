@@ -1,6 +1,6 @@
 
 import { FC } from 'react';
-import AccountManager from '@/components/AccountManager';
+import ClientManager from '@/components/ClientManager';
 import { MainContentViewRouterProps } from '../types/MainContentViewRouterTypes';
 
 interface ClientsViewProps extends Pick<MainContentViewRouterProps, 

@@ -1,6 +1,6 @@
 
 import { FC } from 'react';
-import AccountManager from '@/components/AccountManager';
+import ClientManager from '@/components/ClientManager';
 import AuthorManager from '@/components/AuthorManager';
 import IdeasBank from '@/components/ideas/IdeasBank';
 import ICPStoryScriptManager from '@/components/ICPStoryScriptManager';

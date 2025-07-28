@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Client } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
-import AccountAssetsMenu from './AccountAssetsMenu';
+import ClientAssetsMenu from './ClientAssetsMenu';
 
 interface ClientSectionProps {
   clients: Client[];

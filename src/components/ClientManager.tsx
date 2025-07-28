@@ -1,96 +1,95 @@
-
 import { FC, useState } from 'react';
 import { 
   Card, 
   CardContent
 } from "@/components/ui/card";
-import { Account, ProductContext } from '@/types/storytelling';
+import { Client, ProductContext } from '@/types/storytelling';
 import { useToast } from "@/hooks/use-toast";
-import EnhancedAccountDialog from './EnhancedAccountDialog';
+import EnhancedClientDialog from './EnhancedClientDialog';
 import ClientManagerHeader from './client-manager/ClientManagerHeader';
 import ClientFilterButtons from './client-manager/ClientFilterButtons';
 import ClientGrid from './client-manager/ClientGrid';
 
-interface AccountManagerProps {
-  accounts: Account[];
-  selectedAccountId: string | null;
-  onAccountAdded: (account: Account, productContext?: ProductContext) => void;
-  onAccountUpdated: (account: Account, productContext?: ProductContext) => void;
-  onAccountDeleted: (accountId: string) => void;
-  onAccountSelected: (accountId: string | null) => void;
-  onViewAccountAssets: (accountId: string, assetType: string) => void;
+interface ClientManagerProps {
+  clients: Client[];
+  selectedClientId: string | null;
+  onClientAdded: (client: Client, productContext?: ProductContext) => void;
+  onClientUpdated: (client: Client, productContext?: ProductContext) => void;
+  onClientDeleted: (clientId: string) => void;
+  onClientSelected: (clientId: string | null) => void;
+  onViewClientAssets: (clientId: string, assetType: string) => void;
   onProductContextAdded?: (productContext: ProductContext) => void;
 }
 
-const AccountManager: FC<AccountManagerProps> = ({
-  accounts,
-  selectedAccountId,
-  onAccountAdded,
-  onAccountUpdated,
-  onAccountDeleted,
-  onAccountSelected,
-  onViewAccountAssets,
+const ClientManager: FC<ClientManagerProps> = ({
+  clients,
+  selectedClientId,
+  onClientAdded,
+  onClientUpdated,
+  onClientDeleted,
+  onClientSelected,
+  onViewClientAssets,
   onProductContextAdded
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingAccount, setEditingAccount] = useState<Account | null>(null);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
   
   const { toast } = useToast();
 
-  const handleOpenDialog = (account?: Account) => {
-    if (account) {
-      setEditingAccount(account);
+  const handleOpenDialog = (client?: Client) => {
+    if (client) {
+      setEditingClient(client);
     } else {
-      setEditingAccount(null);
+      setEditingClient(null);
     }
     setIsDialogOpen(true);
   };
 
   const handleCloseDialog = () => {
-    setEditingAccount(null);
+    setEditingClient(null);
     setIsDialogOpen(false);
   };
 
-  const handleAccountCreated = (account: Account, productContext?: ProductContext) => {
-    console.log('AccountManager: handleAccountCreated called', { account, productContext });
+  const handleClientCreated = (client: Client, productContext?: ProductContext) => {
+    console.log('ClientManager: handleClientCreated called', { client, productContext });
     
-    if (editingAccount) {
-      // For updates, call the enhanced update handler that handles both account and product context
-      onAccountUpdated(account, productContext);
+    if (editingClient) {
+      // For updates, call the enhanced update handler that handles both client and product context
+      onClientUpdated(client, productContext);
     } else {
-      // For new accounts, call the enhanced add handler
-      onAccountAdded(account, productContext);
+      // For new clients, call the enhanced add handler
+      onClientAdded(client, productContext);
     }
     
     // Don't handle product context separately here since it's now handled by the enhanced handlers
     handleCloseDialog();
   };
 
-  const handleDelete = (accountId: string) => {
-    if (confirm('Are you sure you want to delete this account? This will NOT delete associated assets.')) {
-      onAccountDeleted(accountId);
-      // If the deleted account was selected, reset to null or default
-      if (selectedAccountId === accountId) {
-        onAccountSelected(null);
+  const handleDelete = (clientId: string) => {
+    if (confirm('Are you sure you want to delete this client? This will NOT delete associated assets.')) {
+      onClientDeleted(clientId);
+      // If the deleted client was selected, reset to null or default
+      if (selectedClientId === clientId) {
+        onClientSelected(null);
       }
       toast({
         title: "Success",
-        description: "Account deleted successfully"
+        description: "Client deleted successfully"
       });
     }
   };
 
-  const handleSelectAccount = (accountId: string | null) => {
-    onAccountSelected(accountId);
+  const handleSelectClient = (clientId: string | null) => {
+    onClientSelected(clientId);
     toast({
-      description: accountId 
-        ? `Now viewing assets for ${accounts.find(c => c.id === accountId)?.name}` 
+      description: clientId 
+        ? `Now viewing assets for ${clients.find(c => c.id === clientId)?.name}` 
         : "Now viewing all assets"
     });
   };
 
-  const handleViewAccountAssets = (accountId: string, assetType: string) => {
-    onViewAccountAssets(accountId, assetType);
+  const handleViewClientAssets = (clientId: string, assetType: string) => {
+    onViewClientAssets(clientId, assetType);
   };
 
   return (
@@ -99,31 +98,31 @@ const AccountManager: FC<AccountManagerProps> = ({
         <ClientManagerHeader onAddClient={() => handleOpenDialog()} />
         <CardContent>
           <ClientFilterButtons
-            clients={accounts}
-            selectedClientId={selectedAccountId}
-            onClientSelected={handleSelectAccount}
+            clients={clients}
+            selectedClientId={selectedClientId}
+            onClientSelected={handleSelectClient}
           />
 
           <ClientGrid
-            clients={accounts}
-            selectedClientId={selectedAccountId}
+            clients={clients}
+            selectedClientId={selectedClientId}
             onEdit={handleOpenDialog}
             onDelete={handleDelete}
-            onSelect={handleSelectAccount}
-            onViewClientAssets={handleViewAccountAssets}
+            onSelect={handleSelectClient}
+            onViewClientAssets={handleViewClientAssets}
             onAddClient={() => handleOpenDialog()}
           />
         </CardContent>
       </Card>
 
-      <EnhancedAccountDialog
+      <EnhancedClientDialog
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
-        onClientCreated={handleAccountCreated}
-        editingClient={editingAccount}
+        onClientCreated={handleClientCreated}
+        editingClient={editingClient}
       />
     </div>
   );
 };
 
-export default AccountManager;
+export default ClientManager;
