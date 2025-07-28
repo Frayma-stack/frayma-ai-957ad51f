@@ -46,7 +46,7 @@ const ClientSection: FC<ClientSectionProps> = ({
   };
 
   const handleClientNameClick = (clientId: string) => {
-    console.log('🎯 ClientSection: Client name clicked, selecting client:', clientId);
+    console.log('🎯 ClientSection: Account name clicked, selecting client:', clientId);
     onClientSelected(clientId);
     // Auto-expand the client's assets when selected
     if (!expandedClients.has(clientId)) {
@@ -55,7 +55,7 @@ const ClientSection: FC<ClientSectionProps> = ({
   };
 
   const handleAddClientClick = () => {
-    console.log('🔘 ClientSection: Add Client button clicked - going directly to client creation');
+    console.log('🔘 ClientSection: Add Account button clicked - going directly to client creation');
     if (onAddClientClick) {
       onAddClientClick();
     } else {
@@ -65,7 +65,7 @@ const ClientSection: FC<ClientSectionProps> = ({
   };
 
   const handleManageClient = (clientId: string) => {
-    console.log('⚙️ ClientSection: Manage client clicked:', clientId);
+    console.log('⚙️ ClientSection: Manage account clicked:', clientId);
     onClientSelected(clientId);
     onAssetTypeChange('clients');
   };
@@ -73,14 +73,14 @@ const ClientSection: FC<ClientSectionProps> = ({
   return (
     <div className="space-y-1 flex-1">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-gray-500">Clients</h3>
+        <h3 className="text-sm font-medium text-gray-500">Accounts</h3>
         <div className="flex items-center gap-1">
           <Button 
             variant="ghost" 
             size="icon" 
             className="h-6 w-6" 
             onClick={handleAddClientClick}
-            title="Add New Client"
+            title="Add New Account"
           >
             <Plus className="h-4 w-4" />
           </Button>
@@ -104,7 +104,7 @@ const ClientSection: FC<ClientSectionProps> = ({
           {clients.length === 0 ? (
             <div className="text-center py-4 text-gray-400">
               <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-xs">No clients added yet</p>
+              <p className="text-xs">No accounts added yet</p>
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -112,7 +112,7 @@ const ClientSection: FC<ClientSectionProps> = ({
                 onClick={handleAddClientClick}
               >
                 <Plus className="h-3 w-3 mr-1" />
-                Add Client
+                Add Account
               </Button>
             </div>
           ) : (
@@ -152,7 +152,7 @@ const ClientSection: FC<ClientSectionProps> = ({
                         size="icon" 
                         className="h-6 w-6 flex-shrink-0" 
                         onClick={() => handleManageClient(client.id)}
-                        title="Manage Client"
+                        title="Manage Account"
                       >
                         <Settings className="h-3 w-3 text-gray-400" />
                       </Button>
