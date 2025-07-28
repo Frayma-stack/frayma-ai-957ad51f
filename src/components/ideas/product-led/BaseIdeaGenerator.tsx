@@ -113,6 +113,11 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
           onTriggerInputChange={setTriggerInput}
           ideas={ideas}
           selectedClientId={selectedClientId}
+          icpScripts={icpScripts}
+          productContext={productContext}
+          categoryPOV={productContext?.categoryPOV}
+          uniqueInsight={productContext?.uniqueInsight}
+          mission={productContext?.companyMission}
         />
 
         <ProductContextSection

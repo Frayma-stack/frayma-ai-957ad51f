@@ -79,8 +79,52 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
 
   const handleGenerateSpecificIdeas = async (data: SpecificGenerationData) => {
     setShowSpecificGenerationDialog(false);
-    // TODO: Implement specific idea generation logic
-    console.log('Generating specific ideas with:', data);
+    setIsRegenerating(true);
+    
+    try {
+      // Find the selected ICP and product feature
+      const selectedICP = icpScripts.find(icp => icp.id === data.targetICP);
+      
+      // Build a specific prompt for targeted idea generation
+      const specificPrompt = buildSpecificIdeaPrompt(data, selectedICP);
+      await regenerateIdeas(specificPrompt);
+    } catch (error) {
+      console.error('Error generating specific ideas:', error);
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
+  const buildSpecificIdeaPrompt = (data: SpecificGenerationData, selectedICP?: ICPStoryScript) => {
+    return `You are Frayma AI, a Product-Led Storytelling engine. Generate 15 highly targeted GTM content ideas based on these specific parameters:
+
+TARGET ICP: ${selectedICP?.name || data.targetICP}
+${selectedICP ? `
+ICP Details:
+- Demographics: ${selectedICP.demographics || 'Not specified'}
+- Primary Pains: ${selectedICP.internalPains?.slice(0, 3).map(item => item.content).join(', ') || 'Not specified'}
+- External Struggles: ${selectedICP.externalStruggles?.slice(0, 3).map(item => item.content).join(', ') || 'Not specified'}
+- Core Beliefs: ${selectedICP.coreBeliefs.slice(0, 3).map(item => item.content).join(', ')}
+- Desired Transformations: ${selectedICP.desiredTransformations?.slice(0, 3).map(item => item.content).join(', ') || 'Not specified'}
+` : ''}
+
+PRODUCT FEATURE/CONTEXT: ${data.productFeature}
+
+NARRATIVE ANGLE: ${data.narrativeAngle}
+
+Generate 15 ideas that specifically tie these elements together. Each idea should:
+1. Directly address the selected ICP's specific pains and beliefs
+2. Clearly connect to the chosen product feature/context
+3. Follow the narrative angle provided
+4. Be actionable and specific (not generic)
+
+Format each idea as:
+Title: [Compelling, first-person style title]
+Narrative: [Specific angle that connects the ICP pain/belief to the product context through the narrative angle]
+Product Tie-in: [How this specifically showcases the selected product feature/context]
+CTA: [Specific call-to-action related to the product feature]
+
+Focus on being highly specific and targeted rather than broad or generic.`;
   };
 
   return {

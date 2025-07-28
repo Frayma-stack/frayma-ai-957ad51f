@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Lightbulb, Upload, FileText, X, File, Loader2, Sparkles } from 'lucide-react';
 import { GeneratedIdea } from '@/types/ideas';
+import { ICPStoryScript, ProductContext } from '@/types/storytelling';
 import { useIdeaSummarization } from '@/hooks/useIdeaSummarization';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,13 +25,23 @@ interface TriggerInputSectionProps {
   onTriggerInputChange: (input: TriggerInput) => void;
   ideas?: GeneratedIdea[];
   selectedClientId?: string;
+  icpScripts?: ICPStoryScript[];
+  productContext?: ProductContext | null;
+  categoryPOV?: string;
+  uniqueInsight?: string;
+  mission?: string;
 }
 
 const TriggerInputSection: FC<TriggerInputSectionProps> = ({
   triggerInput,
   onTriggerInputChange,
   ideas = [],
-  selectedClientId
+  selectedClientId,
+  icpScripts = [],
+  productContext,
+  categoryPOV,
+  uniqueInsight,
+  mission
 }) => {
   const [selectedIdeaId, setSelectedIdeaId] = useState<string>('none');
   const [isProcessingIdea, setIsProcessingIdea] = useState(false);
@@ -139,11 +150,20 @@ const TriggerInputSection: FC<TriggerInputSectionProps> = ({
     if (triggerInput.content && description.trim() && triggerInput.fileName) {
       setIsProcessingFile(true);
       try {
+        // Build business context from available data
+        const businessContext = {
+          categoryPOV: categoryPOV || '',
+          uniqueInsight: uniqueInsight || '',
+          mission: mission || '',
+          icpScripts: icpScripts || [],
+          productContext: productContext || null
+        };
+
         const { data, error } = await supabase.functions.invoke('process-file-for-gtm-ideas', {
           body: {
             extractedText: triggerInput.content,
             fileDescription: description,
-            businessContext: {} // We'll pass empty for auto-mapping flow
+            businessContext
           }
         });
 

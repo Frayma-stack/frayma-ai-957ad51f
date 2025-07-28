@@ -50,9 +50,9 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
     (currentPage + 1) * IDEAS_PER_PAGE
   );
 
-  // For free users, only show first 6 ideas fully, blur the rest
+  // For free users, only show first 7 ideas fully, blur the rest
   const isFreeTier = subscription_tier === 'free';
-  const maxVisibleIdeas = isFreeTier ? 6 : IDEAS_PER_PAGE;
+  const maxVisibleIdeas = isFreeTier ? 7 : IDEAS_PER_PAGE;
 
   const updateIdeaField = (globalIndex: number, field: keyof ParsedIdea, value: string) => {
     setIdeasWithScores(prev => prev.map((idea, i) => 
@@ -121,8 +121,14 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
     if (currentPage < totalPages - 1) {
       setCurrentPage(currentPage + 1);
     } else {
-      // Last page reached, reset to beginning
-      setCurrentPage(0);
+      // Last page reached
+      if (isFreeTier) {
+        // Prompt free users to upgrade
+        handleUpgrade();
+      } else {
+        // Reset to beginning for paid users
+        setCurrentPage(0);
+      }
     }
   };
 
@@ -130,7 +136,7 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
     if (currentPage < totalPages - 1) {
       return `View Next ${Math.min(IDEAS_PER_PAGE, ideasWithScores.length - (currentPage + 1) * IDEAS_PER_PAGE)} Ideas`;
     }
-    return "Start Afresh";
+    return isFreeTier ? "Upgrade to View More" : "Start Afresh";
   };
 
   return (
