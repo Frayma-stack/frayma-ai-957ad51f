@@ -164,13 +164,16 @@ export interface BusinessContext {
 // Legacy alias for backward compatibility
 export type ProductContext = BusinessContext;
 
-export interface Client {
+export interface Account {
   id: string;
   name: string;
   description: string;
   companyLinks?: CompanyLink[];
   createdAt?: string;
 }
+
+// Legacy alias for backward compatibility
+export type Client = Account;
 
 export interface AnchoringElement {
   type: 'belief' | 'pain' | 'struggle' | 'transformation';

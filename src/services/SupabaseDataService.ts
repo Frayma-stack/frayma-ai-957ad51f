@@ -1,5 +1,5 @@
 
-import { clientService } from './ClientService';
+import { accountService } from './AccountService';
 import { authorService } from './AuthorService';
 import { icpScriptService } from './ICPScriptService';
 import { successStoryService } from './SuccessStoryService';
@@ -7,11 +7,17 @@ import { productContextService } from './ProductContextService';
 import { ideaService } from './IdeaService';
 
 export class SupabaseDataService {
-  // Client operations
-  getClients = clientService.getClients.bind(clientService);
-  createClient = clientService.createClient.bind(clientService);
-  updateClient = clientService.updateClient.bind(clientService);
-  deleteClient = clientService.deleteClient.bind(clientService);
+  // Account operations (with legacy client aliases)
+  getAccounts = accountService.getAccounts.bind(accountService);
+  createAccount = accountService.createAccount.bind(accountService);
+  updateAccount = accountService.updateAccount.bind(accountService);
+  deleteAccount = accountService.deleteAccount.bind(accountService);
+  
+  // Legacy client operations for backward compatibility
+  getClients = accountService.getClients.bind(accountService);
+  createClient = accountService.createClient.bind(accountService);
+  updateClient = accountService.updateClient.bind(accountService);
+  deleteClient = accountService.deleteClient.bind(accountService);
 
   // Author operations
   getAuthors = (clientId?: string) => authorService.getAuthors(clientId);

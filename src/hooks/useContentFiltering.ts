@@ -17,7 +17,7 @@ export const useContentFiltering = ({
   productContexts,
 }: UseContentFilteringProps) => {
   const getFilteredAuthors = () => {
-    console.log('🔍 getFilteredAuthors - Client-specific filtering:', {
+    console.log('🔍 getFilteredAuthors - Account-specific + unassigned filtering:', {
       selectedClientId,
       selectedClientIdType: typeof selectedClientId,
       totalAuthors: authors.length,
@@ -28,13 +28,14 @@ export const useContentFiltering = ({
         organization: author.organization,
         clientId: author.clientId,
         clientIdType: typeof author.clientId,
-        belongsToSelectedClient: author.clientId === selectedClientId,
+        belongsToSelectedAccount: author.clientId === selectedClientId,
+        isUnassigned: !author.clientId,
         hasValidId: !!author.id && author.id.trim() !== '',
         hasValidName: !!author.name && author.name.trim() !== ''
       }))
     });
 
-    // If no client is selected, show all valid authors
+    // If no account is selected, show all valid authors
     if (!selectedClientId) {
       const validAuthors = authors.filter(author => 
         author && 
@@ -44,7 +45,7 @@ export const useContentFiltering = ({
         author.name.trim() !== ''
       );
       
-      console.log('🔍 No client selected, returning all valid authors:', {
+      console.log('🔍 No account selected, returning all valid authors:', {
         totalAuthors: authors.length,
         validAuthors: validAuthors.length,
         validAuthorsList: validAuthors.map(a => ({ id: a.id, name: a.name, clientId: a.clientId }))
@@ -53,7 +54,7 @@ export const useContentFiltering = ({
       return validAuthors;
     }
 
-    // When a client is selected, ONLY show authors that explicitly belong to that client
+    // When an account is selected, show authors that belong to that account OR are unassigned
     const filtered = authors.filter(author => {
       const isValid = author && 
         author.id && 
@@ -61,24 +62,26 @@ export const useContentFiltering = ({
         author.name && 
         author.name.trim() !== '';
       
-      const belongsToClient = author.clientId === selectedClientId;
+      const belongsToAccount = author.clientId === selectedClientId;
+      const isUnassigned = !author.clientId;
       
-      const shouldInclude = isValid && belongsToClient;
+      const shouldInclude = isValid && (belongsToAccount || isUnassigned);
       
-      console.log('🔍 Author filtering decision (client-specific only):', {
+      console.log('🔍 Author filtering decision (account + unassigned):', {
         authorId: author.id,
         authorName: author.name,
         authorClientId: author.clientId,
         selectedClientId,
         isValid,
-        belongsToClient,
+        belongsToAccount,
+        isUnassigned,
         shouldInclude
       });
       
       return shouldInclude;
     });
     
-    console.log('🔍 Filtered authors result (client-specific only):', {
+    console.log('🔍 Filtered authors result (account + unassigned):', {
       selectedClientId,
       filteredCount: filtered.length,
       filteredAuthors: filtered.map(a => ({

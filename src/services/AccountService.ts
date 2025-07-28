@@ -1,14 +1,13 @@
-
 import { supabase } from '@/integrations/supabase/client';
-import { Client } from '@/types/storytelling';
+import { Account } from '@/types/storytelling';
 import { BaseSupabaseService } from './base/BaseSupabaseService';
 import {
   convertToCompanyLinks,
   convertFromCompanyLinks
 } from '@/utils/supabaseTypeUtils';
 
-export class ClientService extends BaseSupabaseService {
-  async getClients(): Promise<Client[]> {
+export class AccountService extends BaseSupabaseService {
+  async getAccounts(): Promise<Account[]> {
     const { data, error } = await supabase
       .from('clients')
       .select('*')
@@ -16,25 +15,25 @@ export class ClientService extends BaseSupabaseService {
     
     if (error) throw error;
     
-    return (data || []).map(client => ({
-      id: client.id,
-      name: client.name,
-      description: client.description,
-      companyLinks: convertToCompanyLinks(client.company_links),
-      createdAt: client.created_at
+    return (data || []).map(account => ({
+      id: account.id,
+      name: account.name,
+      description: account.description,
+      companyLinks: convertToCompanyLinks(account.company_links),
+      createdAt: account.created_at
     }));
   }
 
-  async createClient(client: Omit<Client, 'id' | 'createdAt'>): Promise<Client> {
+  async createAccount(account: Omit<Account, 'id' | 'createdAt'>): Promise<Account> {
     const userId = await this.getCurrentUserId();
     
     const { data, error } = await supabase
       .from('clients')
       .insert({
         user_id: userId,
-        name: client.name,
-        description: client.description || null,
-        company_links: convertFromCompanyLinks(client.companyLinks || [])
+        name: account.name,
+        description: account.description || null,
+        company_links: convertFromCompanyLinks(account.companyLinks || [])
       })
       .select()
       .single();
@@ -50,15 +49,15 @@ export class ClientService extends BaseSupabaseService {
     };
   }
 
-  async updateClient(client: Client): Promise<Client> {
+  async updateAccount(account: Account): Promise<Account> {
     const { data, error } = await supabase
       .from('clients')
       .update({
-        name: client.name,
-        description: client.description || null,
-        company_links: convertFromCompanyLinks(client.companyLinks || [])
+        name: account.name,
+        description: account.description || null,
+        company_links: convertFromCompanyLinks(account.companyLinks || [])
       })
-      .eq('id', client.id)
+      .eq('id', account.id)
       .select()
       .single();
     
@@ -73,14 +72,23 @@ export class ClientService extends BaseSupabaseService {
     };
   }
 
-  async deleteClient(clientId: string): Promise<void> {
+  async deleteAccount(accountId: string): Promise<void> {
     const { error } = await supabase
       .from('clients')
       .delete()
-      .eq('id', clientId);
+      .eq('id', accountId);
     
     if (error) throw error;
   }
+  
+  // Legacy methods for backward compatibility
+  getClients = this.getAccounts;
+  createClient = this.createAccount;
+  updateClient = this.updateAccount;
+  deleteClient = this.deleteAccount;
 }
 
-export const clientService = new ClientService();
+export const accountService = new AccountService();
+
+// Legacy export for backward compatibility
+export const clientService = accountService;
