@@ -293,18 +293,6 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
           </div>
         )}
 
-        <div>
-          <Label>Personal POV (optional)</Label>
-          <Textarea
-            placeholder="Add your personal POV, narrative, or thinking to shape the ideas..."
-            value={productInputs.customPOV}
-            onChange={(e) => onProductInputsChange({
-              ...productInputs,
-              customPOV: e.target.value
-            })}
-            className="mt-2"
-          />
-        </div>
       </CardContent>
     </Card>
   );

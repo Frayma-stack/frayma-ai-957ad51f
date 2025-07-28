@@ -25,7 +25,7 @@ const POVNarrativeSection: FC<POVNarrativeSectionProps> = ({
         <div>
           <Label>Personal POV or Strategic Direction</Label>
           <Textarea
-            placeholder="Add your framing POV, narrative angle, or strategic direction (e.g., highlight urgency, bust a myth, reframe a belief)..."
+            placeholder="Add your personal POV, narrative, or thinking to shape new GTM ideas to be minted"
             value={povContent}
             onChange={(e) => onPOVChange(e.target.value)}
             className="min-h-[120px] mt-2"
