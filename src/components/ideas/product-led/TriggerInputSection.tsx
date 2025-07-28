@@ -248,44 +248,42 @@ const TriggerInputSection: FC<TriggerInputSectionProps> = ({
 
             {triggerInput.fileName && (
               <div>
-                <Label>Describe the file content (optional)</Label>
+                <Label>Describe this file's context for GTM ideas</Label>
                 <Textarea
-                  placeholder="Briefly describe what this file contains or its relevance to your idea trigger..."
+                  placeholder="Describe what this file contains and how it relates to minting fresh GTM asset ideas. Be specific about insights, themes, or angles you want to explore..."
                   value={triggerInput.fileDescription || ''}
                   onChange={(e) => handleFileDescriptionChange(e.target.value)}
                   className="mt-2"
-                  rows={3}
+                  rows={4}
                 />
+                <p className="text-sm text-gray-500 mt-1">
+                  Help us understand how to use this file's content to generate relevant GTM ideas for your business context.
+                </p>
               </div>
             )}
           </div>
         )}
 
-        <div>
-          <Label>Trigger/Thesis/Anti-thesis</Label>
-          <Textarea
-            placeholder={selectedIdeaId !== 'none'
-              ? "Your saved idea summary will appear here..." 
-              : triggerInput.type === 'file' 
-                ? "Extracted text from your uploaded file will appear here..."
+        {triggerInput.type !== 'file' && (
+          <div>
+            <Label>Trigger/Thesis/Anti-thesis</Label>
+            <Textarea
+              placeholder={selectedIdeaId !== 'none'
+                ? "Your saved idea summary will appear here..." 
                 : "Type or paste text on what triggered you to mint new GTM asset ideas"
-            }
-            value={triggerInput.content}
-            onChange={(e) => onTriggerInputChange({ ...triggerInput, content: e.target.value })}
-            className="min-h-[200px] mt-2"
-            disabled={isProcessingIdea || isProcessingFile}
-          />
-          {selectedIdeaId !== 'none' && (
-            <p className="text-sm text-gray-500 mt-1">
-              Trigger generated from saved idea. You can edit it above if needed.
-            </p>
-          )}
-          {triggerInput.type === 'file' && triggerInput.fileName && (
-            <p className="text-sm text-gray-500 mt-1">
-              Text extracted from {triggerInput.fileName}. You can edit it above if needed.
-            </p>
-          )}
-        </div>
+              }
+              value={triggerInput.content}
+              onChange={(e) => onTriggerInputChange({ ...triggerInput, content: e.target.value })}
+              className="min-h-[200px] mt-2"
+              disabled={isProcessingIdea || isProcessingFile}
+            />
+            {selectedIdeaId !== 'none' && (
+              <p className="text-sm text-gray-500 mt-1">
+                Trigger generated from saved idea. You can edit it above if needed.
+              </p>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

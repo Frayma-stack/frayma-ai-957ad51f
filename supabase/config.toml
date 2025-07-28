@@ -21,3 +21,6 @@ verify_jwt = true
 
 [functions.extract-document-text]
 verify_jwt = true
+
+[functions.process-file-for-gtm-ideas]
+verify_jwt = true
