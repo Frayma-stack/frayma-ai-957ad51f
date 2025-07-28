@@ -107,13 +107,14 @@ const TriggerInputSection: FC<TriggerInputSectionProps> = ({
       }
 
       if (data?.extractedText) {
+        // Store the extracted text temporarily but don't show it to user
         onTriggerInputChange({
           ...triggerInput,
-          content: data.extractedText,
+          content: data.extractedText, // This will be replaced when user describes the file
           fileName: file.name,
           fileDescription: ''
         });
-        toast.success(`Text extracted from ${file.name}`);
+        toast.success(`File uploaded successfully. Please describe how this relates to your GTM ideas.`);
       } else {
         throw new Error('No text could be extracted from the file');
       }
@@ -128,11 +129,43 @@ const TriggerInputSection: FC<TriggerInputSectionProps> = ({
     }
   };
 
-  const handleFileDescriptionChange = (description: string) => {
+  const handleFileDescriptionChange = async (description: string) => {
     onTriggerInputChange({
       ...triggerInput,
       fileDescription: description
     });
+
+    // If we have both extracted text and description, process with backend
+    if (triggerInput.content && description.trim() && triggerInput.fileName) {
+      setIsProcessingFile(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('process-file-for-gtm-ideas', {
+          body: {
+            extractedText: triggerInput.content,
+            fileDescription: description,
+            businessContext: {} // We'll pass empty for auto-mapping flow
+          }
+        });
+
+        if (error) {
+          throw new Error(error.message || 'Failed to process file with AI');
+        }
+
+        if (data?.processedTrigger) {
+          onTriggerInputChange({
+            ...triggerInput,
+            content: data.processedTrigger,
+            fileDescription: description
+          });
+          toast.success('File content processed with AI for GTM ideas generation');
+        }
+      } catch (error) {
+        console.error('Error processing file with AI:', error);
+        toast.error(`Failed to process file with AI: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      } finally {
+        setIsProcessingFile(false);
+      }
+    }
   };
 
   const clearFile = () => {
