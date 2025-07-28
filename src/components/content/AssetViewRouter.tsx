@@ -1,6 +1,6 @@
 
 import { FC } from 'react';
-import ClientManager from '@/components/ClientManager';
+import AccountManager from '@/components/AccountManager';
 import AuthorManager from '@/components/AuthorManager';
 import IdeasBank from '@/components/ideas/IdeasBank';
 import ICPStoryScriptManager from '@/components/ICPStoryScriptManager';
@@ -89,7 +89,7 @@ const AssetViewRouter: FC<AssetViewRouterProps> = ({
   if (selectedAssetType === 'clients') {
     return (
       <div className="p-6">
-        <ClientManager
+        <AccountManager
           clients={clients}
           selectedClientId={selectedClientId}
           onClientAdded={onClientAdded}

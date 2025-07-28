@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Client } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
-import ClientAssetsMenu from './ClientAssetsMenu';
+import AccountAssetsMenu from './AccountAssetsMenu';
 
 interface ClientSectionProps {
   clients: Client[];
@@ -160,7 +160,7 @@ const ClientSection: FC<ClientSectionProps> = ({
                   </div>
                   
                   {expandedClients.has(client.id) && (
-                    <ClientAssetsMenu
+                    <AccountAssetsMenu
                       client={client}
                       ideas={ideas}
                       onAssetClick={onClientAssetClick}

@@ -1,6 +1,6 @@
 
 import { FC } from 'react';
-import ClientManager from '@/components/ClientManager';
+import AccountManager from '@/components/AccountManager';
 import { MainContentViewRouterProps } from '../types/MainContentViewRouterTypes';
 
 interface ClientsViewProps extends Pick<MainContentViewRouterProps, 
@@ -19,7 +19,7 @@ const ClientsView: FC<ClientsViewProps> = ({
 }) => {
   return (
     <div className="p-6">
-      <ClientManager
+      <AccountManager
         clients={clients}
         selectedClientId={selectedClientId}
         onClientAdded={onClientAdded}
