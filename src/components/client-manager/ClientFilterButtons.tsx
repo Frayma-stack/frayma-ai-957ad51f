@@ -21,7 +21,7 @@ const ClientFilterButtons: FC<ClientFilterButtonsProps> = ({
         onClick={() => onClientSelected(null)}
         className={selectedClientId === null ? "bg-brand-primary hover:bg-brand-primary/90" : ""}
       >
-        All Clients
+        All Accounts
       </Button>
       {clients.map(client => (
         <Button 

@@ -45,10 +45,10 @@ const ClientCard: FC<ClientCardProps> = ({
         <CardTitle className="flex justify-between text-base">
           <span>{client.name}</span>
           <div className="flex space-x-1">
-            <Button variant="ghost" size="icon" onClick={() => onEdit(client)} title="Edit Client">
+            <Button variant="ghost" size="icon" onClick={() => onEdit(client)} title="Edit Account">
               <Edit className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => onDelete(client.id)} title="Delete Client">
+            <Button variant="ghost" size="icon" onClick={() => onDelete(client.id)} title="Delete Account">
               <Trash className="h-4 w-4" />
             </Button>
           </div>
@@ -90,7 +90,7 @@ const ClientCard: FC<ClientCardProps> = ({
         </p>
         
         <div className="space-y-2">
-          <p className="text-sm font-medium text-gray-700">Client Assets:</p>
+          <p className="text-sm font-medium text-gray-700">Account Assets:</p>
           <div className="flex flex-wrap gap-2">
             <Button 
               variant="outline" 
@@ -148,14 +148,14 @@ const ClientCard: FC<ClientCardProps> = ({
           onClick={() => onSelect(client.id)}
           disabled={isSelected}
         >
-          {isSelected ? "Selected" : "Select Client"}
+          {isSelected ? "Selected" : "Select Account"}
         </Button>
         {isSelected && (
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => onEdit(client)}
-            title="Edit this client"
+            title="Edit this account"
           >
             <Settings className="h-4 w-4" />
           </Button>

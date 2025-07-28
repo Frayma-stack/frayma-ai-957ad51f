@@ -18,14 +18,14 @@ const ClientManagerHeader: FC<ClientManagerHeaderProps> = ({ onAddClient }) => {
         <CardTitle className="text-brand-primary">
           <div className="flex items-center">
             <Users className="h-5 w-5 mr-2" />
-            Client Manager
+            Account Manager
           </div>
         </CardTitle>
         <Button 
           className="bg-brand-primary hover:bg-brand-primary/90" 
           onClick={onAddClient}
         >
-          <Plus className="h-4 w-4 mr-2" /> Add Client
+          <Plus className="h-4 w-4 mr-2" /> Add Account
         </Button>
       </div>
     </CardHeader>
