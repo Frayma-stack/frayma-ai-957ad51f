@@ -76,9 +76,9 @@ const MainContent: FC<MainContentProps> = (props) => {
       return props.authors;
     }
 
-    // For other views, filter by client if one is selected
+    // For other views, filter by client if one is selected (include unassigned authors)
     const filtered = selectedClientId 
-      ? props.authors.filter(author => author.clientId === selectedClientId)
+      ? props.authors.filter(author => author.clientId === selectedClientId || !author.clientId)
       : props.authors;
 
     console.log('🔍 Filtered authors result:', {
