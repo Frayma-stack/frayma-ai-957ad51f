@@ -5,10 +5,12 @@ import { TriggerInput, ProductContextInputs } from './hooks/types';
 import { usePromptBuilder } from './hooks/usePromptBuilder';
 import { useIdeaValidation } from './hooks/useIdeaValidation';
 import { useIdeaGeneration } from './hooks/useIdeaGeneration';
+import { SpecificGenerationData } from './SpecificIdeaGenerationDialog';
 
 export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
   const [showIdeasViewer, setShowIdeasViewer] = useState(false);
   const [showRegenerationDialog, setShowRegenerationDialog] = useState(false);
+  const [showSpecificGenerationDialog, setShowSpecificGenerationDialog] = useState(false);
   const [regenerationDirection, setRegenerationDirection] = useState('');
   const [isRegenerating, setIsRegenerating] = useState(false);
 
@@ -25,7 +27,8 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
     selectedUseCases: [],
     selectedDifferentiators: [],
     productContextType: '',
-    customPOV: ''
+    customPOV: '',
+    povNarrativeDirection: ''
   });
 
   const selectedICP = icpScripts.find(icp => icp.id === productInputs.targetICP);
@@ -71,7 +74,13 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
   };
 
   const handleGenerateNewIdeas = async () => {
-    setShowRegenerationDialog(true);
+    setShowSpecificGenerationDialog(true);
+  };
+
+  const handleGenerateSpecificIdeas = async (data: SpecificGenerationData) => {
+    setShowSpecificGenerationDialog(false);
+    // TODO: Implement specific idea generation logic
+    console.log('Generating specific ideas with:', data);
   };
 
   return {
@@ -82,6 +91,7 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
     generatedIdeas,
     showIdeasViewer,
     showRegenerationDialog,
+    showSpecificGenerationDialog,
     regenerationDirection,
     setRegenerationDirection,
     isGenerating,
@@ -90,8 +100,10 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
     handleGenerateIdeas,
     handleBackToGeneration,
     handleGenerateNewIdeas,
+    handleGenerateSpecificIdeas,
     handleRegenerateWithDirection,
     setShowRegenerationDialog,
+    setShowSpecificGenerationDialog,
     validateInputs: () => validateInputs(triggerInput, productInputs)
   };
 };

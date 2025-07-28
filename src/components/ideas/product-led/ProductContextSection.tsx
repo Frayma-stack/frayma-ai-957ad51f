@@ -16,6 +16,7 @@ interface ProductContextInputs {
   selectedDifferentiators: ProductDifferentiator[];
   productContextType: 'features' | 'usecases' | 'differentiators' | '';
   customPOV: string;
+  povNarrativeDirection: string;
 }
 
 interface ProductContextSectionProps {
@@ -107,11 +108,14 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-story-blue">Business Context</CardTitle>
+        <CardTitle className="text-story-blue">Manual Business Context Mapping (Optional)</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        <p className="text-sm text-gray-600 mb-4">
+          If you skip this section, Frayma AI will automatically map your trigger to the best-fit ICP and product context from your saved business context.
+        </p>
         <div>
-          <Label>Target ICP *</Label>
+          <Label>Target ICP</Label>
           <Select 
             value={productInputs.targetICP} 
             onValueChange={(value) => onProductInputsChange({
@@ -132,7 +136,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
         </div>
 
         <div>
-          <Label>Narrative Anchor *</Label>
+          <Label>Narrative Anchor</Label>
           <Select 
             value={productInputs.narrativeAnchor} 
             onValueChange={(value: any) => onProductInputsChange({
@@ -175,7 +179,7 @@ const ProductContextSection: FC<ProductContextSectionProps> = ({
 
         {productContext && (
           <div>
-            <Label>Business Context Type * (choose one primary)</Label>
+            <Label>Business Context Type (choose one primary)</Label>
             <div className="flex flex-col space-y-2 mt-2">
               {productContext.features.length > 0 && (
                 <div className="flex items-center space-x-2">

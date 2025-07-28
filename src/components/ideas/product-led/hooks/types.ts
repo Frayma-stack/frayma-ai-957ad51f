@@ -1,6 +1,6 @@
 
 export interface TriggerInput {
-  type: 'text' | 'image' | 'file';
+  type: 'text' | 'file';
   content: string;
 }
 
@@ -13,4 +13,5 @@ export interface ProductContextInputs {
   selectedDifferentiators: any[];
   productContextType: 'features' | 'usecases' | 'differentiators' | '';
   customPOV: string;
+  povNarrativeDirection: string;
 }

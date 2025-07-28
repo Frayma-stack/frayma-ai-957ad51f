@@ -11,7 +11,7 @@ import { useIdeaSummarization } from '@/hooks/useIdeaSummarization';
 import { toast } from 'sonner';
 
 interface TriggerInput {
-  type: 'text' | 'image' | 'file';
+  type: 'text' | 'file';
   content: string;
 }
 
@@ -113,20 +113,12 @@ const TriggerInputSection: FC<TriggerInputSectionProps> = ({
               Text
             </Button>
             <Button
-              variant={triggerInput.type === 'image' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => onTriggerInputChange({ ...triggerInput, type: 'image' })}
-            >
-              <Image className="h-4 w-4 mr-1" />
-              Image
-            </Button>
-            <Button
               variant={triggerInput.type === 'file' ? 'default' : 'outline'}
               size="sm"
               onClick={() => onTriggerInputChange({ ...triggerInput, type: 'file' })}
             >
               <Upload className="h-4 w-4 mr-1" />
-              File
+              Document/File
             </Button>
           </div>
         </div>

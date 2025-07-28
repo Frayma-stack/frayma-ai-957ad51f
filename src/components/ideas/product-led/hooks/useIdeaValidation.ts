@@ -15,19 +15,12 @@ export const useIdeaValidation = () => {
       return false;
     }
 
-    if (!productInputs.targetICP) {
+    // Business Context is now optional - AI will auto-map if not provided
+    // Only validate if user has started filling out some fields
+    if (productInputs.targetICP && productInputs.selectedNarrativeTypes.length === 0) {
       toast({
-        title: "Missing Target ICP",
-        description: "Please select a target ICP.",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    if (productInputs.selectedNarrativeTypes.length === 0) {
-      toast({
-        title: "Missing Narrative Types",
-        description: "Please select at least one narrative type.",
+        title: "Incomplete Manual Mapping",
+        description: "If you select an ICP, please also select at least one narrative type, or clear the ICP selection to use auto-mapping.",
         variant: "destructive",
       });
       return false;

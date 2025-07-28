@@ -1,8 +1,8 @@
-
 import { FC, useState } from 'react';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChevronRight, RefreshCw, Target } from 'lucide-react';
 import { GeneratedIdea, IdeaScore } from '@/types/ideas';
 import { parseIdeas, IdeaWithScore, ParsedIdea } from './utils/IdeaParsingUtils';
 import { useSubscriptionLimits } from '@/hooks/useSubscriptionLimits';
@@ -10,7 +10,6 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import ExpandedIdeaCard from './components/ExpandedIdeaCard';
 import BlurredIdeaCard from './components/BlurredIdeaCard';
 import EmptyIdeasState from './components/EmptyIdeasState';
-import GenerateNewIdeasCTA from './components/GenerateNewIdeasCTA';
 import IdeasIntroCard from './components/IdeasIntroCard';
 import RegenerationLoadingState from './components/RegenerationLoadingState';
 
@@ -41,26 +40,34 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
   const [ideasWithScores, setIdeasWithScores] = useState<IdeaWithScore[]>(
     parseIdeas(generatedIdeas)
   );
+  const [currentPage, setCurrentPage] = useState(0);
+
+  // Pagination constants
+  const IDEAS_PER_PAGE = 10;
+  const totalPages = Math.ceil(ideasWithScores.length / IDEAS_PER_PAGE);
+  const currentPageIdeas = ideasWithScores.slice(
+    currentPage * IDEAS_PER_PAGE,
+    (currentPage + 1) * IDEAS_PER_PAGE
+  );
 
   // For free users, only show first 6 ideas fully, blur the rest
   const isFreeTier = subscription_tier === 'free';
-  const maxVisibleIdeas = isFreeTier ? 6 : ideasWithScores.length;
-  const maxTotalIdeas = isFreeTier ? 15 : ideasWithScores.length; // Limit total to 15 for free users
+  const maxVisibleIdeas = isFreeTier ? 6 : IDEAS_PER_PAGE;
 
-  const updateIdeaField = (index: number, field: keyof ParsedIdea, value: string) => {
+  const updateIdeaField = (globalIndex: number, field: keyof ParsedIdea, value: string) => {
     setIdeasWithScores(prev => prev.map((idea, i) => 
-      i === index ? { ...idea, [field]: value } : idea
+      i === globalIndex ? { ...idea, [field]: value } : idea
     ));
   };
 
-  const updateIdeaScore = (index: number, score: IdeaScore) => {
+  const updateIdeaScore = (globalIndex: number, score: IdeaScore) => {
     setIdeasWithScores(prev => prev.map((idea, i) => 
-      i === index ? { ...idea, score } : idea
+      i === globalIndex ? { ...idea, score } : idea
     ));
   };
 
-  const handleSaveIdea = (index: number) => {
-    const ideaData = ideasWithScores[index];
+  const handleSaveIdea = (globalIndex: number) => {
+    const ideaData = ideasWithScores[globalIndex];
     
     if (!ideaData.score) {
       toast({
@@ -110,10 +117,31 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
     }
   };
 
+  const handleViewMore = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(currentPage + 1);
+    } else {
+      // Last page reached, reset to beginning
+      setCurrentPage(0);
+    }
+  };
+
+  const getViewMoreButtonText = () => {
+    if (currentPage < totalPages - 1) {
+      return `View Next ${Math.min(IDEAS_PER_PAGE, ideasWithScores.length - (currentPage + 1) * IDEAS_PER_PAGE)} Ideas`;
+    }
+    return "Start Afresh";
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-xl font-semibold text-gray-800">Generated Product-Led Ideas</h3>
+        <div>
+          <h3 className="text-xl font-semibold text-gray-800">Generated Product-Led Ideas</h3>
+          <p className="text-sm text-gray-600">
+            Page {currentPage + 1} of {totalPages} • {ideasWithScores.length} total ideas
+          </p>
+        </div>
         <Button
           onClick={onBackToGeneration}
           variant="outline"
@@ -133,32 +161,77 @@ const GeneratedIdeasViewer: FC<GeneratedIdeasViewerProps> = ({
           <IdeasIntroCard />
           
           <div className="max-h-[700px] overflow-y-auto space-y-6 pr-2">
-            {/* Visible ideas for all users */}
-            {ideasWithScores.slice(0, maxVisibleIdeas).map((ideaData, index) => (
-              <ExpandedIdeaCard
-                key={ideaData.tempId}
-                ideaData={ideaData}
-                index={index}
-                icpId={icpId}
-                selectedClientId={selectedClientId}
-                onFieldUpdate={(field, value) => updateIdeaField(index, field, value)}
-                onScoreUpdate={(score) => updateIdeaScore(index, score)}
-                onSave={() => handleSaveIdea(index)}
-                onContentTypeSelect={onContentTypeSelect}
-              />
-            ))}
+            {/* Current page ideas */}
+            {currentPageIdeas.slice(0, maxVisibleIdeas).map((ideaData, pageIndex) => {
+              const globalIndex = currentPage * IDEAS_PER_PAGE + pageIndex;
+              return (
+                <ExpandedIdeaCard
+                  key={ideaData.tempId}
+                  ideaData={ideaData}
+                  index={globalIndex}
+                  icpId={icpId}
+                  selectedClientId={selectedClientId}
+                  onFieldUpdate={(field, value) => updateIdeaField(globalIndex, field, value)}
+                  onScoreUpdate={(score) => updateIdeaScore(globalIndex, score)}
+                  onSave={() => handleSaveIdea(globalIndex)}
+                  onContentTypeSelect={onContentTypeSelect}
+                />
+              );
+            })}
             
-            {/* Blurred ideas for free users - show remaining up to total limit */}
-            {isFreeTier && ideasWithScores.slice(maxVisibleIdeas, maxTotalIdeas).map((_, index) => (
+            {/* Blurred ideas for free users */}
+            {isFreeTier && currentPageIdeas.slice(maxVisibleIdeas).map((_, pageIndex) => (
               <BlurredIdeaCard
-                key={`blurred-${index}`}
-                index={maxVisibleIdeas + index}
+                key={`blurred-${pageIndex}`}
+                index={maxVisibleIdeas + pageIndex}
                 onUpgrade={handleUpgrade}
               />
             ))}
           </div>
 
-          <GenerateNewIdeasCTA onGenerateNewIdeas={onGenerateNewIdeas} />
+          {/* Navigation and Action Buttons */}
+          <div className="flex flex-col space-y-4">
+            {/* View More Button */}
+            <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200">
+              <CardContent className="p-6 text-center">
+                <h4 className="text-lg font-medium text-gray-800 mb-2">
+                  {currentPage < totalPages - 1 ? "More Ideas Available" : "Cycle Complete"}
+                </h4>
+                <p className="text-gray-600 mb-4">
+                  {currentPage < totalPages - 1 
+                    ? "View the next batch of generated ideas from your current prompt."
+                    : "You've seen all generated ideas. Start fresh or generate new ones with more specificity."
+                  }
+                </p>
+                <Button 
+                  onClick={handleViewMore}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  size="lg"
+                >
+                  <ChevronRight className="h-5 w-5 mr-2" />
+                  {getViewMoreButtonText()}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Generate New Ideas with Specificity Button */}
+            <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200">
+              <CardContent className="p-6 text-center">
+                <h4 className="text-lg font-medium text-gray-800 mb-2">Need More Targeted Ideas?</h4>
+                <p className="text-gray-600 mb-4">
+                  Generate fresh ideas with more specificity by choosing a specific ICP, product feature, and narrative angle.
+                </p>
+                <Button 
+                  onClick={onGenerateNewIdeas}
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                  size="lg"
+                >
+                  <Target className="h-5 w-5 mr-2" />
+                  Generate New Ideas with More Specificity
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </>
       )}
     </div>

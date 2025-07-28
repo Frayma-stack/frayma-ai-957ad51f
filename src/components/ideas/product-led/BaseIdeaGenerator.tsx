@@ -7,9 +7,11 @@ import { ICPStoryScript, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import TriggerInputSection from './TriggerInputSection';
 import ProductContextSection from './ProductContextSection';
+import POVNarrativeSection from './POVNarrativeSection';
 import GenerationControls from './GenerationControls';
 import GeneratedIdeasViewer from './GeneratedIdeasViewer';
 import RegenerationDirectionDialog from './RegenerationDirectionDialog';
+import SpecificIdeaGenerationDialog from './SpecificIdeaGenerationDialog';
 import { useProductLedIdeaGenerator } from './useProductLedIdeaGenerator';
 
 interface BaseIdeaGeneratorProps {
@@ -39,6 +41,7 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
     generatedIdeas,
     showIdeasViewer,
     showRegenerationDialog,
+    showSpecificGenerationDialog,
     regenerationDirection,
     setRegenerationDirection,
     isGenerating,
@@ -47,8 +50,10 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
     handleGenerateIdeas,
     handleBackToGeneration,
     handleGenerateNewIdeas,
+    handleGenerateSpecificIdeas,
     handleRegenerateWithDirection,
-    setShowRegenerationDialog
+    setShowRegenerationDialog,
+    setShowSpecificGenerationDialog
   } = useProductLedIdeaGenerator(icpScripts);
 
   if (showIdeasViewer) {
@@ -72,6 +77,15 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
           onRegenerationDirectionChange={setRegenerationDirection}
           onRegenerate={handleRegenerateWithDirection}
           onClose={() => setShowRegenerationDialog(false)}
+        />
+
+        <SpecificIdeaGenerationDialog
+          isOpen={showSpecificGenerationDialog}
+          isGenerating={isGenerating}
+          icpScripts={icpScripts}
+          productContext={productContext}
+          onClose={() => setShowSpecificGenerationDialog(false)}
+          onGenerate={handleGenerateSpecificIdeas}
         />
       </>
     );
@@ -108,6 +122,11 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
           productContext={productContext}
         />
       </div>
+
+      <POVNarrativeSection
+        povContent={productInputs.povNarrativeDirection}
+        onPOVChange={(content) => setProductInputs({ ...productInputs, povNarrativeDirection: content })}
+      />
 
       <GenerationControls
         isGenerating={isGenerating}
