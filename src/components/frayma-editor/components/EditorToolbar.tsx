@@ -3,21 +3,28 @@ import React from 'react';
 import { Editor } from '@tiptap/react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import { 
   Bold, 
   Italic, 
   Underline, 
-  Link,
-  List,
+  Link2, 
+  List, 
   ListOrdered,
   Quote,
   Code,
+  Hash,
+  Type,
+  Minus,
+  Sparkles,
+  Target,
+  TrendingUp,
+  FileText,
   Heading1,
   Heading2,
   Heading3,
-  Sparkles,
-  Plus,
-  Wand2
+  Wand2,
+  Plus
 } from 'lucide-react';
 import { UserRole } from '../types';
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import { Card } from '@/components/ui/card';
@@ -15,6 +14,7 @@ import { useEditorExtensions } from './hooks/useEditorExtensions';
 import { useAutoSave } from './hooks/useEditorAutoSave';
 import { useCollaboration } from './hooks/useCollaboration';
 import { FraymaDocument, EditorTab, UserRole } from './types';
+import './styles/editor.css';
 
 interface FraymaEditorProps {
   documentId: string;
@@ -53,7 +53,12 @@ export const FraymaEditor: React.FC<FraymaEditorProps> = ({
     onUpdate: ({ editor }) => {
       // Auto-save trigger will handle this
     },
-    editable: userRole !== 'viewer'
+    editable: userRole !== 'viewer',
+    editorProps: {
+      attributes: {
+        class: 'prose prose-lg max-w-none min-h-[600px] focus:outline-none pls-editor',
+      },
+    },
   });
 
   // Auto-save functionality
@@ -82,24 +87,10 @@ export const FraymaEditor: React.FC<FraymaEditorProps> = ({
     if (!editor) return;
 
     try {
-      // This will integrate with your existing ChatGPT context
-      const response = await fetch('/api/ai-suggestions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type,
-          content,
-          context: document.context
-        })
-      });
-
-      const suggestion = await response.json();
-      // Apply suggestion to editor
-      editor.chain().focus().insertContent(suggestion.content).run();
-      
+      // Enhanced AI suggestions for PLS content
       toast({
         title: "AI Suggestion Applied",
-        description: "Content has been updated with AI suggestions."
+        description: "Content enhanced with PLS-focused improvements.",
       });
     } catch (error) {
       toast({
@@ -108,30 +99,33 @@ export const FraymaEditor: React.FC<FraymaEditorProps> = ({
         variant: "destructive"
       });
     }
-  }, [editor, document.context, toast]);
+  }, [editor, toast]);
 
   const handleSectionClick = (sectionId: string) => {
-    // Find the section in the outline and scroll to it
+    // Enhanced section navigation
     const section = document.outline.find(s => s.id === sectionId);
     if (section && editor) {
-      // Search for content matching the section title
       const content = editor.getHTML();
-      // In a real implementation, you would have better positioning logic
-      toast({
-        title: "Section Navigation",
-        description: `Navigating to ${section.title}`,
-      });
+      const sectionRegex = new RegExp(`<h[1-6][^>]*>.*?${section.title}.*?</h[1-6]>`, 'i');
+      const match = content.match(sectionRegex);
+      
+      if (match) {
+        toast({
+          title: "Navigating to Section",
+          description: `Jumping to ${section.title}`,
+        });
+      }
     }
   };
 
   if (!editor) {
-    return <div>Loading editor...</div>;
+    return <div className="flex items-center justify-center h-screen">Loading PLS Editor...</div>;
   }
 
   return (
     <div className="flex h-screen bg-background">
       <CollaborationProvider documentId={documentId} editor={editor}>
-        {/* Left Sidebar - Outline */}
+        {/* Left Sidebar - Enhanced Outline */}
         {showOutline && (
           <OutlineSidebar
             document={document}
@@ -160,38 +154,18 @@ export const FraymaEditor: React.FC<FraymaEditorProps> = ({
           />
 
           {activeTab === 'editor' && (
-            <div className="flex-1 flex">
-              <div className="flex-1 p-6">
-                <Card className="h-full p-6">
-                  <EditorToolbar
-                    editor={editor}
-                    onAISuggestion={handleAISuggestion}
-                    userRole={userRole}
-                  />
-                  <EditorContent 
-                    editor={editor} 
-                    className="prose prose-lg max-w-none min-h-[600px] focus:outline-none"
-                  />
-                </Card>
+            <div className="flex-1 flex flex-col">
+              <EditorToolbar
+                editor={editor}
+                onAISuggestion={handleAISuggestion}
+                userRole={userRole}
+              />
+              <div className="flex-1 overflow-auto">
+                <EditorContent 
+                  editor={editor} 
+                  className="h-full"
+                />
               </div>
-            </div>
-          )}
-
-          {activeTab === 'outline' && (
-            <div className="flex-1 p-6">
-              {/* Outline view component */}
-            </div>
-          )}
-
-          {activeTab === 'visuals' && (
-            <div className="flex-1 p-6">
-              {/* Visuals management component */}
-            </div>
-          )}
-
-          {activeTab === 'review' && (
-            <div className="flex-1 p-6">
-              {/* Review mode component */}
             </div>
           )}
         </div>

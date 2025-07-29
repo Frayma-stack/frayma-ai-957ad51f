@@ -1,0 +1,268 @@
+/* PLS Editor Styles - Enhanced for Better Reading Experience */
+
+.ProseMirror {
+  outline: none;
+  padding: 2rem;
+  line-height: 1.7;
+  color: #1f2937;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Headings with better hierarchy and spacing */
+.pls-heading {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: #111827;
+  scroll-margin-top: 6rem; /* For better navigation */
+}
+
+.pls-heading[data-level="1"] {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 2rem;
+  border-bottom: 3px solid #e5e7eb;
+  padding-bottom: 1rem;
+}
+
+.pls-heading[data-level="2"] {
+  font-size: 1.875rem;
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.pls-heading[data-level="2"]::before {
+  content: '';
+  position: absolute;
+  left: -1rem;
+  top: 0.5rem;
+  width: 4px;
+  height: 1.5rem;
+  background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+  border-radius: 2px;
+}
+
+.pls-heading[data-level="3"] {
+  font-size: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.pls-heading[data-level="4"] {
+  font-size: 1.25rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.pls-heading[data-level="5"],
+.pls-heading[data-level="6"] {
+  font-size: 1.125rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Enhanced paragraphs with optimal spacing */
+.pls-paragraph {
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+  font-size: 1rem;
+  max-width: 65ch; /* Optimal reading width */
+}
+
+/* Ensure sentences aren't too long visually */
+.pls-paragraph::after {
+  content: '';
+  display: block;
+  height: 0.5rem;
+}
+
+/* Clean up unnecessary markdown artifacts */
+.ProseMirror p {
+  margin-bottom: 1.5rem;
+}
+
+.ProseMirror p:last-child {
+  margin-bottom: 0;
+}
+
+/* Remove asterisks and hashtags from rendered content */
+.ProseMirror em {
+  font-style: italic;
+  font-weight: normal;
+}
+
+.ProseMirror strong {
+  font-weight: 600;
+}
+
+/* Links styling */
+.pls-link {
+  color: #3b82f6;
+  text-decoration: underline;
+  text-decoration-color: #93c5fd;
+  text-underline-offset: 2px;
+  transition: all 0.2s ease;
+}
+
+.pls-link:hover {
+  color: #1d4ed8;
+  text-decoration-color: #3b82f6;
+}
+
+/* Lists with better spacing */
+.ProseMirror ul,
+.ProseMirror ol {
+  margin: 1.5rem 0;
+  padding-left: 2rem;
+}
+
+.ProseMirror li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.ProseMirror li p {
+  margin-bottom: 0.5rem;
+}
+
+/* Blockquotes for emphasis */
+.ProseMirror blockquote {
+  border-left: 4px solid #e5e7eb;
+  margin: 2rem 0;
+  padding: 1rem 2rem;
+  background: #f9fafb;
+  font-style: italic;
+  position: relative;
+}
+
+.ProseMirror blockquote::before {
+  content: '"';
+  font-size: 3rem;
+  color: #d1d5db;
+  position: absolute;
+  left: 0.5rem;
+  top: -0.5rem;
+  font-family: serif;
+}
+
+/* Code blocks */
+.ProseMirror pre {
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  margin: 2rem 0;
+  overflow-x: auto;
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.ProseMirror code {
+  background: #f3f4f6;
+  color: #1f2937;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 0.875rem;
+}
+
+/* Horizontal rules for section breaks */
+.ProseMirror hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+  margin: 3rem 0;
+}
+
+/* PLS Block specific styles */
+.pls-block {
+  margin: 2rem 0;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.pls-block:first-child {
+  margin-top: 0;
+}
+
+.pls-block:last-child {
+  margin-bottom: 0;
+}
+
+/* Enhanced focus styles */
+.ProseMirror-focused {
+  box-shadow: 0 0 0 2px #3b82f6;
+  border-radius: 0.5rem;
+}
+
+/* Placeholder styling */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #9ca3af;
+  pointer-events: none;
+  height: 0;
+  font-style: italic;
+}
+
+/* Selection styling */
+.ProseMirror ::selection {
+  background: #dbeafe;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ProseMirror {
+    padding: 1rem;
+  }
+  
+  .pls-heading[data-level="1"] {
+    font-size: 1.875rem;
+  }
+  
+  .pls-heading[data-level="2"] {
+    font-size: 1.5rem;
+  }
+  
+  .pls-paragraph {
+    max-width: none;
+  }
+}
+
+/* Animation for smooth interactions */
+.pls-heading,
+.pls-paragraph,
+.pls-link {
+  transition: all 0.2s ease;
+}
+
+/* Word count and reading indicators */
+.editor-stats {
+  position: sticky;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  backdrop-filter: blur(10px);
+  border: 1px solid #e5e7eb;
+}
+
+/* Sentence length indicator (for 15-18 words guideline) */
+.long-sentence {
+  background: linear-gradient(120deg, transparent 0%, rgba(239, 68, 68, 0.1) 50%, transparent 100%);
+  border-bottom: 1px dotted #ef4444;
+}
+
+/* PLS Framework visual indicators */
+.pls-relatable { border-left: 4px solid #3b82f6; }
+.pls-real { border-left: 4px solid #ef4444; }
+.pls-remarkable { border-left: 4px solid #8b5cf6; }
+.pls-results { border-left: 4px solid #10b981; }

@@ -5,8 +5,9 @@ import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
-import Collaboration from '@tiptap/extension-collaboration';
-import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
+import Heading from '@tiptap/extension-heading';
+import Paragraph from '@tiptap/extension-paragraph';
+import Typography from '@tiptap/extension-typography';
 import { UserRole } from '../types';
 
 interface UseEditorExtensionsProps {
@@ -24,19 +25,59 @@ export const useEditorExtensions = ({
   const extensions = [
     StarterKit.configure({
       history: false, // Disabled for collaboration
+      heading: false, // We'll configure this separately
+      paragraph: false, // We'll configure this separately
     }),
+    
+    // Enhanced heading with PLS-specific classes
+    Heading.configure({
+      levels: [1, 2, 3, 4, 5, 6],
+      HTMLAttributes: {
+        class: 'pls-heading',
+      },
+    }),
+    
+    // Enhanced paragraph with proper spacing
+    Paragraph.configure({
+      HTMLAttributes: {
+        class: 'pls-paragraph',
+      },
+    }),
+    
+    // Typography improvements for PLS content
+    Typography.configure({
+      openDoubleQuote: '"',
+      closeDoubleQuote: '"',
+      openSingleQuote: "'",
+      closeSingleQuote: "'",
+      emDash: '—',
+      ellipsis: '…',
+    }),
+    
     Underline,
+    
     Link.configure({
       openOnClick: false,
+      HTMLAttributes: {
+        class: 'pls-link',
+      },
     }),
+    
     Placeholder.configure({
-      placeholder: 'Start writing your GTM article...',
+      placeholder: ({ node }) => {
+        if (node.type.name === 'heading') {
+          if (node.attrs.level === 1) return 'Main Headline - Start with a Relatable Hook...';
+          if (node.attrs.level === 2) return 'Section Header - Focus on Real Problems or Remarkable Solutions...';
+          if (node.attrs.level === 3) return 'Subsection - Break down complex ideas...';
+          return 'Heading - Use clear, scannable structure...';
+        }
+        return 'Write your PLS narrative here. Keep sentences clear and concise (15-18 words max). Focus on Relatable → Real → Remarkable → Results.';
+      },
     }),
-    CharacterCount,
-    // Custom extensions for smart blocks would go here
-    // ResonanceBlock,
-    // RelevanceBlock, 
-    // ResultsBlock,
+    
+    CharacterCount.configure({
+      mode: 'nodeSize',
+    }),
   ];
 
   // Add collaboration extensions if needed
