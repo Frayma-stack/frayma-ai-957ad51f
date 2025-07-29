@@ -41,7 +41,7 @@ const IdeasBankSection: React.FC<IdeasBankSectionProps> = ({
                 Start from a Saved Idea
               </div>
               <div className="text-gray-400 text-sm italic">
-                Choose a client first to see saved ideas
+                Choose an Account to see saved ideas
               </div>
             </div>
             <Button 

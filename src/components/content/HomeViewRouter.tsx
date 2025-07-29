@@ -7,7 +7,7 @@ import ArticleTypeSelector from '@/components/ArticleTypeSelector';
 import GTMNarrativeCreator from '@/components/GTMNarrativeCreator';
 import SuccessStoryCreator from '@/components/SuccessStoryCreator';
 import ShortFormContentCreator from '@/components/ShortFormContentCreator';
-import { ProductCampaignCreator } from '@/components/product-campaign/ProductCampaignCreator';
+import { ProductCampaignWorkspace } from '@/components/product-campaign-v2/ProductCampaignWorkspace';
 import { ICPStoryScript, CustomerSuccessStory, Author, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -72,7 +72,7 @@ const HomeViewRouter: FC<HomeViewRouterProps> = ({
   if (selectedType === 'product-campaign') {
     return (
       <ScrollArea className="h-[calc(100vh-200px)]">
-        <ProductCampaignCreator
+        <ProductCampaignWorkspace
           authors={filteredAuthors}
           scripts={filteredICPScripts}
           selectedClientId={selectedClientId || undefined}
