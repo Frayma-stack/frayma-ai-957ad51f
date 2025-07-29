@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { useChatGPT } from '@/contexts/ChatGPTContext';
-import { ICPStoryScript, Author } from '@/types/storytelling';
+import { ICPStoryScript, Author, BusinessContext } from '@/types/storytelling';
 import { FormData } from './useGTMNarrativeData';
 import { usePromptConfig } from './usePromptConfig';
 
@@ -10,13 +10,32 @@ interface UsePhaseContentGenerationProps {
   formData: FormData;
   scripts: ICPStoryScript[];
   authors?: Author[];
+  productContexts?: BusinessContext[];
   onDataChange: (field: keyof FormData, value: any) => void;
 }
+
+// Helper function to get asset details by ID
+const getAssetById = (assetId: string, contextType: string, productContexts: BusinessContext[]) => {
+  for (const context of productContexts) {
+    if (contextType === 'feature' && context.features) {
+      const asset = context.features.find(f => f.id === assetId);
+      if (asset) return { name: asset.name, description: asset.description, benefits: asset.benefits?.join(', ') };
+    } else if (contextType === 'useCase' && context.useCases) {
+      const asset = context.useCases.find(u => u.id === assetId);
+      if (asset) return { name: asset.useCase, description: asset.description };
+    } else if (contextType === 'differentiator' && context.differentiators) {
+      const asset = context.differentiators.find(d => d.id === assetId);
+      if (asset) return { name: asset.name, description: asset.description };
+    }
+  }
+  return null;
+};
 
 export const usePhaseContentGeneration = ({
   formData,
   scripts,
   authors = [],
+  productContexts = [],
   onDataChange
 }: UsePhaseContentGenerationProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -59,8 +78,16 @@ export const usePhaseContentGeneration = ({
           
           if (contextType && ['feature', 'useCase', 'differentiator'].includes(contextType)) {
             businessContextDescription = `${contextType}: ${formData.businessContextItem}`;
-            if (formData.businessContextAssetId) {
-              businessContextDescription += ` (Asset ID: ${formData.businessContextAssetId})`;
+            
+            // If an asset ID is selected, find and include the specific asset details
+            if (formData.businessContextAssetId && productContexts.length > 0) {
+              const asset = getAssetById(formData.businessContextAssetId, contextType, productContexts);
+              if (asset) {
+                businessContextDescription = `${contextType}: ${asset.name} - ${asset.description}`;
+                if (asset.benefits) {
+                  businessContextDescription += ` [Benefits: ${asset.benefits}]`;
+                }
+              }
             }
           } else if (contextType) {
             businessContextDescription = `${contextType}: ${formData.businessContextItem}`;

@@ -243,20 +243,20 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
                     <SelectTrigger>
                       <SelectValue placeholder={`Choose a ${data.businessContextType}...`} />
                     </SelectTrigger>
-                    <SelectContent>
+                     <SelectContent className="z-50 bg-background">
                       {availableAssets.map((asset) => (
-                        <SelectItem key={asset.id} value={asset.id}>
-                          <div>
-                            <div className="font-medium">{asset.name}</div>
+                        <SelectItem key={asset.id} value={asset.id} className="cursor-pointer">
+                          <div className="flex flex-col gap-1">
+                            <span className="font-medium">{asset.name}</span>
                             {asset.description && (
-                              <div className="text-xs text-gray-500 truncate max-w-sm">
+                              <span className="text-xs text-muted-foreground line-clamp-2">
                                 {asset.description}
-                              </div>
+                              </span>
                             )}
                           </div>
                         </SelectItem>
                       ))}
-                    </SelectContent>
+                     </SelectContent>
                   </Select>
                   {availableAssets.length === 0 && (
                     <p className="text-xs text-gray-500 mt-1">
