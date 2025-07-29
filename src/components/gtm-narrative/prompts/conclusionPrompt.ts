@@ -38,7 +38,7 @@ The user has specified preferences for:
 4. **Strategic Alignment (StoryBrief Part 1):**
 - Idea Trigger/Thesis: {{trigger}}
 - Why Publish: {{why_publish}}
-- Main Keyword & Business Context Item: {{main_keyword}}, {{cluster}} (This business context element should anchor the conclusion to ensure product-led resolution)
+- Main Keyword & Business Context Item: {{main_keyword}}, {{cluster}} (This business context element should anchor the conclusion to ensure product-led resolution. If an Asset ID is mentioned, this refers to a specific saved feature, use case, or differentiator that should drive the final call-to-action.)
 - CTA: {{story_cta}}
 
 5. **Target Reader Resonance (StoryBrief Part 2):**

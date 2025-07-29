@@ -1,7 +1,7 @@
 
 import { FC, useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { ICPStoryScript, CustomerSuccessStory, ArticleSubType, Author, ProductContext } from '@/types/storytelling';
+import { ICPStoryScript, CustomerSuccessStory, ArticleSubType, Author, BusinessContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { supabaseDataService } from '@/services/SupabaseDataService';
 import IdeaSelector from './IdeaSelector';
@@ -37,7 +37,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
   onBack
 }) => {
   const { summarizeIdeaForContent } = useIdeaSummarization();
-  const [productContexts, setProductContexts] = useState<ProductContext[]>([]);
+  const [productContexts, setProductContexts] = useState<BusinessContext[]>([]);
   
   const {
     formData,

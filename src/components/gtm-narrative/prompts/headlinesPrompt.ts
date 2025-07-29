@@ -19,7 +19,7 @@ Use this input context:
 - Thesis/Trigger: {{trigger_or_thesis}}
 - Mutual Goal: {{mutual_goal}}
 - Main Keyword: {{main_keyword}}
-- Business Context Item: {{cluster}} (This specific business context element should subtly influence the headline to ensure product-led messaging)
+- Business Context Item: {{cluster}} (This specific business context element should subtly influence the headline to ensure product-led messaging. If an Asset ID is mentioned, this refers to a specific saved feature, use case, or differentiator that the article should subtly promote.)
 - Why Publish: {{why_publish}}
 - CTA: {{cta}}
 

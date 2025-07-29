@@ -28,7 +28,7 @@ Your task is to generate a complete outline for a long-form GTM article using th
 **Strategic Alignment:**
 - Trigger/Thesis: {{trigger_or_thesis}}
 - Target Keyword: {{main_keyword}}
-- Business Context Item: {{cluster}} (CRITICAL: This specific business context element must subtly weave through the content outline to ensure product-led storytelling that connects the narrative to our actual business value)
+- Business Context Item: {{cluster}} (CRITICAL: This specific business context element must subtly weave through the content outline to ensure product-led storytelling that connects the narrative to our actual business value. If an Asset ID is mentioned, this refers to a specific saved feature, use case, or differentiator that should be the primary focus for product promotion.)
 - CTA: {{cta}}
 - Publishing Reason: {{why_publish}}
 - Target ICP: {{main_icp}}

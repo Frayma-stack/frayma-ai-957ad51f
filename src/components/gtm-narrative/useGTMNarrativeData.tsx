@@ -36,6 +36,7 @@ export interface FormData {
   targetKeyword: string;
   businessContextItem: string;
   businessContextType: 'categoryPOV' | 'uniqueInsight' | 'companyMission' | 'feature' | 'useCase' | 'differentiator' | '';
+  businessContextAssetId?: string; // For when feature/useCase/differentiator is selected
   publishReason: string;
   callToAction: string;
   strategicSuccessStory: string;
@@ -76,6 +77,7 @@ const initialFormData: FormData = {
   targetKeyword: '',
   businessContextItem: '',
   businessContextType: '' as const,
+  businessContextAssetId: '',
   publishReason: '',
   callToAction: '',
   strategicSuccessStory: '',
@@ -116,7 +118,7 @@ export const useGTMNarrativeData = () => {
   };
 
   const canProceedFromStep1 = (): boolean => {
-    return Boolean(
+    const baseFields = Boolean(
       formData.ideaTrigger &&
       formData.mutualGoal &&
       formData.targetKeyword &&
@@ -124,6 +126,14 @@ export const useGTMNarrativeData = () => {
       formData.businessContextType &&
       formData.callToAction
     );
+
+    // If product-focused context is selected, also require businessContextAssetId
+    const productFocusedTypes = ['feature', 'useCase', 'differentiator'];
+    if (productFocusedTypes.includes(formData.businessContextType)) {
+      return baseFields && Boolean(formData.businessContextAssetId);
+    }
+
+    return baseFields;
   };
 
   const canProceedFromStep2 = (): boolean => {

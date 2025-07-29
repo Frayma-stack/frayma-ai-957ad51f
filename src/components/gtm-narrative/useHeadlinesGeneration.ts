@@ -36,7 +36,21 @@ export const useHeadlinesGeneration = ({
         trigger_or_thesis: formData.ideaTrigger || 'Strategic content initiative',
         mutual_goal: formData.mutualGoal || 'Drive engagement and conversions',
         main_keyword: formData.targetKeyword || 'product-led growth',
-        cluster: `${formData.businessContextType}: ${formData.businessContextItem}` || 'GTM strategy',
+        cluster: (() => {
+          let businessContextDescription = formData.businessContextItem || 'GTM strategy';
+          const contextType = formData.businessContextType;
+          
+          if (contextType && ['feature', 'useCase', 'differentiator'].includes(contextType)) {
+            businessContextDescription = `${contextType}: ${formData.businessContextItem}`;
+            if (formData.businessContextAssetId) {
+              businessContextDescription += ` (Asset ID: ${formData.businessContextAssetId})`;
+            }
+          } else if (contextType) {
+            businessContextDescription = `${contextType}: ${formData.businessContextItem}`;
+          }
+          
+          return businessContextDescription;
+        })(),
         why_publish: formData.publishReason || 'Establish thought leadership',
         cta: formData.callToAction || 'Contact us to learn more',
         main_icp: formData.mainTargetICP || 'Business decision makers',

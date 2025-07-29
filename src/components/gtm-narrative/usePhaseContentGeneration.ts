@@ -53,7 +53,21 @@ export const usePhaseContentGeneration = ({
         story_cta: formData.callToAction || 'Contact us to learn more',
         cta: formData.callToAction || 'Contact us to learn more',
         main_keyword: formData.targetKeyword || 'product-led growth',
-        cluster: `${formData.businessContextType}: ${formData.businessContextItem}` || 'GTM strategy',
+        cluster: (() => {
+          let businessContextDescription = formData.businessContextItem || 'GTM strategy';
+          const contextType = formData.businessContextType;
+          
+          if (contextType && ['feature', 'useCase', 'differentiator'].includes(contextType)) {
+            businessContextDescription = `${contextType}: ${formData.businessContextItem}`;
+            if (formData.businessContextAssetId) {
+              businessContextDescription += ` (Asset ID: ${formData.businessContextAssetId})`;
+            }
+          } else if (contextType) {
+            businessContextDescription = `${contextType}: ${formData.businessContextItem}`;
+          }
+          
+          return businessContextDescription;
+        })(),
         journey_stage: formData.journeyStage || 'MOFU',
         narrative_anchors_and_types: formData.narrativeAnchors?.map(a => `${a.name} (${a.type}): ${a.content}`).join('; ') || 'Key messaging points',
         narrative_anchors: formData.narrativeAnchors?.map(a => `${a.name} (${a.type}): ${a.content}`).join('; ') || 'Key messaging points',

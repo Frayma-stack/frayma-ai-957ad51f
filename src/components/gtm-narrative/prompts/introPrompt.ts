@@ -47,7 +47,7 @@ Trigger/Thesis: {{trigger_or_thesis}}
 Why Publish: {{why_publish}}  
 Mutual Goal: {{mutual_goal}}  
 Main Keyword: {{main_keyword}}  
-Business Context Item: {{cluster}} (This business context element should subtly appear in the intro to establish product-led connection)
+Business Context Item: {{cluster}} (This business context element should subtly appear in the intro to establish product-led connection. If an Asset ID is mentioned, this refers to a specific saved feature, use case, or differentiator that should be subtly introduced.)
 CTA: {{cta}}
 
 **Target Reader Resonance:**  

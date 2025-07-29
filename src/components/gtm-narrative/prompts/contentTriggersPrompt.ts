@@ -28,7 +28,7 @@ Here is the input context:
 - Thesis/Trigger: {{trigger_or_thesis}}
 - Mutual Goal: {{mutual_goal}}
 - Main Target Keyword: {{main_keyword}}
-- Business Context Item: {{cluster}} (This specific business context element should subtly weave through the narrative to ensure product-led storytelling)
+- Business Context Item: {{cluster}} (This specific business context element should subtly weave through the narrative to ensure product-led storytelling. If an Asset ID is mentioned, this refers to a specific saved feature, use case, or differentiator that the article should subtly promote.)
 - Justification to Publish: {{why_publish}}
 - Target CTA: {{cta}}
 
