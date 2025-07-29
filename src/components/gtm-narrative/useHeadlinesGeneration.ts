@@ -109,67 +109,108 @@ export const useHeadlinesGeneration = ({
     const lines = response.split('\n').filter(line => line.trim());
     
     let currentId = 1;
+    let relevanceH2Found = false;
+    let resultsH2Found = false;
     
-    // Create the optimized structure: H3 for resonance, H2+3xH3 for relevance, H2+3xH3 for results
+    // Parse the AI response and extract actual sections
+    for (const line of lines) {
+      const h2Match = line.match(/^##\s+H2:\s*(.+)/);
+      const h3Match = line.match(/^###\s+H3:\s*(.+)/);
+      const phaseMatch = line.match(/\*\*Phase:\s*(\w+)\*\*/);
+      
+      if (h2Match) {
+        const title = h2Match[1].replace(/\[|\]/g, '').trim();
+        let phase: 'resonance' | 'relevance' | 'results' = 'relevance';
+        let plsSteps = 'PLS Steps 4-6';
+        
+        // Determine phase based on content and position
+        if (!relevanceH2Found) {
+          phase = 'relevance';
+          plsSteps = 'PLS Steps 4-6';
+          relevanceH2Found = true;
+        } else if (!resultsH2Found) {
+          phase = 'results';
+          plsSteps = 'PLS Steps 7-9';
+          resultsH2Found = true;
+        } else {
+          phase = 'results';
+          plsSteps = 'PLS Steps 7-9';
+        }
+        
+        sections.push({
+          id: `outline_${currentId++}`,
+          type: 'H2',
+          title,
+          context: '',
+          phase,
+          plsSteps,
+          linkedAssetType: undefined,
+          linkedAssetId: undefined
+        });
+      } else if (h3Match) {
+        const title = h3Match[1].replace(/\[|\]/g, '').trim();
+        
+        // Skip problematic H3s that we don't want
+        if (title.toLowerCase().includes('who this') || title.toLowerCase().includes('filter subsection')) {
+          continue;
+        }
+        
+        // Determine phase based on current context
+        let phase: 'resonance' | 'relevance' | 'results' = 'resonance';
+        let plsSteps = 'PLS Steps 2-3';
+        
+        if (relevanceH2Found && !resultsH2Found) {
+          phase = 'relevance';
+          plsSteps = 'PLS Steps 4-6';
+        } else if (resultsH2Found) {
+          phase = 'results';
+          plsSteps = 'PLS Steps 7-9';
+        }
+        
+        sections.push({
+          id: `outline_${currentId++}`,
+          type: 'H3',
+          title,
+          context: '',
+          phase,
+          plsSteps,
+          linkedAssetType: undefined,
+          linkedAssetId: undefined
+        });
+      }
+    }
     
-    // Add first H3 for Resonance (after intro)
-    sections.push({
-      id: `outline_${currentId++}`,
-      type: 'H3',
-      title: extractFirstMeaningfulTitle(lines) || 'Getting Started with Your Solution',
-      context: '',
-      phase: 'resonance',
-      plsSteps: 'PLS Steps 2-3',
-      linkedAssetType: undefined,
-      linkedAssetId: undefined
-    });
-    
-    // Add H2 for Relevance section
-    sections.push({
-      id: `outline_${currentId++}`,
-      type: 'H2',
-      title: extractSectionTitle(lines, 'relevance') || 'Understanding the Value',
-      context: '',
-      phase: 'relevance',
-      plsSteps: 'PLS Steps 4-6',
-      linkedAssetType: undefined,
-      linkedAssetId: undefined
-    });
-    
-    // Add 3 H3s under Relevance
-    const relevanceSubtitles = extractSubtitles(lines, 'relevance');
-    for (let i = 0; i < 3; i++) {
+    // If we didn't get enough sections from AI response, add minimal structure
+    if (sections.length === 0) {
+      // Add one H3 for resonance
       sections.push({
         id: `outline_${currentId++}`,
         type: 'H3',
-        title: relevanceSubtitles[i] || `Key Insight ${i + 1}`,
+        title: 'Understanding Your Challenge',
+        context: '',
+        phase: 'resonance',
+        plsSteps: 'PLS Steps 2-3',
+        linkedAssetType: undefined,
+        linkedAssetId: undefined
+      });
+      
+      // Add H2 for relevance
+      sections.push({
+        id: `outline_${currentId++}`,
+        type: 'H2',
+        title: 'Solving the Problem',
         context: '',
         phase: 'relevance',
         plsSteps: 'PLS Steps 4-6',
         linkedAssetType: undefined,
         linkedAssetId: undefined
       });
-    }
-    
-    // Add H2 for Results section
-    sections.push({
-      id: `outline_${currentId++}`,
-      type: 'H2',
-      title: extractSectionTitle(lines, 'results') || 'Proven Results & Next Steps',
-      context: '',
-      phase: 'results',
-      plsSteps: 'PLS Steps 7-9',
-      linkedAssetType: undefined,
-      linkedAssetId: undefined
-    });
-    
-    // Add 3 H3s under Results
-    const resultsSubtitles = extractSubtitles(lines, 'results');
-    for (let i = 0; i < 3; i++) {
+      
+      // Add H2 for results
       sections.push({
         id: `outline_${currentId++}`,
-        type: 'H3',
-        title: resultsSubtitles[i] || `Success Factor ${i + 1}`,
+        type: 'H2',
+        title: 'Proven Results',
         context: '',
         phase: 'results',
         plsSteps: 'PLS Steps 7-9',

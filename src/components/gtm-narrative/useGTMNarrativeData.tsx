@@ -134,8 +134,7 @@ export const useGTMNarrativeData = () => {
     return Boolean(
       formData.relatedKeywords?.length > 0 &&
       formData.searchQueries?.length > 0 &&
-      formData.problemStatements?.length > 0 &&
-      formData.headlineOptions?.length > 0
+      formData.problemStatements?.length > 0
     );
   };
 

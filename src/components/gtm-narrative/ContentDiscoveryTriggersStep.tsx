@@ -168,32 +168,6 @@ const ContentDiscoveryTriggersStep: FC<ContentDiscoveryTriggersStepProps> = ({
         </div>
       </div>
 
-      {data.headlineOptions && data.headlineOptions.length > 0 && (
-        <div className="space-y-4 mt-8 pt-6 border-t">
-          <h3 className="text-lg font-semibold text-story-blue">Generated Headlines</h3>
-          <p className="text-sm text-gray-600">Choose a headline that best captures your content direction:</p>
-          <div className="space-y-3">
-            {data.headlineOptions.map((headline) => (
-              <div key={headline.id} className="flex items-start gap-3">
-                <input
-                  type="radio"
-                  name="selectedHeadline"
-                  value={headline.id}
-                  checked={data.selectedHeadline === headline.text}
-                  onChange={() => handleHeadlineSelect(headline.id)}
-                  className="mt-1 w-4 h-4 text-blue-600"
-                />
-                <label 
-                  className="flex-1 text-sm cursor-pointer hover:text-blue-600 transition-colors"
-                  onClick={() => handleHeadlineSelect(headline.id)}
-                >
-                  {headline.text}
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

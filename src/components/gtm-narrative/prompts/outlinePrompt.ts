@@ -59,26 +59,20 @@ Create an outline with:
 
 Return your outline in this exact structure:
 
-## H2: [Compelling Hook Title incorporating main keyword]
-**Phase: attract**
-
-### H3: [Filter subsection - who this is for]
-**Phase: filter**
-
 ## H2: [Primary search query as section title]
-**Phase: engage**
+**Phase: relevance**
 
 ### H3: [Supporting insight addressing problem statement]
-**Phase: engage**
+**Phase: relevance**
 
 ### H3: [Framework or methodology section]
-**Phase: engage**
-
-## H2: [Secondary search query or related keyword integration]
-**Phase: engage**
+**Phase: relevance**
 
 ### H3: [Practical application example]
-**Phase: engage**
+**Phase: relevance**
+
+## H2: [Secondary search query or related keyword integration]
+**Phase: results**
 
 ## H2: [Success story integration - "How [Company/Person] Achieved [Result]"]
 **Phase: results**

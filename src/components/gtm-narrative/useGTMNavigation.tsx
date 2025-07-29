@@ -37,20 +37,22 @@ export const useGTMNavigation = ({
         return;
       }
       
-      // Generate both content triggers and headlines for step 3
+      // Generate only content triggers for step 3 - headlines will be generated when moving to step 4
       await generateContentTriggers();
-      await generateHeadlines();
     }
     
     if (currentStep === 3) {
       if (!canProceedFromStep3()) {
         toast({
           title: "Missing content triggers",
-          description: "Please ensure all content discovery triggers and headlines are generated.",
+          description: "Please ensure all content discovery triggers are completed.",
           variant: "destructive"
         });
         return;
       }
+      
+      // Generate headlines after step 3 using the content triggers data
+      await generateHeadlines();
     }
     
     if (currentStep === 4) {

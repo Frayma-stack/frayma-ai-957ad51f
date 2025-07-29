@@ -15,9 +15,12 @@ import {
 
 export class ProductContextService extends BaseSupabaseService {
   async getProductContexts(): Promise<BusinessContext[]> {
+    const userId = await this.getCurrentUserId();
+    
     const { data, error } = await supabase
       .from('product_contexts')
       .select('*')
+      .eq('user_id', userId)
       .order('created_at', { ascending: false });
     
     if (error) throw error;
