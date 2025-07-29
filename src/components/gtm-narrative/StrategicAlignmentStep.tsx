@@ -87,6 +87,13 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
   const availableAssets = getAvailableAssets();
   const isProductFocused = ['feature', 'useCase', 'differentiator'].includes(data.businessContextType);
   const isThoughtLeadershipFocused = ['categoryPOV', 'uniqueInsight', 'companyMission'].includes(data.businessContextType);
+  
+  // Get selected asset details for display
+  const getSelectedAssetName = () => {
+    if (!data.businessContextAssetId) return null;
+    const selectedAsset = availableAssets.find(asset => asset.id === data.businessContextAssetId);
+    return selectedAsset?.name || null;
+  };
 
   return (
     <TooltipProvider>
@@ -241,7 +248,9 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
                     onValueChange={(value) => onDataChange('businessContextAssetId', value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={`Choose a ${data.businessContextType}...`} />
+                      <SelectValue placeholder={`Choose a ${data.businessContextType}...`}>
+                        {getSelectedAssetName() || `Choose a ${data.businessContextType}...`}
+                      </SelectValue>
                     </SelectTrigger>
                      <SelectContent className="z-50 bg-background">
                       {availableAssets.map((asset) => (
