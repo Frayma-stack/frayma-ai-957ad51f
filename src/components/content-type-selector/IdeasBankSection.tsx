@@ -38,7 +38,7 @@ const IdeasBankSection: React.FC<IdeasBankSectionProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <div className="text-gray-600 text-sm mb-2">
-                Select a saved idea to get started
+                Start from a Saved Idea
               </div>
               <div className="text-gray-400 text-sm italic">
                 Choose a client first to see saved ideas

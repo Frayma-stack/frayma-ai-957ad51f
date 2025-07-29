@@ -25,11 +25,8 @@ const ContentTypeSelectorHeader: React.FC = () => {
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Welcome, {getFirstName()}
         </h2>
-        <p className="text-base text-gray-700 mb-1">
+        <p className="text-base text-gray-700">
           What GTM asset do you need help auto-crafting?
-        </p>
-        <p className="text-sm text-gray-500">
-          Choose or start from a Saved Idea below.
         </p>
       </CardContent>
     </Card>
