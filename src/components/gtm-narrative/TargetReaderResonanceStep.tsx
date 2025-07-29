@@ -64,7 +64,7 @@ const TargetReaderResonanceStep: FC<TargetReaderResonanceStepProps> = ({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-story-blue">Target Reader Resonance</h3>
+      <h3 className="text-lg font-semibold text-story-blue">Reader Resonance</h3>
       
       <ICPJourneySelectors
         data={{

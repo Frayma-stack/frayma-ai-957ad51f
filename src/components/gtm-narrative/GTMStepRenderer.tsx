@@ -111,10 +111,12 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
             mutualGoal: formData.mutualGoal || '',
             publishReason: formData.publishReason,
             targetKeyword: formData.targetKeyword,
-            contentCluster: formData.contentCluster,
+            businessContextItem: formData.businessContextItem,
+            businessContextType: formData.businessContextType,
             callToAction: formData.callToAction
           }}
           ideas={ideas}
+          productContexts={productContexts}
           onDataChange={onDataChange}
         />
       );

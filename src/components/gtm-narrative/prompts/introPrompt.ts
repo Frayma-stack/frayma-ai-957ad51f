@@ -47,7 +47,7 @@ Trigger/Thesis: {{trigger_or_thesis}}
 Why Publish: {{why_publish}}  
 Mutual Goal: {{mutual_goal}}  
 Main Keyword: {{main_keyword}}  
-Cluster: {{cluster}}  
+Business Context Item: {{cluster}} (This business context element should subtly appear in the intro to establish product-led connection)
 CTA: {{cta}}
 
 **Target Reader Resonance:**  

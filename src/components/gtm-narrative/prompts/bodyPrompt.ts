@@ -29,7 +29,7 @@ Your task is to auto-craft the middle section of a GTM narrative article using t
 - Trigger/Thesis: {{trigger}}  
 - Why Publish: {{why_publish}}  
 - CTA: {{cta}}  
-- Keyword Focus: {{main_keyword}}, Cluster: {{cluster}}  
+- Keyword Focus: {{main_keyword}}, Business Context Item: {{cluster}} (This business context element should naturally weave through the body content to maintain product-led narrative)  
 
 **5. Target Reader Resonance from StoryBrief:**  
 - Main ICP: {{target_icp}}  

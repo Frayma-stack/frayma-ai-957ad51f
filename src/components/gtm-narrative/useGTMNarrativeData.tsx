@@ -34,7 +34,8 @@ export interface FormData {
   ideaTrigger: string;
   mutualGoal: string;
   targetKeyword: string;
-  contentCluster: string;
+  businessContextItem: string;
+  businessContextType: 'categoryPOV' | 'uniqueInsight' | 'companyMission' | 'feature' | 'useCase' | 'differentiator' | '';
   publishReason: string;
   callToAction: string;
   strategicSuccessStory: string;
@@ -73,7 +74,8 @@ const initialFormData: FormData = {
   ideaTrigger: '',
   mutualGoal: '',
   targetKeyword: '',
-  contentCluster: '',
+  businessContextItem: '',
+  businessContextType: '' as const,
   publishReason: '',
   callToAction: '',
   strategicSuccessStory: '',
@@ -118,6 +120,8 @@ export const useGTMNarrativeData = () => {
       formData.ideaTrigger &&
       formData.mutualGoal &&
       formData.targetKeyword &&
+      formData.businessContextItem &&
+      formData.businessContextType &&
       formData.callToAction
     );
   };

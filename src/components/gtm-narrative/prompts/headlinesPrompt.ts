@@ -19,7 +19,7 @@ Use this input context:
 - Thesis/Trigger: {{trigger_or_thesis}}
 - Mutual Goal: {{mutual_goal}}
 - Main Keyword: {{main_keyword}}
-- Product/Service Cluster: {{cluster}}
+- Business Context Item: {{cluster}} (This specific business context element should subtly influence the headline to ensure product-led messaging)
 - Why Publish: {{why_publish}}
 - CTA: {{cta}}
 

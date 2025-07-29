@@ -25,9 +25,10 @@ Your task is to generate a complete outline for a long-form GTM article using th
 
 ### Input Data to Incorporate:
 
-**Strategic Foundation:**
+**Strategic Alignment:**
 - Trigger/Thesis: {{trigger_or_thesis}}
 - Target Keyword: {{main_keyword}}
+- Business Context Item: {{cluster}} (CRITICAL: This specific business context element must subtly weave through the content outline to ensure product-led storytelling that connects the narrative to our actual business value)
 - CTA: {{cta}}
 - Publishing Reason: {{why_publish}}
 - Target ICP: {{main_icp}}
@@ -89,7 +90,7 @@ Return your outline in this exact structure:
 **CRITICAL:** Ensure every search query from "{{search_queries_list}}" and every problem statement from "{{problem_statements_list}}" is addressed across the outline sections. Use related keywords from "{{related_keywords_list}}" naturally in section titles.
 
 Generate the outline now:`,
-  variables: ['trigger_or_thesis', 'main_keyword', 'cta', 'why_publish', 'main_icp', 'journey_stage', 'anchors_and_types', 'success_story_summary', 'related_keywords_list', 'search_queries_list', 'problem_statements_list'],
+  variables: ['trigger_or_thesis', 'main_keyword', 'cluster', 'cta', 'why_publish', 'main_icp', 'journey_stage', 'anchors_and_types', 'success_story_summary', 'related_keywords_list', 'search_queries_list', 'problem_statements_list'],
   category: 'outline_sections',
   isActive: true,
   createdAt: new Date().toISOString(),

@@ -28,7 +28,7 @@ Here is the input context:
 - Thesis/Trigger: {{trigger_or_thesis}}
 - Mutual Goal: {{mutual_goal}}
 - Main Target Keyword: {{main_keyword}}
-- Product/Service Cluster: {{cluster}}
+- Business Context Item: {{cluster}} (This specific business context element should subtly weave through the narrative to ensure product-led storytelling)
 - Justification to Publish: {{why_publish}}
 - Target CTA: {{cta}}
 

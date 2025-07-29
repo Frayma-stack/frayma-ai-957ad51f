@@ -222,42 +222,47 @@ export const ContentEditorWithFrayma: React.FC<ContentEditorWithFraymaProps> = (
   );
 };
 
-// Improved PLS Template with cleaner, more polished guidance
+// Enhanced PLS Template with improved formatting and readability
 function getPLSTemplate(): string {
   return `# Your GTM Narrative Draft
 
 ## Hook & Context Setting
+
 Start with a relatable scenario that resonates with your target audience. Make them think "Yes, I've been there too."
 
-*PLS Guidance: Open with a moment your audience will recognize from their own experience.*
+**PLS Guidance:** Open with a moment your audience will recognize from their own experience.
 
 ---
 
-## Problem Definition & Stakes  
+## Problem Definition & Stakes
+
 Define the real problem your audience faces and why it matters now.
 
-*3Rs Framework - Real Problem: What pain point keeps your prospects awake at night? What's the cost of inaction?*
+**3Rs Framework - Real Problem:** What pain point keeps your prospects awake at night? What's the cost of inaction?
 
 ---
 
 ## Solution Presentation
+
 Present your remarkable solution with clear value proposition.
 
-*3Rs Framework - Remarkable Solution: How does your product uniquely solve this problem? What makes it different from alternatives?*
+**3Rs Framework - Remarkable Solution:** How does your product uniquely solve this problem? What makes it different from alternatives?
 
 ---
 
 ## Results & Social Proof
+
 Share specific outcomes and customer success stories.
 
-*3Rs Framework - Results: What measurable outcomes can customers expect? Include testimonials, metrics, and proof points.*
+**3Rs Framework - Results:** What measurable outcomes can customers expect? Include testimonials, metrics, and proof points.
 
 ---
 
 ## Call to Action
+
 Clear next steps for your audience.
 
-*PLS Guidance: Make it easy for prospects to take the next step. Remove friction and provide clear value for engaging.*
+**PLS Guidance:** Make it easy for prospects to take the next step. Remove friction and provide clear value for engaging.
 
 ---
 

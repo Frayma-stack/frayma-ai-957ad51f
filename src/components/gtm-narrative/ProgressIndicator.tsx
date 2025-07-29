@@ -8,8 +8,8 @@ interface ProgressIndicatorProps {
 
 const ProgressIndicator: FC<ProgressIndicatorProps> = ({ currentStep }) => {
   const steps = [
-    { number: 1, title: 'Strategic Foundation', description: 'Core inputs' },
-    { number: 2, title: 'Audience Resonance', description: 'Target alignment' },
+    { number: 1, title: 'Strategic Alignment', description: 'Core inputs' },
+    { number: 2, title: 'Reader Resonance', description: 'Target alignment' },
     { number: 3, title: 'Discovery Triggers', description: 'AI pre-fills' },
     { number: 4, title: 'Content Architecture', description: 'Headlines & outline' }
   ];

@@ -6,13 +6,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Lightbulb, HelpCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { GeneratedIdea } from '@/types/ideas';
+import { BusinessContext } from '@/types/storytelling';
 
 interface StrategicAlignmentData {
   ideaTrigger: string;
   selectedIdeaId: string;
   mutualGoal: string;
   targetKeyword: string;
-  contentCluster: string;
+  businessContextItem: string;
+  businessContextType: 'categoryPOV' | 'uniqueInsight' | 'companyMission' | 'feature' | 'useCase' | 'differentiator' | '';
   publishReason: string;
   callToAction: string;
 }
@@ -20,12 +22,14 @@ interface StrategicAlignmentData {
 interface StrategicAlignmentStepProps {
   data: StrategicAlignmentData;
   ideas: GeneratedIdea[];
+  productContexts?: BusinessContext[];
   onDataChange: (field: keyof StrategicAlignmentData, value: string) => void;
 }
 
 const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
   data,
   ideas,
+  productContexts = [],
   onDataChange
 }) => {
   const handleIdeaSelection = (ideaId: string) => {
@@ -42,7 +46,7 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
         {/* Step Header */}
         <div className="flex items-center mb-4">
           <Lightbulb className="h-5 w-5 text-story-blue mr-2" />
-          <h3 className="text-lg font-semibold text-story-blue">Strategic Foundation</h3>
+          <h3 className="text-lg font-semibold text-story-blue">Strategic Alignment</h3>
           <Tooltip>
             <TooltipTrigger>
               <HelpCircle className="h-4 w-4 ml-2 text-gray-400" />
@@ -141,24 +145,39 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
             />
           </div>
 
-          <div>
+          <div className="md:col-span-2">
             <label className="text-sm font-medium flex items-center">
-              Content/Service/Product Cluster *
+              Business Context Item *
               <Tooltip>
                 <TooltipTrigger>
                   <HelpCircle className="h-3 w-3 ml-1 text-gray-400" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="text-xs">The business context that will shape your narrative positioning</p>
+                  <p className="text-xs">Choose a specific business context element to subtly weave into your content for product-led storytelling</p>
                 </TooltipContent>
               </Tooltip>
             </label>
-            <Input 
-              placeholder="What content, service, or product cluster does this relate to?"
-              value={data.contentCluster}
-              onChange={(e) => onDataChange('contentCluster', e.target.value)}
-              className="mt-1"
-            />
+            <div className="mt-1 space-y-2">
+              <Select value={data.businessContextType} onValueChange={(value) => onDataChange('businessContextType', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select business context type..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="categoryPOV">Category Point of View</SelectItem>
+                  <SelectItem value="uniqueInsight">Unique Insight</SelectItem>
+                  <SelectItem value="companyMission">Mission/Vision</SelectItem>
+                  <SelectItem value="feature">Feature</SelectItem>
+                  <SelectItem value="useCase">Use Case</SelectItem>
+                  <SelectItem value="differentiator">Differentiator</SelectItem>
+                </SelectContent>
+              </Select>
+              <Textarea 
+                placeholder="Describe the specific business context item that will anchor your narrative..."
+                value={data.businessContextItem}
+                onChange={(e) => onDataChange('businessContextItem', e.target.value)}
+                rows={2}
+              />
+            </div>
           </div>
 
           <div>

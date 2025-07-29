@@ -36,7 +36,7 @@ export const useHeadlinesGeneration = ({
         trigger_or_thesis: formData.ideaTrigger || 'Strategic content initiative',
         mutual_goal: formData.mutualGoal || 'Drive engagement and conversions',
         main_keyword: formData.targetKeyword || 'product-led growth',
-        cluster: formData.contentCluster || 'GTM strategy',
+        cluster: `${formData.businessContextType}: ${formData.businessContextItem}` || 'GTM strategy',
         why_publish: formData.publishReason || 'Establish thought leadership',
         cta: formData.callToAction || 'Contact us to learn more',
         main_icp: formData.mainTargetICP || 'Business decision makers',
