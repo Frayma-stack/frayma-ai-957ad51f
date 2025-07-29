@@ -113,6 +113,7 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
             targetKeyword: formData.targetKeyword,
             businessContextItem: formData.businessContextItem,
             businessContextType: formData.businessContextType,
+            businessContextAssetId: formData.businessContextAssetId,
             callToAction: formData.callToAction
           }}
           ideas={ideas}

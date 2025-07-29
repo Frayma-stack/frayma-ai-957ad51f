@@ -195,7 +195,7 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
 
           <div className="md:col-span-2">
             <label className="text-sm font-medium flex items-center">
-              Business Context Item *
+              Business Context Item to Cluster Article *
               <Tooltip>
                 <TooltipTrigger>
                   <HelpCircle className="h-3 w-3 ml-1 text-gray-400" />
