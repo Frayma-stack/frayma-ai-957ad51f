@@ -3,50 +3,80 @@ import { FC } from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Plus, X, Loader2 } from 'lucide-react';
+import { Plus, X, Loader2, Sparkles } from 'lucide-react';
+
+interface HeadlineOption {
+  id: string;
+  text: string;
+  isGenerated: boolean;
+}
 
 interface ContentDiscoveryTriggersData {
   relatedKeywords: string[];
   searchQueries: string[];
   problemStatements: string[];
+  headlineOptions: HeadlineOption[];
+  selectedHeadline: string;
 }
 
 interface ContentDiscoveryTriggersStepProps {
   data: ContentDiscoveryTriggersData;
   isGenerating?: boolean;
-  onDataChange: (field: keyof ContentDiscoveryTriggersData, value: string[]) => void;
+  onDataChange: (field: keyof ContentDiscoveryTriggersData, value: any) => void;
+  onRegenerateContent?: () => void;
 }
 
 const ContentDiscoveryTriggersStep: FC<ContentDiscoveryTriggersStepProps> = ({
   data,
   isGenerating = false,
-  onDataChange
+  onDataChange,
+  onRegenerateContent
 }) => {
-  const updateArray = (field: keyof ContentDiscoveryTriggersData, index: number, value: string) => {
-    const newArray = [...data[field]];
+  const updateArray = (field: 'relatedKeywords' | 'searchQueries' | 'problemStatements', index: number, value: string) => {
+    const newArray = [...(data[field] as string[])];
     newArray[index] = value;
     onDataChange(field, newArray);
   };
 
-  const removeFromArray = (field: keyof ContentDiscoveryTriggersData, index: number) => {
-    const newArray = data[field].filter((_, i) => i !== index);
+  const removeFromArray = (field: 'relatedKeywords' | 'searchQueries' | 'problemStatements', index: number) => {
+    const newArray = (data[field] as string[]).filter((_, i) => i !== index);
     onDataChange(field, newArray);
   };
 
-  const addToArray = (field: keyof ContentDiscoveryTriggersData) => {
-    onDataChange(field, [...data[field], '']);
+  const addToArray = (field: 'relatedKeywords' | 'searchQueries' | 'problemStatements') => {
+    onDataChange(field, [...(data[field] as string[]), '']);
+  };
+
+  const handleHeadlineSelect = (headlineId: string) => {
+    const selectedHeadline = data.headlineOptions.find(h => h.id === headlineId);
+    if (selectedHeadline) {
+      onDataChange('selectedHeadline', selectedHeadline.text);
+    }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-story-blue">Content Discovery Triggers</h3>
-        {isGenerating && (
-          <div className="flex items-center text-sm text-gray-600">
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            Generating suggestions...
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          {onRegenerateContent && !isGenerating && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRegenerateContent}
+              className="text-xs"
+            >
+              <Sparkles className="h-3 w-3 mr-1" />
+              Regenerate
+            </Button>
+          )}
+          {isGenerating && (
+            <div className="flex items-center text-sm text-gray-600">
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Generating suggestions...
+            </div>
+          )}
+        </div>
       </div>
       
       <div className="space-y-2">
@@ -137,6 +167,33 @@ const ContentDiscoveryTriggersStep: FC<ContentDiscoveryTriggersStepProps> = ({
           </Button>
         </div>
       </div>
+
+      {data.headlineOptions && data.headlineOptions.length > 0 && (
+        <div className="space-y-4 mt-8 pt-6 border-t">
+          <h3 className="text-lg font-semibold text-story-blue">Generated Headlines</h3>
+          <p className="text-sm text-gray-600">Choose a headline that best captures your content direction:</p>
+          <div className="space-y-3">
+            {data.headlineOptions.map((headline) => (
+              <div key={headline.id} className="flex items-start gap-3">
+                <input
+                  type="radio"
+                  name="selectedHeadline"
+                  value={headline.id}
+                  checked={data.selectedHeadline === headline.text}
+                  onChange={() => handleHeadlineSelect(headline.id)}
+                  className="mt-1 w-4 h-4 text-blue-600"
+                />
+                <label 
+                  className="flex-1 text-sm cursor-pointer hover:text-blue-600 transition-colors"
+                  onClick={() => handleHeadlineSelect(headline.id)}
+                >
+                  {headline.text}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

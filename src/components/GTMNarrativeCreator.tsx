@@ -43,7 +43,8 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     formData,
     handleInputChange,
     canProceedFromStep1,
-    canProceedFromStep2
+    canProceedFromStep2,
+    canProceedFromStep3
   } = useGTMNarrativeData();
 
   // Load product contexts to get all available assets
@@ -111,6 +112,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     formData,
     canProceedFromStep1,
     canProceedFromStep2,
+    canProceedFromStep3,
     generateContentTriggers,
     generateHeadlines,
     generatePhaseContent
@@ -133,6 +135,9 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     }
     if (currentStep === 2) {
       return canProceedFromStep2();
+    }
+    if (currentStep === 3) {
+      return canProceedFromStep3();
     }
     return true;
   };
@@ -185,6 +190,10 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
               onBackToOutline={handleBackToOutline}
               onRegenerate={generatePhaseContent}
               onProceedToAutoCrafting={handleProceedToAutoCrafting}
+              onRegenerateContentTriggers={async () => {
+                await generateContentTriggers();
+                await generateHeadlines();
+              }}
             />
           </div>
 

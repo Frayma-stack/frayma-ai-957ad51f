@@ -130,10 +130,20 @@ export const useGTMNarrativeData = () => {
     );
   };
 
+  const canProceedFromStep3 = (): boolean => {
+    return Boolean(
+      formData.relatedKeywords?.length > 0 &&
+      formData.searchQueries?.length > 0 &&
+      formData.problemStatements?.length > 0 &&
+      formData.headlineOptions?.length > 0
+    );
+  };
+
   return {
     formData,
     handleInputChange,
     canProceedFromStep1,
-    canProceedFromStep2
+    canProceedFromStep2,
+    canProceedFromStep3
   };
 };

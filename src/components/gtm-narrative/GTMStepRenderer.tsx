@@ -6,6 +6,7 @@ import { FormData } from './useGTMNarrativeData';
 import { AutoCraftingConfig } from './outline/AutoCraftingReadinessDialog';
 import StrategicAlignmentStep from './StrategicAlignmentStep';
 import TargetReaderResonanceStep from './TargetReaderResonanceStep';
+import ContentDiscoveryTriggersStep from './ContentDiscoveryTriggersStep';
 import EnhancedContentOutlineStep from './EnhancedContentOutlineStep';
 import ContentGenerationEditor from './ContentGenerationEditor';
 
@@ -26,6 +27,7 @@ interface GTMStepRendererProps {
   onBackToOutline: () => void;
   onRegenerate: (phase: 'intro' | 'body' | 'conclusion') => Promise<void>;
   onProceedToAutoCrafting: (config: AutoCraftingConfig) => void;
+  onRegenerateContentTriggers?: () => Promise<void>;
 }
 
 const GTMStepRenderer: FC<GTMStepRendererProps> = ({
@@ -44,7 +46,8 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
   onContentPhaseNext,
   onBackToOutline,
   onRegenerate,
-  onProceedToAutoCrafting
+  onProceedToAutoCrafting,
+  onRegenerateContentTriggers
 }) => {
   // Aggregate all product features, use cases, and differentiators from product contexts
   const getAllProductFeatures = () => {
@@ -134,6 +137,22 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
       );
 
     case 3:
+      return (
+        <ContentDiscoveryTriggersStep
+          data={{
+            relatedKeywords: formData.relatedKeywords,
+            searchQueries: formData.searchQueries,
+            problemStatements: formData.problemStatements,
+            headlineOptions: formData.headlineOptions,
+            selectedHeadline: formData.selectedHeadline
+          }}
+          isGenerating={isGenerating}
+          onDataChange={onDataChange}
+          onRegenerateContent={onRegenerateContentTriggers}
+        />
+      );
+
+    case 4:
       return (
         <EnhancedContentOutlineStep
           data={{

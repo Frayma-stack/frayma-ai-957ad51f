@@ -7,6 +7,7 @@ interface UseGTMNavigationProps {
   formData: FormData;
   canProceedFromStep1: () => boolean;
   canProceedFromStep2: () => boolean;
+  canProceedFromStep3: () => boolean;
   generateContentTriggers: () => Promise<void>;
   generateHeadlines: () => Promise<void>;
   generatePhaseContent: (phase: 'intro' | 'body' | 'conclusion') => Promise<void>;
@@ -16,6 +17,7 @@ export const useGTMNavigation = ({
   formData,
   canProceedFromStep1,
   canProceedFromStep2,
+  canProceedFromStep3,
   generateContentTriggers,
   generateHeadlines,
   generatePhaseContent
@@ -35,11 +37,20 @@ export const useGTMNavigation = ({
         return;
       }
       
+      // Generate both content triggers and headlines for step 3
       await generateContentTriggers();
+      await generateHeadlines();
     }
     
     if (currentStep === 3) {
-      await generateHeadlines();
+      if (!canProceedFromStep3()) {
+        toast({
+          title: "Missing content triggers",
+          description: "Please ensure all content discovery triggers and headlines are generated.",
+          variant: "destructive"
+        });
+        return;
+      }
     }
     
     if (currentStep === 4) {
