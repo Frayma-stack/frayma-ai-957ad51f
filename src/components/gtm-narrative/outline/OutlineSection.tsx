@@ -15,7 +15,7 @@ interface OutlineSection {
   type: 'H2' | 'H3' | 'H4';
   title: string;
   context?: string;
-  linkedAssetType?: 'success_story' | 'feature' | 'use_case' | 'differentiator';
+  linkedAssetType?: 'categoryPOV' | 'uniqueInsight' | 'companyMission' | 'success_story' | 'feature' | 'use_case' | 'differentiator';
   linkedAssetId?: string;
   phase: 'resonance' | 'relevance' | 'results';
   plsSteps: string;
@@ -142,7 +142,7 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
       onUpdateSection('linkedAssetType', undefined);
       onUpdateSection('linkedAssetId', undefined);
     } else {
-      onUpdateSection('linkedAssetType', value as 'success_story' | 'feature' | 'use_case' | 'differentiator');
+      onUpdateSection('linkedAssetType', value as 'categoryPOV' | 'uniqueInsight' | 'companyMission' | 'success_story' | 'feature' | 'use_case' | 'differentiator');
       onUpdateSection('linkedAssetId', undefined); // Reset asset selection when type changes
     }
   };
@@ -269,40 +269,51 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
         </p>
       </div>
       
-      {/* Asset Linking */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Business Context Linking */}
+      <div className="space-y-3">
         <div>
-          <Label className="text-xs text-gray-500 mb-1 block">Link Asset Type</Label>
+          <Label className="text-xs text-gray-500 mb-1 block">
+            Link a Business Context Item to weave into this section of your article
+          </Label>
           <Select 
             value={section.linkedAssetType || '__none__'} 
             onValueChange={handleAssetTypeChange}
           >
             <SelectTrigger className="text-sm">
-              <SelectValue placeholder="Optional asset" />
+              <SelectValue placeholder="Choose business context type..." />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="z-50 bg-background">
               <SelectItem value="__none__">None</SelectItem>
+              <SelectItem value="categoryPOV">Category Point of View</SelectItem>
+              <SelectItem value="uniqueInsight">Unique Insight</SelectItem>
+              <SelectItem value="companyMission">Mission/Vision</SelectItem>
               <SelectItem value="success_story">Success Story ({successStories?.length || 0})</SelectItem>
-              <SelectItem value="feature">Product Feature ({productFeatures?.length || 0})</SelectItem>
+              <SelectItem value="feature">Feature ({productFeatures?.length || 0})</SelectItem>
               <SelectItem value="use_case">Use Case ({productUseCases?.length || 0})</SelectItem>
               <SelectItem value="differentiator">Differentiator ({productDifferentiators?.length || 0})</SelectItem>
             </SelectContent>
           </Select>
         </div>
         
-        {section.linkedAssetType && (
+        {section.linkedAssetType && ['success_story', 'feature', 'use_case', 'differentiator'].includes(section.linkedAssetType) && (
           <div>
             <Label className="text-xs text-gray-500 mb-1 block">
-              Select Asset ({currentAssetOptions.length} available)
+              Select Specific {section.linkedAssetType === 'success_story' ? 'Success Story' :
+                              section.linkedAssetType === 'use_case' ? 'Use Case' : 
+                              section.linkedAssetType === 'feature' ? 'Feature' : 
+                              'Differentiator'} ({currentAssetOptions.length} available)
             </Label>
             <Select 
               value={section.linkedAssetId || '__none__'} 
               onValueChange={handleAssetIdChange}
             >
               <SelectTrigger className="text-sm">
-                <SelectValue placeholder="Choose asset" />
+                <SelectValue placeholder="Choose asset">
+                  {section.linkedAssetId && getAssetDisplayName(section.linkedAssetType!, section.linkedAssetId) || 
+                   `Choose a ${section.linkedAssetType.replace('_', ' ')}...`}
+                </SelectValue>
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-50 bg-background">
                 <SelectItem value="__none__">None</SelectItem>
                 {currentAssetOptions.length === 0 ? (
                   <SelectItem value="__empty__" disabled>
@@ -310,21 +321,41 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
                   </SelectItem>
                 ) : (
                   currentAssetOptions.map((asset: any) => (
-                    <SelectItem key={asset.id} value={asset.id}>
-                      {getAssetDisplayName(section.linkedAssetType!, asset.id)}
+                    <SelectItem key={asset.id} value={asset.id} className="cursor-pointer">
+                      <div className="flex flex-col gap-1">
+                        <span className="font-medium">{getAssetDisplayName(section.linkedAssetType!, asset.id)}</span>
+                        {asset.description && (
+                          <span className="text-xs text-muted-foreground line-clamp-2">
+                            {asset.description}
+                          </span>
+                        )}
+                      </div>
                     </SelectItem>
                   ))
                 )}
               </SelectContent>
             </Select>
+            {currentAssetOptions.length === 0 && (
+              <p className="text-xs text-gray-500 mt-1">
+                No {section.linkedAssetType.replace('_', ' ')}s found. Add some in your Account settings first.
+              </p>
+            )}
           </div>
         )}
       </div>
 
-      {/* Asset linking explanation */}
+      {/* Business context linking explanation */}
       {section.linkedAssetType && section.linkedAssetId && (
         <div className="bg-blue-50 p-3 rounded text-xs text-blue-700">
           This section will reference your selected {section.linkedAssetType.replace('_', ' ')} to provide specific, relevant content that supports the PLS approach.
+        </div>
+      )}
+      
+      {section.linkedAssetType && !['success_story', 'feature', 'use_case', 'differentiator'].includes(section.linkedAssetType) && (
+        <div className="bg-amber-50 p-3 rounded text-xs text-amber-700">
+          This section will be guided by your {section.linkedAssetType === 'categoryPOV' ? 'Category Point of View' : 
+                                                section.linkedAssetType === 'uniqueInsight' ? 'Unique Insight' : 
+                                                'Mission/Vision'} to provide strategic narrative alignment.
         </div>
       )}
 

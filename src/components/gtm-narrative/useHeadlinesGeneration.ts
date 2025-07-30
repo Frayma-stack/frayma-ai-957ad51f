@@ -147,7 +147,7 @@ export const useHeadlinesGeneration = ({
   };
 
   const parseOptimizedOutlineResponse = (response: string): OutlineSection[] => {
-    const sections: OutlineSection[] = [];
+    let sections: OutlineSection[] = [];
     const lines = response.split('\n').filter(line => line.trim());
     
     let currentId = 1;
@@ -222,10 +222,16 @@ export const useHeadlinesGeneration = ({
       }
     }
     
-    // If we didn't get enough sections from AI response, add minimal structure
-    if (sections.length === 0) {
-      // Add one H3 for resonance
-      sections.push({
+    // Ensure we have the right structure - add missing sections as needed
+    const hasResonanceH3 = sections.some(s => s.phase === 'resonance' && s.type === 'H3');
+    const hasRelevanceH2 = sections.some(s => s.phase === 'relevance' && s.type === 'H2');
+    const hasRelevanceH3s = sections.filter(s => s.phase === 'relevance' && s.type === 'H3').length;
+    const hasResultsH2 = sections.some(s => s.phase === 'results' && s.type === 'H2');
+    const hasResultsH3s = sections.filter(s => s.phase === 'results' && s.type === 'H3').length;
+    
+    // Add missing resonance H3 if needed
+    if (!hasResonanceH3) {
+      sections.unshift({
         id: `outline_${currentId++}`,
         type: 'H3',
         title: 'Understanding Your Challenge',
@@ -235,24 +241,66 @@ export const useHeadlinesGeneration = ({
         linkedAssetType: undefined,
         linkedAssetId: undefined
       });
-      
-      // Add H2 for relevance
-      sections.push({
+    }
+    
+    // Add relevance H2 if missing
+    if (!hasRelevanceH2) {
+      const relevanceInsertIndex = sections.findIndex(s => s.phase === 'relevance') || sections.length;
+      sections.splice(relevanceInsertIndex, 0, {
         id: `outline_${currentId++}`,
         type: 'H2',
-        title: 'Solving the Problem',
+        title: 'The Solution Approach',
         context: '',
         phase: 'relevance',
         plsSteps: 'PLS Steps 4-6',
         linkedAssetType: undefined,
         linkedAssetId: undefined
       });
-      
-      // Add H2 for results
+    }
+    
+    // Ensure 3 relevance H3s
+    const relevanceDefaults = ['How It Works', 'Key Benefits', 'Implementation Strategy'];
+    for (let i = hasRelevanceH3s; i < 3; i++) {
+      sections.push({
+        id: `outline_${currentId++}`,
+        type: 'H3',
+        title: relevanceDefaults[i] || `Key Insight ${i + 1}`,
+        context: '',
+        phase: 'relevance',
+        plsSteps: 'PLS Steps 4-6',
+        linkedAssetType: undefined,
+        linkedAssetId: undefined
+      });
+    }
+    
+    // Add results H2 if missing (only one)
+    if (!hasResultsH2) {
       sections.push({
         id: `outline_${currentId++}`,
         type: 'H2',
         title: 'Proven Results',
+        context: '',
+        phase: 'results',
+        plsSteps: 'PLS Steps 7-9',
+        linkedAssetType: undefined,
+        linkedAssetId: undefined
+      });
+    }
+    
+    // Ensure exactly 3 results H3s (remove excess, add missing)
+    const resultsH3s = sections.filter(s => s.phase === 'results' && s.type === 'H3');
+    if (resultsH3s.length > 3) {
+      // Remove excess H3s
+      sections = sections.filter(s => !(s.phase === 'results' && s.type === 'H3' && resultsH3s.indexOf(s) >= 3));
+    }
+    
+    const finalResultsH3s = sections.filter(s => s.phase === 'results' && s.type === 'H3').length;
+    const resultsDefaults = ['Success Stories', 'Measurable Impact', 'Take Action Now'];
+    for (let i = finalResultsH3s; i < 3; i++) {
+      sections.push({
+        id: `outline_${currentId++}`,
+        type: 'H3',
+        title: resultsDefaults[i] || `Result ${i + 1}`,
         context: '',
         phase: 'results',
         plsSteps: 'PLS Steps 7-9',

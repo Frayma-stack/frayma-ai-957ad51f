@@ -23,7 +23,7 @@ interface OutlineSection {
   type: 'H2' | 'H3' | 'H4';
   title: string;
   context?: string;
-  linkedAssetType?: 'success_story' | 'feature' | 'use_case' | 'differentiator';
+  linkedAssetType?: 'categoryPOV' | 'uniqueInsight' | 'companyMission' | 'success_story' | 'feature' | 'use_case' | 'differentiator';
   linkedAssetId?: string;
   phase: 'resonance' | 'relevance' | 'results';
   plsSteps: string;

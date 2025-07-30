@@ -63,6 +63,9 @@ Return your outline in this exact structure:
 ## H2: [Primary search query as section title]
 **Phase: relevance**
 
+### H3: [Primary search query resonance - filter and connect with target ICP]
+**Phase: resonance**
+
 ### H3: [Supporting insight addressing problem statement]
 **Phase: relevance**
 
@@ -72,19 +75,16 @@ Return your outline in this exact structure:
 ### H3: [Practical application example]
 **Phase: relevance**
 
-## H2: [Secondary search query or related keyword integration]
+## H2: [Main results section - "Proven Success with [Solution/Approach]"]
 **Phase: results**
 
-## H2: [Success story integration - "How [Company/Person] Achieved [Result]"]
+### H3: [Success story integration with specific outcome]
 **Phase: results**
 
-### H3: [Specific outcome or transformation]
+### H3: [Measurable impact and transformation]
 **Phase: results**
 
-## H2: [Call-to-action section aligned with {{cta}}]
-**Phase: results**
-
-### H3: [Next steps or implementation guidance]
+### H3: [Call-to-action - next steps aligned with {{cta}}]
 **Phase: results**
 
 **CRITICAL:** Ensure every search query from "{{search_queries_list}}" and every problem statement from "{{problem_statements_list}}" is addressed across the outline sections. Use related keywords from "{{related_keywords_list}}" naturally in section titles.
