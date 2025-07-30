@@ -102,7 +102,7 @@ export const useHeadlinesGeneration = ({
         .split(/\n/)
         .map(line => line.replace(/^\d+\.\s*|^[-•]\s*/, '').trim())
         .map(line => line.replace(/^\*+\s*|^\"+|^\*+|\*+$|\"+$|^\*|^\"|\"$|\*$/g, '').trim()) // Remove asterisks and quotes
-        .filter(line => line && line.length > 10)
+        .filter(line => line && line.length > 10 && !line.toLowerCase().includes('here are') && !line.toLowerCase().includes('headline options') && !line.toLowerCase().includes('designed to resonate'))
         .slice(0, 12)
         .map((text, index) => ({
           id: `generated_${Date.now()}_${index}`,
@@ -127,7 +127,7 @@ export const useHeadlinesGeneration = ({
       console.log('Raw outline response:', outlineResponse);
       
       // Parse outline sections with the new structure
-      const sections = parseOptimizedOutlineResponse(outlineResponse);
+      const sections = parseOptimizedOutlineResponse(outlineResponse, formData);
       onDataChange('outlineSections', sections);
       
       toast({
@@ -147,7 +147,7 @@ export const useHeadlinesGeneration = ({
     }
   };
 
-  const parseOptimizedOutlineResponse = (response: string): OutlineSection[] => {
+  const parseOptimizedOutlineResponse = (response: string, formData: FormData): OutlineSection[] => {
     let sections: OutlineSection[] = [];
     const lines = response.split('\n').filter(line => line.trim());
     
@@ -230,12 +230,38 @@ export const useHeadlinesGeneration = ({
     const hasResultsH2 = sections.some(s => s.phase === 'results' && s.type === 'H2');
     const hasResultsH3s = sections.filter(s => s.phase === 'results' && s.type === 'H3').length;
     
-    // Add missing resonance H3 if needed
+    // Add missing resonance H3 if needed - derive from actual data
     if (!hasResonanceH3) {
+      // Generate data-driven H3 title from search queries, keywords, or problem statements
+      let resonanceTitle = 'Understanding Your Challenge';
+      
+      // Try to extract from search queries first
+      const searchQueries = formData.searchQueries || [];
+      const problemStatements = formData.problemStatements || [];
+      const relatedKeywords = formData.relatedKeywords || [];
+      
+      if (searchQueries.length > 0) {
+        // Use first search query as the basis for resonance title
+        resonanceTitle = searchQueries[0].replace(/^(how to|what is|why|when|where)/i, '').trim();
+        resonanceTitle = resonanceTitle.charAt(0).toUpperCase() + resonanceTitle.slice(1);
+        if (!resonanceTitle.includes('Challenge') && !resonanceTitle.includes('Problem')) {
+          resonanceTitle = `The ${resonanceTitle} Challenge`;
+        }
+      } else if (problemStatements.length > 0) {
+        // Use first problem statement
+        resonanceTitle = problemStatements[0];
+        if (resonanceTitle.length > 50) {
+          resonanceTitle = resonanceTitle.substring(0, 50) + '...';
+        }
+      } else if (relatedKeywords.length > 0) {
+        // Use keywords to create resonance title
+        resonanceTitle = `The ${relatedKeywords[0]} Challenge`;
+      }
+      
       sections.unshift({
         id: `outline_${currentId++}`,
         type: 'H3',
-        title: 'Understanding Your Challenge',
+        title: resonanceTitle,
         context: '',
         phase: 'resonance',
         plsSteps: 'PLS Steps 2-3',

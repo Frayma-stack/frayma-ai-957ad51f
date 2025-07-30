@@ -136,7 +136,8 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
   };
 
   const handleAssetIdChange = (value: string) => {
-    if (value === '__none__') {
+    console.log('Asset ID change:', value, section.linkedAssetType);
+    if (value === '__none__' || value === '__empty__') {
       onUpdateSection('linkedAssetId', undefined);
     } else {
       onUpdateSection('linkedAssetId', value);

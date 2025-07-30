@@ -1,4 +1,3 @@
-
 import { PromptTemplate } from '@/types/prompts';
 
 export const headlinesPrompt: PromptTemplate = {
@@ -41,7 +40,9 @@ Return 9–12 headline options that:
 - Feel specific and compelling to the ICP
 - Hint at the main transformation, pain, or struggle
 - Incorporate the phrasing of relevant queries, keywords, or problems
-- Spark curiosity without resorting to hype`,
+- Spark curiosity without resorting to hype
+
+Format: Return ONLY the headline text, one per line, without any introductory sentences, numbers, bullet points, or explanatory text. No preamble or conclusion.`,
   variables: ['trigger_or_thesis', 'mutual_goal', 'main_keyword', 'cluster', 'why_publish', 'cta', 'main_icp', 'journey_stage', 'motivation', 'anchors_and_types', 'success_story_summary', 'related_keywords_list', 'search_queries_list', 'problem_statements_list'],
   category: 'headlines_generation',
   isActive: true,
