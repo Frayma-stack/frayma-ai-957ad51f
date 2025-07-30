@@ -24,9 +24,7 @@ const GTMNarrativeHeader: FC<GTMNarrativeHeaderProps> = ({
         <div className="flex-1">
           <CardTitle className="text-story-blue flex items-center text-lg">
             <Sparkles className="h-5 w-5 mr-2" />
-            {articleSubType === 'newsletter' 
-              ? 'AI-Powered First-Person Narrative Newsletter'
-              : 'AI-Powered GTM Thought Leadership Article'}
+            Story-Brief Your Next GTM Article
           </CardTitle>
           <CardDescription className="text-xs">
             {contentPhase === 'outline' 

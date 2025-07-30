@@ -130,13 +130,12 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
       onUpdateSection('linkedAssetType', undefined);
       onUpdateSection('linkedAssetId', undefined);
     } else {
-      onUpdateSection('linkedAssetType', value);
+      onUpdateSection('linkedAssetType', value as any);
       onUpdateSection('linkedAssetId', undefined); // Reset asset selection when type changes
     }
   };
 
   const handleAssetIdChange = (value: string) => {
-    console.log('Asset ID change:', value, section.linkedAssetType);
     if (value === '__none__' || value === '__empty__') {
       onUpdateSection('linkedAssetId', undefined);
     } else {
