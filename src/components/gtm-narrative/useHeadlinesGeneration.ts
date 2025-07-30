@@ -232,39 +232,69 @@ export const useHeadlinesGeneration = ({
     
     // Add missing resonance H3 if needed - derive from actual data
     if (!hasResonanceH3) {
-      // Generate data-driven H3 title from search queries, keywords, or problem statements
+      // Generate data-driven H3 title from relevant form data
       let resonanceTitle = 'Understanding Your Challenge';
       
-      // Try to extract from form data
-      const searchQueries = formData.searchQueries || [];
+      // Try to extract from form data in order of priority
       const problemStatements = formData.problemStatements || [];
+      const searchQueries = formData.searchQueries || [];
       const relatedKeywords = formData.relatedKeywords || [];
+      const ideaTrigger = formData.ideaTrigger || '';
+      const targetKeyword = formData.targetKeyword || '';
       
-      if (searchQueries.length > 0) {
-        // Clean up search query and make it meaningful
+      // Priority 1: Use problem statements - these are most relevant for resonance
+      if (problemStatements.length > 0) {
+        let cleanProblem = problemStatements[0].replace(/^\*+|\*+$/g, '').trim();
+        cleanProblem = cleanProblem.replace(/^(the\s+)|(a\s+)|(an\s+)/i, '').trim(); // Remove articles
+        
+        // Ensure it's a proper statement format
+        if (cleanProblem.length > 10) {
+          // If it already sounds like a challenge/problem, use as is
+          if (cleanProblem.toLowerCase().includes('challenge') || 
+              cleanProblem.toLowerCase().includes('problem') ||
+              cleanProblem.toLowerCase().includes('struggle') ||
+              cleanProblem.toLowerCase().includes('difficulty')) {
+            resonanceTitle = cleanProblem.charAt(0).toUpperCase() + cleanProblem.slice(1);
+          } else {
+            // Make it resonate by framing as challenge
+            resonanceTitle = `The ${cleanProblem.charAt(0).toUpperCase() + cleanProblem.slice(1)} Challenge`;
+          }
+          
+          // Truncate if too long
+          if (resonanceTitle.length > 60) {
+            resonanceTitle = resonanceTitle.substring(0, 57) + '...';
+          }
+        }
+      }
+      // Priority 2: Use search queries that indicate pain points
+      else if (searchQueries.length > 0) {
         let cleanQuery = searchQueries[0].replace(/^(how to|what is|why|when|where)\s+/i, '').trim();
         cleanQuery = cleanQuery.replace(/^\*+|\*+$/g, '').trim(); // Remove asterisks
         cleanQuery = cleanQuery.replace(/^the\s+/i, '').trim(); // Remove leading "the"
         
-        if (cleanQuery.length > 5) {
-          // Capitalize first letter and ensure it makes sense
-          resonanceTitle = cleanQuery.charAt(0).toUpperCase() + cleanQuery.slice(1);
-          if (!resonanceTitle.toLowerCase().includes('challenge') && !resonanceTitle.toLowerCase().includes('problem')) {
+        if (cleanQuery.length > 8) {
+          // Transform query into a resonance-focused title
+          resonanceTitle = `The ${cleanQuery.charAt(0).toUpperCase() + cleanQuery.slice(1)} Challenge`;
+          
+          // Clean up redundant words
+          resonanceTitle = resonanceTitle.replace(/\s+challenge\s+challenge/i, ' Challenge');
+        }
+      }
+      // Priority 3: Use target keyword to create relevant resonance
+      else if (targetKeyword.length > 3) {
+        let cleanKeyword = targetKeyword.replace(/^\*+|\*+$/g, '').trim();
+        resonanceTitle = `Why ${cleanKeyword.charAt(0).toUpperCase() + cleanKeyword.slice(1)} Matters Now`;
+      }
+      // Priority 4: Use idea trigger as last resort
+      else if (ideaTrigger.length > 10) {
+        let cleanTrigger = ideaTrigger.replace(/^\*+|\*+$/g, '').trim();
+        if (cleanTrigger.length > 10) {
+          resonanceTitle = cleanTrigger.substring(0, 50);
+          if (!resonanceTitle.toLowerCase().includes('challenge') && 
+              !resonanceTitle.toLowerCase().includes('problem')) {
             resonanceTitle = `The ${resonanceTitle} Challenge`;
           }
         }
-      } else if (problemStatements.length > 0) {
-        // Use first problem statement and truncate if needed
-        let cleanProblem = problemStatements[0].replace(/^\*+|\*+$/g, '').trim();
-        if (cleanProblem.length > 50) {
-          resonanceTitle = cleanProblem.substring(0, 47) + '...';
-        } else {
-          resonanceTitle = cleanProblem;
-        }
-      } else if (relatedKeywords.length > 0) {
-        // Use keywords to create resonance title
-        let keyword = relatedKeywords[0].replace(/^\*+|\*+$/g, '').trim();
-        resonanceTitle = `The ${keyword.charAt(0).toUpperCase() + keyword.slice(1)} Challenge`;
       }
       
       sections.unshift({

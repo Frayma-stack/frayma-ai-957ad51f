@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Target, Filter } from 'lucide-react';
-import { CustomerSuccessStory, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
+import { CustomerSuccessStory, ProductFeature, ProductUseCase, ProductDifferentiator, Author } from '@/types/storytelling';
 import OutlineSectionComponent from './OutlineSection';
 
 interface OutlineSection {
@@ -27,6 +27,7 @@ interface ResonancePLSSectionProps {
   productFeatures: ProductFeature[];
   productUseCases: ProductUseCase[];
   productDifferentiators: ProductDifferentiator[];
+  selectedAuthor?: Author;
   onIntroPOVChange: (value: string) => void;
   onUpdateSection: (section: OutlineSection) => void;
   onAddSection: (afterSectionId?: string) => void;
@@ -42,6 +43,7 @@ const ResonancePLSSection: FC<ResonancePLSSectionProps> = ({
   productFeatures,
   productUseCases,
   productDifferentiators,
+  selectedAuthor,
   onIntroPOVChange,
   onUpdateSection,
   onAddSection,
@@ -119,6 +121,7 @@ const ResonancePLSSection: FC<ResonancePLSSectionProps> = ({
             productFeatures={productFeatures}
             productUseCases={productUseCases}
             productDifferentiators={productDifferentiators}
+            selectedAuthor={selectedAuthor}
             onUpdateSection={(field, value) => {
               const updatedSection = { ...section, [field]: value };
               onUpdateSection(updatedSection);

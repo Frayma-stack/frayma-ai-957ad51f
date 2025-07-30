@@ -1,9 +1,10 @@
 
 import { FC } from 'react';
-import { ICPStoryScript, CustomerSuccessStory } from '@/types/storytelling';
+import { ICPStoryScript, CustomerSuccessStory, Author } from '@/types/storytelling';
 import ICPJourneySelectors from './target-reader/ICPJourneySelectors';
 import NarrativeAnchorsSelector from './target-reader/NarrativeAnchorsSelector';
 import SuccessStorySelector from './target-reader/SuccessStorySelector';
+import ArticleAuthorSelector from './target-reader/ArticleAuthorSelector';
 
 interface NarrativeAnchor {
   type: 'belief' | 'pain' | 'struggle' | 'transformation';
@@ -18,12 +19,14 @@ interface TargetReaderResonanceData {
   readingPrompt: string;
   narrativeAnchors: NarrativeAnchor[];
   successStory: string;
+  articleAuthor: string;
 }
 
 interface TargetReaderResonanceStepProps {
   data: TargetReaderResonanceData;
   scripts: ICPStoryScript[];
   successStories: CustomerSuccessStory[];
+  authors: Author[];
   onDataChange: (field: keyof TargetReaderResonanceData, value: any) => void;
 }
 
@@ -31,6 +34,7 @@ const TargetReaderResonanceStep: FC<TargetReaderResonanceStepProps> = ({
   data,
   scripts,
   successStories,
+  authors,
   onDataChange
 }) => {
   const selectedScript = scripts.find(s => s.id === data.mainTargetICP);
@@ -82,6 +86,12 @@ const TargetReaderResonanceStep: FC<TargetReaderResonanceStepProps> = ({
         selectedScript={selectedScript}
         onAddNarrativeAnchor={addNarrativeAnchor}
         onRemoveNarrativeAnchor={removeNarrativeAnchor}
+      />
+
+      <ArticleAuthorSelector
+        selectedAuthor={data.articleAuthor}
+        authors={authors}
+        onAuthorChange={(value) => onDataChange('articleAuthor', value)}
       />
 
       <SuccessStorySelector

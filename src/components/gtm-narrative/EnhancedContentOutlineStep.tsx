@@ -27,6 +27,8 @@ interface OutlineSection {
   linkedAssetId?: string;
   phase: 'resonance' | 'relevance' | 'results';
   plsSteps: string;
+  authorExperienceId?: string;
+  authorCredibilityType?: 'experience' | 'belief';
 }
 
 interface EnhancedContentOutlineData {
@@ -223,6 +225,7 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
           productFeatures={allProductFeatures}
           productUseCases={allProductUseCases}
           productDifferentiators={allProductDifferentiators}
+          selectedAuthor={authors[0]}
           onIntroPOVChange={(value) => onDataChange('introPOV', value)}
           onUpdateSection={updateSection}
           onAddSection={(afterSectionId) => addSectionToPhase('resonance', afterSectionId)}

@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Plus, X, MoveUp, MoveDown, HelpCircle, Target, Lightbulb, TrendingUp } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { CustomerSuccessStory, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
+import { CustomerSuccessStory, ProductFeature, ProductUseCase, ProductDifferentiator, Author } from '@/types/storytelling';
 
 interface OutlineSection {
   id: string;
@@ -19,6 +19,8 @@ interface OutlineSection {
   linkedAssetId?: string;
   phase: 'resonance' | 'relevance' | 'results';
   plsSteps: string;
+  authorExperienceId?: string;
+  authorCredibilityType?: 'experience' | 'belief';
 }
 
 interface OutlineSectionProps {
@@ -29,6 +31,7 @@ interface OutlineSectionProps {
   productFeatures: ProductFeature[];
   productUseCases: ProductUseCase[];
   productDifferentiators: ProductDifferentiator[];
+  selectedAuthor?: Author;
   onUpdateSection: (field: keyof OutlineSection, value: any) => void;
   onMoveSection: (direction: 'up' | 'down') => void;
   onAddSection: () => void;
@@ -43,6 +46,7 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
   productFeatures,
   productUseCases,
   productDifferentiators,
+  selectedAuthor,
   onUpdateSection,
   onMoveSection,
   onAddSection,
@@ -296,32 +300,34 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
               onValueChange={handleAssetIdChange}
             >
               <SelectTrigger className="text-sm">
-                <SelectValue placeholder="Choose asset">
-                  {section.linkedAssetId && getAssetDisplayName(section.linkedAssetType!, section.linkedAssetId) || 
-                   `Choose a ${section.linkedAssetType.replace('_', ' ')}...`}
-                </SelectValue>
+                <SelectValue placeholder={`Choose a ${section.linkedAssetType.replace('_', ' ')}...`} />
               </SelectTrigger>
-              <SelectContent className="z-[100] bg-white dark:bg-gray-900 border shadow-lg">
-                <SelectItem value="__none__">None</SelectItem>
-                {currentAssetOptions.length === 0 ? (
-                  <SelectItem value="__empty__" disabled>
-                    No {section.linkedAssetType.replace('_', ' ')}s available
+            <SelectContent className="z-[100] bg-white dark:bg-gray-900 border shadow-lg">
+              <SelectItem value="__none__">None</SelectItem>
+              {currentAssetOptions.length === 0 ? (
+                <SelectItem value="__empty__" disabled>
+                  No {section.linkedAssetType.replace('_', ' ')}s available
+                </SelectItem>
+              ) : (
+                currentAssetOptions.map((asset: any) => (
+                  <SelectItem key={asset.id} value={asset.id} className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <div className="flex flex-col gap-1">
+                      <span className="font-medium">
+                        {section.linkedAssetType === 'success_story' ? asset.title :
+                         section.linkedAssetType === 'feature' ? asset.name :
+                         section.linkedAssetType === 'use_case' ? asset.useCase :
+                         section.linkedAssetType === 'differentiator' ? asset.name : 'Unknown'}
+                      </span>
+                      {asset.description && (
+                        <span className="text-xs text-muted-foreground line-clamp-2">
+                          {asset.description}
+                        </span>
+                      )}
+                    </div>
                   </SelectItem>
-                ) : (
-                  currentAssetOptions.map((asset: any) => (
-                    <SelectItem key={asset.id} value={asset.id} className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
-                      <div className="flex flex-col gap-1">
-                        <span className="font-medium">{getAssetDisplayName(section.linkedAssetType!, asset.id)}</span>
-                        {asset.description && (
-                          <span className="text-xs text-muted-foreground line-clamp-2">
-                            {asset.description}
-                          </span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
+                ))
+              )}
+            </SelectContent>
             </Select>
             {currentAssetOptions.length === 0 && (
               <p className="text-xs text-gray-500 mt-1">
@@ -344,6 +350,90 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
           This section will be guided by your {section.linkedAssetType === 'categoryPOV' ? 'Category Point of View' : 
                                                 section.linkedAssetType === 'uniqueInsight' ? 'Unique Insight' : 
                                                 'Mission/Vision'} to provide strategic narrative alignment.
+        </div>
+      )}
+
+      {/* Author Experience Linking */}
+      {selectedAuthor && (
+        <div className="space-y-3 border-t pt-4">
+          <div>
+            <Label className="text-xs text-gray-500 mb-1 block">
+              Link Author's Experience/Belief for First-Person Narrative
+            </Label>
+            <div className="space-y-2">
+              <Select 
+                value={section.authorCredibilityType || '__none__'} 
+                onValueChange={(value) => {
+                  if (value === '__none__') {
+                    onUpdateSection('authorCredibilityType', undefined);
+                    onUpdateSection('authorExperienceId', undefined);
+                  } else {
+                    onUpdateSection('authorCredibilityType', value as 'experience' | 'belief');
+                    onUpdateSection('authorExperienceId', undefined);
+                  }
+                }}
+              >
+                <SelectTrigger className="text-sm">
+                  <SelectValue placeholder="Choose type of author credibility..." />
+                </SelectTrigger>
+                <SelectContent className="z-[100] bg-white dark:bg-gray-900 border shadow-lg">
+                  <SelectItem value="__none__">None</SelectItem>
+                  <SelectItem value="experience">Personal Experience ({selectedAuthor.experiences?.length || 0})</SelectItem>
+                  <SelectItem value="belief">Core Belief ({selectedAuthor.beliefs?.length || 0})</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {section.authorCredibilityType && (
+                <Select 
+                  value={section.authorExperienceId || '__none__'} 
+                  onValueChange={(value) => {
+                    if (value === '__none__') {
+                      onUpdateSection('authorExperienceId', undefined);
+                    } else {
+                      onUpdateSection('authorExperienceId', value);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="text-sm">
+                    <SelectValue placeholder={`Choose ${section.authorCredibilityType}...`} />
+                  </SelectTrigger>
+                  <SelectContent className="z-[100] bg-white dark:bg-gray-900 border shadow-lg">
+                    <SelectItem value="__none__">None</SelectItem>
+                    {section.authorCredibilityType === 'experience' && selectedAuthor.experiences?.map((exp: any) => (
+                      <SelectItem key={exp.id} value={exp.id} className="cursor-pointer">
+                        <div className="flex flex-col gap-1">
+                          <span className="font-medium">{exp.title}</span>
+                          {exp.description && (
+                            <span className="text-xs text-muted-foreground line-clamp-2">
+                              {exp.description}
+                            </span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                    {section.authorCredibilityType === 'belief' && selectedAuthor.beliefs?.map((belief: any) => (
+                      <SelectItem key={belief.id} value={belief.id} className="cursor-pointer">
+                        <div className="flex flex-col gap-1">
+                          <span className="font-medium">{belief.title}</span>
+                          {belief.description && (
+                            <span className="text-xs text-muted-foreground line-clamp-2">
+                              {belief.description}
+                            </span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          </div>
+
+          {section.authorCredibilityType && section.authorExperienceId && (
+            <div className="bg-green-50 p-3 rounded text-xs text-green-700">
+              This section will incorporate {selectedAuthor.name}'s {section.authorCredibilityType} to create a more authentic first-person narrative that resonates with target readers.
+            </div>
+          )}
         </div>
       )}
 

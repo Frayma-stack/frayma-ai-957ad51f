@@ -12,6 +12,8 @@ export interface OutlineSection {
   linkedAssetId?: string;
   phase: 'resonance' | 'relevance' | 'results';
   plsSteps: string;
+  authorExperienceId?: string;  // For linking author experience to this section
+  authorCredibilityType?: 'experience' | 'belief';  // Type of author credibility to use
 }
 
 export interface HeadlineOption {
@@ -48,6 +50,8 @@ export interface FormData {
   readingPrompt: string;
   narrativeAnchors: NarrativeAnchor[];
   successStory: string;
+  articleAuthor: string;  // New field for article author
+  selectedAuthorWritingTone: string;  // Author's writing tone for generation
 
   // Step 3: Content Discovery Triggers
   relatedKeywords: string[];
@@ -89,6 +93,8 @@ const initialFormData: FormData = {
   readingPrompt: '',
   narrativeAnchors: [],
   successStory: '',
+  articleAuthor: '',
+  selectedAuthorWritingTone: '',
 
   // Step 3
   relatedKeywords: [],

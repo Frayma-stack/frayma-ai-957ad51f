@@ -131,10 +131,12 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
             broaderAudience: formData.broaderAudience || '',
             readingPrompt: formData.readingPrompt,
             narrativeAnchors: formData.narrativeAnchors,
-            successStory: formData.successStory
+            successStory: formData.successStory,
+            articleAuthor: formData.articleAuthor
           }}
           scripts={scripts}
           successStories={successStories}
+          authors={authors}
           onDataChange={onDataChange}
         />
       );

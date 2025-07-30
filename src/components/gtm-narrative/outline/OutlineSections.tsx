@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2, FileText } from 'lucide-react';
-import { CustomerSuccessStory, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
+import { CustomerSuccessStory, ProductFeature, ProductUseCase, ProductDifferentiator, Author } from '@/types/storytelling';
 import { OutlineSection } from '../useGTMNarrativeData';
 import OutlineSectionComponent from './OutlineSection';
 
@@ -15,6 +15,7 @@ interface OutlineSectionsProps {
   productFeatures: ProductFeature[];
   productUseCases: ProductUseCase[];
   productDifferentiators: ProductDifferentiator[];
+  selectedAuthor?: Author;
   onSectionsChange: (sections: OutlineSection[]) => void;
 }
 
@@ -26,6 +27,7 @@ const OutlineSections: FC<OutlineSectionsProps> = ({
   productFeatures,
   productUseCases,
   productDifferentiators,
+  selectedAuthor,
   onSectionsChange
 }) => {
   const getContentTypeLabel = () => {
@@ -42,16 +44,18 @@ const OutlineSections: FC<OutlineSectionsProps> = ({
   };
 
   const addSection = (afterIndex?: number) => {
-    const newSection: OutlineSection = {
-      id: `custom_${Date.now()}`,
-      type: 'H3',
-      title: 'New Section',
-      context: '',
-      phase: 'relevance',
-      plsSteps: 'PLS Steps 4-6',
-      linkedAssetType: undefined,
-      linkedAssetId: undefined
-    };
+      const newSection: OutlineSection = {
+        id: `custom_${Date.now()}`,
+        type: 'H3',
+        title: 'New Section',
+        context: '',
+        phase: 'relevance',
+        plsSteps: 'PLS Steps 4-6',
+        linkedAssetType: undefined,
+        linkedAssetId: undefined,
+        authorExperienceId: undefined,
+        authorCredibilityType: undefined
+      };
     
     const newSections = [...sections];
     if (afterIndex !== undefined) {
@@ -106,6 +110,7 @@ const OutlineSections: FC<OutlineSectionsProps> = ({
                 productFeatures={productFeatures}
                 productUseCases={productUseCases}
                 productDifferentiators={productDifferentiators}
+                selectedAuthor={selectedAuthor}
                 onUpdateSection={(field, value) => updateSection(index, field, value)}
                 onMoveSection={(direction) => moveSection(index, direction)}
                 onAddSection={() => addSection(index)}
