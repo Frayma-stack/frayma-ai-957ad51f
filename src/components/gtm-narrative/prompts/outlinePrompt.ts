@@ -75,7 +75,7 @@ Return your outline in this exact structure:
 ### H3: [Practical application example]
 **Phase: relevance**
 
-## H2: [Main results section - "Proven Success with [Solution/Approach]"]
+## H2: [Single main results section - "Proven Success with [Solution/Approach]"]
 **Phase: results**
 
 ### H3: [Success story integration with specific outcome]
@@ -86,6 +86,8 @@ Return your outline in this exact structure:
 
 ### H3: [Call-to-action - next steps aligned with {{cta}}]
 **Phase: results**
+
+**CRITICAL:** For the Results phase (sections 7-9), generate ONLY ONE H2 section followed by exactly three H3 subsections. Do not create multiple H2 sections in the results phase.
 
 **CRITICAL:** Ensure every search query from "{{search_queries_list}}" and every problem statement from "{{problem_statements_list}}" is addressed across the outline sections. Use related keywords from "{{related_keywords_list}}" naturally in section titles.
 

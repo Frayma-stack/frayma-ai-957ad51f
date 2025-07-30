@@ -282,7 +282,7 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
             <SelectTrigger className="text-sm">
               <SelectValue placeholder="Choose business context type..." />
             </SelectTrigger>
-            <SelectContent className="z-50 bg-background">
+            <SelectContent className="z-[100] bg-white dark:bg-gray-900 border shadow-lg">
               <SelectItem value="__none__">None</SelectItem>
               <SelectItem value="categoryPOV">Category Point of View</SelectItem>
               <SelectItem value="uniqueInsight">Unique Insight</SelectItem>
@@ -313,7 +313,7 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
                    `Choose a ${section.linkedAssetType.replace('_', ' ')}...`}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="z-50 bg-background">
+              <SelectContent className="z-[100] bg-white dark:bg-gray-900 border shadow-lg">
                 <SelectItem value="__none__">None</SelectItem>
                 {currentAssetOptions.length === 0 ? (
                   <SelectItem value="__empty__" disabled>
@@ -321,7 +321,7 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
                   </SelectItem>
                 ) : (
                   currentAssetOptions.map((asset: any) => (
-                    <SelectItem key={asset.id} value={asset.id} className="cursor-pointer">
+                    <SelectItem key={asset.id} value={asset.id} className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                       <div className="flex flex-col gap-1">
                         <span className="font-medium">{getAssetDisplayName(section.linkedAssetType!, asset.id)}</span>
                         {asset.description && (

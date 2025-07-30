@@ -97,10 +97,11 @@ export const useHeadlinesGeneration = ({
       const headlinesResponse = await generateContent(headlinesPrompt);
       console.log('Raw headlines response:', headlinesResponse);
       
-      // Parse headlines from response
+      // Parse headlines from response and clean formatting
       const headlines = headlinesResponse
         .split(/\n/)
         .map(line => line.replace(/^\d+\.\s*|^[-•]\s*/, '').trim())
+        .map(line => line.replace(/^\*+\s*|^\"+|^\*+|\*+$|\"+$|^\*|^\"|\"$|\*$/g, '').trim()) // Remove asterisks and quotes
         .filter(line => line && line.length > 10)
         .slice(0, 12)
         .map((text, index) => ({
@@ -287,11 +288,29 @@ export const useHeadlinesGeneration = ({
       });
     }
     
-    // Ensure exactly 3 results H3s (remove excess, add missing)
+    // Ensure exactly 3 results H3s and remove any extra H2s in results phase
+    const resultsH2s = sections.filter(s => s.phase === 'results' && s.type === 'H2');
     const resultsH3s = sections.filter(s => s.phase === 'results' && s.type === 'H3');
+    
+    // Keep only the first results H2 and remove any extras
+    if (resultsH2s.length > 1) {
+      sections = sections.filter(s => {
+        if (s.phase === 'results' && s.type === 'H2') {
+          return s.id === resultsH2s[0].id; // Keep only the first one
+        }
+        return true;
+      });
+    }
+    
+    // Limit to exactly 3 H3s in results phase
     if (resultsH3s.length > 3) {
-      // Remove excess H3s
-      sections = sections.filter(s => !(s.phase === 'results' && s.type === 'H3' && resultsH3s.indexOf(s) >= 3));
+      sections = sections.filter(s => {
+        if (s.phase === 'results' && s.type === 'H3') {
+          const index = resultsH3s.findIndex(h3 => h3.id === s.id);
+          return index < 3; // Keep only first 3
+        }
+        return true;
+      });
     }
     
     const finalResultsH3s = sections.filter(s => s.phase === 'results' && s.type === 'H3').length;
