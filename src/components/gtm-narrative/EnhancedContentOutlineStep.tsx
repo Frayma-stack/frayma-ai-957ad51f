@@ -78,35 +78,18 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
         const contexts = await supabaseDataService.getProductContexts();
         setProductContexts(contexts);
         
-        // Aggregate all features, use cases, and differentiators from product contexts
-        const allFeatures: ProductFeature[] = [...initialProductFeatures];
-        const allUseCases: ProductUseCase[] = [...initialProductUseCases];
-        const allDifferentiators: ProductDifferentiator[] = [...initialProductDifferentiators];
+        // Use only the initial assets passed as props - don't aggregate from product contexts
+        // This ensures we only use the user's actual assets from their account
+        setAllProductFeatures(initialProductFeatures || []);
+        setAllProductUseCases(initialProductUseCases || []);
+        setAllProductDifferentiators(initialProductDifferentiators || []);
         
-        contexts.forEach(context => {
-          if (context.features) {
-            allFeatures.push(...context.features);
-          }
-          if (context.useCases) {
-            allUseCases.push(...context.useCases);
-          }
-          if (context.differentiators) {
-            allDifferentiators.push(...context.differentiators);
-          }
-        });
-        
-        setAllProductFeatures(allFeatures);
-        setAllProductUseCases(allUseCases);
-        setAllProductDifferentiators(allDifferentiators);
-        
-        console.log('Asset data loaded:', {
-          features: allFeatures.length,
-          useCases: allUseCases.length,
-          differentiators: allDifferentiators.length,
-          successStories: successStories.length
-        });
       } catch (error) {
         console.error('Error loading product context data:', error);
+        // Fallback to initial data
+        setAllProductFeatures(initialProductFeatures || []);
+        setAllProductUseCases(initialProductUseCases || []);
+        setAllProductDifferentiators(initialProductDifferentiators || []);
       }
     };
 

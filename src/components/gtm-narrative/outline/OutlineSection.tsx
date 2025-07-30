@@ -48,18 +48,6 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
   onAddSection,
   onRemoveSection
 }) => {
-  // Debug logging for asset data
-  useEffect(() => {
-    console.log('OutlineSection assets received:', {
-      sectionId: section.id,
-      successStories: successStories?.length || 0,
-      productFeatures: productFeatures?.length || 0,
-      productUseCases: productUseCases?.length || 0,
-      productDifferentiators: productDifferentiators?.length || 0,
-      currentAssetType: section.linkedAssetType,
-      currentAssetId: section.linkedAssetId
-    });
-  }, [section.id, successStories, productFeatures, productUseCases, productDifferentiators, section.linkedAssetType, section.linkedAssetId]);
 
   const getPhaseInfo = (phase: string) => {
     switch (phase) {
@@ -142,7 +130,7 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
       onUpdateSection('linkedAssetType', undefined);
       onUpdateSection('linkedAssetId', undefined);
     } else {
-      onUpdateSection('linkedAssetType', value as 'categoryPOV' | 'uniqueInsight' | 'companyMission' | 'success_story' | 'feature' | 'use_case' | 'differentiator');
+      onUpdateSection('linkedAssetType', value);
       onUpdateSection('linkedAssetId', undefined); // Reset asset selection when type changes
     }
   };
@@ -359,12 +347,6 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
         </div>
       )}
 
-      {/* Debug info - remove in production */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="bg-gray-100 p-2 rounded text-xs text-gray-600">
-          Debug: Assets loaded - Stories: {successStories?.length || 0}, Features: {productFeatures?.length || 0}, Use Cases: {productUseCases?.length || 0}, Differentiators: {productDifferentiators?.length || 0}
-        </div>
-      )}
     </div>
   );
 };
