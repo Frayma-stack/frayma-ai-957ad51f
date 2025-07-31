@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus } from 'lucide-react';
-import { CustomerSuccessStory, ProductFeature, ProductUseCase, ProductDifferentiator } from '@/types/storytelling';
+import { CustomerSuccessStory, ProductFeature, ProductUseCase, ProductDifferentiator, Author } from '@/types/storytelling';
 import OutlineSectionComponent from './OutlineSection';
 
 interface OutlineSection {
@@ -35,6 +35,7 @@ interface PLSPhaseSectionProps {
   productFeatures: ProductFeature[];
   productUseCases: ProductUseCase[];
   productDifferentiators: ProductDifferentiator[];
+  selectedAuthor?: Author;
   onUpdateSection: (section: OutlineSection) => void;
   onAddSection: (afterSectionId?: string) => void;
   onRemoveSection: (sectionId: string) => void;
@@ -48,6 +49,7 @@ const PLSPhaseSection: FC<PLSPhaseSectionProps> = ({
   productFeatures,
   productUseCases,
   productDifferentiators,
+  selectedAuthor,
   onUpdateSection,
   onAddSection,
   onRemoveSection,
@@ -112,6 +114,7 @@ const PLSPhaseSection: FC<PLSPhaseSectionProps> = ({
                   productFeatures={productFeatures}
                   productUseCases={productUseCases}
                   productDifferentiators={productDifferentiators}
+                  selectedAuthor={selectedAuthor}
                   onUpdateSection={(field, value) => {
                     const updatedSection = { ...section, [field]: value };
                     onUpdateSection(updatedSection);

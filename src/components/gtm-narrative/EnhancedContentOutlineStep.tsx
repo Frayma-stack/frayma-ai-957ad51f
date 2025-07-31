@@ -10,6 +10,7 @@ import HeadlinePLSSection from './outline/HeadlinePLSSection';
 import ResonancePLSSection from './outline/ResonancePLSSection';
 import PLSPhaseSection from './outline/PLSPhaseSection';
 import AutoCraftingReadinessDialog, { AutoCraftingConfig } from './outline/AutoCraftingReadinessDialog';
+import ArticleAuthorSelector from './target-reader/ArticleAuthorSelector';
 import { Lightbulb, TrendingUp } from 'lucide-react';
 
 interface HeadlineOption {
@@ -46,9 +47,11 @@ interface EnhancedContentOutlineStepProps {
   productUseCases: ProductUseCase[];
   productDifferentiators: ProductDifferentiator[];
   authors: Author[];
+  selectedAuthor: string;
   isGeneratingHeadlines?: boolean;
   isGeneratingOutline?: boolean;
   onDataChange: (field: keyof EnhancedContentOutlineData, value: any) => void;
+  onAuthorChange: (authorId: string) => void;
   onAddHeadline: () => void;
   onProceedToAutoCrafting: (config: AutoCraftingConfig) => void;
 }
@@ -61,9 +64,11 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
   productUseCases: initialProductUseCases,
   productDifferentiators: initialProductDifferentiators,
   authors = [],
+  selectedAuthor,
   isGeneratingHeadlines = false,
   isGeneratingOutline = false,
   onDataChange,
+  onAuthorChange,
   onAddHeadline,
   onProceedToAutoCrafting
 }) => {
@@ -225,13 +230,20 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
           productFeatures={allProductFeatures}
           productUseCases={allProductUseCases}
           productDifferentiators={allProductDifferentiators}
-          selectedAuthor={authors[0]}
+          selectedAuthor={authors.find(a => a.id === selectedAuthor)}
           onIntroPOVChange={(value) => onDataChange('introPOV', value)}
           onUpdateSection={updateSection}
           onAddSection={(afterSectionId) => addSectionToPhase('resonance', afterSectionId)}
           onRemoveSection={removeSection}
           onMoveSectionUp={moveSectionUp}
           onMoveSectionDown={moveSectionDown}
+        />
+
+        {/* Author Selection - Added in Step 4 for better integration with auto-crafting */}
+        <ArticleAuthorSelector
+          selectedAuthor={selectedAuthor}
+          authors={authors}
+          onAuthorChange={onAuthorChange}
         />
 
         {plsPhases.map((phase) => (
@@ -242,6 +254,7 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
             productFeatures={allProductFeatures}
             productUseCases={allProductUseCases}
             productDifferentiators={allProductDifferentiators}
+            selectedAuthor={authors.find(a => a.id === selectedAuthor)}
             onUpdateSection={updateSection}
             onAddSection={(afterSectionId) => addSectionToPhase(phase.id, afterSectionId)}
             onRemoveSection={removeSection}

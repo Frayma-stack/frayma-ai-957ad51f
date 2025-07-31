@@ -88,12 +88,6 @@ const TargetReaderResonanceStep: FC<TargetReaderResonanceStepProps> = ({
         onRemoveNarrativeAnchor={removeNarrativeAnchor}
       />
 
-      <ArticleAuthorSelector
-        selectedAuthor={data.articleAuthor}
-        authors={authors}
-        onAuthorChange={(value) => onDataChange('articleAuthor', value)}
-      />
-
       <SuccessStorySelector
         successStory={data.successStory}
         successStories={successStories}

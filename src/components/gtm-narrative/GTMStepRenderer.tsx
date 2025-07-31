@@ -172,9 +172,11 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
           productUseCases={getAllProductUseCases()}
           productDifferentiators={getAllProductDifferentiators()}
           authors={authors}
+          selectedAuthor={formData.articleAuthor}
           isGeneratingHeadlines={isGenerating}
           isGeneratingOutline={isGenerating}
           onDataChange={onDataChange}
+          onAuthorChange={(authorId) => onDataChange('articleAuthor', authorId)}
           onAddHeadline={handleAddHeadline}
           onProceedToAutoCrafting={onProceedToAutoCrafting}
         />

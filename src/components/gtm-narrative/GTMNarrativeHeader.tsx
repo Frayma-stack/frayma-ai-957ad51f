@@ -26,11 +26,6 @@ const GTMNarrativeHeader: FC<GTMNarrativeHeaderProps> = ({
             <Sparkles className="h-5 w-5 mr-2" />
             Story-Brief Your Next GTM Article
           </CardTitle>
-          <CardDescription className="text-xs">
-            {contentPhase === 'outline' 
-              ? 'Building your personalized content creation blueprint'
-              : 'AI-crafting your resonant GTM narrative'}
-          </CardDescription>
         </div>
       </div>
     </CardHeader>

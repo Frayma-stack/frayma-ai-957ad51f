@@ -272,7 +272,17 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
             onValueChange={handleAssetTypeChange}
           >
             <SelectTrigger className="text-sm">
-              <SelectValue placeholder="Choose business context type..." />
+              <SelectValue placeholder="Choose business context type...">
+                {section.linkedAssetType ? (
+                  section.linkedAssetType === 'categoryPOV' ? 'Category Point of View' :
+                  section.linkedAssetType === 'uniqueInsight' ? 'Unique Insight' :
+                  section.linkedAssetType === 'companyMission' ? 'Mission/Vision' :
+                  section.linkedAssetType === 'success_story' ? 'Success Story' :
+                  section.linkedAssetType === 'feature' ? 'Feature' :
+                  section.linkedAssetType === 'use_case' ? 'Use Case' :
+                  section.linkedAssetType === 'differentiator' ? 'Differentiator' : 'None'
+                ) : 'Choose business context type...'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent className="z-[100] bg-white dark:bg-gray-900 border shadow-lg">
               <SelectItem value="__none__">None</SelectItem>
@@ -300,7 +310,11 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
               onValueChange={handleAssetIdChange}
             >
               <SelectTrigger className="text-sm">
-                <SelectValue placeholder={`Choose a ${section.linkedAssetType.replace('_', ' ')}...`} />
+                <SelectValue placeholder={`Choose a ${section.linkedAssetType.replace('_', ' ')}...`}>
+                  {section.linkedAssetId ? 
+                    getAssetDisplayName(section.linkedAssetType, section.linkedAssetId) : 
+                    `Choose a ${section.linkedAssetType.replace('_', ' ')}...`}
+                </SelectValue>
               </SelectTrigger>
             <SelectContent className="z-[100] bg-white dark:bg-gray-900 border shadow-lg">
               <SelectItem value="__none__">None</SelectItem>
@@ -374,7 +388,11 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
                 }}
               >
                 <SelectTrigger className="text-sm">
-                  <SelectValue placeholder="Choose type of author credibility..." />
+                <SelectValue placeholder="Choose type of author credibility...">
+                    {section.authorCredibilityType ? (
+                      section.authorCredibilityType === 'experience' ? 'Personal Experience' : 'Core Belief'
+                    ) : 'Choose type of author credibility...'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="z-[100] bg-white dark:bg-gray-900 border shadow-lg">
                   <SelectItem value="__none__">None</SelectItem>
@@ -395,7 +413,13 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
                   }}
                 >
                   <SelectTrigger className="text-sm">
-                    <SelectValue placeholder={`Choose ${section.authorCredibilityType}...`} />
+                    <SelectValue placeholder={`Choose ${section.authorCredibilityType}...`}>
+                      {section.authorExperienceId ? (
+                        section.authorCredibilityType === 'experience' 
+                          ? selectedAuthor?.experiences?.find(exp => exp.id === section.authorExperienceId)?.title || 'Unknown Experience'
+                          : selectedAuthor?.beliefs?.find(belief => belief.id === section.authorExperienceId)?.belief || 'Unknown Belief'
+                      ) : `Choose ${section.authorCredibilityType}...`}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="z-[100] bg-white dark:bg-gray-900 border shadow-lg">
                     <SelectItem value="__none__">None</SelectItem>
@@ -411,18 +435,18 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
                         </div>
                       </SelectItem>
                     ))}
-                    {section.authorCredibilityType === 'belief' && selectedAuthor.beliefs?.map((belief: any) => (
-                      <SelectItem key={belief.id} value={belief.id} className="cursor-pointer">
-                        <div className="flex flex-col gap-1">
-                          <span className="font-medium">{belief.title}</span>
-                          {belief.description && (
-                            <span className="text-xs text-muted-foreground line-clamp-2">
-                              {belief.description}
-                            </span>
-                          )}
-                        </div>
-                      </SelectItem>
-                    ))}
+                     {section.authorCredibilityType === 'belief' && selectedAuthor.beliefs?.map((belief: any) => (
+                       <SelectItem key={belief.id} value={belief.id} className="cursor-pointer">
+                         <div className="flex flex-col gap-1">
+                           <span className="font-medium">{belief.belief}</span>
+                           {belief.description && (
+                             <span className="text-xs text-muted-foreground line-clamp-2">
+                               {belief.description}
+                             </span>
+                           )}
+                         </div>
+                       </SelectItem>
+                     ))}
                   </SelectContent>
                 </Select>
               )}
