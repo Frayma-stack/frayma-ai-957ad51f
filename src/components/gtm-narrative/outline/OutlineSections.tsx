@@ -36,10 +36,9 @@ const OutlineSections: FC<OutlineSectionsProps> = ({
       : 'Thought Leadership & How-to Guide';
   };
 
-  const updateSection = (index: number, field: keyof OutlineSection, value: any) => {
+  const updateSection = (index: number, updatedSection: OutlineSection) => {
     const newSections = [...sections];
-    const processedValue = value === "__none__" ? undefined : value;
-    newSections[index] = { ...newSections[index], [field]: processedValue };
+    newSections[index] = updatedSection;
     onSectionsChange(newSections);
   };
 
@@ -111,7 +110,7 @@ const OutlineSections: FC<OutlineSectionsProps> = ({
                 productUseCases={productUseCases}
                 productDifferentiators={productDifferentiators}
                 selectedAuthor={selectedAuthor}
-                onUpdateSection={(field, value) => updateSection(index, field, value)}
+                onUpdateSection={(updatedSection) => updateSection(index, updatedSection)}
                 onMoveSection={(direction) => moveSection(index, direction)}
                 onAddSection={() => addSection(index)}
                 onRemoveSection={() => removeSection(index)}

@@ -122,8 +122,7 @@ const ResonancePLSSection: FC<ResonancePLSSectionProps> = ({
             productUseCases={productUseCases}
             productDifferentiators={productDifferentiators}
             selectedAuthor={selectedAuthor}
-            onUpdateSection={(field, value) => {
-              const updatedSection = { ...section, [field]: value };
+            onUpdateSection={(updatedSection) => {
               onUpdateSection(updatedSection);
             }}
             onMoveSection={(direction) => {

@@ -32,7 +32,7 @@ interface OutlineSectionProps {
   productUseCases: ProductUseCase[];
   productDifferentiators: ProductDifferentiator[];
   selectedAuthor?: Author;
-  onUpdateSection: (field: keyof OutlineSection, value: any) => void;
+  onUpdateSection: (updatedSection: OutlineSection) => void;
   onMoveSection: (direction: 'up' | 'down') => void;
   onAddSection: () => void;
   onRemoveSection: () => void;
@@ -131,19 +131,31 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
 
   const handleAssetTypeChange = (value: string) => {
     if (value === '__none__') {
-      onUpdateSection('linkedAssetType', undefined);
-      onUpdateSection('linkedAssetId', undefined);
+      onUpdateSection({
+        ...section,
+        linkedAssetType: undefined,
+        linkedAssetId: undefined
+      });
     } else {
-      onUpdateSection('linkedAssetType', value as any);
-      onUpdateSection('linkedAssetId', undefined); // Reset asset selection when type changes
+      onUpdateSection({
+        ...section,
+        linkedAssetType: value as any,
+        linkedAssetId: undefined // Reset asset selection when type changes
+      });
     }
   };
 
   const handleAssetIdChange = (value: string) => {
     if (value === '__none__' || value === '__empty__') {
-      onUpdateSection('linkedAssetId', undefined);
+      onUpdateSection({
+        ...section,
+        linkedAssetId: undefined
+      });
     } else {
-      onUpdateSection('linkedAssetId', value);
+      onUpdateSection({
+        ...section,
+        linkedAssetId: value
+      });
     }
   };
 
@@ -216,7 +228,7 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
           <Label className="text-xs text-gray-500 mb-1 block">Heading Level</Label>
           <Select 
             value={section.type} 
-            onValueChange={(value: 'H2' | 'H3' | 'H4') => onUpdateSection('type', value)}
+            onValueChange={(value: 'H2' | 'H3' | 'H4') => onUpdateSection({ ...section, type: value })}
           >
             <SelectTrigger className="text-sm">
               <SelectValue />
@@ -233,7 +245,7 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
           <Label className="text-xs text-gray-500 mb-1 block">Section Title</Label>
           <Input
             value={section.title}
-            onChange={(e) => onUpdateSection('title', e.target.value)}
+            onChange={(e) => onUpdateSection({ ...section, title: e.target.value })}
             placeholder={`${section.type} heading`}
             className="font-medium"
           />
@@ -251,7 +263,7 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
         <Label className="text-xs text-gray-500 mb-1 block">Your POV/Direction/Narrative (Optional)</Label>
         <Textarea
           value={section.context || ''}
-          onChange={(e) => onUpdateSection('context', e.target.value)}
+          onChange={(e) => onUpdateSection({ ...section, context: e.target.value })}
           placeholder="Add your perspective, specific direction, narrative angle, or key points you want Frayma AI to focus on when generating this section..."
           rows={3}
           className="text-sm"
@@ -379,11 +391,17 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
                 value={section.authorCredibilityType || '__none__'} 
                 onValueChange={(value) => {
                   if (value === '__none__') {
-                    onUpdateSection('authorCredibilityType', undefined);
-                    onUpdateSection('authorExperienceId', undefined);
+                    onUpdateSection({
+                      ...section,
+                      authorCredibilityType: undefined,
+                      authorExperienceId: undefined
+                    });
                   } else {
-                    onUpdateSection('authorCredibilityType', value as 'experience' | 'belief');
-                    onUpdateSection('authorExperienceId', undefined);
+                    onUpdateSection({
+                      ...section,
+                      authorCredibilityType: value as 'experience' | 'belief',
+                      authorExperienceId: undefined
+                    });
                   }
                 }}
               >
@@ -406,9 +424,15 @@ const OutlineSectionComponent: FC<OutlineSectionProps> = ({
                   value={section.authorExperienceId || '__none__'} 
                   onValueChange={(value) => {
                     if (value === '__none__') {
-                      onUpdateSection('authorExperienceId', undefined);
+                      onUpdateSection({
+                        ...section,
+                        authorExperienceId: undefined
+                      });
                     } else {
-                      onUpdateSection('authorExperienceId', value);
+                      onUpdateSection({
+                        ...section,
+                        authorExperienceId: value
+                      });
                     }
                   }}
                 >

@@ -193,6 +193,39 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
     }
   };
 
+  const getAllSelectedExperiences = () => {
+    const experiences: Array<{ id: string; title: string; type: 'experience' | 'belief' }> = [];
+    const selectedAuthorData = authors.find(a => a.id === selectedAuthor);
+    
+    if (!selectedAuthorData) return experiences;
+    
+    data.outlineSections.forEach(section => {
+      if (section.authorExperienceId && section.authorCredibilityType) {
+        if (section.authorCredibilityType === 'experience') {
+          const experience = selectedAuthorData.experiences?.find(exp => exp.id === section.authorExperienceId);
+          if (experience && !experiences.find(e => e.id === section.authorExperienceId)) {
+            experiences.push({
+              id: section.authorExperienceId,
+              title: experience.title || 'Experience',
+              type: 'experience'
+            });
+          }
+        } else if (section.authorCredibilityType === 'belief') {
+          const belief = selectedAuthorData.beliefs?.find(belief => belief.id === section.authorExperienceId);
+          if (belief && !experiences.find(e => e.id === section.authorExperienceId)) {
+            experiences.push({
+              id: section.authorExperienceId,
+              title: belief.belief || 'Belief',
+              type: 'belief'
+            });
+          }
+        }
+      }
+    });
+    
+    return experiences;
+  };
+
   const canProceedToAutoCrafting = () => {
     return data.selectedHeadline && 
            authors.length > 0 && 
@@ -278,6 +311,8 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
         <AutoCraftingReadinessDialog
           isOpen={showAutoCraftingDialog}
           authors={authors}
+          selectedAuthorId={selectedAuthor}
+          selectedExperiences={getAllSelectedExperiences()}
           onClose={() => setShowAutoCraftingDialog(false)}
           onProceedToAutoCrafting={(config) => {
             setShowAutoCraftingDialog(false);

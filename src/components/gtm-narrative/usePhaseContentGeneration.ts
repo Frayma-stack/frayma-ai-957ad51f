@@ -107,7 +107,7 @@ export const usePhaseContentGeneration = ({
         author_summary: authorData?.backstory || 'Experienced professional',
         selected_writing_tone: autoCraftingConfig?.writingTone || 'Professional',
         author_writing_tone: autoCraftingConfig?.writingTone || 'Professional',
-        relevant_author_experiences: autoCraftingConfig?.experienceId ? [autoCraftingConfig.experienceId] : [],
+        relevant_author_experiences: autoCraftingConfig?.experienceIds || [],
         product_beliefs: authorData?.beliefs?.map(b => b.belief).join('; ') || 'Strategic insights',
         // Configuration
         selected_intro_length: '300',
