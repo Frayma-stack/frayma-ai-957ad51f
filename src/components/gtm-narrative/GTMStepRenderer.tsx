@@ -9,10 +9,11 @@ import TargetReaderResonanceStep from './TargetReaderResonanceStep';
 import ContentDiscoveryTriggersStep from './ContentDiscoveryTriggersStep';
 import EnhancedContentOutlineStep from './EnhancedContentOutlineStep';
 import ContentGenerationEditor from './ContentGenerationEditor';
+import PLSEditor from './PLSEditor';
 
 interface GTMStepRendererProps {
   currentStep: number;
-  contentPhase: 'outline' | 'intro' | 'body' | 'conclusion';
+  contentPhase: 'outline' | 'intro' | 'body' | 'conclusion' | 'editor';
   formData: FormData;
   scripts: ICPStoryScript[];
   successStories: CustomerSuccessStory[];
@@ -28,6 +29,7 @@ interface GTMStepRendererProps {
   onRegenerate: (phase: 'intro' | 'body' | 'conclusion') => Promise<void>;
   onProceedToAutoCrafting: (config: AutoCraftingConfig) => void;
   onRegenerateContentTriggers?: () => Promise<void>;
+  onSaveAsDraft?: () => Promise<void>;
 }
 
 const GTMStepRenderer: FC<GTMStepRendererProps> = ({
@@ -47,7 +49,8 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
   onBackToOutline,
   onRegenerate,
   onProceedToAutoCrafting,
-  onRegenerateContentTriggers
+  onRegenerateContentTriggers,
+  onSaveAsDraft
 }) => {
   // Aggregate all product features, use cases, and differentiators from product contexts
   const getAllProductFeatures = () => {
@@ -80,10 +83,25 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
     return differentiators;
   };
 
+  if (contentPhase === 'editor') {
+    // Use the new PLS Editor for auto-crafted content
+    return (
+      <PLSEditor
+        formData={formData}
+        autoCraftingConfig={formData.autoCraftingConfig!}
+        isGenerating={isGenerating}
+        onDataChange={onDataChange}
+        onGeneratePhase={onRegenerate}
+        onBackToOutline={onBackToOutline}
+        onSaveAsDraft={onSaveAsDraft!}
+      />
+    );
+  }
+
   if (contentPhase !== 'outline') {
     return (
       <ContentGenerationEditor
-        contentPhase={contentPhase}
+        contentPhase={contentPhase as 'intro' | 'body' | 'conclusion'}
         formData={formData}
         isGenerating={isGenerating}
         onContentPhaseNext={onContentPhaseNext}

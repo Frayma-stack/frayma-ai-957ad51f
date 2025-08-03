@@ -41,11 +41,6 @@ const GTMNarrativeNavigation: FC<GTMNarrativeNavigationProps> = ({
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             AI Building...
           </>
-        ) : currentStep === 4 ? (
-          <>
-            Start Content Generation
-            <Sparkles className="h-4 w-4 ml-2" />
-          </>
         ) : (
           <>
             Continue

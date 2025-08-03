@@ -107,7 +107,8 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     handleNext,
     handleContentPhaseNext,
     handlePrevious,
-    handleBackToOutline
+    handleBackToOutline,
+    setContentPhase
   } = useGTMNavigation({
     formData,
     canProceedFromStep1,
@@ -124,9 +125,27 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     handleInputChange('autoCraftingConfig', config);
     // Start by generating the intro
     generatePhaseContent('intro').then(() => {
-      // Proceed to intro generation phase
-      handleContentPhaseNext();
+      // Transition to PLS editor mode
+      setContentPhase('editor');
     });
+  };
+
+  const handleSaveAsDraft = async () => {
+    try {
+      // Implement auto-save logic here
+      // This would typically save to Supabase or local storage
+      console.log('💾 Saving draft with content:', {
+        headline: formData.selectedHeadline,
+        intro: formData.generatedIntro,
+        body: formData.generatedBody,
+        conclusion: formData.generatedConclusion,
+        config: formData.autoCraftingConfig
+      });
+      // TODO: Implement actual save to database
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      throw error;
+    }
   };
 
   const canProceedFromCurrentStep = (): boolean => {
@@ -194,6 +213,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
                 await generateContentTriggers();
                 await generateHeadlines();
               }}
+              onSaveAsDraft={handleSaveAsDraft}
             />
           </div>
 

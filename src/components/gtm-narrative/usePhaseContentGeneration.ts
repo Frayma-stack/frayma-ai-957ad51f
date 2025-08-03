@@ -96,23 +96,58 @@ export const usePhaseContentGeneration = ({
           return businessContextDescription;
         })(),
         journey_stage: formData.journeyStage || 'MOFU',
-        narrative_anchors_and_types: formData.narrativeAnchors?.map(a => `${a.name} (${a.type}): ${a.content}`).join('; ') || 'Key messaging points',
-        narrative_anchors: formData.narrativeAnchors?.map(a => `${a.name} (${a.type}): ${a.content}`).join('; ') || 'Key messaging points',
+        narrative_anchors_and_types: (() => {
+          const anchors = formData.narrativeAnchors?.map(a => `${a.name} (${a.type}): ${a.content}`).join('; ') || '';
+          // Include POV and outline section context
+          const povContent = formData.introPOV ? `POV: ${formData.introPOV}` : '';
+          const outlineSections = formData.outlineSections?.map(s => {
+            let sectionData = `${s.title}`;
+            if (s.context) sectionData += `: ${s.context}`;
+            // Include linked asset information
+            if (s.linkedAssetId && s.linkedAssetType && productContexts.length > 0) {
+              const asset = getAssetById(s.linkedAssetId, s.linkedAssetType, productContexts);
+              if (asset) {
+                sectionData += ` [${s.linkedAssetType}: ${asset.name} - ${asset.description}]`;
+              }
+            }
+            return sectionData;
+          }).join('; ') || '';
+          return [povContent, anchors, outlineSections].filter(Boolean).join('; ');
+        })(),
+        narrative_anchors: (() => {
+          const anchors = formData.narrativeAnchors?.map(a => `${a.name} (${a.type}): ${a.content}`).join('; ') || '';
+          const povContent = formData.introPOV ? `POV: ${formData.introPOV}` : '';
+          return [povContent, anchors].filter(Boolean).join('; ');
+        })(),
         selected_success_story_summary: formData.successStory || 'Customer transformation example',
         related_keywords: formData.relatedKeywords?.join(', ') || 'product-led growth, customer success',
         search_queries: formData.searchQueries?.join(', ') || 'How to implement product-led growth',
         problem_statements: formData.problemStatements?.join(', ') || 'Scaling challenges',
-        // Author information
+        // Author information - enhanced with proper experience/belief data
         author_name: authorData?.name || 'Industry Expert',
         author_summary: authorData?.backstory || 'Experienced professional',
         selected_writing_tone: autoCraftingConfig?.writingTone || 'Professional',
         author_writing_tone: autoCraftingConfig?.writingTone || 'Professional',
-        relevant_author_experiences: autoCraftingConfig?.experienceIds || [],
+        relevant_author_experiences: (() => {
+          if (!autoCraftingConfig?.experienceIds || !authorData) return [];
+          const selectedExperiences = [];
+          autoCraftingConfig.experienceIds.forEach(expId => {
+            const experience = authorData.experiences?.find(e => e.id === expId);
+            const belief = authorData.beliefs?.find(b => b.id === expId);
+            if (experience) {
+              selectedExperiences.push(`${experience.title}: ${experience.description || ''}`);
+            }
+            if (belief) {
+              selectedExperiences.push(`Belief: ${belief.belief}`);
+            }
+          });
+          return selectedExperiences.join('; ');
+        })(),
         product_beliefs: authorData?.beliefs?.map(b => b.belief).join('; ') || 'Strategic insights',
-        // Configuration
-        selected_intro_length: '300',
-        word_count_range: '300',
-        user_selected_word_count_range: '300'
+        // Configuration - use actual config from auto-crafting dialog
+        selected_intro_length: String(autoCraftingConfig?.introWordCount || 300),
+        word_count_range: String(autoCraftingConfig?.bodyWordCount || 800),
+        user_selected_word_count_range: String(autoCraftingConfig?.conclusionWordCount || 200)
       };
       
       let promptCategory: 'intro_generation' | 'body_generation' | 'conclusion_generation';

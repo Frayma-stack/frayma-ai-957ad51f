@@ -24,7 +24,7 @@ export const useGTMNavigation = ({
 }: UseGTMNavigationProps) => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
-  const [contentPhase, setContentPhase] = useState<'outline' | 'intro' | 'body' | 'conclusion'>('outline');
+  const [contentPhase, setContentPhase] = useState<'outline' | 'intro' | 'body' | 'conclusion' | 'editor'>('outline');
 
   const handleNext = async () => {
     if (currentStep === 2) {

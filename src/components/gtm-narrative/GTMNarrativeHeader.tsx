@@ -6,7 +6,7 @@ import { ArrowLeft, Sparkles } from 'lucide-react';
 
 interface GTMNarrativeHeaderProps {
   articleSubType: 'newsletter' | 'thought_leadership';
-  contentPhase: 'outline' | 'intro' | 'body' | 'conclusion';
+  contentPhase: 'outline' | 'intro' | 'body' | 'conclusion' | 'editor';
   onBack: () => void;
 }
 
