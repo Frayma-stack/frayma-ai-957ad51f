@@ -95,17 +95,15 @@ NARRATIVE TRIGGER
 
     prompt += `\n\nFor each idea, return the following structure:
 **Title** – punchy and specific (not generic, not clickbait).
-**Narrative** – what's the tension or belief this idea should challenge or advance in 2–3 sentences?
-**Product Tie-in** – how can this idea naturally surface the selected Business Context Item unique value in 2–3 sentences?
+**Narrative** – Your thoughtful instructions for how to approach this content idea (3–4 sentences). Guide the user on what tension or belief this idea should challenge or advance, and specifically how you recommend they frame the narrative to resonate with ${selectedICP?.name || '[ICP_NAME]'}. Explain the mindset shift you want to create in their audience and why this particular angle will cut through the noise. Make this feel like strategic counsel from an expert narrative strategist who understands their market positioning.
+**Product Tie-in** – Your specific guidance for naturally weaving in their selected business context (3–4 sentences). Walk them through exactly how you recommend they subtly surface their unique value without being salesy. Explain the natural bridge between the narrative angle and their business context, and give them confidence in how to make this connection feel organic and compelling. Make this feel like you're personally coaching them on the art of subtle product integration.
 **CTA** – what's one specific, low-friction action the reader would be compelled (and should be prompted) to take during or after the GTM content piece crafted with this idea, based on Product Tie-in?
 
-Make each idea smart, thoughtful, strategic, and tailored to ${selectedICP?.name || '[ICP_NAME]'}—as if you're helping them see themselves in the story and trying to flag down in a crowded space.
+Make each idea smart, thoughtful, strategic, and tailored to ${selectedICP?.name || '[ICP_NAME]'}—as if you're Frayma AI personally guiding them to see themselves in the story and helping them flag down their ideal prospects in a crowded space.
 
-Make the narrative for each idea instructive enough to educate how the idea should be uniquely approached to arrive at a GTM content piece that resonates, is relevant, likely to yield results.
+Write the Narrative and Product Tie-in sections as if you're their trusted narrative strategist, speaking directly to them with specific, actionable guidance that acknowledges their chosen business context and target audience. Make it feel personal, insightful, and reassuring—not generic or template-like.
 
-Make the Product Tie-in aligned with the selected Business Context Item so that how it would be subtly woven into the content narrative is clearly spelled out and reassuring.
-
-Avoid generic fluff. Think like a narrative strategist trying to flag down and guide a category-defining founder or Head of Marketing toward achieving their goals.`;
+Avoid generic fluff. Think like Frayma AI providing personalized strategic counsel to a category-defining founder or Head of Marketing who trusts you to guide them toward achieving their ambitious goals.`;
 
     return prompt;
   };
@@ -201,17 +199,15 @@ NARRATIVE TRIGGER
 
     prompt += `\n\nFor each idea, return the following structure:
 **Title** – punchy and specific (not generic, not clickbait).
-**Narrative** – what's the tension or belief this idea should challenge or advance in 2–3 sentences?
-**Product Tie-in** – how can this idea naturally surface the selected Business Context Item unique value in 2–3 sentences?
+**Narrative** – Your thoughtful instructions for how to approach this content idea (3–4 sentences). Guide the user on what tension or belief this idea should challenge or advance, and specifically how you recommend they frame the narrative to resonate with ${selectedICP?.name || '[ICP_NAME]'}. Explain the mindset shift you want to create in their audience and why this particular angle will cut through the noise. Make this feel like strategic counsel from an expert narrative strategist who understands their market positioning.
+**Product Tie-in** – Your specific guidance for naturally weaving in their selected business context (3–4 sentences). Walk them through exactly how you recommend they subtly surface their unique value without being salesy. Explain the natural bridge between the narrative angle and their business context, and give them confidence in how to make this connection feel organic and compelling. Make this feel like you're personally coaching them on the art of subtle product integration.
 **CTA** – what's one specific, low-friction action the reader would be compelled (and should be prompted) to take during or after the GTM content piece crafted with this idea, based on Product Tie-in?
 
-Make each idea smart, thoughtful, strategic, and tailored to ${selectedICP?.name || '[ICP_NAME]'}—as if you're helping them see themselves in the story and trying to flag down in a crowded space.
+Make each idea smart, thoughtful, strategic, and tailored to ${selectedICP?.name || '[ICP_NAME]'}—as if you're Frayma AI personally guiding them to see themselves in the story and helping them flag down their ideal prospects in a crowded space.
 
-Make the narrative for each idea instructive enough to educate how the idea should be uniquely approached to arrive at a GTM content piece that resonates, is relevant, likely to yield results.
+Write the Narrative and Product Tie-in sections as if you're their trusted narrative strategist, speaking directly to them with specific, actionable guidance that acknowledges their chosen business context and target audience. Make it feel personal, insightful, and reassuring—not generic or template-like.
 
-Make the Product Tie-in aligned with the selected Business Context Item so that how it would be subtly woven into the content narrative is clearly spelled out and reassuring.
-
-Avoid generic fluff. Think like a narrative strategist trying to flag down and guide a category-defining founder or Head of Marketing toward achieving their goals.`;
+Avoid generic fluff. Think like Frayma AI providing personalized strategic counsel to a category-defining founder or Head of Marketing who trusts you to guide them toward achieving their ambitious goals.`;
 
     return prompt;
   };
