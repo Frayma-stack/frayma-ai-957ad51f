@@ -39,7 +39,7 @@ const GTMNarrativeNavigation: FC<GTMNarrativeNavigationProps> = ({
         {isGenerating ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            AI Building...
+            Frayma AI Framing...
           </>
         ) : (
           <>

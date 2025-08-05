@@ -217,7 +217,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
             />
           </div>
 
-          {contentPhase === 'outline' && (
+          {contentPhase === 'outline' && currentStep !== 4 && (
             <GTMNarrativeNavigation
               currentStep={currentStep}
               isGenerating={isGenerating}

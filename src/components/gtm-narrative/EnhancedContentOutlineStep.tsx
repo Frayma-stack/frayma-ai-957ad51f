@@ -242,6 +242,13 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
           selectedHeadline={data.selectedHeadline}
           headlineOptions={data.headlineOptions}
         />
+
+        {/* Article Author Selection - Moved here for better flow */}
+        <ArticleAuthorSelector
+          selectedAuthor={selectedAuthor}
+          authors={authors}
+          onAuthorChange={onAuthorChange}
+        />
         
         <ThreeRsFormulaCard />
 
@@ -270,13 +277,6 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
           onRemoveSection={removeSection}
           onMoveSectionUp={moveSectionUp}
           onMoveSectionDown={moveSectionDown}
-        />
-
-        {/* Author Selection - Added in Step 4 for better integration with auto-crafting */}
-        <ArticleAuthorSelector
-          selectedAuthor={selectedAuthor}
-          authors={authors}
-          onAuthorChange={onAuthorChange}
         />
 
         {plsPhases.map((phase) => (
