@@ -23,10 +23,11 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
     targetICP: '',
     narrativeAnchor: 'belief',
     selectedNarrativeTypes: [],
+    businessContextItem: '',
     selectedFeatures: [],
     selectedUseCases: [],
     selectedDifferentiators: [],
-    productContextType: '',
+    selectedSuccessStory: null,
     customPOV: '',
     povNarrativeDirection: ''
   });

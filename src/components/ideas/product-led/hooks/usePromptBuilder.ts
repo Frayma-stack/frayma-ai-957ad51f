@@ -1,12 +1,13 @@
 
-import { ICPStoryScript } from '@/types/storytelling';
+import { ICPStoryScript, ProductContext } from '@/types/storytelling';
 import { ProductContextInputs, TriggerInput } from './types';
 
 export const usePromptBuilder = () => {
   const buildInitialPrompt = (
     triggerInput: TriggerInput,
     productInputs: ProductContextInputs,
-    selectedICP: ICPStoryScript | undefined
+    selectedICP: ICPStoryScript | undefined,
+    productContext?: ProductContext | null
   ): string => {
     const narrativeTypeContents = productInputs.selectedNarrativeTypes.map(typeId => {
       const narrativeTypes = selectedICP ? (() => {
@@ -28,20 +29,62 @@ You are a world-class narrative strategist helping B2B SaaS teams craft compelli
 
 Trigger/thesis/anti-thesis: ${triggerInput.content}
 Target audience: ${selectedICP?.name || 'Not specified'}
-Narrative angle to address: ${productInputs.narrativeAnchor} — "${narrativeTypeContents.join('; ')}"`;
+Narrative angle to address: ${productInputs.narrativeAnchor} — "${narrativeTypeContents.join('; ')}"
 
-    if (productInputs.productContextType === 'features' && productInputs.selectedFeatures.length > 0) {
-      prompt += `\nProduct features and/or benefits:\n`;
-      productInputs.selectedFeatures.forEach(feature => {
-        prompt += `• ${feature.name}: ${feature.benefits.join(', ')}\n`;
-      });
+Business Context to Weave In:`;
+
+    // Add detailed business context based on selection
+    if (productInputs.businessContextItem === 'category_pov' && productContext) {
+      prompt += `\nCategory POV: "${productContext.categoryPOV}"
+Use this strategic positioning to guide the narrative and show how your product/company views the market differently.`;
     }
 
-    if (productInputs.productContextType === 'usecases' && productInputs.selectedUseCases.length > 0) {
-      prompt += `\nSpecific use cases to subtly highlight:\n`;
-      productInputs.selectedUseCases.forEach(useCase => {
-        prompt += `• ${useCase.useCase} (${useCase.userRole}): ${useCase.description}\n`;
+    if (productInputs.businessContextItem === 'unique_insight' && productContext) {
+      prompt += `\nUnique Insight: "${productContext.uniqueInsight}"
+Leverage this insight to create content that reveals non-obvious truths or perspectives that resonate with the target ICP.`;
+    }
+
+    if (productInputs.businessContextItem === 'mission_vision' && productContext) {
+      prompt += `\nMission/Vision: "${productContext.companyMission}"
+Infuse this mission-driven perspective to create content that shows the bigger purpose behind the work.`;
+    }
+
+    if (productInputs.businessContextItem === 'success_story' && productInputs.selectedSuccessStory) {
+      const story = productInputs.selectedSuccessStory;
+      prompt += `\nCustomer Success Story: "${story.title}"
+Before State: ${story.beforeSummary}
+After State: ${story.afterSummary}`;
+      if (story.quotes && story.quotes.length > 0) {
+        prompt += `\nKey Quotes: ${story.quotes.map((q: any) => `"${q.quote}" - ${q.author}, ${q.role}`).join('; ')}`;
+      }
+      if (story.features && story.features.length > 0) {
+        prompt += `\nFeatures Used: ${story.features.map((f: any) => f.name).join(', ')}`;
+      }
+      prompt += `\nUse this transformation story to create narrative content that shows similar potential outcomes for prospects.`;
+    }
+
+    if (productInputs.businessContextItem === 'feature' && productInputs.selectedFeatures.length > 0) {
+      prompt += `\nProduct Features & Benefits:`;
+      productInputs.selectedFeatures.forEach(feature => {
+        prompt += `\n• ${feature.name}: ${feature.benefits.join(', ')}`;
       });
+      prompt += `\nWeave these features naturally into stories that show their value without being product-heavy.`;
+    }
+
+    if (productInputs.businessContextItem === 'use_case' && productInputs.selectedUseCases.length > 0) {
+      prompt += `\nSpecific Use Cases:`;
+      productInputs.selectedUseCases.forEach(useCase => {
+        prompt += `\n• ${useCase.useCase} (${useCase.userRole}): ${useCase.description}`;
+      });
+      prompt += `\nCreate content that naturally showcases these use cases through real-world scenarios and applications.`;
+    }
+
+    if (productInputs.businessContextItem === 'differentiator' && productInputs.selectedDifferentiators.length > 0) {
+      prompt += `\nKey Differentiators:`;
+      productInputs.selectedDifferentiators.forEach(diff => {
+        prompt += `\n• ${diff.name}: ${diff.description}`;
+      });
+      prompt += `\nHighlight these differentiators through narrative content that shows why this approach is uniquely valuable.`;
     }
 
     if (productInputs.customPOV.trim()) {
@@ -111,14 +154,14 @@ ${productInputs.narrativeAnchor} → "${narrativeTypeContents.join('; ')}"
 
 💡 Product elements to tie in:`;
 
-    if (productInputs.productContextType === 'features' && productInputs.selectedFeatures.length > 0) {
+    if (productInputs.businessContextItem === 'feature' && productInputs.selectedFeatures.length > 0) {
       prompt += `\n- Product Features & Benefits: `;
       productInputs.selectedFeatures.forEach(feature => {
         prompt += `${feature.name}: ${feature.benefits.join(', ')}; `;
       });
     }
 
-    if (productInputs.productContextType === 'usecases' && productInputs.selectedUseCases.length > 0) {
+    if (productInputs.businessContextItem === 'use_case' && productInputs.selectedUseCases.length > 0) {
       prompt += `\n- Use Cases: `;
       productInputs.selectedUseCases.forEach(useCase => {
         prompt += `${useCase.useCase} (${useCase.userRole}): ${useCase.description}; `;

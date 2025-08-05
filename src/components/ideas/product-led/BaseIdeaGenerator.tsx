@@ -22,6 +22,7 @@ interface BaseIdeaGeneratorProps {
   selectedClientId?: string;
   layout?: 'vertical' | 'horizontal';
   ideas?: GeneratedIdea[];
+  successStories?: any[];
 }
 
 const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
@@ -31,7 +32,8 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
   onContentTypeSelect,
   selectedClientId,
   layout = 'vertical',
-  ideas = []
+  ideas = [],
+  successStories = []
 }) => {
   const {
     triggerInput,
@@ -125,6 +127,7 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
           onProductInputsChange={setProductInputs}
           icpScripts={icpScripts}
           productContext={productContext}
+          successStories={successStories}
         />
       </div>
 

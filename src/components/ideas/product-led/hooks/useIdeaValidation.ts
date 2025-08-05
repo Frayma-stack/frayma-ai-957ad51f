@@ -15,12 +15,68 @@ export const useIdeaValidation = () => {
       return false;
     }
 
-    // Business Context is now optional - AI will auto-map if not provided
-    // Only validate if user has started filling out some fields
-    if (productInputs.targetICP && productInputs.selectedNarrativeTypes.length === 0) {
+    // Target ICP is now required
+    if (!productInputs.targetICP) {
       toast({
-        title: "Incomplete Manual Mapping",
-        description: "If you select an ICP, please also select at least one narrative type, or clear the ICP selection to use auto-mapping.",
+        title: "Missing Target ICP",
+        description: "Please select a Target ICP to generate ideas.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Narrative Types are now required
+    if (productInputs.selectedNarrativeTypes.length === 0) {
+      toast({
+        title: "Missing Narrative Type",
+        description: "Please select at least one narrative type to generate ideas.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Business Context Item is now required
+    if (!productInputs.businessContextItem) {
+      toast({
+        title: "Missing Business Context Item",
+        description: "Please select a Business Context Item to generate ideas.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Validate specific business context selections
+    if (productInputs.businessContextItem === 'success_story' && !productInputs.selectedSuccessStory) {
+      toast({
+        title: "Missing Success Story",
+        description: "Please select a specific success story.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (productInputs.businessContextItem === 'feature' && productInputs.selectedFeatures.length === 0) {
+      toast({
+        title: "Missing Features",
+        description: "Please select at least one feature.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (productInputs.businessContextItem === 'use_case' && productInputs.selectedUseCases.length === 0) {
+      toast({
+        title: "Missing Use Cases",
+        description: "Please select at least one use case.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (productInputs.businessContextItem === 'differentiator' && productInputs.selectedDifferentiators.length === 0) {
+      toast({
+        title: "Missing Differentiators",
+        description: "Please select at least one differentiator.",
         variant: "destructive",
       });
       return false;
