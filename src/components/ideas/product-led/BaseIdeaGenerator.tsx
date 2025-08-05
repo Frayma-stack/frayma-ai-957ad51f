@@ -10,7 +10,7 @@ import ProductContextSection from './ProductContextSection';
 import POVNarrativeSection from './POVNarrativeSection';
 import GenerationControls from './GenerationControls';
 import GeneratedIdeasViewer from './GeneratedIdeasViewer';
-import RegenerationDirectionDialog from './RegenerationDirectionDialog';
+import EnhancedRegenerationDialog from './EnhancedRegenerationDialog';
 import SpecificIdeaGenerationDialog from './SpecificIdeaGenerationDialog';
 import { useProductLedIdeaGenerator } from './useProductLedIdeaGenerator';
 
@@ -54,9 +54,10 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
     handleGenerateNewIdeas,
     handleGenerateSpecificIdeas,
     handleRegenerateWithDirection,
+    handleEnhancedRegeneration,
     setShowRegenerationDialog,
     setShowSpecificGenerationDialog
-  } = useProductLedIdeaGenerator(icpScripts);
+  } = useProductLedIdeaGenerator(icpScripts, productContext);
 
   if (showIdeasViewer) {
     return (
@@ -72,12 +73,16 @@ const BaseIdeaGenerator: FC<BaseIdeaGeneratorProps> = ({
           isRegenerating={isRegenerating}
         />
         
-        <RegenerationDirectionDialog
+        <EnhancedRegenerationDialog
           isOpen={showRegenerationDialog}
           isGenerating={isGenerating}
           regenerationDirection={regenerationDirection}
+          currentProductInputs={productInputs}
+          icpScripts={icpScripts}
+          productContext={productContext}
+          successStories={successStories}
           onRegenerationDirectionChange={setRegenerationDirection}
-          onRegenerate={handleRegenerateWithDirection}
+          onRegenerate={handleEnhancedRegeneration}
           onClose={() => setShowRegenerationDialog(false)}
         />
 

@@ -1,13 +1,13 @@
 
 import { useState } from 'react';
-import { ICPStoryScript } from '@/types/storytelling';
+import { ICPStoryScript, ProductContext } from '@/types/storytelling';
 import { TriggerInput, ProductContextInputs } from './hooks/types';
 import { usePromptBuilder } from './hooks/usePromptBuilder';
 import { useIdeaValidation } from './hooks/useIdeaValidation';
 import { useIdeaGeneration } from './hooks/useIdeaGeneration';
 import { SpecificGenerationData } from './SpecificIdeaGenerationDialog';
 
-export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
+export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[], productContext?: ProductContext | null) => {
   const [showIdeasViewer, setShowIdeasViewer] = useState(false);
   const [showRegenerationDialog, setShowRegenerationDialog] = useState(false);
   const [showSpecificGenerationDialog, setShowSpecificGenerationDialog] = useState(false);
@@ -42,7 +42,7 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
     if (!validateInputs(triggerInput, productInputs)) return;
 
     try {
-      const prompt = buildInitialPrompt(triggerInput, productInputs, selectedICP);
+      const prompt = buildInitialPrompt(triggerInput, productInputs, selectedICP, productContext);
       await generateIdeas(prompt);
       setShowIdeasViewer(true);
     } catch (error) {
@@ -57,13 +57,34 @@ export const useProductLedIdeaGenerator = (icpScripts: ICPStoryScript[]) => {
     setIsRegenerating(true); // Start regeneration loading state
     
     try {
-      const prompt = buildRegenerationPrompt(triggerInput, productInputs, selectedICP, regenerationDirection);
+      const prompt = buildRegenerationPrompt(triggerInput, productInputs, selectedICP, regenerationDirection, productContext);
       await regenerateIdeas(prompt);
       setRegenerationDirection(''); // Clear the direction input
     } catch (error) {
       // Error handling is done in the generation hook
     } finally {
       setIsRegenerating(false); // End regeneration loading state
+    }
+  };
+
+  const handleEnhancedRegeneration = async (newInputs: ProductContextInputs, direction: string) => {
+    if (!validateRegenerationDirection(direction)) return;
+
+    // Update the product inputs with new selections
+    setProductInputs(newInputs);
+    
+    setShowRegenerationDialog(false);
+    setIsRegenerating(true);
+    
+    try {
+      const newSelectedICP = icpScripts.find(icp => icp.id === newInputs.targetICP);
+      const prompt = buildRegenerationPrompt(triggerInput, newInputs, newSelectedICP, direction, productContext);
+      await regenerateIdeas(prompt);
+      setRegenerationDirection(''); // Clear the direction input
+    } catch (error) {
+      // Error handling is done in the generation hook
+    } finally {
+      setIsRegenerating(false);
     }
   };
 
@@ -147,6 +168,7 @@ Focus on being highly specific and targeted rather than broad or generic.`;
     handleGenerateNewIdeas,
     handleGenerateSpecificIdeas,
     handleRegenerateWithDirection,
+    handleEnhancedRegeneration,
     setShowRegenerationDialog,
     setShowSpecificGenerationDialog,
     validateInputs: () => validateInputs(triggerInput, productInputs)
