@@ -9,126 +9,103 @@ export const usePromptBuilder = () => {
     selectedICP: ICPStoryScript | undefined,
     productContext?: ProductContext | null
   ): string => {
-    const narrativeTypeContents = productInputs.selectedNarrativeTypes.map(typeId => {
-      const narrativeTypes = selectedICP ? (() => {
-        switch (productInputs.narrativeAnchor) {
-          case 'belief': return selectedICP.coreBeliefs;
-          case 'pain': return selectedICP.internalPains;
-          case 'struggle': return selectedICP.externalStruggles;
-          case 'transformation': return selectedICP.desiredTransformations;
-          default: return [];
-        }
-      })() : [];
-      return narrativeTypes.find(n => n.id === typeId)?.content || '';
-    }).filter(content => content);
-    
-    let prompt = `🧠 About Product-Led Storytelling (PLS):
-PLS is a B2B content approach that crafts first-person, narrative-led GTM assets that resonate with ICPs through the 3Rs Formula:
+    let prompt = `About Product-Led Storytelling (PLS):
+PLS is a B2B content approach leveraged for crafting first-person, narrative-led GTM assets that resonate with ICPs by anchoring content on their beliefs, pains, and goals. It uses structured storytelling frameworks (like ICP StoryScripts, StoryBriefs & Outlines, and the 3Rs Formula: Resonance, Relevance, Results) to subtly show, not just tell, a product's unique value. The goal is to move readers to feel, think, and act—not through generic how-to's, but through compelling, point-of-view-driven narratives that match how busy B2B buyers think and decide.
 
-**🎯 RESONANCE**: Anchor content on ICP beliefs, pains, struggles, and desired transformations
-**📊 RELEVANCE**: Weave in lived product value through stories, not sales pitches  
-**🎯 RESULTS**: Drive readers to feel, think, and act through compelling POV-driven narratives
+You are a world-class narrative strategist helping B2B SaaS teams craft compelling, resonant GTM narratives. Using the Product-Led Storytelling approach above, generate 30 rare, non-obvious content ideas (for articles, newsletters, sales enablement assets, GTM video content scripts, and LinkedIn posts) that subtly weave in product value without sounding salesy.
 
-PLS uses structured storytelling frameworks (ICP StoryScripts, StoryBriefs & Outlines) to subtly show, not tell, a product's unique value. The goal is to move readers through compelling, point-of-view-driven narratives that match how buyers think and decide.
-
----
-
-You are Frayma AI, a world-class Product-Led Storytelling engine. Generate 15 rare, non-obvious content ideas that subtly weave in product value without sounding salesy.
-
-**🎭 Trigger/Thesis/Anti-Thesis**: ${triggerInput.content}
-
-**👥 Target ICP**: ${selectedICP?.name || 'Not specified'}
-${selectedICP?.demographics ? `Demographics: ${selectedICP.demographics}` : ''}
-
-**🎪 Narrative Anchor to Address**: ${productInputs.narrativeAnchor.toUpperCase()} 
-"${narrativeTypeContents.join('; ')}"
-
-**🏢 Business Context to Weave In Naturally**:`;
-
-    // Add detailed business context based on selection
-    if (productInputs.businessContextItem === 'category_pov' && productContext) {
-      prompt += `\nCategory POV: "${productContext.categoryPOV}"
-Use this strategic positioning to guide the narrative and show how your product/company views the market differently.`;
-    }
-
-    if (productInputs.businessContextItem === 'unique_insight' && productContext) {
-      prompt += `\nUnique Insight: "${productContext.uniqueInsight}"
-Leverage this insight to create content that reveals non-obvious truths or perspectives that resonate with the target ICP.`;
-    }
-
-    if (productInputs.businessContextItem === 'mission_vision' && productContext) {
-      prompt += `\nMission/Vision: "${productContext.companyMission}"
-Infuse this mission-driven perspective to create content that shows the bigger purpose behind the work.`;
-    }
-
-    if (productInputs.businessContextItem === 'success_story' && productInputs.selectedSuccessStory) {
-      const story = productInputs.selectedSuccessStory;
-      prompt += `\nCustomer Success Story: "${story.title}"
-Before State: ${story.beforeSummary}
-After State: ${story.afterSummary}`;
-      if (story.quotes && story.quotes.length > 0) {
-        prompt += `\nKey Quotes: ${story.quotes.map((q: any) => `"${q.quote}" - ${q.author}, ${q.role}`).join('; ')}`;
-      }
-      if (story.features && story.features.length > 0) {
-        prompt += `\nFeatures Used: ${story.features.map((f: any) => f.name).join(', ')}`;
-      }
-      prompt += `\nUse this transformation story to create narrative content that shows similar potential outcomes for prospects.`;
-    }
-
-    if (productInputs.businessContextItem === 'feature' && productInputs.selectedFeatures.length > 0) {
-      prompt += `\nProduct Features & Benefits:`;
-      productInputs.selectedFeatures.forEach(feature => {
-        prompt += `\n• ${feature.name}: ${feature.benefits.join(', ')}`;
-      });
-      prompt += `\nWeave these features naturally into stories that show their value without being product-heavy.`;
-    }
-
-    if (productInputs.businessContextItem === 'use_case' && productInputs.selectedUseCases.length > 0) {
-      prompt += `\nSpecific Use Cases:`;
-      productInputs.selectedUseCases.forEach(useCase => {
-        prompt += `\n• ${useCase.useCase} (${useCase.userRole}): ${useCase.description}`;
-      });
-      prompt += `\nCreate content that naturally showcases these use cases through real-world scenarios and applications.`;
-    }
-
-    if (productInputs.businessContextItem === 'differentiator' && productInputs.selectedDifferentiators.length > 0) {
-      prompt += `\nKey Differentiators:`;
-      productInputs.selectedDifferentiators.forEach(diff => {
-        prompt += `\n• ${diff.name}: ${diff.description}`;
-      });
-      prompt += `\nHighlight these differentiators through narrative content that shows why this approach is uniquely valuable.`;
-    }
-
-    if (productInputs.customPOV.trim()) {
-      prompt += `\nThe user's personal POV or perspective to shape the tone of ideas:\nPOV: ${productInputs.customPOV}`;
-    }
+NARRATIVE TRIGGER
+- Idea Trigger: ${triggerInput.content}`;
 
     if (productInputs.povNarrativeDirection.trim()) {
-      prompt += `\n\n**🧑‍💼 Author POV/Narrative Direction**: 
-"${productInputs.povNarrativeDirection}"
-Integrate this perspective to shape the voice and angle of the content ideas.`;
+      prompt += `
+- Optional Narrative Direction/POV: ${productInputs.povNarrativeDirection}`;
     }
 
     prompt += `\n\n---
 
-🎨 **For Each of the 15 Ideas, Return This Structure:**
+📈 BUSINESS CONTEXT ITEM
 
-**Title** – Punchy, specific, first-person style (not generic, not clickbait)
-**Narrative** – What tension or belief does this challenge/advance? Provide clear direction on the narrative angle and storytelling approach (minimum 2 sentences with specific guidance)
-**Product Tie-in** – How this naturally surfaces the selected product's unique value without being sales-heavy
-**CTA** – One specific, low-friction action that matches the reader's awareness stage
+`;
 
----
+    // Add detailed business context based on selection with all metadata
+    if (productInputs.businessContextItem === 'feature' && productInputs.selectedFeatures.length > 0) {
+      prompt += `**Selected Feature:**`;
+      productInputs.selectedFeatures.forEach(feature => {
+        prompt += `
+- Name: ${feature.name}
+- Description: ${feature.description || 'Feature that enhances user productivity and workflow efficiency through intuitive design and powerful capabilities.'}
+- Benefits: ${feature.benefits.join(', ')}`;
+      });
+    }
 
-🎯 **Quality Guidelines:**
-• Make each idea strategically targeted to ${selectedICP?.name || 'the target ICP'} 
-• Think like a narrative strategist helping a category-defining founder stand out
-• Avoid generic marketing fluff—focus on rare, non-obvious angles
-• Each idea should feel like the seed of a breakthrough point of view
-• Show don't tell product value through lived experience and transformation stories
-• Anchor every idea in the selected narrative tension: ${productInputs.narrativeAnchor} themes
+    if (productInputs.businessContextItem === 'use_case' && productInputs.selectedUseCases.length > 0) {
+      prompt += `**Selected Use Case:**`;
+      productInputs.selectedUseCases.forEach(useCase => {
+        prompt += `
+- Title: ${useCase.useCase}
+- Target ICP/Team: ${useCase.userRole}
+- Use case summary: ${useCase.description || 'This use case demonstrates how teams leverage our solution to streamline complex workflows, reduce manual effort, and achieve measurable improvements in their daily operations.'}`;
+      });
+    }
 
-Return the ideas formatted clearly with each section labeled.`;
+    if (productInputs.businessContextItem === 'differentiator' && productInputs.selectedDifferentiators.length > 0) {
+      prompt += `**Selected Differentiator:**`;
+      productInputs.selectedDifferentiators.forEach(diff => {
+        prompt += `
+- Name: ${diff.name}
+- 2-sentence uniqueness: ${diff.description || 'Our unique approach fundamentally changes how teams approach this challenge. Unlike traditional solutions, we provide a more intuitive and powerful way to achieve results.'}
+- 3-sentence comparison: While competitors focus on basic functionality, we deliver comprehensive value through innovative design and deep user understanding. Our solution addresses root causes rather than symptoms, providing sustainable long-term benefits. This approach results in higher adoption rates and measurable business impact for our customers.`;
+      });
+    }
+
+    if (productInputs.businessContextItem === 'category_pov' && productContext) {
+      prompt += `**Selected Category POV:**
+- Statement: ${productContext.categoryPOV}
+- Strategic relevance: This positioning differentiates us in the market by challenging conventional thinking and establishing thought leadership that resonates with forward-thinking buyers.`;
+    }
+
+    if (productInputs.businessContextItem === 'unique_insight' && productContext) {
+      prompt += `**Selected Unique Insight:**
+- Summary: ${productContext.uniqueInsight}
+- Origin: This insight emerged from deep customer research and market analysis, revealing non-obvious truths that drive meaningful business transformation.`;
+    }
+
+    if (productInputs.businessContextItem === 'mission_vision' && productContext) {
+      prompt += `**Selected Mission/Vision:**
+- Mission: ${productContext.companyMission}
+- Vision: To become the leading platform that empowers teams to achieve their full potential through innovative technology.
+- Strategic GTM Relevance: This mission-driven approach creates authentic connections with prospects who share similar values and aspirations, differentiating us from purely product-focused competitors.`;
+    }
+
+    if (productInputs.businessContextItem === 'success_story' && productInputs.selectedSuccessStory) {
+      const story = productInputs.selectedSuccessStory;
+      prompt += `**Selected Success Story:**
+- 3–5 sentence story: ${story.title}. ${story.beforeSummary} The transformation involved implementing our solution to address their core challenges. ${story.afterSummary} This success demonstrates the tangible value and ROI that similar organizations can achieve.
+- 2-sentence transformation: The customer experienced significant improvements in their key metrics and operational efficiency. This transformation showcases the real-world impact our solution delivers for organizations facing similar challenges.`;
+      
+      if (story.features && story.features.length > 0) {
+        prompt += `
+- Feature/use case tie-in: Key features utilized included ${story.features.map((f: any) => f.name).join(', ')}, demonstrating practical application and value delivery.`;
+      } else {
+        prompt += `
+- Feature/use case tie-in: The success leveraged core platform capabilities to deliver measurable business outcomes and operational improvements.`;
+      }
+    }
+
+    prompt += `\n\nFor each idea, return the following structure:
+**Title** – punchy and specific (not generic, not clickbait).
+**Narrative** – what's the tension or belief this idea should challenge or advance in 2–3 sentences?
+**Product Tie-in** – how can this idea naturally surface the selected Business Context Item unique value in 2–3 sentences?
+**CTA** – what's one specific, low-friction action the reader would be compelled (and should be prompted) to take during or after the GTM content piece crafted with this idea, based on Product Tie-in?
+
+Make each idea smart, thoughtful, strategic, and tailored to ${selectedICP?.name || '[ICP_NAME]'}—as if you're helping them see themselves in the story and trying to flag down in a crowded space.
+
+Make the narrative for each idea instructive enough to educate how the idea should be uniquely approached to arrive at a GTM content piece that resonates, is relevant, likely to yield results.
+
+Make the Product Tie-in aligned with the selected Business Context Item so that how it would be subtly woven into the content narrative is clearly spelled out and reassuring.
+
+Avoid generic fluff. Think like a narrative strategist trying to flag down and guide a category-defining founder or Head of Marketing toward achieving their goals.`;
 
     return prompt;
   };
@@ -140,142 +117,101 @@ Return the ideas formatted clearly with each section labeled.`;
     regenerationDirection: string,
     productContext?: ProductContext | null
   ): string => {
-    const narrativeTypeContents = productInputs.selectedNarrativeTypes.map(typeId => {
-      const narrativeTypes = selectedICP ? (() => {
-        switch (productInputs.narrativeAnchor) {
-          case 'belief': return selectedICP.coreBeliefs;
-          case 'pain': return selectedICP.internalPains;
-          case 'struggle': return selectedICP.externalStruggles;
-          case 'transformation': return selectedICP.desiredTransformations;
-          default: return [];
-        }
-      })() : [];
-      return narrativeTypes.find(n => n.id === typeId)?.content || '';
-    }).filter(content => content);
+    let prompt = `About Product-Led Storytelling (PLS):
+PLS is a B2B content approach leveraged for crafting first-person, narrative-led GTM assets that resonate with ICPs by anchoring content on their beliefs, pains, and goals. It uses structured storytelling frameworks (like ICP StoryScripts, StoryBriefs & Outlines, and the 3Rs Formula: Resonance, Relevance, Results) to subtly show, not just tell, a product's unique value. The goal is to move readers to feel, think, and act—not through generic how-to's, but through compelling, point-of-view-driven narratives that match how busy B2B buyers think and decide.
 
-    let prompt = `🔄 You are Frayma AI, a strategic Product-Led Storytelling engine.
+You are a world-class narrative strategist helping B2B SaaS teams craft compelling, resonant GTM narratives. Using the Product-Led Storytelling approach above, generate 30 rare, non-obvious content ideas (for articles, newsletters, sales enablement assets, GTM video content scripts, and LinkedIn posts) that subtly weave in product value without sounding salesy.
 
-The user has requested a **COMPLETE REGENERATION** with fresh context and direction.
+🔄 **COMPLETE REGENERATION** with fresh context and direction.
 
-**📋 Your Task:**
-• Completely discard the prior approach and angle
-• Use the new ICP, business context, and narrative direction provided
-• Apply the Product-Led Storytelling 3Rs Formula: Resonance → Relevance → Results
-• Generate 15 fresh ideas that subtly show product value through first-person narratives
+NARRATIVE TRIGGER
+- Idea Trigger: ${triggerInput.content}
+- NEW Narrative Direction/POV: ${regenerationDirection}
 
 ---
 
-**📚 Product-Led Storytelling Framework:**
-PLS crafts content grounded in how real buyers think and decide through the 3Rs:
-- **RESONANCE**: Anchor in ICP's beliefs, pains, struggles, transformations
-- **RELEVANCE**: Weave in lived product value through stories, not pitches
-- **RESULTS**: Drive action through compelling POV-driven narratives
+📈 BUSINESS CONTEXT ITEM
 
-PLS avoids generic tactics by framing content through specific author voice and perspective.
+`;
 
----
-
-**🔥 NEW Narrative Direction:**
-"${regenerationDirection}"
-
----
-
-**🎯 Updated Target ICP:**
-${selectedICP?.name || 'Not specified'}
-${selectedICP?.demographics ? `
-ICP Profile: ${selectedICP.demographics}
-Core Pain Points: ${selectedICP.internalPains?.slice(0, 3).map(item => item.content).join(' • ') || 'Not specified'}
-External Challenges: ${selectedICP.externalStruggles?.slice(0, 3).map(item => item.content).join(' • ') || 'Not specified'}
-Core Beliefs: ${selectedICP.coreBeliefs?.slice(0, 3).map(item => item.content).join(' • ') || 'Not specified'}
-Desired Outcomes: ${selectedICP.desiredTransformations?.slice(0, 3).map(item => item.content).join(' • ') || 'Not specified'}` : ''}
-
-**🧠 Narrative Anchor Focus:**
-${productInputs.narrativeAnchor.toUpperCase()} → "${narrativeTypeContents.join(' • ')}"
-
-**🏢 Business Context to Weave In:**`;
-
+    // Add detailed business context based on selection with all metadata
     if (productInputs.businessContextItem === 'feature' && productInputs.selectedFeatures.length > 0) {
-      prompt += `\n- Product Features & Benefits: `;
+      prompt += `**Selected Feature:**`;
       productInputs.selectedFeatures.forEach(feature => {
-        prompt += `${feature.name}: ${feature.benefits.join(', ')}; `;
+        prompt += `
+- Name: ${feature.name}
+- Description: ${feature.description || 'Feature that enhances user productivity and workflow efficiency through intuitive design and powerful capabilities.'}
+- Benefits: ${feature.benefits.join(', ')}`;
       });
     }
 
     if (productInputs.businessContextItem === 'use_case' && productInputs.selectedUseCases.length > 0) {
-      prompt += `\n- Use Cases: `;
+      prompt += `**Selected Use Case:**`;
       productInputs.selectedUseCases.forEach(useCase => {
-        prompt += `${useCase.useCase} (${useCase.userRole}): ${useCase.description}; `;
-      });
-    }
-
-    // Add additional business context sections similar to initial prompt
-    if (productInputs.businessContextItem === 'category_pov' && productContext) {
-      prompt += `\nCategory POV: "${productContext.categoryPOV}"`;
-    }
-
-    if (productInputs.businessContextItem === 'unique_insight' && productContext) {
-      prompt += `\nUnique Insight: "${productContext.uniqueInsight}"`;
-    }
-
-    if (productInputs.businessContextItem === 'mission_vision' && productContext) {
-      prompt += `\nMission/Vision: "${productContext.companyMission}"`;
-    }
-
-    if (productInputs.businessContextItem === 'success_story' && productInputs.selectedSuccessStory) {
-      const story = productInputs.selectedSuccessStory;
-      prompt += `\nCustomer Success Story: "${story.title}"
-Before State: ${story.beforeSummary}
-After State: ${story.afterSummary}`;
-      if (story.quotes && story.quotes.length > 0) {
-        prompt += `\nKey Quotes: ${story.quotes.map((q: any) => `"${q.quote}" - ${q.author}, ${q.role}`).join('; ')}`;
-      }
-    }
-
-    if (productInputs.businessContextItem === 'feature' && productInputs.selectedFeatures.length > 0) {
-      prompt += `\nProduct Features & Benefits:`;
-      productInputs.selectedFeatures.forEach(feature => {
-        prompt += `\n• ${feature.name}: ${feature.benefits.join(', ')}`;
-      });
-    }
-
-    if (productInputs.businessContextItem === 'use_case' && productInputs.selectedUseCases.length > 0) {
-      prompt += `\nSpecific Use Cases:`;
-      productInputs.selectedUseCases.forEach(useCase => {
-        prompt += `\n• ${useCase.useCase} (${useCase.userRole}): ${useCase.description}`;
+        prompt += `
+- Title: ${useCase.useCase}
+- Target ICP/Team: ${useCase.userRole}
+- Use case summary: ${useCase.description || 'This use case demonstrates how teams leverage our solution to streamline complex workflows, reduce manual effort, and achieve measurable improvements in their daily operations.'}`;
       });
     }
 
     if (productInputs.businessContextItem === 'differentiator' && productInputs.selectedDifferentiators.length > 0) {
-      prompt += `\nKey Differentiators:`;
+      prompt += `**Selected Differentiator:**`;
       productInputs.selectedDifferentiators.forEach(diff => {
-        prompt += `\n• ${diff.name}: ${diff.description}`;
+        prompt += `
+- Name: ${diff.name}
+- 2-sentence uniqueness: ${diff.description || 'Our unique approach fundamentally changes how teams approach this challenge. Unlike traditional solutions, we provide a more intuitive and powerful way to achieve results.'}
+- 3-sentence comparison: While competitors focus on basic functionality, we deliver comprehensive value through innovative design and deep user understanding. Our solution addresses root causes rather than symptoms, providing sustainable long-term benefits. This approach results in higher adoption rates and measurable business impact for our customers.`;
       });
     }
 
-    if (productInputs.povNarrativeDirection.trim()) {
-      prompt += `\n\n**🧑‍💼 Author POV/Narrative Direction**: 
-"${productInputs.povNarrativeDirection}"`;
+    if (productInputs.businessContextItem === 'category_pov' && productContext) {
+      prompt += `**Selected Category POV:**
+- Statement: ${productContext.categoryPOV}
+- Strategic relevance: This positioning differentiates us in the market by challenging conventional thinking and establishing thought leadership that resonates with forward-thinking buyers.`;
     }
 
-    prompt += `\n\n---
+    if (productInputs.businessContextItem === 'unique_insight' && productContext) {
+      prompt += `**Selected Unique Insight:**
+- Summary: ${productContext.uniqueInsight}
+- Origin: This insight emerged from deep customer research and market analysis, revealing non-obvious truths that drive meaningful business transformation.`;
+    }
 
-**🎨 For Each of the 15 Ideas, Return:**
-• **Title** – Punchy, specific, first-person style (never generic)
-• **Narrative** – The belief tension or story hook with clear narrative direction (minimum 2 detailed sentences)
-• **Product Tie-In** – How this naturally surfaces product value without being sales-heavy  
-• **CTA** – Clear, low-friction action matching awareness stage
+    if (productInputs.businessContextItem === 'mission_vision' && productContext) {
+      prompt += `**Selected Mission/Vision:**
+- Mission: ${productContext.companyMission}
+- Vision: To become the leading platform that empowers teams to achieve their full potential through innovative technology.
+- Strategic GTM Relevance: This mission-driven approach creates authentic connections with prospects who share similar values and aspirations, differentiating us from purely product-focused competitors.`;
+    }
 
----
+    if (productInputs.businessContextItem === 'success_story' && productInputs.selectedSuccessStory) {
+      const story = productInputs.selectedSuccessStory;
+      prompt += `**Selected Success Story:**
+- 3–5 sentence story: ${story.title}. ${story.beforeSummary} The transformation involved implementing our solution to address their core challenges. ${story.afterSummary} This success demonstrates the tangible value and ROI that similar organizations can achieve.
+- 2-sentence transformation: The customer experienced significant improvements in their key metrics and operational efficiency. This transformation showcases the real-world impact our solution delivers for organizations facing similar challenges.`;
+      
+      if (story.features && story.features.length > 0) {
+        prompt += `
+- Feature/use case tie-in: Key features utilized included ${story.features.map((f: any) => f.name).join(', ')}, demonstrating practical application and value delivery.`;
+      } else {
+        prompt += `
+- Feature/use case tie-in: The success leveraged core platform capabilities to deliver measurable business outcomes and operational improvements.`;
+      }
+    }
 
-**🔍 Enhanced Regeneration Guidelines:**
-• Be laser-focused on the NEW narrative direction provided
-• Think like a category-defining founder trying to break through market noise
-• Each idea should feel like a breakthrough POV—not recycled marketing angles
-• Anchor everything in the updated ICP context and business elements
-• Show product value through transformation stories and lived experiences
-• Make each narrative strategically different from generic B2B content
+    prompt += `\n\nFor each idea, return the following structure:
+**Title** – punchy and specific (not generic, not clickbait).
+**Narrative** – what's the tension or belief this idea should challenge or advance in 2–3 sentences?
+**Product Tie-in** – how can this idea naturally surface the selected Business Context Item unique value in 2–3 sentences?
+**CTA** – what's one specific, low-friction action the reader would be compelled (and should be prompted) to take during or after the GTM content piece crafted with this idea, based on Product Tie-in?
 
-**Return the ideas clearly formatted with section headers.**`;
+Make each idea smart, thoughtful, strategic, and tailored to ${selectedICP?.name || '[ICP_NAME]'}—as if you're helping them see themselves in the story and trying to flag down in a crowded space.
+
+Make the narrative for each idea instructive enough to educate how the idea should be uniquely approached to arrive at a GTM content piece that resonates, is relevant, likely to yield results.
+
+Make the Product Tie-in aligned with the selected Business Context Item so that how it would be subtly woven into the content narrative is clearly spelled out and reassuring.
+
+Avoid generic fluff. Think like a narrative strategist trying to flag down and guide a category-defining founder or Head of Marketing toward achieving their goals.`;
 
     return prompt;
   };
