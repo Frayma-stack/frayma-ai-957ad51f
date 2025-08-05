@@ -120,11 +120,12 @@ PLS is a B2B content approach leveraged for crafting first-person, narrative-led
 
 You are a world-class narrative strategist helping B2B SaaS teams craft compelling, resonant GTM narratives. Using the Product-Led Storytelling approach above, generate 30 rare, non-obvious content ideas (for articles, newsletters, sales enablement assets, GTM video content scripts, and LinkedIn posts) that subtly weave in product value without sounding salesy.
 
-🔄 **COMPLETE REGENERATION** with fresh context and direction.
+🔄 **ENHANCED REGENERATION** with updated context, direction, and targeting.
 
 NARRATIVE TRIGGER
-- Idea Trigger: ${triggerInput.content}
-- NEW Narrative Direction/POV: ${regenerationDirection}
+- Original Idea Trigger: ${triggerInput.content}
+- **NEW Narrative Direction/POV**: ${regenerationDirection}
+- Focus: Create completely fresh content ideas using this new perspective and direction
 
 ---
 
