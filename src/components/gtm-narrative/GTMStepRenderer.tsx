@@ -9,7 +9,7 @@ import TargetReaderResonanceStep from './TargetReaderResonanceStep';
 import ContentDiscoveryTriggersStep from './ContentDiscoveryTriggersStep';
 import EnhancedContentOutlineStep from './EnhancedContentOutlineStep';
 import ContentGenerationEditor from './ContentGenerationEditor';
-import PLSEditor from './PLSEditor';
+import NewPLSEditor from '../pls-editor/NewPLSEditor';
 
 interface GTMStepRendererProps {
   currentStep: number;
@@ -86,7 +86,7 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
   if (contentPhase === 'editor') {
     // Use the new PLS Editor for auto-crafted content
     return (
-      <PLSEditor
+      <NewPLSEditor
         formData={formData}
         autoCraftingConfig={formData.autoCraftingConfig!}
         isGenerating={isGenerating}

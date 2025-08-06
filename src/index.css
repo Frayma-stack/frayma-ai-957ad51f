@@ -108,4 +108,83 @@
   .card-hover {
     @apply transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px];
   }
+
+  /* PLS Editor Styles */
+  .pls-editor-content {
+    font-size: 17px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    line-height: 24px;
+    color: hsl(var(--foreground));
+  }
+
+  .pls-editor-content p {
+    margin-bottom: 24px; /* Double paragraph spacing */
+    max-width: 100%;
+    word-wrap: break-word;
+    hyphens: auto;
+  }
+
+  /* Limit line length to ~17 words */
+  .pls-editor-content {
+    max-width: 650px; /* Roughly 17 words at 17px font size */
+    margin: 0 auto;
+  }
+
+  .pls-editor-content h1,
+  .pls-editor-content h2,
+  .pls-editor-content h3,
+  .pls-editor-content h4,
+  .pls-editor-content h5,
+  .pls-editor-content h6 {
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    margin-top: 32px;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+
+  .pls-editor-content h2 {
+    font-size: 24px;
+  }
+
+  .pls-editor-content h3 {
+    font-size: 20px;
+  }
+
+  .pls-editor-content h4 {
+    font-size: 18px;
+  }
+
+  .pls-editor-content blockquote {
+    border-left: 4px solid hsl(var(--border));
+    padding-left: 16px;
+    margin: 24px 0;
+    font-style: italic;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .pls-editor-content code {
+    background: hsl(var(--muted));
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+  }
+
+  .pls-editor-content ul,
+  .pls-editor-content ol {
+    margin: 16px 0;
+    padding-left: 24px;
+  }
+
+  .pls-editor-content li {
+    margin-bottom: 8px;
+  }
+
+  .pls-editor-content hr {
+    border: none;
+    border-top: 1px solid hsl(var(--border));
+    margin: 32px 0;
+  }
 }
