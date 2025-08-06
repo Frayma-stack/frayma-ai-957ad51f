@@ -22,7 +22,7 @@ interface NewPLSEditorProps {
   autoCraftingConfig: AutoCraftingConfig;
   isGenerating: boolean;
   onDataChange: (field: keyof FormData, value: any) => void;
-  onGeneratePhase: (phase: 'body' | 'conclusion') => Promise<void>;
+  onGeneratePhase: (phase: 'intro' | 'body' | 'conclusion') => Promise<void>;
   onBackToOutline: () => void;
   onSaveAsDraft: () => Promise<void>;
 }
@@ -263,6 +263,19 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
         }}
         onCopyDraft={handleCopyEntireDraft}
         isGenerating={isGenerating}
+        showGTMControls={!autoCraftingConfig.isShortForm}
+        onRegeneratePhase={() => {
+          if (autoCraftingConfig.currentPhase) {
+            onGeneratePhase(autoCraftingConfig.currentPhase);
+          }
+        }}
+        onNextPhase={async () => {
+          if (autoCraftingConfig.currentPhase === 'intro') {
+            await onGeneratePhase('body');
+          } else if (autoCraftingConfig.currentPhase === 'body') {
+            await onGeneratePhase('conclusion');
+          }
+        }}
       />
 
       {/* Contextual Menu */}

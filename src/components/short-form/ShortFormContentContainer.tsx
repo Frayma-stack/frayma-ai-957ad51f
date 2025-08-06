@@ -1,6 +1,7 @@
 
 import { FC } from 'react';
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Loader } from "lucide-react";
 import { ICPStoryScript, Author, CustomerSuccessStory, ProductContext } from '@/types/storytelling';
 import { GeneratedIdea } from '@/types/ideas';
 import { usePageReloadProtection } from '@/hooks/usePageReloadProtection';
@@ -8,7 +9,7 @@ import { useShortFormContentCreator } from './useShortFormContentCreator';
 import { ContentType } from './types';
 import ShortFormHeader from './ShortFormHeader';
 import ShortFormMainContent from './ShortFormMainContent';
-import ContentGenerationDisplay from './ContentGenerationDisplay';
+import { NewPLSEditor } from '../pls-editor';
 
 interface ShortFormContentContainerProps {
   contentType: ContentType;
@@ -140,6 +141,97 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
     isGenerating
   });
 
+  // Navigate directly to PLS Editor when content is generated
+  if (generatedContent && !isGenerating) {
+    // Format content for different types - especially for multiple emails
+    let formattedContent = generatedContent;
+    
+    if (contentType.includes('email') && emailCount > 1) {
+      // For multiple emails, format as clean JSON for easier editing
+      try {
+        const emails = JSON.parse(generatedContent);
+        if (Array.isArray(emails)) {
+          formattedContent = JSON.stringify(emails, null, 2);
+        }
+      } catch (error) {
+        // If not JSON, keep as is
+        console.log('Content is not JSON, keeping as plain text');
+      }
+    }
+
+    const plsFormData = {
+      selectedIdeaId: '',
+      ideaTrigger: '',
+      mutualGoal: '',
+      targetKeyword: '',
+      businessContextItem: '',
+      businessContextType: '' as const,
+      publishReason: '',
+      callToAction: '',
+      strategicSuccessStory: '',
+      mainTargetICP: '',
+      journeyStage: '',
+      broaderAudience: '',
+      readingPrompt: '',
+      narrativeAnchors: [],
+      successStory: '',
+      articleAuthor: '',
+      selectedAuthorWritingTone: '',
+      relatedKeywords: [],
+      searchQueries: [],
+      problemStatements: [],
+      headlineOptions: [],
+      selectedHeadline: '',
+      introPOV: '',
+      outlineSections: [],
+      generatedIntro: formattedContent,
+      generatedBody: '',
+      generatedConclusion: ''
+    };
+
+    const plsAutoCraftingConfig = {
+      authorId: selectedAuthor,
+      experienceIds: [],
+      writingTone: selectedAuthorTone,
+      introWordCount: wordCount || 300,
+      bodyWordCount: 0,
+      conclusionWordCount: 0,
+      isShortForm: true,
+      contentType: contentType,
+      metadata: {
+        selectedICP,
+        selectedAuthor,
+        contentGoal,
+        contentTypeLabel: getContentTypeLabel(),
+        emailCount: contentType.includes('email') ? emailCount : undefined
+      }
+    };
+
+    return (
+      <NewPLSEditor
+        formData={plsFormData}
+        autoCraftingConfig={plsAutoCraftingConfig}
+        isGenerating={isGenerating}
+        onDataChange={(field, value) => {
+          if (field === 'generatedIntro') {
+            setGeneratedContent(value);
+          }
+        }}
+        onGeneratePhase={async () => {
+          // For short-form content, regenerate the entire content
+          await handleGenerateContent();
+        }}
+        onBackToOutline={() => {
+          setGeneratedContent('');
+        }}
+        onSaveAsDraft={async () => {
+          // Auto-save functionality is already handled by the hook
+          return Promise.resolve();
+        }}
+      />
+    );
+  }
+
   return (
     <div className="space-y-4">
       <Card className="w-full bg-white shadow-md">
@@ -194,21 +286,16 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
         />
       </Card>
         
-      <ContentGenerationDisplay
-        content={generatedContent}
-        onContentChange={setGeneratedContent}
-        contentType={contentType}
-        contentTypeLabel={getContentTypeLabel()}
-        isGenerating={isGenerating}
-        isSaving={isSaving}
-        lastSaved={lastSaved}
-        showRestoreDialog={showRestoreDialog}
-        availableDrafts={availableDrafts}
-        onSetShowRestoreDialog={setShowRestoreDialog}
-        onRestoreDraft={handleRestoreDraft}
-        onDeleteDraft={handleDeleteDraft}
-        onClearDraft={clearCurrentDraft}
-      />
+      {isGenerating && (
+        <Card className="w-full bg-white shadow-md">
+          <CardContent className="py-8">
+            <div className="flex items-center justify-center space-x-3 text-muted-foreground">
+              <Loader className="h-6 w-6 animate-spin" />
+              <span>Auto-crafting your {getContentTypeLabel().toLowerCase()}...</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

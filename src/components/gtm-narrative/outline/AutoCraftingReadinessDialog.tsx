@@ -24,6 +24,10 @@ interface AutoCraftingConfig {
   introWordCount: number;
   bodyWordCount: number;
   conclusionWordCount: number;
+  isShortForm?: boolean;
+  contentType?: string;
+  currentPhase?: 'intro' | 'body' | 'conclusion';
+  metadata?: any;
 }
 
 const AutoCraftingReadinessDialog: FC<AutoCraftingReadinessDialogProps> = ({

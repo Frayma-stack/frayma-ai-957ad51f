@@ -17,7 +17,9 @@ import {
   CheckCircle,
   Copy,
   Menu,
-  Loader2
+  Loader2,
+  RefreshCw,
+  ArrowRight
 } from 'lucide-react';
 
 interface FloatingMenuProps {
@@ -26,6 +28,9 @@ interface FloatingMenuProps {
   onRunAIChecks: () => void;
   onCopyDraft: () => void;
   isGenerating?: boolean;
+  showGTMControls?: boolean;
+  onRegeneratePhase?: () => void;
+  onNextPhase?: () => void;
 }
 
 const FloatingMenu: FC<FloatingMenuProps> = ({
@@ -33,7 +38,10 @@ const FloatingMenu: FC<FloatingMenuProps> = ({
   onAddVisual,
   onRunAIChecks,
   onCopyDraft,
-  isGenerating = false
+  isGenerating = false,
+  showGTMControls = false,
+  onRegeneratePhase,
+  onNextPhase
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -143,6 +151,46 @@ const FloatingMenu: FC<FloatingMenuProps> = ({
                 <Copy className="h-4 w-4 mr-2" />
                 Copy Entire Draft
               </Button>
+
+              {/* GTM Article Controls */}
+              {showGTMControls && (
+                <>
+                  <div className="border-t border-border my-2" />
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground px-2 py-1">GTM Article</p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        onRegeneratePhase?.();
+                        setIsOpen(false);
+                      }}
+                      disabled={isGenerating}
+                      className="w-full justify-start"
+                    >
+                      {isGenerating ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                      )}
+                      Regenerate Phase
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        onNextPhase?.();
+                        setIsOpen(false);
+                      }}
+                      disabled={isGenerating}
+                      className="w-full justify-start"
+                    >
+                      <ArrowRight className="h-4 w-4 mr-2" />
+                      Auto-craft Next Phase
+                    </Button>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </PopoverContent>

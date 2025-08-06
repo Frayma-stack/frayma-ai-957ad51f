@@ -121,8 +121,9 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
 
   const handleProceedToAutoCrafting = (config: AutoCraftingConfig) => {
     console.log('🚀 Proceeding to auto-crafting with config:', config);
-    // Store the auto-crafting configuration
-    handleInputChange('autoCraftingConfig', config);
+    // Store the auto-crafting configuration with current phase tracking
+    const configWithPhase = { ...config, currentPhase: 'intro' as const };
+    handleInputChange('autoCraftingConfig', configWithPhase);
     // Start by generating the intro
     generatePhaseContent('intro').then(() => {
       // Transition to PLS editor mode

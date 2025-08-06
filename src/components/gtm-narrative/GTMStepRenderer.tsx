@@ -91,7 +91,14 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
         autoCraftingConfig={formData.autoCraftingConfig!}
         isGenerating={isGenerating}
         onDataChange={onDataChange}
-        onGeneratePhase={onRegenerate}
+        onGeneratePhase={async (phase) => {
+          // Update the current phase in the config
+          if (formData.autoCraftingConfig) {
+            const updatedConfig = { ...formData.autoCraftingConfig, currentPhase: phase };
+            onDataChange('autoCraftingConfig', updatedConfig);
+          }
+          await onRegenerate(phase);
+        }}
         onBackToOutline={onBackToOutline}
         onSaveAsDraft={onSaveAsDraft!}
       />
