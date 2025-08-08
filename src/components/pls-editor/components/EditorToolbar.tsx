@@ -33,43 +33,61 @@ const EditorToolbar: FC<EditorToolbarProps> = ({ selectedText, onTextUpdate, onI
     const range = selection.getRangeAt(0);
     const selectedContent = range.toString();
     
-    let formattedText = selectedContent;
+    if (!selectedContent) return;
+
+    let formattedElement: HTMLElement;
     
     switch (format) {
       case 'bold':
-        formattedText = `**${selectedContent}**`;
+        formattedElement = document.createElement('strong');
         break;
       case 'italic':
-        formattedText = `*${selectedContent}*`;
+        formattedElement = document.createElement('em');
         break;
       case 'underline':
-        formattedText = `<u>${selectedContent}</u>`;
+        formattedElement = document.createElement('u');
         break;
       case 'strikethrough':
-        formattedText = `~~${selectedContent}~~`;
+        formattedElement = document.createElement('s');
         break;
       case 'quote':
-        formattedText = `> ${selectedContent}`;
+        formattedElement = document.createElement('blockquote');
+        formattedElement.style.borderLeft = '3px solid hsl(var(--border))';
+        formattedElement.style.paddingLeft = '16px';
+        formattedElement.style.margin = '24px 0';
+        formattedElement.style.fontStyle = 'italic';
+        formattedElement.style.color = 'hsl(var(--muted-foreground))';
         break;
       case 'code':
-        formattedText = `\`${selectedContent}\``;
+        formattedElement = document.createElement('code');
+        formattedElement.style.backgroundColor = 'hsl(var(--muted))';
+        formattedElement.style.padding = '2px 4px';
+        formattedElement.style.borderRadius = '3px';
+        formattedElement.style.fontFamily = 'Monaco, Menlo, Ubuntu Mono, monospace';
+        formattedElement.style.fontSize = '15px';
         break;
       case 'superscript':
-        formattedText = `<sup>${selectedContent}</sup>`;
+        formattedElement = document.createElement('sup');
         break;
       case 'subscript':
-        formattedText = `<sub>${selectedContent}</sub>`;
+        formattedElement = document.createElement('sub');
         break;
       default:
         return;
     }
 
-    // Replace the selected text with formatted text
+    formattedElement.textContent = selectedContent;
     range.deleteContents();
-    range.insertNode(document.createTextNode(formattedText));
+    range.insertNode(formattedElement);
     
     // Clear selection
     selection.removeAllRanges();
+    
+    // Update the content
+    const editor = document.querySelector('.pls-editor-content') as HTMLElement;
+    if (editor && onTextUpdate) {
+      onTextUpdate(editor.innerHTML);
+    }
   };
 
   const insertElement = (element: string) => {
@@ -77,27 +95,46 @@ const EditorToolbar: FC<EditorToolbarProps> = ({ selectedText, onTextUpdate, onI
     if (!selection || !selection.rangeCount) return;
 
     const range = selection.getRangeAt(0);
-    let insertText = '';
+    let insertElement: HTMLElement;
 
     switch (element) {
       case 'bullet':
-        insertText = '\n• ';
+        insertElement = document.createElement('ul');
+        const listItem = document.createElement('li');
+        listItem.textContent = 'New list item';
+        insertElement.appendChild(listItem);
         break;
       case 'numbered':
-        insertText = '\n1. ';
+        insertElement = document.createElement('ol');
+        const numberedItem = document.createElement('li');
+        numberedItem.textContent = 'New numbered item';
+        insertElement.appendChild(numberedItem);
         break;
       case 'hr':
-        insertText = '\n\n---\n\n';
+        insertElement = document.createElement('hr');
+        insertElement.style.border = 'none';
+        insertElement.style.borderTop = '1px solid hsl(var(--border))';
+        insertElement.style.margin = '36px 0';
         break;
       case 'link':
-        insertText = `[${selectedText}](https://)`;
+        insertElement = document.createElement('a');
+        insertElement.textContent = selectedText || 'Link text';
+        insertElement.setAttribute('href', 'https://');
+        insertElement.style.color = 'hsl(var(--primary))';
+        insertElement.style.textDecoration = 'underline';
         break;
       default:
         return;
     }
 
-    range.insertNode(document.createTextNode(insertText));
+    range.insertNode(insertElement);
     selection.removeAllRanges();
+    
+    // Update the content
+    const editor = document.querySelector('.pls-editor-content') as HTMLElement;
+    if (editor && onTextUpdate) {
+      onTextUpdate(editor.innerHTML);
+    }
   };
 
   return (

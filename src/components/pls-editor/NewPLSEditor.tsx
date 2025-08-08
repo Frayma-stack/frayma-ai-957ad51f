@@ -16,6 +16,7 @@ import EditorToolbar from './components/EditorToolbar';
 import FloatingMenu from './components/FloatingMenu';
 import ContextualMenu from './components/ContextualMenu';
 import WordCounter from './components/WordCounter';
+import AIChecksDialog from './components/AIChecksDialog';
 import './styles/editor.css';
 
 interface NewPLSEditorProps {
@@ -46,6 +47,7 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
   const [showContextualMenu, setShowContextualMenu] = useState(false);
   const [undoStack, setUndoStack] = useState<string[]>([]);
   const [redoStack, setRedoStack] = useState<string[]>([]);
+  const [showAIChecks, setShowAIChecks] = useState(false);
   
   const editorRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -231,7 +233,7 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
           <div className="mb-6">
             <Button variant="ghost" onClick={onBackToOutline} size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Outline
+              Back to Drafts
             </Button>
           </div>
 
@@ -255,9 +257,8 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
               onBlur={handleEditorBlur}
               onMouseUp={handleTextSelection}
               onKeyUp={handleTextSelection}
-            >
-              {fullContent}
-            </div>
+              dangerouslySetInnerHTML={{ __html: fullContent }}
+            />
           </div>
         </div>
       </div>
@@ -269,24 +270,51 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
             const selection = window.getSelection();
             if (selection && selection.rangeCount > 0) {
               const range = selection.getRangeAt(0);
-              const headingText = document.createTextNode(`\n\n${'#'.repeat(level)} New Heading\n\n`);
-              range.insertNode(headingText);
+              
+              // Create proper heading HTML
+              const headingTag = level === 2 ? 'h2' : level === 3 ? 'h3' : 'h4';
+              const headingElement = document.createElement(headingTag);
+              headingElement.textContent = 'New Heading';
+              headingElement.style.fontSize = level === 2 ? '21px' : '19px';
+              headingElement.style.fontWeight = '800';
+              headingElement.style.marginTop = '36px';
+              headingElement.style.marginBottom = '12px';
+              
+              range.insertNode(headingElement);
               
               // Update content
-              const newContent = editorRef.current.textContent || '';
+              const newContent = editorRef.current.innerHTML || '';
               handleContentChange(newContent);
             }
           }
         }}
         onAddVisual={() => {
-          const visualPlaceholder = '\n\n[Visual Placeholder - Add your image here]\n\n';
-          handleContentChange(fullContent + visualPlaceholder);
+          if (editorRef.current) {
+            const selection = window.getSelection();
+            if (selection && selection.rangeCount > 0) {
+              const range = selection.getRangeAt(0);
+              
+              // Create visual placeholder element
+              const visualDiv = document.createElement('div');
+              visualDiv.className = 'visual-placeholder';
+              visualDiv.style.border = '2px dashed #ccc';
+              visualDiv.style.borderRadius = '8px';
+              visualDiv.style.padding = '24px';
+              visualDiv.style.textAlign = 'center';
+              visualDiv.style.margin = '24px 0';
+              visualDiv.style.backgroundColor = '#f9f9f9';
+              visualDiv.innerHTML = '<p style="margin: 0; color: #666;">Visual Placeholder - Add your image here</p>';
+              
+              range.insertNode(visualDiv);
+              
+              // Update content
+              const newContent = editorRef.current.innerHTML || '';
+              handleContentChange(newContent);
+            }
+          }
         }}
-        onRunAIChecks={() => {
-          toast({
-            title: "AI Checks",
-            description: "Running comprehensive checks for grammar, Resonance, Relevance, and Results...",
-          });
+        onRunAIChecks={(content) => {
+          setShowAIChecks(true);
         }}
         onCopyDraft={handleCopyEntireDraft}
         isGenerating={isGenerating}
@@ -310,6 +338,7 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
         <ContextualMenu
           position={selectionPosition}
           selectedText={selectedText}
+          fullContent={fullContent}
           onClose={() => setShowContextualMenu(false)}
           onEdit={(newText) => {
             const updatedContent = fullContent.replace(selectedText, newText);
@@ -356,6 +385,17 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
           </div>
         </div>
       </div>
+
+      {/* AI Checks Dialog */}
+      <AIChecksDialog
+        isOpen={showAIChecks}
+        onClose={() => setShowAIChecks(false)}
+        content={fullContent}
+        onHighlightErrors={(errors) => {
+          // This would highlight errors in the editor
+          console.log('Highlighting errors:', errors);
+        }}
+      />
     </div>
   );
 };

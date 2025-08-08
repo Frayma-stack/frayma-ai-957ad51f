@@ -24,40 +24,51 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { AutoCraftingConfig } from '../../gtm-narrative/outline/AutoCraftingReadinessDialog';
+import BusinessContentSelector from './BusinessContentSelector';
 
 interface ContextualMenuProps {
   position: { x: number; y: number };
   selectedText: string;
+  fullContent: string;
   onClose: () => void;
   onEdit: (newText: string) => void;
   onAddComment: (comment: string) => void;
   autoCraftingConfig: AutoCraftingConfig;
+  authorTones?: Array<{ id: string; name: string; description: string }>;
 }
 
 const ContextualMenu: FC<ContextualMenuProps> = ({
   position,
   selectedText,
+  fullContent,
   onClose,
   onEdit,
   onAddComment,
-  autoCraftingConfig
+  autoCraftingConfig,
+  authorTones = []
 }) => {
-  const [activeTab, setActiveTab] = useState<'edit' | 'comment'>('edit');
+  const [activeTab, setActiveTab] = useState<'edit' | 'comment' | 'weave'>('edit');
   const [editedText, setEditedText] = useState(selectedText);
   const [comment, setComment] = useState('');
   const [selectedTone, setSelectedTone] = useState(autoCraftingConfig.writingTone);
   const [narrativeDirection, setNarrativeDirection] = useState('');
 
-  const toneOptions = [
-    'Professional',
-    'Conversational',
-    'Authoritative',
-    'Friendly',
-    'Analytical',
-    'Inspiring',
-    'Direct',
-    'Storytelling'
-  ];
+  // Check if selected text is long enough for business content weaving (paragraph or more)
+  const isLongEnoughForWeaving = selectedText.split(' ').length >= 20;
+
+  // Use author tones if available, otherwise fallback to default tones
+  const toneOptions = authorTones.length > 0 
+    ? authorTones.map(tone => tone.name)
+    : [
+        'Professional',
+        'Conversational',
+        'Authoritative',
+        'Friendly',
+        'Analytical',
+        'Inspiring',
+        'Direct',
+        'Storytelling'
+      ];
 
   const handleRephraseWithAI = () => {
     // Simulate AI rephrase
@@ -112,6 +123,17 @@ const ContextualMenu: FC<ContextualMenuProps> = ({
               <MessageSquare className="h-3 w-3 mr-1" />
               Comment
             </Button>
+            {isLongEnoughForWeaving && (
+              <Button
+                variant={activeTab === 'weave' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveTab('weave')}
+                className="flex-1 text-xs"
+              >
+                <Sparkles className="h-3 w-3 mr-1" />
+                Weave
+              </Button>
+            )}
           </div>
         </CardHeader>
 
@@ -179,6 +201,26 @@ const ContextualMenu: FC<ContextualMenuProps> = ({
                   Apply Changes
                 </Button>
               </div>
+            </>
+          ) : activeTab === 'weave' ? (
+            <>
+              {/* Business Content Weaving */}
+              {isLongEnoughForWeaving ? (
+                <BusinessContentSelector
+                  selectedText={selectedText}
+                  fullContent={fullContent}
+                  narrativeDirection={narrativeDirection}
+                  onWeaveContent={(newText) => {
+                    onEdit(newText);
+                    onClose();
+                  }}
+                  onClose={onClose}
+                />
+              ) : (
+                <div className="text-xs text-muted-foreground text-center py-2">
+                  Please highlight a longer section (20+ words) to weave in business content.
+                </div>
+              )}
             </>
           ) : (
             <>

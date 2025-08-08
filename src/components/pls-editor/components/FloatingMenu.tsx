@@ -25,7 +25,7 @@ import {
 interface FloatingMenuProps {
   onAddHeading: (level: number) => void;
   onAddVisual: () => void;
-  onRunAIChecks: () => void;
+  onRunAIChecks: (content: string) => void;
   onCopyDraft: () => void;
   isGenerating?: boolean;
   showGTMControls?: boolean;
@@ -124,7 +124,7 @@ const FloatingMenu: FC<FloatingMenuProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  onRunAIChecks();
+                  onRunAIChecks(''); // Will be replaced with actual content in parent
                   setIsOpen(false);
                 }}
                 disabled={isGenerating}
