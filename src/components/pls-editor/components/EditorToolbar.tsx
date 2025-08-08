@@ -22,9 +22,10 @@ import {
 interface EditorToolbarProps {
   selectedText: string;
   onTextUpdate: (newContent: string) => void;
+  onInsertElement?: (element: string) => void;
 }
 
-const EditorToolbar: FC<EditorToolbarProps> = ({ selectedText, onTextUpdate }) => {
+const EditorToolbar: FC<EditorToolbarProps> = ({ selectedText, onTextUpdate, onInsertElement }) => {
   const applyFormatting = (format: string) => {
     const selection = window.getSelection();
     if (!selection || !selection.rangeCount) return;

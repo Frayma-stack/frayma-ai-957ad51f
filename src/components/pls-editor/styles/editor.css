@@ -1,0 +1,141 @@
+/* PLS Editor Typography Styles */
+.pls-editor-content {
+  /* Base text styles */
+  font-size: 17px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  line-height: 24px;
+  color: hsl(var(--foreground));
+}
+
+.pls-editor-content p {
+  margin-bottom: 24px; /* Double paragraph spacing */
+  max-width: 100%;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+.pls-editor-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Heading styles */
+.pls-editor-content h2 {
+  font-size: 21px;
+  font-weight: 800; /* Extra bold */
+  margin-top: 36px;
+  margin-bottom: 12px;
+  line-height: 1.2;
+  color: hsl(var(--foreground));
+}
+
+.pls-editor-content h3,
+.pls-editor-content h4 {
+  font-size: 19px;
+  font-weight: 800; /* Extra bold */
+  margin-top: 36px;
+  margin-bottom: 12px;
+  line-height: 1.2;
+  color: hsl(var(--foreground));
+}
+
+/* First heading has no top margin */
+.pls-editor-content h2:first-child,
+.pls-editor-content h3:first-child,
+.pls-editor-content h4:first-child {
+  margin-top: 0;
+}
+
+/* List styles */
+.pls-editor-content ul,
+.pls-editor-content ol {
+  margin-bottom: 24px;
+  padding-left: 20px;
+}
+
+.pls-editor-content li {
+  margin-bottom: 8px;
+  line-height: 24px;
+}
+
+/* Link styles */
+.pls-editor-content a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+}
+
+.pls-editor-content a:hover {
+  color: hsl(var(--primary-foreground));
+}
+
+/* Code styles */
+.pls-editor-content code {
+  background-color: hsl(var(--muted));
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 15px;
+}
+
+/* Quote styles */
+.pls-editor-content blockquote {
+  border-left: 3px solid hsl(var(--border));
+  padding-left: 16px;
+  margin: 24px 0;
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Horizontal rule */
+.pls-editor-content hr {
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+  margin: 36px 0;
+}
+
+/* Text formatting */
+.pls-editor-content strong,
+.pls-editor-content b {
+  font-weight: 600;
+}
+
+.pls-editor-content em,
+.pls-editor-content i {
+  font-style: italic;
+}
+
+.pls-editor-content u {
+  text-decoration: underline;
+}
+
+.pls-editor-content s,
+.pls-editor-content del {
+  text-decoration: line-through;
+}
+
+.pls-editor-content sup {
+  vertical-align: super;
+  font-size: 0.8em;
+}
+
+.pls-editor-content sub {
+  vertical-align: sub;
+  font-size: 0.8em;
+}
+
+/* Focus styles */
+.pls-editor-content:focus {
+  outline: none;
+}
+
+/* Selection styles */
+.pls-editor-content::selection {
+  background-color: hsl(var(--primary) / 0.2);
+}
+
+/* Placeholder text */
+.pls-editor-content:empty:before {
+  content: "Start writing your content here...";
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}

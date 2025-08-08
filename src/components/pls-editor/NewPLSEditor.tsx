@@ -16,6 +16,7 @@ import EditorToolbar from './components/EditorToolbar';
 import FloatingMenu from './components/FloatingMenu';
 import ContextualMenu from './components/ContextualMenu';
 import WordCounter from './components/WordCounter';
+import './styles/editor.css';
 
 interface NewPLSEditorProps {
   formData: FormData;
@@ -64,17 +65,15 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
       setRedoStack([]);
     }
     
-    // Split content back into sections (simple approach)
-    const sections = content.split('\n\n').filter(s => s.trim());
-    
-    if (sections.length >= 1) onDataChange('generatedIntro', sections[0]);
-    if (sections.length >= 2) onDataChange('generatedBody', sections[1]);
-    if (sections.length >= 3) onDataChange('generatedConclusion', sections[2]);
+    // Update the content directly - we'll handle section splitting elsewhere if needed
+    onDataChange('generatedIntro', content);
+    onDataChange('generatedBody', '');
+    onDataChange('generatedConclusion', '');
     
     setHasUnsavedChanges(true);
   };
 
-  // Handle text selection
+  // Handle text selection and show toolbar
   const handleTextSelection = () => {
     const selection = window.getSelection();
     if (selection && selection.toString().trim()) {
@@ -86,13 +85,30 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
         x: rect.left + rect.width / 2,
         y: rect.top - 10
       });
-      setShowToolbar(true);
       setShowContextualMenu(true);
     } else {
       setSelectedText('');
       setSelectionPosition(null);
-      setShowToolbar(false);
       setShowContextualMenu(false);
+    }
+  };
+
+  // Handle input events to show toolbar while typing
+  const handleEditorInput = (e: React.FormEvent<HTMLDivElement>) => {
+    const content = e.currentTarget.textContent || '';
+    handleContentChange(content);
+    setShowToolbar(true);
+  };
+
+  // Handle editor focus
+  const handleEditorFocus = () => {
+    setShowToolbar(true);
+  };
+
+  const handleEditorBlur = () => {
+    // Keep toolbar visible if there's selected text
+    if (!selectedText) {
+      setShowToolbar(false);
     }
   };
 
@@ -168,40 +184,40 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
 
   return (
     <div className="fixed inset-0 bg-background z-50 overflow-auto">
-      {/* Top Toolbar - Only visible when text is selected or typing */}
+      {/* Top Toolbar - Shows while typing or when text is selected */}
       {showToolbar && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-          <div className="max-w-4xl mx-auto px-6 py-3">
+          <div className="max-w-2xl mx-auto px-6 py-3">
             <div className="flex items-center justify-between">
-              {/* Word Counter */}
-              <WordCounter wordCount={wordCount} charCount={charCount} />
-              
-              {/* Editing Icons - Only show when text is selected */}
-              {selectedText && (
+              {/* Editing Icons - Faint opacity, clearer when text is selected */}
+              <div className={`transition-opacity duration-200 ${selectedText ? 'opacity-100' : 'opacity-40'}`}>
                 <EditorToolbar
                   selectedText={selectedText}
                   onTextUpdate={handleContentChange}
                 />
-              )}
+              </div>
               
-              {/* Undo/Redo */}
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleUndo}
-                  disabled={undoStack.length === 0}
-                >
-                  <Undo className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleRedo}
-                  disabled={redoStack.length === 0}
-                >
-                  <Redo className="h-4 w-4" />
-                </Button>
+              {/* Undo/Redo and Word Counter */}
+              <div className="flex items-center space-x-4">
+                <WordCounter wordCount={wordCount} charCount={charCount} />
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleUndo}
+                    disabled={undoStack.length === 0}
+                  >
+                    <Undo className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRedo}
+                    disabled={redoStack.length === 0}
+                  >
+                    <Redo className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -219,28 +235,29 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
             </Button>
           </div>
 
-          {/* Center-aligned Editor */}
-          <div className="max-w-2xl mx-auto">
+          {/* Center-aligned Paper-like Editor */}
+          <div className="max-w-2xl mx-auto bg-background shadow-lg rounded-lg border border-border min-h-[700px]">
             <div
               ref={editorRef}
               contentEditable
               suppressContentEditableWarning
-              className="pls-editor-content focus:outline-none"
+              className="pls-editor-content focus:outline-none p-12"
               style={{
                 fontSize: '17px',
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: 400,
                 lineHeight: '24px',
-                minHeight: '500px',
+                minHeight: '600px',
                 whiteSpace: 'pre-wrap'
               }}
-              onInput={(e) => handleContentChange(e.currentTarget.textContent || '')}
+              onInput={handleEditorInput}
+              onFocus={handleEditorFocus}
+              onBlur={handleEditorBlur}
               onMouseUp={handleTextSelection}
               onKeyUp={handleTextSelection}
-              dangerouslySetInnerHTML={{
-                __html: fullContent.replace(/\n\n/g, '</p><p class="mb-6">').replace(/^/, '<p class="mb-6">').replace(/$/, '</p>')
-              }}
-            />
+            >
+              {fullContent}
+            </div>
           </div>
         </div>
       </div>
@@ -248,8 +265,18 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
       {/* Floating Menu */}
       <FloatingMenu
         onAddHeading={(level) => {
-          const heading = `\n\n${'#'.repeat(level)} New Heading\n\n`;
-          handleContentChange(fullContent + heading);
+          if (editorRef.current) {
+            const selection = window.getSelection();
+            if (selection && selection.rangeCount > 0) {
+              const range = selection.getRangeAt(0);
+              const headingText = document.createTextNode(`\n\n${'#'.repeat(level)} New Heading\n\n`);
+              range.insertNode(headingText);
+              
+              // Update content
+              const newContent = editorRef.current.textContent || '';
+              handleContentChange(newContent);
+            }
+          }
         }}
         onAddVisual={() => {
           const visualPlaceholder = '\n\n[Visual Placeholder - Add your image here]\n\n';
