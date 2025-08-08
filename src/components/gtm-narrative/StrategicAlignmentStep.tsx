@@ -14,7 +14,7 @@ interface StrategicAlignmentData {
   mutualGoal: string;
   targetKeyword: string;
   businessContextItem: string;
-  businessContextType: 'categoryPOV' | 'uniqueInsight' | 'companyMission' | 'feature' | 'useCase' | 'differentiator' | '';
+  businessContextItemType: 'categoryPOV' | 'uniqueInsight' | 'companyMission' | 'feature' | 'useCase' | 'differentiator' | '';
   businessContextAssetId?: string;
   publishReason: string;
   callToAction: string;
@@ -41,20 +41,20 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
     }
   };
 
-  const handleBusinessContextTypeChange = (value: string) => {
-    onDataChange('businessContextType', value);
+  const handleBusinessContextItemTypeChange = (value: string) => {
+    onDataChange('businessContextItemType', value);
     // Clear asset selection when type changes
     onDataChange('businessContextAssetId', '');
   };
 
   // Get available assets based on selected type
   const getAvailableAssets = () => {
-    if (!data.businessContextType || productContexts.length === 0) return [];
+    if (!data.businessContextItemType || productContexts.length === 0) return [];
     
     const allAssets: Array<{id: string, name: string, description?: string}> = [];
     
     productContexts.forEach(context => {
-      if (data.businessContextType === 'feature' && context.features) {
+      if (data.businessContextItemType === 'feature' && context.features) {
         context.features.forEach(feature => {
           allAssets.push({
             id: feature.id,
@@ -62,7 +62,7 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
             description: feature.description
           });
         });
-      } else if (data.businessContextType === 'useCase' && context.useCases) {
+      } else if (data.businessContextItemType === 'useCase' && context.useCases) {
         context.useCases.forEach(useCase => {
           allAssets.push({
             id: useCase.id,
@@ -70,7 +70,7 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
             description: useCase.description
           });
         });
-      } else if (data.businessContextType === 'differentiator' && context.differentiators) {
+      } else if (data.businessContextItemType === 'differentiator' && context.differentiators) {
         context.differentiators.forEach(diff => {
           allAssets.push({
             id: diff.id,
@@ -85,8 +85,8 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
   };
 
   const availableAssets = getAvailableAssets();
-  const isProductFocused = ['feature', 'useCase', 'differentiator'].includes(data.businessContextType);
-  const isThoughtLeadershipFocused = ['categoryPOV', 'uniqueInsight', 'companyMission'].includes(data.businessContextType);
+  const isProductFocused = ['feature', 'useCase', 'differentiator'].includes(data.businessContextItemType);
+  const isThoughtLeadershipFocused = ['categoryPOV', 'uniqueInsight', 'companyMission'].includes(data.businessContextItemType);
   
   // Get selected asset details for display
   const getSelectedAssetName = () => {
@@ -213,7 +213,7 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
               </Tooltip>
             </label>
             <div className="mt-1 space-y-2">
-              <Select value={data.businessContextType} onValueChange={handleBusinessContextTypeChange}>
+              <Select value={data.businessContextItemType} onValueChange={handleBusinessContextItemTypeChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select business context type..." />
                 </SelectTrigger>
@@ -231,15 +231,15 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
               {isProductFocused && (
                 <div>
                   <label className="text-sm font-medium flex items-center mb-1">
-                    Select Specific {data.businessContextType === 'useCase' ? 'Use Case' : 
-                                   data.businessContextType === 'feature' ? 'Feature' : 
-                                   'Differentiator'} *
+                     Select Specific {data.businessContextItemType === 'useCase' ? 'Use Case' : 
+                                    data.businessContextItemType === 'feature' ? 'Feature' : 
+                                    'Differentiator'} *
                     <Tooltip>
                       <TooltipTrigger>
                         <HelpCircle className="h-3 w-3 ml-1 text-gray-400" />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p className="text-xs">Choose from your saved {data.businessContextType}s to promote in this article</p>
+                        <p className="text-xs">Choose from your saved {data.businessContextItemType}s to promote in this article</p>
                       </TooltipContent>
                     </Tooltip>
                   </label>
@@ -248,8 +248,8 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
                     onValueChange={(value) => onDataChange('businessContextAssetId', value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={`Choose a ${data.businessContextType}...`}>
-                        {getSelectedAssetName() || `Choose a ${data.businessContextType}...`}
+                       <SelectValue placeholder={`Choose a ${data.businessContextItemType}...`}>
+                         {getSelectedAssetName() || `Choose a ${data.businessContextItemType}...`}
                       </SelectValue>
                     </SelectTrigger>
                      <SelectContent className="z-50 bg-background">
@@ -269,7 +269,7 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
                   </Select>
                   {availableAssets.length === 0 && (
                     <p className="text-xs text-gray-500 mt-1">
-                      No {data.businessContextType}s found. Add some in your Account settings first.
+                      No {data.businessContextItemType}s found. Add some in your Account settings first.
                     </p>
                   )}
                 </div>
@@ -278,12 +278,12 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
               <div>
                 <label className="text-sm font-medium flex items-center mb-1">
                   {isThoughtLeadershipFocused ? 'How does this article support your ' : 'How does this article tie back to your '}
-                  {data.businessContextType === 'categoryPOV' ? 'Category Point of View' :
-                   data.businessContextType === 'uniqueInsight' ? 'Unique Insight' :
-                   data.businessContextType === 'companyMission' ? 'Mission/Vision' :
-                   data.businessContextType === 'feature' ? 'Feature' :
-                   data.businessContextType === 'useCase' ? 'Use Case' :
-                   data.businessContextType === 'differentiator' ? 'Differentiator' : 'Business Context'}? *
+                   {data.businessContextItemType === 'categoryPOV' ? 'Category Point of View' :
+                    data.businessContextItemType === 'uniqueInsight' ? 'Unique Insight' :
+                    data.businessContextItemType === 'companyMission' ? 'Mission/Vision' :
+                    data.businessContextItemType === 'feature' ? 'Feature' :
+                    data.businessContextItemType === 'useCase' ? 'Use Case' :
+                    data.businessContextItemType === 'differentiator' ? 'Differentiator' : 'Business Context Item'}? *
                   <Tooltip>
                     <TooltipTrigger>
                       <HelpCircle className="h-3 w-3 ml-1 text-gray-400" />
@@ -301,8 +301,8 @@ const StrategicAlignmentStep: FC<StrategicAlignmentStepProps> = ({
                 <Textarea 
                   placeholder={
                     isThoughtLeadershipFocused 
-                      ? `Briefly describe how this article will support and advance your ${data.businessContextType === 'categoryPOV' ? 'category perspective' : data.businessContextType === 'uniqueInsight' ? 'unique insight' : 'mission/vision'}...`
-                      : `Briefly explain how this article will subtly guide readers toward your ${data.businessContextType}...`
+                       ? `Briefly describe how this article will support and advance your ${data.businessContextItemType === 'categoryPOV' ? 'category perspective' : data.businessContextItemType === 'uniqueInsight' ? 'unique insight' : 'mission/vision'}...`
+                       : `Briefly explain how this article will subtly guide readers toward your ${data.businessContextItemType}...`
                   }
                   value={data.businessContextItem}
                   onChange={(e) => onDataChange('businessContextItem', e.target.value)}

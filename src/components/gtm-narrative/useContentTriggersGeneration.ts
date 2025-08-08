@@ -54,7 +54,7 @@ export const useContentTriggersGeneration = ({
     try {
       // Construct enhanced business context description
       let businessContextDescription = formData.businessContextItem || 'GTM strategy';
-      const contextType = formData.businessContextType;
+      const contextType = formData.businessContextItemType;
       
       if (contextType && ['feature', 'useCase', 'differentiator'].includes(contextType)) {
         businessContextDescription = `${contextType}: ${formData.businessContextItem}`;

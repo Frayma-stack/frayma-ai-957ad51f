@@ -58,7 +58,7 @@ export const useHeadlinesGeneration = ({
         main_keyword: formData.targetKeyword || 'product-led growth',
         cluster: (() => {
           let businessContextDescription = formData.businessContextItem || 'GTM strategy';
-          const contextType = formData.businessContextType;
+          const contextType = formData.businessContextItemType;
           
           if (contextType && ['feature', 'useCase', 'differentiator'].includes(contextType)) {
             businessContextDescription = `${contextType}: ${formData.businessContextItem}`;

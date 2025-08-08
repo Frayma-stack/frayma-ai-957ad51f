@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { GeneratedIdea } from '@/types/ideas';
 import ContentTypeSelectorHeader from './content-type-selector/ContentTypeSelectorHeader';
 import IdeasBankSection from './content-type-selector/IdeasBankSection';
-import ContentTypesGrid from './content-type-selector/ContentTypesGrid';
+import CategorizedContentTypesGrid from './content-type-selector/CategorizedContentTypesGrid';
 import MintNewIdeasSection from './content-type-selector/MintNewIdeasSection';
 
 export type ContentType = 'article' | 'success-story' | 'linkedin' | 'email' | 'custom' | 'product-campaign';
@@ -63,7 +63,7 @@ const ContentTypeSelector: React.FC<ContentTypeSelectorProps> = ({
 
       {/* Content Types Grid */}
       <div>
-        <ContentTypesGrid onSelect={onSelect} />
+        <CategorizedContentTypesGrid onSelect={onSelect} />
       </div>
 
       {/* Visual Separator */}

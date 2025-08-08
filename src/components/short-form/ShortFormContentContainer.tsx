@@ -165,7 +165,7 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
       mutualGoal: '',
       targetKeyword: '',
       businessContextItem: '',
-      businessContextType: '' as const,
+      businessContextItemType: '' as const,
       publishReason: '',
       callToAction: '',
       strategicSuccessStory: '',
