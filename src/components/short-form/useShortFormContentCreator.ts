@@ -44,7 +44,9 @@ export const useShortFormContentCreator = ({
     additionalContext,
     selectedIdeaId,
     triggerInput,
-    productInputs,
+    businessContextItemType,
+    businessContextItem,
+    businessContextAssetId,
     generatedContent,
     isGenerating,
     setSelectedICP,
@@ -60,10 +62,19 @@ export const useShortFormContentCreator = ({
     setAdditionalContext,
     setSelectedIdeaId,
     setTriggerInput,
-    setProductInputs,
+    setBusinessContextItemType,
+    setBusinessContextItem,
+    setBusinessContextAssetId,
     setGeneratedContent,
     setIsGenerating
-  } = useShortFormState({ contentType });
+  } = useShortFormState({ 
+    contentType,
+    scripts,
+    authors,
+    successStories,
+    ideas,
+    selectedClientId
+  });
 
   // Utility hooks
   const { getContentTypeLabel } = useContentTypeLabel(contentType);
@@ -97,7 +108,9 @@ export const useShortFormContentCreator = ({
     emailCount,
     selectedIdeaId,
     triggerInput,
-    productInputs
+    businessContextItemType,
+    businessContextItem,
+    businessContextAssetId
   });
 
   // Draft restoration
@@ -116,7 +129,9 @@ export const useShortFormContentCreator = ({
     setEmailCount,
     setSelectedIdeaId,
     setTriggerInput,
-    setProductInputs,
+    setBusinessContextItemType,
+    setBusinessContextItem,
+    setBusinessContextAssetId,
     originalHandleRestoreDraft
   });
 
@@ -181,7 +196,9 @@ export const useShortFormContentCreator = ({
     availableAnchors,
     selectedIdeaId,
     triggerInput,
-    productInputs,
+    businessContextItemType,
+    businessContextItem,
+    businessContextAssetId,
     getSelectedIdea,
     
     // Actions
@@ -199,7 +216,9 @@ export const useShortFormContentCreator = ({
     setEmailCount,
     setSelectedIdeaId,
     setTriggerInput,
-    setProductInputs,
+    setBusinessContextItemType,
+    setBusinessContextItem,
+    setBusinessContextAssetId,
     
     // Computed
     getContentTypeLabel,

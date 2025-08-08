@@ -2,7 +2,8 @@
 import { FC } from 'react';
 import { Settings, HelpCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ProductContext } from '@/types/storytelling';
+import { BusinessContext } from '@/types/storytelling';
+import BusinessContextItemSelector from '@/components/shared/BusinessContextItemSelector';
 import { SuccessStoryFlowData } from '../useSuccessStoryFlowData';
 import BasicImplementationSection from './BasicImplementationSection';
 import FeatureUsageSection from './FeatureUsageSection';
@@ -11,7 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ImplementationJourneyStepProps {
   data: SuccessStoryFlowData;
-  productContext: ProductContext | null;
+  productContext: BusinessContext | null;
   onDataChange: (field: keyof SuccessStoryFlowData, value: string | string[]) => void;
 }
 

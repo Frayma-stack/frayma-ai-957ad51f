@@ -38,7 +38,9 @@ export const useShortFormState = ({
   const [emailCount, setEmailCount] = useState(3);
   const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(null);
   const [triggerInput, setTriggerInput] = useState('');
-  const [productInputs, setProductInputs] = useState<any>({});
+  const [businessContextItemType, setBusinessContextItemType] = useState<string>('');
+  const [businessContextItem, setBusinessContextItem] = useState<string>('');
+  const [businessContextAssetId, setBusinessContextAssetId] = useState<string>('');
 
   const { toast } = useToast();
 
@@ -76,7 +78,9 @@ export const useShortFormState = ({
     setSelectedSuccessStory('');
     setSelectedIdeaId(null);
     setTriggerInput('');
-    setProductInputs({});
+    setBusinessContextItemType('');
+    setBusinessContextItem('');
+    setBusinessContextAssetId('');
     setGeneratedContent('');
   }, [selectedClientId]);
 
@@ -146,7 +150,9 @@ export const useShortFormState = ({
     availableAnchors,
     selectedIdeaId,
     triggerInput,
-    productInputs,
+    businessContextItemType,
+    businessContextItem,
+    businessContextAssetId,
     toast,
     getSelectedIdea,
     
@@ -166,6 +172,8 @@ export const useShortFormState = ({
     setEmailCount,
     setSelectedIdeaId,
     setTriggerInput,
-    setProductInputs
+    setBusinessContextItemType,
+    setBusinessContextItem,
+    setBusinessContextAssetId
   };
 };

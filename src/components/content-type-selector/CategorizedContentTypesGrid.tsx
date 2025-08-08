@@ -267,7 +267,7 @@ const CategorizedContentTypesGrid: React.FC<CategorizedContentTypesGridProps> = 
   ];
 
   const toggleCategory = (categoryId: CategoryType) => {
-    setExpandedCategory(expandedCategory === categoryId ? 'product-led' : categoryId);
+    setExpandedCategory(categoryId);
   };
 
   return (
@@ -294,7 +294,7 @@ const CategorizedContentTypesGrid: React.FC<CategorizedContentTypesGridProps> = 
 
             {/* Category Content */}
             {isExpanded && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pl-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 pl-4">
                 {category.items.map((item, index) => (
                   <ContentTypeCard
                     key={`${category.id}-${index}`}

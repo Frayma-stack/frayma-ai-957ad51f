@@ -9,7 +9,7 @@ import TriggerInputField from './TriggerInputField';
 import ICPAuthorSelectors from './ICPAuthorSelectors';
 import NarrativeAnchorSelector from './NarrativeAnchorSelector';
 import ContentOptionsSection from './ContentOptionsSection';
-import ProductContextSection from './ProductContextSection';
+import BusinessContextItemSelector from '../shared/BusinessContextItemSelector';
 import { useNarrativeAnchorLogic } from './useNarrativeAnchorLogic';
 import { ContentType } from './types';
 
@@ -37,7 +37,9 @@ interface ShortFormMainContentProps {
   triggerInput: string;
   selectedIdeaId: string | null;
   availableAnchors: {value: string, label: string}[];
-  productInputs: any;
+  businessContextItemType: string;
+  businessContextItem: string;
+  businessContextAssetId?: string;
   isGenerating: boolean;
   isFormValid: boolean;
   getContentTypeLabel: () => string;
@@ -55,7 +57,9 @@ interface ShortFormMainContentProps {
   onAdditionalContextChange: (context: string) => void;
   onTriggerInputChange: (trigger: string) => void;
   onIdeaSelect: (ideaId: string | null) => void;
-  onProductInputsChange: (inputs: any) => void;
+  onBusinessContextItemTypeChange: (type: string) => void;
+  onBusinessContextItemChange: (item: string) => void;
+  onBusinessContextAssetIdChange?: (assetId: string) => void;
   onGenerateContent: () => void;
 }
 
@@ -82,7 +86,9 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
   triggerInput,
   selectedIdeaId,
   availableAnchors,
-  productInputs,
+  businessContextItemType,
+  businessContextItem,
+  businessContextAssetId,
   isGenerating,
   isFormValid,
   getContentTypeLabel,
@@ -99,7 +105,9 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
   onAdditionalContextChange,
   onTriggerInputChange,
   onIdeaSelect,
-  onProductInputsChange,
+  onBusinessContextItemTypeChange,
+  onBusinessContextItemChange,
+  onBusinessContextAssetIdChange,
   onGenerateContent
 }) => {
   const {
@@ -147,13 +155,17 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
         onToggleItemSelection={toggleItemSelection}
       />
 
-      {currentProductContext && (
-        <ProductContextSection
-          productContext={currentProductContext}
-          productInputs={productInputs}
-          onProductInputsChange={onProductInputsChange}
-        />
-      )}
+      <BusinessContextItemSelector
+        businessContextItemType={businessContextItemType as any}
+        businessContextItem={businessContextItem}
+        businessContextAssetId={businessContextAssetId}
+        productContexts={currentProductContext ? [currentProductContext] : []}
+        onBusinessContextItemTypeChange={onBusinessContextItemTypeChange}
+        onBusinessContextItemChange={onBusinessContextItemChange}
+        onBusinessContextAssetIdChange={onBusinessContextAssetIdChange}
+        label="Business Context Item to Promote"
+        required={true}
+      />
       
       <ContentOptionsSection
         contentType={contentType}
