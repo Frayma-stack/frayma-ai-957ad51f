@@ -116,8 +116,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     canProceedFromStep2,
     canProceedFromStep3,
     generateContentTriggers,
-    generateHeadlines,
-    generatePhaseContent
+    generateHeadlines
   });
 
   // Auto-save GTM content
@@ -131,19 +130,18 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
   const handleProceedToAutoCrafting = async (config: AutoCraftingConfig) => {
     console.log('🚀 Proceeding to auto-crafting with config:', config);
     // Store the auto-crafting configuration
-    const configWithPhase = { ...config, currentPhase: 'intro' as const };
-    handleInputChange('autoCraftingConfig', configWithPhase);
+    handleInputChange('autoCraftingConfig', config);
     
+    // Transition to PLS editor mode - content will be generated there
+    setContentPhase('editor');
+  };
+
+  const handleGenerateFullArticle = async () => {
     try {
-      // Generate all phases at once for a complete draft
-      await generatePhaseContent('intro');
-      await generatePhaseContent('body');
-      await generatePhaseContent('conclusion');
-      
-      // Transition to PLS editor mode with complete content
-      setContentPhase('editor');
+      // Generate the complete article using the new unified prompt
+      await generatePhaseContent('full_article');
     } catch (error) {
-      console.error('Error during auto-crafting:', error);
+      console.error('Error generating full article:', error);
     }
   };
 
@@ -224,7 +222,7 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
               onDataChange={handleInputChange}
               onContentPhaseNext={handleContentPhaseNext}
               onBackToOutline={handleBackToOutline}
-              onRegenerate={generatePhaseContent}
+              onGenerateFullArticle={handleGenerateFullArticle}
               onProceedToAutoCrafting={handleProceedToAutoCrafting}
               onRegenerateContentTriggers={async () => {
                 await generateContentTriggers();

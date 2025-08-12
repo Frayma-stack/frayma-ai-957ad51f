@@ -10,7 +10,6 @@ interface UseGTMNavigationProps {
   canProceedFromStep3: () => boolean;
   generateContentTriggers: () => Promise<void>;
   generateHeadlines: () => Promise<void>;
-  generatePhaseContent: (phase: 'intro' | 'body' | 'conclusion') => Promise<void>;
 }
 
 export const useGTMNavigation = ({
@@ -19,12 +18,11 @@ export const useGTMNavigation = ({
   canProceedFromStep2,
   canProceedFromStep3,
   generateContentTriggers,
-  generateHeadlines,
-  generatePhaseContent
+  generateHeadlines
 }: UseGTMNavigationProps) => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
-  const [contentPhase, setContentPhase] = useState<'outline' | 'intro' | 'body' | 'conclusion' | 'editor'>('outline');
+  const [contentPhase, setContentPhase] = useState<'outline' | 'editor'>('outline');
 
   const handleNext = async () => {
     if (currentStep === 2) {
@@ -55,41 +53,12 @@ export const useGTMNavigation = ({
       await generateHeadlines();
     }
     
-    if (currentStep === 4) {
-      if (!formData.selectedHeadline) {
-        toast({
-          title: "Please select a headline",
-          description: "Choose one of the generated headlines or add your own.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      setContentPhase('intro');
-      await generatePhaseContent('intro');
-      return;
-    }
-    
     setCurrentStep(prev => prev + 1);
   };
 
-  const handleContentPhaseNext = async () => {
-    switch (contentPhase) {
-      case 'intro':
-        setContentPhase('body');
-        await generatePhaseContent('body');
-        break;
-      case 'body':
-        setContentPhase('conclusion');
-        await generatePhaseContent('conclusion');
-        break;
-      case 'conclusion':
-        toast({
-          title: "Content Creation Complete!",
-          description: "Your GTM narrative has been successfully generated. You can now export or continue editing."
-        });
-        break;
-    }
+  const handleContentPhaseNext = () => {
+    // This is no longer used with the unified approach
+    console.log('Content phase navigation no longer used');
   };
 
   const handlePrevious = () => {

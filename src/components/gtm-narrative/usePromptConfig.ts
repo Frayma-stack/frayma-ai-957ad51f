@@ -3,18 +3,14 @@ import { useMemo } from 'react';
 import { headlinesPrompt } from './prompts/headlinesPrompt';
 import { contentTriggersPrompt } from './prompts/contentTriggersPrompt';
 import { outlinePrompt } from './prompts/outlinePrompt';
-import { introPrompt } from './prompts/introPrompt';
-import { bodyPrompt } from './prompts/bodyPrompt';
-import { conclusionPrompt } from './prompts/conclusionPrompt';
+import { fullArticlePrompt } from './prompts/fullArticlePrompt';
 
 export const usePromptConfig = () => {
   const promptTemplates = useMemo(() => ({
     'frayma_headlines': headlinesPrompt,
     'content_triggers': contentTriggersPrompt,
     'frayma_outline': outlinePrompt,
-    'intro_generation': introPrompt,
-    'body_generation': bodyPrompt,
-    'conclusion_generation': conclusionPrompt
+    'full_article_generation': fullArticlePrompt
   }), []);
 
   const interpolateTemplate = (templateId: string, variables: Record<string, any>): string => {

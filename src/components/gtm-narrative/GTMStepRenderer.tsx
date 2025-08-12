@@ -8,12 +8,11 @@ import StrategicAlignmentStep from './StrategicAlignmentStep';
 import TargetReaderResonanceStep from './TargetReaderResonanceStep';
 import ContentDiscoveryTriggersStep from './ContentDiscoveryTriggersStep';
 import EnhancedContentOutlineStep from './EnhancedContentOutlineStep';
-import ContentGenerationEditor from './ContentGenerationEditor';
 import NewPLSEditor from '../pls-editor/NewPLSEditor';
 
 interface GTMStepRendererProps {
   currentStep: number;
-  contentPhase: 'outline' | 'intro' | 'body' | 'conclusion' | 'editor';
+  contentPhase: 'outline' | 'editor';
   formData: FormData;
   scripts: ICPStoryScript[];
   successStories: CustomerSuccessStory[];
@@ -26,7 +25,7 @@ interface GTMStepRendererProps {
   onDataChange: (field: keyof FormData, value: any) => void;
   onContentPhaseNext: () => void;
   onBackToOutline: () => void;
-  onRegenerate: (phase: 'intro' | 'body' | 'conclusion') => Promise<void>;
+  onGenerateFullArticle: () => Promise<void>;
   onProceedToAutoCrafting: (config: AutoCraftingConfig) => void;
   onRegenerateContentTriggers?: () => Promise<void>;
   onSaveAsDraft?: () => Promise<void>;
@@ -47,7 +46,7 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
   onDataChange,
   onContentPhaseNext,
   onBackToOutline,
-  onRegenerate,
+  onGenerateFullArticle,
   onProceedToAutoCrafting,
   onRegenerateContentTriggers,
   onSaveAsDraft
@@ -91,30 +90,9 @@ const GTMStepRenderer: FC<GTMStepRendererProps> = ({
         autoCraftingConfig={formData.autoCraftingConfig!}
         isGenerating={isGenerating}
         onDataChange={onDataChange}
-        onGeneratePhase={async (phase) => {
-          // Update the current phase in the config
-          if (formData.autoCraftingConfig) {
-            const updatedConfig = { ...formData.autoCraftingConfig, currentPhase: phase };
-            onDataChange('autoCraftingConfig', updatedConfig);
-          }
-          await onRegenerate(phase);
-        }}
+        onGeneratePhase={onGenerateFullArticle}
         onBackToOutline={onBackToOutline}
         onSaveAsDraft={onSaveAsDraft!}
-      />
-    );
-  }
-
-  if (contentPhase !== 'outline') {
-    return (
-      <ContentGenerationEditor
-        contentPhase={contentPhase as 'intro' | 'body' | 'conclusion'}
-        formData={formData}
-        isGenerating={isGenerating}
-        onContentPhaseNext={onContentPhaseNext}
-        onBackToOutline={onBackToOutline}
-        onRegenerate={onRegenerate}
-        onDataChange={onDataChange}
       />
     );
   }
