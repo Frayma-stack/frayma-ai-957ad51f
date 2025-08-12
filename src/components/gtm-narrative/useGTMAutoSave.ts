@@ -28,6 +28,9 @@ export const useGTMAutoSave = ({
       formData.narrativeAnchors?.length > 0 ||
       formData.outlineSections?.length > 0 ||
       formData.autoCraftingConfig ||
+      formData.generatedIntro ||
+      formData.generatedBody ||
+      formData.generatedConclusion ||
       generatedContent
     );
 
@@ -45,20 +48,34 @@ export const useGTMAutoSave = ({
     // Debounced auto-save
     const timeoutId = setTimeout(() => {
       try {
-        const autoSaveKey = `gtm_article_draft_${selectedClientId || 'default'}_${Date.now()}`;
+        // Use a consistent key that includes the selected headline or timestamp for uniqueness
+        const draftIdentifier = formData.selectedHeadline 
+          ? formData.selectedHeadline.slice(0, 30).replace(/[^a-zA-Z0-9]/g, '_')
+          : Date.now().toString();
+        const autoSaveKey = `gtm_article_draft_${selectedClientId || 'default'}_${draftIdentifier}`;
+        
         localStorage.setItem(autoSaveKey, JSON.stringify(autoSaveData));
         
-        // Keep only the latest 3 drafts to avoid storage bloat
+        // Keep only the latest 5 drafts to avoid storage bloat
         const existingKeys = Object.keys(localStorage).filter(key => 
           key.startsWith(`gtm_article_draft_${selectedClientId || 'default'}_`)
         );
         
-        if (existingKeys.length > 3) {
-          // Sort by timestamp and remove oldest
-          existingKeys.sort().slice(0, -3).forEach(key => {
-            localStorage.removeItem(key);
-          });
+        if (existingKeys.length > 5) {
+          // Sort by timestamp (extract from key) and remove oldest
+          existingKeys
+            .sort((a, b) => {
+              const timeA = a.split('_').pop() || '0';
+              const timeB = b.split('_').pop() || '0';
+              return parseInt(timeA) - parseInt(timeB);
+            })
+            .slice(0, -5)
+            .forEach(key => {
+              localStorage.removeItem(key);
+            });
         }
+        
+        console.log('Auto-saved GTM draft:', autoSaveKey);
       } catch (error) {
         console.error('Failed to auto-save GTM article draft:', error);
       }

@@ -243,12 +243,14 @@ const EnhancedContentOutlineStep: FC<EnhancedContentOutlineStepProps> = ({
           headlineOptions={data.headlineOptions}
         />
 
-        {/* Article Author Selection - Moved here for better flow */}
-        <ArticleAuthorSelector
-          selectedAuthor={selectedAuthor}
-          authors={authors}
-          onAuthorChange={onAuthorChange}
-        />
+        {/* Article Author Selection - Show only after headline is selected */}
+        {data.selectedHeadline && (
+          <ArticleAuthorSelector
+            selectedAuthor={selectedAuthor}
+            authors={authors}
+            onAuthorChange={onAuthorChange}
+          />
+        )}
         
         <ThreeRsFormulaCard />
 

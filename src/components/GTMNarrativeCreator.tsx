@@ -128,16 +128,23 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     generatedContent: formData.generatedIntro || formData.generatedBody || formData.generatedConclusion || ''
   });
 
-  const handleProceedToAutoCrafting = (config: AutoCraftingConfig) => {
+  const handleProceedToAutoCrafting = async (config: AutoCraftingConfig) => {
     console.log('🚀 Proceeding to auto-crafting with config:', config);
-    // Store the auto-crafting configuration with current phase tracking
+    // Store the auto-crafting configuration
     const configWithPhase = { ...config, currentPhase: 'intro' as const };
     handleInputChange('autoCraftingConfig', configWithPhase);
-    // Start by generating the intro
-    generatePhaseContent('intro').then(() => {
-      // Transition to PLS editor mode
+    
+    try {
+      // Generate all phases at once for a complete draft
+      await generatePhaseContent('intro');
+      await generatePhaseContent('body');
+      await generatePhaseContent('conclusion');
+      
+      // Transition to PLS editor mode with complete content
       setContentPhase('editor');
-    });
+    } catch (error) {
+      console.error('Error during auto-crafting:', error);
+    }
   };
 
   const handleSaveAsDraft = async () => {
