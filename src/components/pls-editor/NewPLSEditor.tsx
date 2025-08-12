@@ -52,23 +52,51 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
   const editorRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // Combine all content into a single document
+  // Combine all content into a single document with proper HTML formatting
   const fullContent = [
     formData.generatedIntro || '',
     formData.generatedBody || '',
     formData.generatedConclusion || ''
   ].filter(section => section.trim()).join('\n\n');
 
+  // Convert markdown-style content to HTML for proper rendering
+  const formatContentForEditor = (content: string) => {
+    if (!content) return '';
+    
+    return content
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/^(.)/gm, '<p>$1')
+      .replace(/(.+)$/gm, '$1</p>')
+      .replace(/<p><\/p>/g, '')
+      .replace(/<p><h([2-4])>/g, '<h$1>')
+      .replace(/<\/h([2-4])><\/p>/g, '</h$1>');
+  };
+
+  const formattedContent = formatContentForEditor(fullContent);
+
   // Handle content changes
   const handleContentChange = (content: string) => {
     // Store current content in undo stack
-    if (fullContent !== content) {
-      setUndoStack(prev => [...prev, fullContent]);
+    if (formattedContent !== content) {
+      setUndoStack(prev => [...prev, formattedContent]);
       setRedoStack([]);
     }
     
+    // Convert HTML back to plain text and update content
+    const plainTextContent = content
+      .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1')
+      .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1')
+      .replace(/<h4[^>]*>(.*?)<\/h4>/gi, '#### $1')
+      .replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n\n')
+      .replace(/<[^>]*>/g, '')
+      .replace(/\n\n+/g, '\n\n')
+      .trim();
+    
     // Update the content directly - we'll handle section splitting elsewhere if needed
-    onDataChange('generatedIntro', content);
+    onDataChange('generatedIntro', plainTextContent);
     onDataChange('generatedBody', '');
     onDataChange('generatedConclusion', '');
     
@@ -150,18 +178,24 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
   const handleUndo = () => {
     if (undoStack.length > 0) {
       const previousContent = undoStack[undoStack.length - 1];
-      setRedoStack(prev => [fullContent, ...prev]);
+      setRedoStack(prev => [formattedContent, ...prev]);
       setUndoStack(prev => prev.slice(0, -1));
-      handleContentChange(previousContent);
+      if (editorRef.current) {
+        editorRef.current.innerHTML = previousContent;
+        handleContentChange(previousContent);
+      }
     }
   };
 
   const handleRedo = () => {
     if (redoStack.length > 0) {
       const nextContent = redoStack[0];
-      setUndoStack(prev => [...prev, fullContent]);
+      setUndoStack(prev => [...prev, formattedContent]);
       setRedoStack(prev => prev.slice(1));
-      handleContentChange(nextContent);
+      if (editorRef.current) {
+        editorRef.current.innerHTML = nextContent;
+        handleContentChange(nextContent);
+      }
     }
   };
 
@@ -239,26 +273,36 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
 
           {/* Center-aligned Paper-like Editor */}
           <div className="max-w-2xl mx-auto bg-background shadow-lg rounded-lg border border-border min-h-[700px]">
-            <div
-              ref={editorRef}
-              contentEditable
-              suppressContentEditableWarning
-              className="pls-editor-content focus:outline-none p-12"
-              style={{
-                fontSize: '17px',
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 400,
-                lineHeight: '24px',
-                minHeight: '600px',
-                whiteSpace: 'pre-wrap'
-              }}
-              onInput={handleEditorInput}
-              onFocus={handleEditorFocus}
-              onBlur={handleEditorBlur}
-              onMouseUp={handleTextSelection}
-              onKeyUp={handleTextSelection}
-              dangerouslySetInnerHTML={{ __html: fullContent }}
-            />
+            <div className="pls-editor-content focus:outline-none p-12">
+              {/* Working Title for GTM Articles */}
+              {!autoCraftingConfig.isShortForm && formData.selectedHeadline && (
+                <div className="mb-8 pb-6 border-b border-border">
+                  <h1 className="text-2xl font-bold text-foreground leading-tight">
+                    {formData.selectedHeadline}
+                  </h1>
+                </div>
+              )}
+              
+              <div
+                ref={editorRef}
+                contentEditable
+                suppressContentEditableWarning
+                style={{
+                  fontSize: '17px',
+                  fontFamily: 'Inter, sans-serif',
+                  fontWeight: 400,
+                  lineHeight: '24px',
+                  minHeight: '600px',
+                  outline: 'none'
+                }}
+                onInput={handleEditorInput}
+                onFocus={handleEditorFocus}
+                onBlur={handleEditorBlur}
+                onMouseUp={handleTextSelection}
+                onKeyUp={handleTextSelection}
+                dangerouslySetInnerHTML={{ __html: formattedContent }}
+              />
+            </div>
           </div>
         </div>
       </div>
