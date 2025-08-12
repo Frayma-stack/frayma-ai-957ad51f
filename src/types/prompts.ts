@@ -17,7 +17,8 @@ export type PromptCategory =
   | 'outline_sections'
   | 'intro_generation'
   | 'body_generation'
-  | 'conclusion_generation';
+  | 'conclusion_generation'
+  | 'full_article_generation';
 
 export interface PromptConfig {
   contentTriggers: PromptTemplate;
