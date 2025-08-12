@@ -1,4 +1,3 @@
-
 import { FC } from 'react';
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,9 +36,7 @@ interface ShortFormMainContentProps {
   triggerInput: string;
   selectedIdeaId: string | null;
   availableAnchors: {value: string, label: string}[];
-  businessContextItemType: string;
-  businessContextItem: string;
-  businessContextAssetId?: string;
+  productInputs: any;
   isGenerating: boolean;
   isFormValid: boolean;
   getContentTypeLabel: () => string;
@@ -57,9 +54,7 @@ interface ShortFormMainContentProps {
   onAdditionalContextChange: (context: string) => void;
   onTriggerInputChange: (trigger: string) => void;
   onIdeaSelect: (ideaId: string | null) => void;
-  onBusinessContextItemTypeChange: (type: string) => void;
-  onBusinessContextItemChange: (item: string) => void;
-  onBusinessContextAssetIdChange?: (assetId: string) => void;
+  onProductInputsChange: (value: any) => void;
   onGenerateContent: () => void;
 }
 
@@ -86,9 +81,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
   triggerInput,
   selectedIdeaId,
   availableAnchors,
-  businessContextItemType,
-  businessContextItem,
-  businessContextAssetId,
+  productInputs,
   isGenerating,
   isFormValid,
   getContentTypeLabel,
@@ -105,9 +98,7 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
   onAdditionalContextChange,
   onTriggerInputChange,
   onIdeaSelect,
-  onBusinessContextItemTypeChange,
-  onBusinessContextItemChange,
-  onBusinessContextAssetIdChange,
+  onProductInputsChange,
   onGenerateContent
 }) => {
   const {
@@ -156,13 +147,13 @@ const ShortFormMainContent: FC<ShortFormMainContentProps> = ({
       />
 
       <BusinessContextItemSelector
-        businessContextItemType={businessContextItemType as any}
-        businessContextItem={businessContextItem}
-        businessContextAssetId={businessContextAssetId}
+        businessContextItemType={productInputs?.selectedFeatures ? 'feature' : ''}
+        businessContextItem={productInputs?.customPOV || ''}
+        businessContextAssetId={''}
         productContexts={currentProductContext ? [currentProductContext] : []}
-        onBusinessContextItemTypeChange={onBusinessContextItemTypeChange}
-        onBusinessContextItemChange={onBusinessContextItemChange}
-        onBusinessContextAssetIdChange={onBusinessContextAssetIdChange}
+        onBusinessContextItemTypeChange={(type) => onProductInputsChange({...productInputs, selectedType: type})}
+        onBusinessContextItemChange={(item) => onProductInputsChange({...productInputs, customPOV: item})}
+        onBusinessContextAssetIdChange={() => {}}
         label="Business Context Item to Promote"
         required={true}
       />

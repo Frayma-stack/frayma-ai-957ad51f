@@ -54,9 +54,7 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
     availableAnchors,
     selectedIdeaId,
     triggerInput,
-    businessContextItemType,
-    businessContextItem,
-    businessContextAssetId,
+    productInputs,
     getSelectedIdea,
     
     // Actions
@@ -74,9 +72,7 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
     setEmailCount,
     setSelectedIdeaId,
     setTriggerInput,
-    setBusinessContextItemType,
-    setBusinessContextItem,
-    setBusinessContextAssetId,
+    setProductInputs,
     
     // Computed
     getContentTypeLabel,
@@ -268,9 +264,7 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
           triggerInput={triggerInput}
           selectedIdeaId={selectedIdeaId}
           availableAnchors={availableAnchors}
-          businessContextItemType={businessContextItemType}
-          businessContextItem={businessContextItem}
-          businessContextAssetId={businessContextAssetId}
+          productInputs={productInputs}
           isGenerating={isGenerating}
           isFormValid={isFormValid()}
           getContentTypeLabel={getContentTypeLabel}
@@ -287,9 +281,7 @@ const ShortFormContentContainer: FC<ShortFormContentContainerProps> = ({
           onAdditionalContextChange={setAdditionalContext}
           onTriggerInputChange={setTriggerInput}
           onIdeaSelect={setSelectedIdeaId}
-          onBusinessContextItemTypeChange={setBusinessContextItemType}
-          onBusinessContextItemChange={setBusinessContextItem}
-          onBusinessContextAssetIdChange={setBusinessContextAssetId}
+          onProductInputsChange={setProductInputs}
           onGenerateContent={handleGenerateContent}
         />
       </Card>

@@ -159,7 +159,7 @@ const ContentGenerationEditor: FC<ContentGenerationEditorProps> = ({
       {/* Navigation */}
       <div className="flex justify-between pt-4">
         <Button variant="outline" onClick={onBackToOutline}>
-          Back to Outline
+          Back to Drafts
         </Button>
         
         <Button 

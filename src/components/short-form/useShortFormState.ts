@@ -5,9 +5,10 @@ import { NarrativeSelection } from '@/types/storytelling';
 
 interface UseShortFormStateProps {
   contentType: ContentType;
+  selectedClientId?: string;
 }
 
-export const useShortFormState = ({ contentType }: UseShortFormStateProps) => {
+export const useShortFormState = ({ contentType, selectedClientId }: UseShortFormStateProps) => {
   // Core form state
   const [selectedICP, setSelectedICP] = useState<string>('');
   const [selectedAuthor, setSelectedAuthor] = useState<string>('');

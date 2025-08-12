@@ -12,6 +12,7 @@ import GTMStepRenderer from './gtm-narrative/GTMStepRenderer';
 import { useGTMNarrativeData } from './gtm-narrative/useGTMNarrativeData';
 import { useGTMNarrativeGeneration } from './gtm-narrative/useGTMNarrativeGeneration';
 import { useGTMNavigation } from './gtm-narrative/useGTMNavigation';
+import { useGTMAutoSave } from './gtm-narrative/useGTMAutoSave';
 import { useIdeaSummarization } from '@/hooks/useIdeaSummarization';
 import { AutoCraftingConfig } from './gtm-narrative/outline/AutoCraftingReadinessDialog';
 
@@ -117,6 +118,14 @@ const GTMNarrativeCreator: FC<GTMNarrativeCreatorProps> = ({
     generateContentTriggers,
     generateHeadlines,
     generatePhaseContent
+  });
+
+  // Auto-save GTM content
+  useGTMAutoSave({
+    formData,
+    contentPhase,
+    selectedClientId: selectedClientId || undefined,
+    generatedContent: formData.generatedIntro || formData.generatedBody || formData.generatedConclusion || ''
   });
 
   const handleProceedToAutoCrafting = (config: AutoCraftingConfig) => {
