@@ -18,10 +18,10 @@ Your task is to craft a complete, long-form GTM narrative article that follows t
 
 ## CONTENT ARCHITECTURE TO FOLLOW
 
-**Article Structure:**
-{{article_outline}}
+**Article Structure with Section-Specific Context:**
+{{section_specific_context}}
 
-**Word Count Guidelines:**
+**Overall Word Count Guidelines:**
 - Introduction: {{intro_length}} words
 - Main Body: {{body_length}} words  
 - Conclusion: {{conclusion_length}} words
@@ -69,15 +69,18 @@ Your task is to craft a complete, long-form GTM narrative article that follows t
 
 ## BUSINESS CONTEXT INTEGRATION
 
-**Available Business Assets:**
-{{business_context_items}}
-
-**Integration Instructions:**
-- Weave Business Context Items naturally into the narrative flow
-- Connect features/capabilities to real customer pain points
+**Section-Specific Integration Guidelines:**
+Use the section-specific context provided above to:
+- Weave the exact Business Context Items linked to each header naturally into that section's narrative
+- Incorporate the specific Author POVs assigned to each section to show personal insight and experience
+- Reference the credibility elements linked to each section to establish authority on that particular topic
+- Connect features/capabilities to real customer pain points within the context of each section's focus
 - Use storytelling to demonstrate value rather than listing features
-- Include specific use cases that align with the target ICP's needs
-- Reference differentiators when contrasting with alternative approaches
+- Include specific use cases that align with the target ICP's needs for each section
+- Reference differentiators when contrasting with alternative approaches, as specified per section
+
+**General Business Assets (for additional context):**
+{{business_context_items}}
 
 ## VISUAL CONTENT PLACEHOLDERS
 
@@ -96,12 +99,13 @@ Include 3-5 visual placeholders that would enhance the narrative and demonstrate
 - Use narrative techniques to draw readers in
 
 **Main Body Section ({{body_length}} words):**
-- Structure around the key headers from the Content Architecture
-- Develop each point with supporting evidence, examples, or mini-stories
-- Naturally integrate Business Context Items as solutions or enablers
+- Structure around the specific H2/H3/H4 headers from the Content Architecture
+- For each section, integrate the exact Business Context Items, Author POVs, and credibility elements assigned to that header
+- Develop each point with supporting evidence, examples, or mini-stories that reflect the author's linked experience
 - Address the search queries and problem statements identified
-- Maintain narrative flow while providing actionable insights
+- Maintain narrative flow while providing actionable insights specific to each section's focus
 - Include relevant visual placeholders to show rather than tell
+- Ensure smooth transitions between sections while maintaining section-specific context
 
 **Conclusion Section ({{conclusion_length}} words):**
 - Summarize the key transformation or opportunity presented
@@ -130,15 +134,17 @@ Include 3-5 visual placeholders that would enhance the narrative and demonstrate
 
 **Critical Success Factors:**
 - Every paragraph should serve the 3Rs Formula progression
-- Product integration feels natural, not forced
-- Author's personal experience and beliefs shine through
+- Product integration feels natural, not forced, and aligns with section-specific assignments
+- Author's personal experience and beliefs shine through, especially the POVs linked to each section
+- Section-specific Business Context Items are seamlessly woven into their assigned headers
 - Target ICP feels understood and guided toward transformation
 - Visual elements enhance understanding and engagement
 - CTA feels like a logical next step in the reader's journey
+- Each section reflects the specific credibility elements and context assigned to it
 
 Generate the complete article now, following all guidelines above.`,
   variables: [
-    'article_outline', 'intro_length', 'body_length', 'conclusion_length',
+    'section_specific_context', 'intro_length', 'body_length', 'conclusion_length',
     'trigger_or_thesis', 'mutual_goal', 'main_keyword', 'cluster', 'why_publish', 'cta',
     'main_icp', 'journey_stage', 'broader_audience', 'motivation', 'anchors_and_types', 'success_story_summary',
     'related_keywords_list', 'search_queries_list', 'problem_statements_list',
