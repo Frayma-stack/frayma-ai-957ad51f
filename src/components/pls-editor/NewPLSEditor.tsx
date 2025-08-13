@@ -53,11 +53,20 @@ const NewPLSEditor: FC<NewPLSEditorProps> = ({
   const { toast } = useToast();
 
   // Combine all content into a single document with proper HTML formatting
-  const fullContent = [
+  // Check for full article content first (new unified generation), then fallback to sections
+  const fullContent = formData.generatedBody || [
     formData.generatedIntro || '',
-    formData.generatedBody || '',
     formData.generatedConclusion || ''
   ].filter(section => section.trim()).join('\n\n');
+
+  // Debug logging to help troubleshoot content loading
+  console.log('PLS Editor - Content state:', {
+    hasGeneratedBody: !!formData.generatedBody,
+    hasGeneratedIntro: !!formData.generatedIntro,
+    hasGeneratedConclusion: !!formData.generatedConclusion,
+    fullContentLength: fullContent.length,
+    autoCraftingConfig
+  });
 
   // Convert markdown-style content to HTML for proper rendering
   const formatContentForEditor = (content: string) => {
