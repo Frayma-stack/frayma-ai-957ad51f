@@ -66,9 +66,21 @@ export const usePhaseContentGeneration = ({
       
     } catch (error) {
       console.error(`Error generating ${phase} content:`, error);
+      
+      // Enhanced error logging to help debug the issue
+      console.error('Full error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        phase,
+        formData: {
+          hasAutoCraftingConfig: !!formData.autoCraftingConfig,
+          hasTrigger: !!formData.ideaTrigger,
+          hasHeadline: !!formData.selectedHeadline
+        }
+      });
+      
       toast({
         title: "Generation failed",
-        description: `Failed to generate ${phase} content. Please try again.`,
+        description: `Failed to generate ${phase} content. Error: ${error instanceof Error ? error.message : String(error)}`,
         variant: "destructive"
       });
     } finally {
